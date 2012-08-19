@@ -31,40 +31,42 @@ void ScaledSliderWidget::setScale(double vmin, double vmax, double step) {
 void ScaledSliderWidget::verticalLayout(QWidget *parent) {
     QGridLayout * l=new QGridLayout(parent);
 
-   // l->setColumnMinimumWidth(0,(int)horizontalOrientation_minWidth*3/4);
-    //l->setColumnMinimumWidth(1,(int)horizontalOrientation_minWidth*1/4);
-
     //Define spacing variable for layout geometry
     l->setSpacing(spacing);
     l->setColumnStretch(0,2);
-    l->setColumnStretch(1,2);
+    l->setColumnStretch(1,3);
 
-    m_slider->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-    l->addWidget(m_slider,0,0,3,1);
+    m_slider->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    m_slider->setMinimumWidth((1.0/2.0)*verticalOrientation_minWidth);
+    l->addWidget(m_slider,0,0,3,1,Qt::AlignCenter);
     m_slider->setHandleSize(4, 10);
 
     m_sliderName=new QLabel("Name, a very long name",parent);
     m_sliderName->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
+    m_slider->setMinimumWidth((1.0/2.0)*verticalOrientation_minWidth);
     m_sliderName->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
     l->addWidget(m_sliderName,0,1,1,4);
 
     m_magnitudeMeasure=new QLabel("(Value)",parent);
     m_magnitudeMeasure->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
+    m_slider->setMinimumWidth((1.0/2.0)*verticalOrientation_minWidth);
     m_magnitudeMeasure->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
     l->addWidget(m_magnitudeMeasure,1,1,1,4);
 
     m_magnitudeValue=new QLineEdit(parent);
     m_magnitudeValue->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
     m_magnitudeValue->setDisabled(true);
-    m_magnitudeValue->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
+    m_magnitudeValue->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Minimum);
+    m_magnitudeValue->setMinimumWidth((1.0/2.0)*verticalOrientation_minWidth);
+    m_magnitudeValue->setMaximumHeight((1.0/7.0)*verticalOrientation_minHeight);
     l->addWidget(m_magnitudeValue,2,1,1,4);
 
     QFont f=m_slider->font();
     f.setPointSize(fontBasePoint);
     this->setFont(f);
     this->setLayout(l);
-    this->setMinimumWidth(verticalOrientation_minWidth);
-    this->setMinimumHeight(verticalOrientation_minWidth);
+    //this->setMinimumWidth(verticalOrientation_minWidth);
+    //this->setMinimumHeight(verticalOrientation_minHeight);
 }
 
 void ScaledSliderWidget::horizontalLayout(QWidget *parent)
@@ -72,37 +74,45 @@ void ScaledSliderWidget::horizontalLayout(QWidget *parent)
     QGridLayout * l=new QGridLayout(parent);
 
     l->setSpacing(spacing);
-    l->setColumnStretch(0,3);
+    l->setColumnStretch(0,2);
     l->setColumnStretch(1,2);
+    l->setColumnStretch(2,1);
 
     //Define spacing variable for layout geometry
     m_slider->setHandleSize(4, 8);
-    m_slider->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-    l->addWidget(m_slider,1,0,Qt::AlignTop);
+    m_slider->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
+    m_slider->setMinimumWidth((2.0/3.0)*horizontalOrientation_minWidth);
+    l->addWidget(m_slider,1,0,1,2,Qt::AlignCenter);
+
 
     m_sliderName=new QLabel("Name, a very long name",parent);
     m_sliderName->setAlignment(Qt::AlignCenter);
     m_sliderName->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-    l->addWidget(m_sliderName,0,0,Qt::AlignHCenter|Qt::AlignBottom);
+    m_sliderName->setMinimumWidth((2.0/3.0)*horizontalOrientation_minWidth);
+    l->addWidget(m_sliderName,0,0,1,2,Qt::AlignCenter);
 
     m_magnitudeMeasure=new QLabel("(Value)",parent);
     m_magnitudeMeasure->setAlignment(Qt::AlignCenter);
     m_magnitudeMeasure->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-    l->addWidget(m_magnitudeMeasure,0,1,Qt::AlignHCenter|Qt::AlignBottom);
+    m_magnitudeMeasure->setMinimumWidth((1.0/3.0)*horizontalOrientation_minWidth);
+    l->addWidget(m_magnitudeMeasure,0,3,1,1,Qt::AlignCenter);
 
     m_magnitudeValue=new QLineEdit(parent);
     m_magnitudeValue->setAlignment(Qt::AlignCenter);
     m_magnitudeValue->setDisabled(true);
-    m_magnitudeValue->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
-    l->addWidget(m_magnitudeValue,1,1,Qt::AlignTop);
+    m_magnitudeValue->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Minimum);
+    m_magnitudeValue->setMinimumWidth((1.0/20.0)*horizontalOrientation_minWidth);
+    m_magnitudeValue->setMaximumHeight((1.0/4.0)*horizontalOrientation_minHeight);
+    l->addWidget(m_magnitudeValue,1,3,1,1,Qt::AlignCenter);
 
     QFont f=m_slider->font();
     f.setPointSize(fontBasePoint);
     this->setFont(f);
     this->setLayout(l);
-    this->setMinimumWidth(horizontalOrientation_minWidth);
-    this->setMinimumHeight(horizontalOrientation_minHeight);
-
+   // this->setMinimumWidth(horizontalOrientation_minWidth);
+    //this->setMinimumHeight(horizontalOrientation_minHeight);
+  //  this->setMaximumWidth(horizontalOrientation_minWidth);
+  //  this->setMaximumHeight(horizontalOrientation_minHeight);
 }
 
 void ScaledSliderWidget::updateValue(double val) {
