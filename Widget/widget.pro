@@ -1,0 +1,47 @@
+#-------------------------------------------------
+#
+# Project created by QtCreator 2012-07-09T21:14:22
+#
+#-------------------------------------------------
+
+TARGET = widget
+TEMPLATE = lib
+
+DEFINES += WIDGET_LIBRARY
+
+INCLUDEPATH += /usr/local/qwt-6.0.1/lib/qwt.framework/Headers/
+INCLUDEPATH += ./ScaledSliderWidget
+INCLUDEPATH += ./ComboBoxWidgetColor
+INCLUDEPATH += ./ComboBoxLabelWidget
+INCLUDEPATH += ./QwtHelpers
+INCLUDEPATH += ./SelectCurveWindowDialog
+
+LIBS += -F/usr/local/qwt-6.0.1/lib/ -framework qwt
+LIBS += -L./ScaledSliderWidget -lscaledsliderwidget.o -lscaledslider.o -lmoc_scaledslider.o -lmoc_scaledsliderwidget.o
+LIBS += -L./ComboBoxWidgetColor -lmoc_comboboxwidgetcolor.o -lcomboboxwidgetcolor.o
+LIBS += -L./ComboBoxLabelWidget -lmoc_comboboxnamewidget.o -lcomboboxnamewidget.o
+LIBS += -L./QwtHelpers -lzmp_handler.o -lqwthelpers.o -lmoc_zmp_handler.o
+LIBS += -L./SelectCurveWindowDialog -lselectcurvewindowdialog.o -lmoc_selectcurvewindowdialog.o -lselectcurvewindowhelper.o -lmoc_selectcurvewindowhelper.o
+
+SOURCES +=
+
+HEADERS +=
+
+symbian {
+    MMP_RULES += EXPORTUNFROZEN
+    TARGET.UID3 = 0xE121D869
+    TARGET.CAPABILITY = 
+    TARGET.EPOCALLOWDLLDATA = 1
+    addFiles.sources = widget.dll
+    addFiles.path = !:/sys/bin
+    DEPLOYMENT += addFiles
+}
+
+unix:!symbian {
+    maemo5 {
+        target.path = /opt/usr/lib
+    } else {
+        target.path = /usr/lib
+    }
+    INSTALLS += target
+}
