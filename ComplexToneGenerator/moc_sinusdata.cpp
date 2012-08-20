@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'sinusdata.h'
 **
-** Created: Mon Aug 20 18:03:04 2012
+** Created: Mon Aug 20 23:33:24 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_SinusData[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       6,   14, // methods
+       7,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -37,6 +37,7 @@ static const uint qt_meta_data_SinusData[] = {
      165,  155,   10,   10, 0x0a,
      195,  186,   10,   10, 0x0a,
      218,  215,   10,   10, 0x0a,
+     251,  239,   10,   10, 0x0a,
 
        0        // eod
 };
@@ -48,6 +49,7 @@ static const char qt_meta_stringdata_SinusData[] = {
     "setFrequency(double)\0initPhase\0"
     "setInitPhase(double)\0duration\0"
     "setDuration(double)\0t0\0setStartTime(double)\0"
+    "maxDuration\0maxDurationChanged(double)\0"
 };
 
 void SinusData::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -62,6 +64,7 @@ void SinusData::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 3: _t->setInitPhase((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 4: _t->setDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 5: _t->setStartTime((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 6: _t->maxDurationChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -99,9 +102,9 @@ int SinusData::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 6)
+        if (_id < 7)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 6;
+        _id -= 7;
     }
     return _id;
 }

@@ -3,9 +3,9 @@
 GenericTimeData::GenericTimeData()
 {
     m_MaxDuration=MAX_TIME;
-    m_Min_t0=MIN_TIME;
     //m_t1=m_t0+m_duration;
     m_SR=48000;
+    m_MaxDuration=MAX_TIME;
     m_t=NULL;
     m_s=NULL;
     m_curve=NULL;
@@ -18,7 +18,6 @@ GenericTimeData::GenericTimeData()
     m_allControl=NULL;
     this->createBaseControl();
     this->setMinStartTimeAndMaxDuration(m_Min_t0,m_MaxDuration);
-    //this->updateData();
 }
 
 GenericTimeData::GenericTimeData(double t0, double duration, double SRGen)

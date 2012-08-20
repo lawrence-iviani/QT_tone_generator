@@ -9,8 +9,8 @@ class SinusData : public GenericTimeData
     Q_OBJECT
 public:
     SinusData();
-    SinusData(double t0, double maxDuration, double SRGen);
-    SinusData(double frequency, double amplitude, double t0, double maxDuration, double SRGen);
+    SinusData(double duration, double SRGen);
+    SinusData(double duration,double SRGen, double amplitude, double frequency );
     virtual ~SinusData();
     static double deg2rad(double deg) {return deg*M_PI/180.0;}
     double amplitude() {return m_amplitude;}
@@ -28,7 +28,8 @@ public slots:
     void setInitPhase(double initPhase);//In degree
     void setDuration(double duration);//Set the duration of this signal, it will be clipped by the base class if the min or max time values are outside the limits of the base class
     void setStartTime(double t0);//Set the min start time of this signal, it will be clipped by the base class if the min or max time values are outside the limits of the base class
-
+    //void minStartTimeChanged(double t0);//Call this slot if some lower time limit is changed in the base class.
+    void maxDurationChanged(double maxDuration);//Call this slot if the duration of the whole signal is changed in the base class.
 
 protected:
     virtual void recalc();

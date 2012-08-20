@@ -6,18 +6,25 @@ SinusData::SinusData() :
     m_initPhase=0;
     m_frequency=5;
     m_amplitude=1.0;
+    m_duration=1.5;
+    m_t0=2.1;
     this->initControl();
     this->setExtendedControl(m_widgetControl);
+    connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(maxDurationChanged(double)));
     this->updateData();
 }
 
-SinusData::SinusData(double t0, double duration, double SRGen) :
-    GenericTimeData(t0,duration,SRGen) {
+SinusData::SinusData(double duration, double SRGen) :
+    GenericTimeData(duration,SRGen)
+{
     m_initPhase=0;
     m_frequency=5;
     m_amplitude=1.0;
+    //Init a figure with the same duration and start time  t0 of base class
+    m_duration=duration;
     this->initControl();
     this->setExtendedControl(m_widgetControl);
+    connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(maxDurationChanged(double)));
     this->updateData();
 }
 
@@ -25,13 +32,17 @@ SinusData::~SinusData() {
 
 }
 
-SinusData::SinusData(double frequency, double amplitude, double t0, double duration, double SRGen) :
-    GenericTimeData(t0,duration,SRGen)
+SinusData::SinusData( double duration, double SRGen,double amplitude, double frequency) :
+    GenericTimeData(duration,SRGen)
 {
     m_initPhase=0;
     m_frequency=frequency;
     m_amplitude=amplitude;
+    //Init a figure with the same duration and start time  t0 of base class
+    m_duration=duration;
     this->initControl();
+    this->setExtendedControl(m_widgetControl);
+    connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(signalLimitsChanged()));
     this->updateData();
 }
 
@@ -40,8 +51,21 @@ void SinusData::recalc() {
     double * m_sinus=this->getSignalData();
     double * t=this->getTimeData();
     double phase=SinusData::deg2rad(this->initPhase());
-    int n_dw=m_t0*this->sampleRateGeneration();
-    int n_up=(m_t0+m_duration)*this->sampleRateGeneration();
+
+    int n_dw=(this->startTime()-this->minStartTime())*this->sampleRateGeneration();
+    qDebug()<< "----------------";
+    qDebug() << "m_t0=" << this->startTime() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
+    Q_ASSERT( n_dw >=0);
+    Q_ASSERT(n_dw <=this->sampleNumber());
+
+    int n_up=(m_duration)*this->sampleRateGeneration();
+    qDebug() << "m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
+    Q_ASSERT( n_up>=0 );
+    Q_ASSERT(n_up<=this->sampleNumber());
+
+
+    qDebug() << "m_min_t0=" << this->minStartTime() << " m_max_Duration=" << this->maxDuration() << " SR=" << this->sampleRateGeneration();
+    qDebug() << "NSample=" << this->sampleNumber() << " n_dw=" << n_dw << " n_up=" << n_up;
     for (int n=n_dw; n < n_up; n++) {
         m_sinus[n]=this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase);
     }
@@ -71,25 +95,35 @@ void SinusData::setInitPhase(double initPhase) {
 }
 
 void SinusData::setDuration(double duration) {
+    double maxtime=this->minStartTime()+this->maxDuration();//The max time allowed by the base class
+
     if (duration < 0) {
         m_duration=0;
-    } else if ((m_t0 + duration) > this->maxEndTime() ) {
-        m_duration=this->maxEndTime()-m_t0;
+    } else if ((this->startTime()+this->duration()) > maxtime) {
+        m_duration=maxtime-this->startTime();
     } else {
-        m_duration=this->maxDuration();
+        m_duration=duration;
     }
-     this->updateData();
+    this->updateData();
 }
 
 void SinusData::setStartTime(double t0) {
+    double maxtime=this->minStartTime()+this->maxDuration();//The max time allowed by the base class
+
     if (t0 < this->minStartTime()) {
         m_t0=this->minStartTime();
-    } else if (t0>this->maxEndTime()) {
-        m_t0=this->maxEndTime();
+    } else if ( t0>maxtime) {
+        m_t0=maxtime;
     } else {
         m_t0=t0;
     }
     this->setDuration(m_duration);
+}
+
+void SinusData::maxDurationChanged(double maxDuration) {
+    if ( (this->startTime()+this->duration()) >maxDuration ) {
+        this->setDuration(maxDuration-this->startTime());
+    }
 }
 
 void SinusData::initControl() {

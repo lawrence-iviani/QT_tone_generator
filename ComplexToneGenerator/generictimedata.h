@@ -20,7 +20,7 @@ class GenericTimeData : public QObject
     Q_OBJECT
 public:
     GenericTimeData();
-    GenericTimeData(double t0, double maxDuration, double SRGen);
+    GenericTimeData(double maxDuration, double SRGen);
     virtual ~GenericTimeData();
     QwtPlotCurve * getCurve() {return m_curve;}
     QwtCPointerData * getData() {return m_data;}
@@ -29,7 +29,7 @@ public:
     double maxDuration(){return m_MaxDuration;}
     double sampleRateGeneration() {return m_SR;}
     double minStartTime(){return m_Min_t0;}
-    double maxEndTime(){return m_Max_t1;}
+   // double maxEndTime(){return m_Max_t1;}
     long int sampleNumber() {return m_sample;}
     bool isEnabled() { return m_curve->isVisible();}
     QString name() {return  m_name;}
@@ -38,12 +38,15 @@ public:
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
 signals:
      void dataUpdated();
+     void maxDurationUpdate(double maxDuration);
+    // void minStartTimeUpdate(double t0);
+    // void maxEndTimeUpdate(double t1);
 public slots:
      void setMaxDuration(double maxDuration);//Set the max duration of this signal
      void setSampleRate(double SR);//Set the SR of this signal
-     void setMinStartTimeAndMaxDuration(double t0, double maxDuration);//Set the min start time and the max duration of the signal.
-     void setMinStartTime(double t0);//Set the min start timethis signal.
-     void setMaxEndTime(double t1);//Set the max start time  of this signal.
+     //void setMinStartTimeAndMaxDuration(double t0, double maxDuration);//Set the min start time and the max duration of the signal.
+     //void setMinStartTime(double t0);//Set the min start timethis signal.
+     //void setMaxEndTime(double t1);//Set the max start time  of this signal.
      void setName(QString name);
      void setColor(QColor color);
      void setEnableCurve(bool enable);
@@ -68,8 +71,8 @@ private:
      QwtCPointerData * m_data;
      QString m_name;
      double m_MaxDuration;//Duration, it's possible modify any of the parameter duration,t0,t1 to make modification to the length of the signal
-     double m_Min_t0;//Start time to make calculation, The min value of time allowable constrained externally.
-     double m_Max_t1;//End time to make calculation, The max value of time allowable constrained externally.
+     double m_Min_t0;//Start time to make calculation, The min value of time allowable constrained externally. This is NOT YET USED!! MAY BE BUGGED, it's always used as 0.0
+     //double m_Max_t1;//End time to make calculation, The max value of time allowable constrained externally.
      double m_SR;//The SR
      double * m_t;//The pointer to array of base time
      double * m_s;//The pointer to array of the signal

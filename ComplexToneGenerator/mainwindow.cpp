@@ -96,11 +96,11 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     GenericTimeData * retval=NULL;
 
     if (QString::compare(selectCurveHelper->getSelectedDataCurve().name,"Base curve") ) {
-        retval=new GenericTimeData(1.1,7.9,96000);
+        retval=new GenericTimeData(7.9,96000);
         return retval;
     }
     if (QString::compare(selectCurveHelper->getSelectedDataCurve().name,"Tone generator") ) {
-        SinusData * s=new SinusData(1.1,7.9,96000);
+        SinusData * s=new SinusData(7.9,96000.0);
         s->setAmplitudeFrequencyAndPhase(0.707,10,90);
         retval=(GenericTimeData*) s;
         return retval;
