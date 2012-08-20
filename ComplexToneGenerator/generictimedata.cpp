@@ -2,10 +2,9 @@
 
 GenericTimeData::GenericTimeData()
 {
-    m_MaxDuration=MAX_TIME;
-    //m_t1=m_t0+m_duration;
     m_SR=48000;
     m_MaxDuration=MAX_TIME;
+    m_Min_t0=0.0;
     m_t=NULL;
     m_s=NULL;
     m_curve=NULL;
@@ -17,15 +16,15 @@ GenericTimeData::GenericTimeData()
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
     m_allControl=NULL;
     this->createBaseControl();
-    this->setMinStartTimeAndMaxDuration(m_Min_t0,m_MaxDuration);
+    //this->setMinStartTimeAndMaxDuration(m_Min_t0,m_MaxDuration);
+    this->updateData();
 }
 
-GenericTimeData::GenericTimeData(double t0, double duration, double SRGen)
+GenericTimeData::GenericTimeData(double maxDuration, double SRGen)
 {   
-    //m_t0=t0;
-    //m_duration=duration;
-   // m_t1=m_t0+m_duration;
     m_SR=SRGen;
+    m_MaxDuration=maxDuration;
+    m_Min_t0=0.0;
     m_t=NULL;
     m_s=NULL;
     m_curve=NULL;
@@ -37,7 +36,6 @@ GenericTimeData::GenericTimeData(double t0, double duration, double SRGen)
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
     m_allControl=NULL;
     this->createBaseControl();
-    this->setMinStartTimeAndMaxDuration(t0,duration);
     this->updateData();
 }
 
@@ -95,26 +93,28 @@ void GenericTimeData::deleteAllData() {
     }
 }
 
-void GenericTimeData::setMinStartTimeAndMaxDuration(double t0, double duration) {
-    m_Min_t0=t0;
-    if (duration < 0) {
-        m_MaxDuration=0;
-    } else {
-        m_MaxDuration=duration;
-    }
-    m_Max_t1=m_MaxDuration+m_Min_t0;
-    this->updateData();
-}
+//void GenericTimeData::setMinStartTimeAndMaxDuration(double t0, double duration) {
+//    m_Min_t0=t0;
+//    if (duration < 0) {
+//        m_MaxDuration=0;
+//    } else {
+//        m_MaxDuration=duration;
+//    }
+//    m_Max_t1=m_MaxDuration+m_Min_t0;
+//    emit maxDurationUpdate(m_MaxDuration);
+//    this->updateData();
+//}
 
-void GenericTimeData::setMinStartTime(double t0) {
-    if (t0 > m_Max_t1 ) {
-        m_Min_t0=m_Max_t1;
-    } else {
-        m_Min_t0=t0;
-    }
-    m_Max_t1=m_MaxDuration+m_Min_t0;
-    this->updateData();
-}
+//void GenericTimeData::setMinStartTime(double t0) {
+//    if (t0 > m_Max_t1 ) {
+//        m_Min_t0=m_Max_t1;
+//    } else {
+//        m_Min_t0=t0;
+//    }
+//    m_Max_t1=m_MaxDuration+m_Min_t0;
+//    emit minStartTimeUpdate(m_Min_t0);
+//    this->updateData();
+//}
 
 void GenericTimeData::setMaxDuration(double  maxDuration) {
     if (maxDuration < 0) {
@@ -122,19 +122,21 @@ void GenericTimeData::setMaxDuration(double  maxDuration) {
     } else {
         m_MaxDuration=maxDuration;
     }
-     m_Max_t1=m_MaxDuration+m_Min_t0;
+    // m_Max_t1=m_MaxDuration+m_Min_t0;
+     emit maxDurationUpdate(m_MaxDuration);
      this->updateData();
  }
 
-void GenericTimeData::setMaxEndTime(double  t1) {
-    if (t1 < m_Min_t0) {
-        m_Max_t1=m_Min_t0;
-    } else {
-        m_Max_t1=t1;
-    }
-     m_MaxDuration=m_Max_t1-m_Min_t0;
-     this->updateData();
- }
+//void GenericTimeData::setMaxEndTime(double  t1) {
+//    if (t1 < m_Min_t0) {
+//        m_Max_t1=m_Min_t0;
+//    } else {
+//        m_Max_t1=t1;
+//    }
+//     m_MaxDuration=m_Max_t1-m_Min_t0;
+//     emit maxEndTimeUpdate(m_MaxDuration);
+//     this->updateData();
+// }
 
 void GenericTimeData::setTimeData(double * t, long int len){
     Q_ASSERT(len==m_sample);
