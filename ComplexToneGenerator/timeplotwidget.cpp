@@ -4,6 +4,8 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
     PlotWidget(parent,  xScaleType,  yScaleType)
 {
     m_SR=BASE_SR;
+    m_t0=BASE_T0;
+    m_duration=BASE_DURATION;
     this->createControlWidget();
 }
 
@@ -12,6 +14,15 @@ void TimePlotWidget::setSampleRate(double SR) {
     GenericTimeData * gtd=this->getTimeData(n);
     while (gtd!=NULL) {
         gtd->setSampleRate(SR);
+        gtd=this->getTimeData(++n);
+    }
+}
+
+void TimePlotWidget::setDuration(double duration) {
+    int n=0;
+    GenericTimeData * gtd=this->getTimeData(n);
+    while (gtd!=NULL) {
+        gtd->setMaxDuration(duration);
         gtd=this->getTimeData(++n);
     }
 }
@@ -27,8 +38,6 @@ void TimePlotWidget::createControlWidget() {
     //Adding Option button control, this remains always visible
     m_baseControl.toggleButtonOptionEnable=new QPushButton("Time plot option");
     m_baseControl.toggleButtonOptionEnable->setCheckable(true);
-    //m_baseControl.toggleButtonOptionEnable->setMaximumWidth( (2.0/3.0)*CONTROL_WIDTH);
-    //m_baseControl.toggleButtonOptionEnable->setMinimumWidth( (2.0/3.0)*CONTROL_WIDTH);
     m_baseControl.toggleButtonOptionEnable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     l->addWidget(m_baseControl.toggleButtonOptionEnable ,1,Qt::AlignHCenter|Qt::AlignTop);
     connect(m_baseControl.toggleButtonOptionEnable,SIGNAL(clicked()),this,SLOT(timeOptionPressed()) );
@@ -52,21 +61,28 @@ void TimePlotWidget::initBaseControlWidget() {
 //    //Adding the ZMP button control
     m_baseControl.toggleButtonZMP = new QPushButton( "Pan");
     m_baseControl.toggleButtonZMP->setCheckable(true);
-   // m_baseControl.toggleButtonZMP->setMaximumWidth( (1.0/3.0)*CONTROL_WIDTH);
-   // m_baseControl.toggleButtonZMP->setMinimumWidth( (1.0/3.0)*CONTROL_WIDTH);
-   // m_baseControl.toggleButtonZMP->setSizePolicy(QSizePolicy::Fixed,QSizePolicy::Fixed);
     lBase->addWidget( m_baseControl.toggleButtonZMP,1,Qt::AlignHCenter|Qt::AlignTop);
     connect(m_baseControl.toggleButtonZMP,SIGNAL(pressed()),this,SLOT(zoomPanButtonPressed()));
 
     //set Sample rate
-    m_baseControl.slider_SR = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_baseControl.slider_SR->setScale(24000,96000,12000);
-    m_baseControl.slider_SR->setValue(m_SR);
-    m_baseControl.slider_SR->setName("SR Generation");
-    m_baseControl.slider_SR->setMeasureUnit("Hz");
-    m_baseControl.slider_SR->setFont(f);
-    lBase->addWidget( m_baseControl.slider_SR,1,Qt::AlignHCenter|Qt::AlignTop);
-    connect(m_baseControl.slider_SR,SIGNAL(valueChanged(double)),this,SLOT(setSampleRate(double)));
+    m_baseControl.sliderSR = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_baseControl.sliderSR->setScale(24000,96000,12000);
+    m_baseControl.sliderSR->setValue(m_SR);
+    m_baseControl.sliderSR->setName("SR Generation");
+    m_baseControl.sliderSR->setMeasureUnit("Hz");
+    m_baseControl.sliderSR->setFont(f);
+    lBase->addWidget( m_baseControl.sliderSR,1,Qt::AlignHCenter|Qt::AlignTop);
+    connect(m_baseControl.sliderSR,SIGNAL(valueChanged(double)),this,SLOT(setSampleRate(double)));
+
+    //set duration
+    m_baseControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_baseControl.sliderDuration->setScale(0,10,0.1);
+    m_baseControl.sliderDuration->setValue(m_duration);
+    m_baseControl.sliderDuration->setName("Duration Generated file");
+    m_baseControl.sliderDuration->setMeasureUnit("Sec.");
+    m_baseControl.sliderDuration->setFont(f);
+    lBase->addWidget( m_baseControl.sliderDuration,1, Qt::AlignHCenter|Qt::AlignTop);
+    connect(m_baseControl.sliderDuration,SIGNAL(valueChanged(double)),this,SLOT(setDuration(double)));
 
     this->timeOptionPressed();
 }

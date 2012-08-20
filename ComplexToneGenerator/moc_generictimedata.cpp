@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'generictimedata.h'
 **
-** Created: Mon Aug 20 15:42:51 2012
+** Created: Mon Aug 20 18:03:03 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -34,28 +34,29 @@ static const uint qt_meta_data_GenericTimeData[] = {
       17,   16,   16,   16, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      40,   31,   16,   16, 0x0a,
-      63,   60,   16,   16, 0x0a,
-      97,   85,   16,   16, 0x0a,
-     139,  136,   16,   16, 0x0a,
-     163,  160,   16,   16, 0x0a,
-     187,  182,   16,   16, 0x0a,
-     210,  204,   16,   16, 0x0a,
-     234,  227,   16,   16, 0x0a,
-     255,   16,   16,   16, 0x0a,
-     269,   16,   16,   16, 0x0a,
-     282,   16,   16,   16, 0x0a,
-     300,   16,   16,   16, 0x0a,
+      43,   31,   16,   16, 0x0a,
+      69,   66,   16,   16, 0x0a,
+     106,   91,   16,   16, 0x0a,
+     154,  151,   16,   16, 0x0a,
+     181,  178,   16,   16, 0x0a,
+     208,  203,   16,   16, 0x0a,
+     231,  225,   16,   16, 0x0a,
+     255,  248,   16,   16, 0x0a,
+     276,   16,   16,   16, 0x0a,
+     290,   16,   16,   16, 0x0a,
+     303,   16,   16,   16, 0x0a,
+     321,   16,   16,   16, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_GenericTimeData[] = {
-    "GenericTimeData\0\0dataUpdated()\0duration\0"
-    "setDuration(double)\0SR\0setSampleRate(double)\0"
-    "t0,duration\0setStartTimeAndDuration(double,double)\0"
-    "t0\0setStartTime(double)\0t1\0"
-    "setEndTime(double)\0name\0setName(QString)\0"
+    "GenericTimeData\0\0dataUpdated()\0"
+    "maxDuration\0setMaxDuration(double)\0"
+    "SR\0setSampleRate(double)\0t0,maxDuration\0"
+    "setMinStartTimeAndMaxDuration(double,double)\0"
+    "t0\0setMinStartTime(double)\0t1\0"
+    "setMaxEndTime(double)\0name\0setName(QString)\0"
     "color\0setColor(QColor)\0enable\0"
     "setEnableCurve(bool)\0nameUpdated()\0"
     "updateData()\0showBaseControl()\0"
@@ -69,11 +70,11 @@ void GenericTimeData::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         GenericTimeData *_t = static_cast<GenericTimeData *>(_o);
         switch (_id) {
         case 0: _t->dataUpdated(); break;
-        case 1: _t->setDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 1: _t->setMaxDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 2: _t->setSampleRate((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 3: _t->setStartTimeAndDuration((*reinterpret_cast< double(*)>(_a[1])),(*reinterpret_cast< double(*)>(_a[2]))); break;
-        case 4: _t->setStartTime((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 5: _t->setEndTime((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 3: _t->setMinStartTimeAndMaxDuration((*reinterpret_cast< double(*)>(_a[1])),(*reinterpret_cast< double(*)>(_a[2]))); break;
+        case 4: _t->setMinStartTime((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 5: _t->setMaxEndTime((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 6: _t->setName((*reinterpret_cast< QString(*)>(_a[1]))); break;
         case 7: _t->setColor((*reinterpret_cast< QColor(*)>(_a[1]))); break;
         case 8: _t->setEnableCurve((*reinterpret_cast< bool(*)>(_a[1]))); break;

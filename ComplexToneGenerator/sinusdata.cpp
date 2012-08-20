@@ -36,14 +36,16 @@ SinusData::SinusData(double frequency, double amplitude, double t0, double durat
 }
 
 void SinusData::recalc() {
-    double * m_sinus=new double[this->sampleNumber()];
+    //double * m_sinus=new double[this->sampleNumber()];
+    double * m_sinus=this->getSignalData();
     double * t=this->getTimeData();
     double phase=SinusData::deg2rad(this->initPhase());
-
-    for (int n=0; n < this->sampleNumber(); n++) {
+    int n_dw=m_t0*this->sampleRateGeneration();
+    int n_up=(m_t0+m_duration)*this->sampleRateGeneration();
+    for (int n=n_dw; n < n_up; n++) {
         m_sinus[n]=this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase);
     }
-   this->setSignalData(m_sinus,this->sampleNumber());
+   //this->setSignalData(m_sinus,this->sampleNumber());
 }
 
 void SinusData::setAmplitudeFrequencyAndPhase(double amplitude,double frequency,double initPhase) {
@@ -68,6 +70,28 @@ void SinusData::setInitPhase(double initPhase) {
     this->updateData();
 }
 
+void SinusData::setDuration(double duration) {
+    if (duration < 0) {
+        m_duration=0;
+    } else if ((m_t0 + duration) > this->maxEndTime() ) {
+        m_duration=this->maxEndTime()-m_t0;
+    } else {
+        m_duration=this->maxDuration();
+    }
+     this->updateData();
+}
+
+void SinusData::setStartTime(double t0) {
+    if (t0 < this->minStartTime()) {
+        m_t0=this->minStartTime();
+    } else if (t0>this->maxEndTime()) {
+        m_t0=this->maxEndTime();
+    } else {
+        m_t0=t0;
+    }
+    this->setDuration(m_duration);
+}
+
 void SinusData::initControl() {
 
     //setting font base dimension
@@ -88,10 +112,6 @@ void SinusData::initControl() {
     m_dataControl.sliderFrequency->setName("Freq.");
     m_dataControl.sliderFrequency->setMeasureUnit("Sec.");
     m_dataControl.sliderFrequency->setFont(f);
-   // m_dataControl.sliderFrequency->setMaximumWidth( CONTROL_WIDTH);
-    //m_dataControl.sliderFrequency->setMinimumWidth( CONTROL_WIDTH/2);
-   // m_dataControl.sliderFrequency->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
-   // m_dataControl.sliderFrequency->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_dataControl.sliderFrequency,SIGNAL(valueChanged(double)),this,SLOT(setFrequency(double)));
 
     //set amplitude
@@ -101,9 +121,6 @@ void SinusData::initControl() {
     m_dataControl.sliderAmplitude->setName("Amplitude");
     m_dataControl.sliderAmplitude->setMeasureUnit("0-1");
     m_dataControl.sliderAmplitude->setFont(f);
-  //  m_dataControl.sliderAmplitude->setMaximumWidth( CONTROL_WIDTH);
-  //  m_dataControl.sliderAmplitude->setMinimumWidth( CONTROL_WIDTH/2);
-  //  m_dataControl.sliderAmplitude->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_dataControl.sliderAmplitude,SIGNAL(valueChanged(double)),this,SLOT(setAmplitude(double)));
 
     //set init phase
@@ -113,13 +130,30 @@ void SinusData::initControl() {
     m_dataControl.sliderInitPhase->setName("Phase");
     m_dataControl.sliderInitPhase->setMeasureUnit("deg.");
     m_dataControl.sliderInitPhase->setFont(f);
-  //  m_dataControl.sliderInitPhase->setMaximumWidth( CONTROL_WIDTH);
-  //  m_dataControl.sliderInitPhase->setMinimumWidth( CONTROL_WIDTH/2);
-  //  m_dataControl.sliderInitPhase->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_dataControl.sliderInitPhase,SIGNAL(valueChanged(double)),this,SLOT(setInitPhase(double)));
+
+    //set duration
+    m_dataControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_dataControl.sliderDuration->setScale(0,10,0.1);//TODO: this needs to be set from an external part, ie the base class
+    m_dataControl.sliderDuration->setValue(m_duration);
+    m_dataControl.sliderDuration->setName("Duration");
+    m_dataControl.sliderDuration->setMeasureUnit("Sec.");
+    m_dataControl.sliderDuration->setFont(f);
+    connect(m_dataControl.sliderDuration,SIGNAL(valueChanged(double)),this,SLOT(setDuration(double)));
+
+    //set t0
+    m_dataControl.slider_t0 = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_dataControl.slider_t0->setScale(-10,+10,0.1);
+    m_dataControl.slider_t0->setValue(m_t0);
+    m_dataControl.slider_t0->setName("Start Time");
+    m_dataControl.slider_t0->setMeasureUnit("Sec.");
+    m_dataControl.slider_t0->setFont(f);
+    connect(m_dataControl.slider_t0,SIGNAL(valueChanged(double)),this,SLOT(setStartTime(double)));
 
     //Lay out all the control);
     l->addWidget(m_dataControl.sliderFrequency,1);//,Qt::AlignCenter);
     l->addWidget(m_dataControl.sliderAmplitude,1);//,Qt::AlignCenter);
     l->addWidget(m_dataControl.sliderInitPhase,1);//,Qt::AlignCenter);
+    l->addWidget(m_dataControl.sliderDuration,1);
+    l->addWidget(m_dataControl.slider_t0,1);
 }

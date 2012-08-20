@@ -20,16 +20,16 @@ class GenericTimeData : public QObject
     Q_OBJECT
 public:
     GenericTimeData();
-    GenericTimeData(double t0, double duration, double SRGen);
+    GenericTimeData(double t0, double maxDuration, double SRGen);
     virtual ~GenericTimeData();
     QwtPlotCurve * getCurve() {return m_curve;}
     QwtCPointerData * getData() {return m_data;}
     QWidget * getControlWidget() {return m_allControl; }// Give back a QWidget that can be used to control this class.
 
-    double duration(){return m_duration;}
+    double maxDuration(){return m_MaxDuration;}
     double sampleRateGeneration() {return m_SR;}
-    double startTime(){return m_t0;}
-    double endTime(){return m_t1;}
+    double minStartTime(){return m_Min_t0;}
+    double maxEndTime(){return m_Max_t1;}
     long int sampleNumber() {return m_sample;}
     bool isEnabled() { return m_curve->isVisible();}
     QString name() {return  m_name;}
@@ -39,11 +39,11 @@ public:
 signals:
      void dataUpdated();
 public slots:
-     void setDuration(double duration);
-     void setSampleRate(double SR);
-     void setStartTimeAndDuration(double t0, double duration);
-     void setStartTime(double t0);
-     void setEndTime(double t1);
+     void setMaxDuration(double maxDuration);//Set the max duration of this signal
+     void setSampleRate(double SR);//Set the SR of this signal
+     void setMinStartTimeAndMaxDuration(double t0, double maxDuration);//Set the min start time and the max duration of the signal.
+     void setMinStartTime(double t0);//Set the min start timethis signal.
+     void setMaxEndTime(double t1);//Set the max start time  of this signal.
      void setName(QString name);
      void setColor(QColor color);
      void setEnableCurve(bool enable);
@@ -67,20 +67,21 @@ private:
      QwtPlotCurve * m_curve;
      QwtCPointerData * m_data;
      QString m_name;
-     double m_duration;//Duration, it's possible modify any of the parameter duration,t0,t1 to make modification to the length of the signal
-     double m_t0;//Start time to make calculation
-     double m_t1;//End time to make calculation
-     double m_SR;
+     double m_MaxDuration;//Duration, it's possible modify any of the parameter duration,t0,t1 to make modification to the length of the signal
+     double m_Min_t0;//Start time to make calculation, The min value of time allowable constrained externally.
+     double m_Max_t1;//End time to make calculation, The max value of time allowable constrained externally.
+     double m_SR;//The SR
      double * m_t;//The pointer to array of base time
      double * m_s;//The pointer to array of the signal
      long int m_sample;//Number of sample of m_s and m_t
+
+     double static const MIN_TIME=0.0;
+     double static const MAX_TIME=5.0;
 
      void initBaseControlWidget();//Create only the base control
      struct {
        QWidget * baseWidget;
        QLineEdit * lineName;
-       ScaledSliderWidget * slider_duration;
-       ScaledSliderWidget * slider_t0;
        ComboBoxWidgetColor * comboColor;
        QCheckBox * checkBoxEnableCurve;
        QPushButton * toggleButtonOptionControl;

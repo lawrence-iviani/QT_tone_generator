@@ -34,10 +34,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->scrollAreaLayout->addWidget(m_plotTime->getControlWidget(),1,Qt::AlignTop);
     ui->scrollAreaLayout->addWidget(m_plotFreq->getControlWidget(),1,Qt::AlignTop);
 
-   // m_plotTime->getControlWidget()->setParent(ui->scrollAreaWidgetContents);//TODO: questo setParent va re-implementato per tutti i widget nella istanza s?
-   // m_plotTime->getControlWidget()->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-  //  ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-
     m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
 
     m_lastIndexCurve=-1;
@@ -63,6 +59,7 @@ void MainWindow::newCurve() {
     SelectCurveWindowDialog * selectDialog=new SelectCurveWindowDialog(selectCurveHelper,this);
     selectDialog->exec();
     GenericTimeData * s=this->decodeSelectedCurve(selectCurveHelper);
+    //TODO: missing the sync between the curve and the controls!!!
 
     s->setColor(Qt::black);
     s->setName(name);
