@@ -308,18 +308,6 @@ void GenericTimeData::initBaseControlWidget() {
     //m_baseControl.slider_t0->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_baseControl.slider_t0,SIGNAL(valueChanged(double)),this,SLOT(setStartTime(double)));
 
-    //set Sample rate
-    m_baseControl.slider_SR = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_baseControl.slider_SR->setScale(24000,96000,12000);
-    m_baseControl.slider_SR->setValue(m_SR);
-    m_baseControl.slider_SR->setName("SR Generation");
-    m_baseControl.slider_SR->setMeasureUnit("Hz");
-    m_baseControl.slider_SR->setFont(f);
-   // m_baseControl.slider_SR->setMaximumWidth( CONTROL_WIDTH);
-   // m_baseControl.slider_SR->setMinimumWidth( CONTROL_WIDTH/2);
-   // m_baseControl.slider_SR->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
-    connect(m_baseControl.slider_SR,SIGNAL(valueChanged(double)),this,SLOT(setSampleRate(double)));
-
     //Lay out all the controls
     l->addWidget(_nameLabel,1,Qt::AlignCenter);
     l->addWidget(m_baseControl.lineName,1,Qt::AlignCenter);
@@ -327,7 +315,7 @@ void GenericTimeData::initBaseControlWidget() {
     l->addWidget(m_baseControl.comboColor,1,Qt::AlignCenter);
     l->addWidget(m_baseControl.slider_duration,1,Qt::AlignCenter);
     l->addWidget(m_baseControl.slider_t0,1,Qt::AlignCenter);
-    l->addWidget(m_baseControl.slider_SR,1,Qt::AlignCenter);
+
 }
 
 

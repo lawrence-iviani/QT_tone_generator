@@ -79,7 +79,6 @@ private:
      struct {
        QWidget * baseWidget;
        QLineEdit * lineName;
-       ScaledSliderWidget * slider_SR;
        ScaledSliderWidget * slider_duration;
        ScaledSliderWidget * slider_t0;
        ComboBoxWidgetColor * comboColor;

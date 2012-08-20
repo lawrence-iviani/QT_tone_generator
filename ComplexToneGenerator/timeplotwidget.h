@@ -12,20 +12,22 @@ public:
 signals:
     
 public slots:
-    
-private slots:
+    void setSampleRate(double SR);
     void timeOptionPressed();
     void zoomPanButtonPressed();
 
 private:
     void createControlWidget();//Create the the base contro
     void initBaseControlWidget();
+    static int const BASE_SR=48000;
 
+    double m_SR;
     struct {
       QWidget * baseControlWidget;
       ZMP_Handler * m_zmp;//Handle zoom, panel etc
       QPushButton * toggleButtonOptionEnable;
       QPushButton * toggleButtonZMP;//Zoom Move Pan enable button
+      ScaledSliderWidget * slider_SR;//Allows to change the sample rate of the whole generated signal
     } m_baseControl;
     QWidget * m_allControl;//The widget with all control (base and eventually extended
 
