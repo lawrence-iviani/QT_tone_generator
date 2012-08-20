@@ -82,44 +82,44 @@ void SinusData::initControl() {
     m_widgetControl->setFont(f);
 
     //set frequency
-    m_dataControl.sliderFrequency= new ScaledSliderWidget(NULL, Qt::Horizontal,ScaledSlider::Logarithmic) ;
+    m_dataControl.sliderFrequency= new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Logarithmic) ;
     m_dataControl.sliderFrequency->setScale(10,22000,1);
     m_dataControl.sliderFrequency->setValue(m_frequency);
     m_dataControl.sliderFrequency->setName("Freq.");
     m_dataControl.sliderFrequency->setMeasureUnit("Sec.");
     m_dataControl.sliderFrequency->setFont(f);
-    m_dataControl.sliderFrequency->setMaximumWidth( CONTROL_WIDTH);
-    m_dataControl.sliderFrequency->setMinimumWidth( CONTROL_WIDTH/2);
-    m_dataControl.sliderFrequency->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
-    m_dataControl.sliderFrequency->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+   // m_dataControl.sliderFrequency->setMaximumWidth( CONTROL_WIDTH);
+    //m_dataControl.sliderFrequency->setMinimumWidth( CONTROL_WIDTH/2);
+   // m_dataControl.sliderFrequency->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+   // m_dataControl.sliderFrequency->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_dataControl.sliderFrequency,SIGNAL(valueChanged(double)),this,SLOT(setFrequency(double)));
 
     //set amplitude
-    m_dataControl.sliderAmplitude=new ScaledSliderWidget(NULL, Qt::Horizontal,ScaledSlider::Linear) ;
+    m_dataControl.sliderAmplitude=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_dataControl.sliderAmplitude->setScale(0,1.0,0.01);
     m_dataControl.sliderAmplitude->setValue(m_amplitude);
     m_dataControl.sliderAmplitude->setName("Amplitude");
     m_dataControl.sliderAmplitude->setMeasureUnit("0-1");
     m_dataControl.sliderAmplitude->setFont(f);
-    m_dataControl.sliderAmplitude->setMaximumWidth( CONTROL_WIDTH);
-    m_dataControl.sliderAmplitude->setMinimumWidth( CONTROL_WIDTH/2);
-    m_dataControl.sliderAmplitude->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+  //  m_dataControl.sliderAmplitude->setMaximumWidth( CONTROL_WIDTH);
+  //  m_dataControl.sliderAmplitude->setMinimumWidth( CONTROL_WIDTH/2);
+  //  m_dataControl.sliderAmplitude->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_dataControl.sliderAmplitude,SIGNAL(valueChanged(double)),this,SLOT(setAmplitude(double)));
 
     //set init phase
-    m_dataControl.sliderInitPhase=new ScaledSliderWidget(NULL, Qt::Horizontal,ScaledSlider::Linear) ;
+    m_dataControl.sliderInitPhase=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_dataControl.sliderInitPhase->setScale(-180,180,1);
     m_dataControl.sliderInitPhase->setValue(m_initPhase);
     m_dataControl.sliderInitPhase->setName("Phase");
     m_dataControl.sliderInitPhase->setMeasureUnit("deg.");
     m_dataControl.sliderInitPhase->setFont(f);
-    m_dataControl.sliderInitPhase->setMaximumWidth( CONTROL_WIDTH);
-    m_dataControl.sliderInitPhase->setMinimumWidth( CONTROL_WIDTH/2);
-    m_dataControl.sliderInitPhase->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+  //  m_dataControl.sliderInitPhase->setMaximumWidth( CONTROL_WIDTH);
+  //  m_dataControl.sliderInitPhase->setMinimumWidth( CONTROL_WIDTH/2);
+  //  m_dataControl.sliderInitPhase->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_dataControl.sliderInitPhase,SIGNAL(valueChanged(double)),this,SLOT(setInitPhase(double)));
 
     //Lay out all the control);
-    l->addWidget(m_dataControl.sliderFrequency,1,Qt::AlignCenter);
-    l->addWidget(m_dataControl.sliderAmplitude,1,Qt::AlignCenter);
-    l->addWidget(m_dataControl.sliderInitPhase,1,Qt::AlignCenter);
+    l->addWidget(m_dataControl.sliderFrequency,1);//,Qt::AlignCenter);
+    l->addWidget(m_dataControl.sliderAmplitude,1);//,Qt::AlignCenter);
+    l->addWidget(m_dataControl.sliderInitPhase,1);//,Qt::AlignCenter);
 }

@@ -184,7 +184,7 @@ void GenericTimeData::setColor(QColor color) {
 
 void GenericTimeData::showBaseControl() {
     Q_ASSERT(m_baseControl.baseWidget!=NULL);
-    if (m_baseControl.toggleButtonOptionEnable->isChecked()) {
+    if (m_baseControl.toggleButtonOptionControl->isChecked()) {
         m_baseControl.baseWidget->show();
     } else {
         m_baseControl.baseWidget->hide();
@@ -193,7 +193,7 @@ void GenericTimeData::showBaseControl() {
 
 void GenericTimeData::showExtendedControl() {
     Q_ASSERT(m_extendedControl.extendedWidget!=NULL);
-    if (m_extendedControl.toggleButtonOptionEnable->isChecked()) {
+    if (m_extendedControl.toggleButtonOptionControl->isChecked()) {
         m_extendedControl.extendedWidget->show();
     } else {
         m_extendedControl.extendedWidget->hide();
@@ -205,17 +205,17 @@ void GenericTimeData::createBaseControl() {
     m_allControl->setLayout(new QVBoxLayout());
     QVBoxLayout * l=(QVBoxLayout*) m_allControl->layout();
 
-    m_baseControl.toggleButtonOptionEnable=new QPushButton("Base control");
-    m_baseControl.toggleButtonOptionEnable->setCheckable(true);
-    m_baseControl.toggleButtonOptionEnable->setMaximumWidth( (2.0/3.0)*CONTROL_WIDTH);
-    m_baseControl.toggleButtonOptionEnable->setMinimumWidth( (2.0/3.0)*CONTROL_WIDTH);
-    m_baseControl.toggleButtonOptionEnable->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
-    connect(m_baseControl.toggleButtonOptionEnable,SIGNAL(clicked(bool)),this,SLOT(showBaseControl()));
-    l->addWidget(m_baseControl.toggleButtonOptionEnable,1,Qt::AlignLeft);
+    m_baseControl.toggleButtonOptionControl=new QPushButton("Base control");
+    m_baseControl.toggleButtonOptionControl->setCheckable(true);
+   // m_baseControl.toggleButtonOptionEnable->setMaximumWidth( (2.0/3.0)*CONTROL_WIDTH);
+   // m_baseControl.toggleButtonOptionEnable->setMinimumWidth( (2.0/3.0)*CONTROL_WIDTH);
+   // m_baseControl.toggleButtonOptionEnable->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+    connect(m_baseControl.toggleButtonOptionControl,SIGNAL(clicked(bool)),this,SLOT(showBaseControl()));
+    l->addWidget(m_baseControl.toggleButtonOptionControl,1);
 
     //Adding base control
     this->initBaseControlWidget();
-    l->addWidget(m_baseControl.baseWidget,1  ,Qt::AlignLeft);
+    l->addWidget(m_baseControl.baseWidget,1);
 
     this->showBaseControl();
 }
@@ -224,20 +224,20 @@ void GenericTimeData::setExtendedControl(QWidget * extendedWidget) {
     QVBoxLayout * l=(QVBoxLayout *)m_allControl->layout();
 
     //Create extended control button
-    m_extendedControl.toggleButtonOptionEnable=new QPushButton("Extended control");
-    m_extendedControl.toggleButtonOptionEnable->setCheckable(true);
-    m_extendedControl.toggleButtonOptionEnable->setMaximumWidth( (2.0/3.0)*CONTROL_WIDTH);
-    m_extendedControl.toggleButtonOptionEnable->setMinimumWidth( (2.0/3.0)*CONTROL_WIDTH);
-    m_extendedControl.toggleButtonOptionEnable->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
-    connect(m_extendedControl.toggleButtonOptionEnable,SIGNAL(clicked(bool)),this,SLOT(showExtendedControl()));
+    m_extendedControl.toggleButtonOptionControl=new QPushButton("Extended control");
+    m_extendedControl.toggleButtonOptionControl->setCheckable(true);
+   // m_extendedControl.toggleButtonOptionEnable->setMaximumWidth( (2.0/3.0)*CONTROL_WIDTH);
+   // m_extendedControl.toggleButtonOptionEnable->setMinimumWidth( (2.0/3.0)*CONTROL_WIDTH);
+   // m_extendedControl.toggleButtonOptionEnable->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+    connect(m_extendedControl.toggleButtonOptionControl,SIGNAL(clicked(bool)),this,SLOT(showExtendedControl()));
 
-    //Adding widger
+    //Adding widget
     m_extendedControl.extendedWidget=extendedWidget;
     if (m_extendedControl.extendedWidget!=NULL) {
         //Add button
-        l->addWidget(m_extendedControl.toggleButtonOptionEnable,1,Qt::AlignLeft);
+        l->addWidget(m_extendedControl.toggleButtonOptionControl,1);//,Qt::AlignLeft);
         //Add control
-        l->addWidget(m_extendedControl.extendedWidget,1,Qt::AlignLeft);
+        l->addWidget(m_extendedControl.extendedWidget,1);//,Qt::AlignLeft);
         this->showExtendedControl();
     }
 
@@ -252,6 +252,7 @@ void GenericTimeData::initBaseControlWidget() {
     //Widget container and layout
     m_baseControl.baseWidget=new QWidget();
     QVBoxLayout * l=new QVBoxLayout();
+    l->setSizeConstraint(QLayout::SetMinimumSize);
     m_baseControl.baseWidget->setLayout(l) ;
     m_baseControl.baseWidget->hide();
     m_baseControl.baseWidget->setFont(f);
@@ -268,55 +269,55 @@ void GenericTimeData::initBaseControlWidget() {
     m_baseControl.checkBoxEnableCurve=new QCheckBox("Enable curve",NULL);
     m_baseControl.checkBoxEnableCurve->setChecked(true);
     m_baseControl.checkBoxEnableCurve->setFont(f);
-    m_baseControl.checkBoxEnableCurve->setMaximumWidth( CONTROL_WIDTH);
-    m_baseControl.checkBoxEnableCurve->setMinimumWidth( CONTROL_WIDTH/2);
-    m_baseControl.checkBoxEnableCurve->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+    //m_baseControl.checkBoxEnableCurve->setMaximumWidth( CONTROL_WIDTH);
+    //m_baseControl.checkBoxEnableCurve->setMinimumWidth( CONTROL_WIDTH/2);
+    //m_baseControl.checkBoxEnableCurve->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_baseControl.checkBoxEnableCurve,SIGNAL(toggled(bool)),this,SLOT(setEnableCurve(bool)));
 
     //Curve color
     m_baseControl.comboColor=new ComboBoxWidgetColor(NULL);
     m_baseControl.comboColor->setColor(this->color());
     m_baseControl.comboColor->setFont(f);
-    m_baseControl.comboColor->setMaximumWidth( CONTROL_WIDTH);
-    m_baseControl.comboColor->setMinimumWidth( CONTROL_WIDTH/2);
-    m_baseControl.comboColor->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+    //m_baseControl.comboColor->setMaximumWidth( CONTROL_WIDTH);
+    //m_baseControl.comboColor->setMinimumWidth( CONTROL_WIDTH/2);
+    //m_baseControl.comboColor->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_baseControl.comboColor, SIGNAL(colorChanged(QColor)),this,SLOT(setColor(QColor)) );
 
     //set duration
-    m_baseControl.slider_duration = new ScaledSliderWidget(NULL, Qt::Horizontal,ScaledSlider::Linear) ;
+    m_baseControl.slider_duration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_baseControl.slider_duration->setScale(0,10,0.1);
     m_baseControl.slider_duration->setValue(m_duration);
     m_baseControl.slider_duration->setName("Duration");
     m_baseControl.slider_duration->setMeasureUnit("Sec.");
     m_baseControl.slider_duration->setFont(f);
-    m_baseControl.slider_duration->setMaximumWidth( CONTROL_WIDTH);
-    m_baseControl.slider_duration->setMinimumWidth( CONTROL_WIDTH/2);
-    m_baseControl.slider_duration->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
-    m_baseControl.slider_duration->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+    //m_baseControl.slider_duration->setMaximumWidth( CONTROL_WIDTH);
+    //m_baseControl.slider_duration->setMinimumWidth( CONTROL_WIDTH/2);
+    //m_baseControl.slider_duration->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+    //m_baseControl.slider_duration->setSizePolicy(QSizePolicy::Minimum ,QSizePolicy::Minimum);
     connect(m_baseControl.slider_duration,SIGNAL(valueChanged(double)),this,SLOT(setDuration(double)));
 
     //set t0
-    m_baseControl.slider_t0 = new ScaledSliderWidget(NULL, Qt::Horizontal,ScaledSlider::Linear) ;
+    m_baseControl.slider_t0 = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_baseControl.slider_t0->setScale(-10,+10,0.1);
     m_baseControl.slider_t0->setValue(m_t0);
     m_baseControl.slider_t0->setName("Start Time");
     m_baseControl.slider_t0->setMeasureUnit("Sec.");
     m_baseControl.slider_t0->setFont(f);
-    m_baseControl.slider_t0->setMaximumWidth( CONTROL_WIDTH);
-    m_baseControl.slider_t0->setMinimumWidth( CONTROL_WIDTH/2);
-    m_baseControl.slider_t0->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+    //m_baseControl.slider_t0->setMaximumWidth( CONTROL_WIDTH);
+    //m_baseControl.slider_t0->setMinimumWidth( CONTROL_WIDTH/2);
+    //m_baseControl.slider_t0->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_baseControl.slider_t0,SIGNAL(valueChanged(double)),this,SLOT(setStartTime(double)));
 
     //set Sample rate
-    m_baseControl.slider_SR = new ScaledSliderWidget(NULL, Qt::Horizontal,ScaledSlider::Linear) ;
+    m_baseControl.slider_SR = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_baseControl.slider_SR->setScale(24000,96000,12000);
     m_baseControl.slider_SR->setValue(m_SR);
     m_baseControl.slider_SR->setName("SR Generation");
     m_baseControl.slider_SR->setMeasureUnit("Hz");
     m_baseControl.slider_SR->setFont(f);
-    m_baseControl.slider_SR->setMaximumWidth( CONTROL_WIDTH);
-    m_baseControl.slider_SR->setMinimumWidth( CONTROL_WIDTH/2);
-    m_baseControl.slider_SR->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
+   // m_baseControl.slider_SR->setMaximumWidth( CONTROL_WIDTH);
+   // m_baseControl.slider_SR->setMinimumWidth( CONTROL_WIDTH/2);
+   // m_baseControl.slider_SR->setSizePolicy(QSizePolicy::Maximum ,QSizePolicy::Maximum);
     connect(m_baseControl.slider_SR,SIGNAL(valueChanged(double)),this,SLOT(setSampleRate(double)));
 
     //Lay out all the controls

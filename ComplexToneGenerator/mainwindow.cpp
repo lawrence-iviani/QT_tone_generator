@@ -6,8 +6,8 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
-    m_plotTime(new PlotWidget),
-    m_plotFreq(new PlotWidget)
+    m_plotTime(new TimePlotWidget),
+    m_plotFreq(new FreqPlotWidget)
 {
     ui->setupUi(this);
 
@@ -31,7 +31,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->scrollAreaWidgetContents->setLayout(ui->scrollAreaLayout);
 
     m_plotTime->setBothAxisScale(0.0,10.0,-1.0,1.0);
-    ui->scrollAreaLayout->addWidget(m_plotTime->getControlWidget());
+    ui->scrollAreaLayout->addWidget(m_plotTime->getControlWidget(),1,Qt::AlignTop);
+    ui->scrollAreaLayout->addWidget(m_plotFreq->getControlWidget(),1,Qt::AlignTop);
 
    // m_plotTime->getControlWidget()->setParent(ui->scrollAreaWidgetContents);//TODO: questo setParent va re-implementato per tutti i widget nella istanza s?
    // m_plotTime->getControlWidget()->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
@@ -74,10 +75,6 @@ void MainWindow::newCurve() {
 
     //adding controls to plot
     ui->scrollAreaLayout->addWidget(s->getControlWidget());
-    //s->getControlWidget()->setParent(ui->scrollAreaWidgetContents);//TODO: questo setParent va re-implementato per tutti i widget nella istanza s?
-
-    //s->getControlWidget()->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-   // ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 
     //Adding data to the combo box
     ui->comboBoxCurve->addItem(name);

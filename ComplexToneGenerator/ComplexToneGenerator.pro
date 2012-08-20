@@ -24,11 +24,15 @@ SOURCES += main.cpp\
         mainwindow.cpp \
     plotwidget.cpp \
     generictimedata.cpp \
-    sinusdata.cpp
+    sinusdata.cpp \
+    timeplotwidget.cpp \
+    freqplotwidget.cpp
 
 HEADERS  += mainwindow.h \
     plotwidget.h \
     generictimedata.h \
-    sinusdata.h
+    sinusdata.h \
+    timeplotwidget.h \
+    freqplotwidget.h
 
 FORMS    += mainwindow.ui

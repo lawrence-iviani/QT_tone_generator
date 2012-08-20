@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "timeplotwidget.h"
+#include "freqplotwidget.h"
 #include "plotwidget.h"
 #include "selectcurvewindowdialog.h"
 

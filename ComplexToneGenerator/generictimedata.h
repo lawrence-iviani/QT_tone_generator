@@ -84,12 +84,12 @@ private:
        ScaledSliderWidget * slider_t0;
        ComboBoxWidgetColor * comboColor;
        QCheckBox * checkBoxEnableCurve;
-       QPushButton * toggleButtonOptionEnable;
+       QPushButton * toggleButtonOptionControl;
      } m_baseControl; //This class control.
 
      struct {
         QWidget * extendedWidget;
-        QPushButton * toggleButtonOptionEnable;
+        QPushButton * toggleButtonOptionControl;
      } m_extendedControl;//Extended class control, if a class extend this class can improve control
 
      void createBaseControl();//Create all the control, of the base class and of any eventual extended class. It llayouts all together.
