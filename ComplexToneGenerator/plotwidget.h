@@ -2,6 +2,7 @@
 #define PLOTWIDGET_H
 
 #include <QWidget>
+#include <CTG_constants.h>
 #include <qwt.h>
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
@@ -48,7 +49,7 @@ private:
 
     void plotSetup();
     int m_dimension;
-    static const int DEFAULT_PLOT_DIMENSION=11;
+
     QList<GenericTimeData*> m_curveList;
 
 

@@ -2,9 +2,9 @@
 
 GenericTimeData::GenericTimeData()
 {
-    m_SR=48000;
-    m_MaxDuration=MAX_TIME;
-    m_Min_t0=0.0;
+    m_SR=TIMEDATA_DEFAULT_SR;
+    m_MaxDuration=TIMEDATA_DEFAULT_MAX_TIME;
+    m_Min_t0=TIMEDATA_DEFAULT_MIN_TIME;
     m_t=NULL;
     m_s=NULL;
     m_curve=NULL;
@@ -16,7 +16,6 @@ GenericTimeData::GenericTimeData()
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
     m_allControl=NULL;
     this->createBaseControl();
-    //this->setMinStartTimeAndMaxDuration(m_Min_t0,m_MaxDuration);
     this->updateData();
 }
 
@@ -24,7 +23,7 @@ GenericTimeData::GenericTimeData(double maxDuration, double SRGen)
 {   
     m_SR=SRGen;
     m_MaxDuration=maxDuration;
-    m_Min_t0=0.0;
+    m_Min_t0=TIMEDATA_DEFAULT_MIN_TIME;
     m_t=NULL;
     m_s=NULL;
     m_curve=NULL;
@@ -247,7 +246,7 @@ void GenericTimeData::initBaseControlWidget() {
 
     //setting font base dimension
     QFont f=*(new QFont());
-    f.setPointSize(BASE_SIZE);
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Widget container and layout
     m_baseControl.baseWidget=new QWidget();

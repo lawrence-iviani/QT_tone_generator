@@ -2,6 +2,7 @@
 #define SINUSDATA_H
 
 #include <generictimedata.h>
+#include <CTG_constants.h>
 #include <math.h>
 
 class SinusData : public GenericTimeData
@@ -34,6 +35,12 @@ public slots:
 protected:
     virtual void recalc();
  private:
+    static double const SINUSDATA_DEFAULT_INITPHASE=0;
+    static double const SINUSDATA_DEFAULT_FREQUENCY=10;
+    static double const SINUSDATA_DEFAULT_AMPLITUDE=0.9;
+    static double const SINUSDATA_DEFAULT_DURATION=1.5;
+    static double const SINUSDATA_DEFAULT_INITTIME=2.1;
+
     double m_amplitude;
     double m_frequency;
     double m_initPhase;

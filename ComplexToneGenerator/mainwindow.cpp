@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->scrollAreaWidgetContents->setLayout(ui->scrollAreaLayout);
 
-    m_plotTime->setBothAxisScale(0.0,10.0,-1.0,1.0);
+    m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_MAX_TIME,-1.0,1.0);
     ui->scrollAreaLayout->addWidget(m_plotTime->getControlWidget(),1,Qt::AlignTop);
     ui->scrollAreaLayout->addWidget(m_plotFreq->getControlWidget(),1,Qt::AlignTop);
 
@@ -96,11 +96,13 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     GenericTimeData * retval=NULL;
 
     if (QString::compare(selectCurveHelper->getSelectedDataCurve().name,"Base curve") ) {
-        retval=new GenericTimeData(7.9,96000);
+        retval=new GenericTimeData();
         return retval;
     }
     if (QString::compare(selectCurveHelper->getSelectedDataCurve().name,"Tone generator") ) {
-        SinusData * s=new SinusData(7.9,96000.0);
+        SinusData * s=new SinusData();
+        s->setStartTime(0.4);
+        s->setDuration(5.1);
         s->setAmplitudeFrequencyAndPhase(0.707,10,90);
         retval=(GenericTimeData*) s;
         return retval;

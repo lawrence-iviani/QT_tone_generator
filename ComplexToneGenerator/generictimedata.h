@@ -2,6 +2,7 @@
 #define GENERICTIMEDATA_H
 
 #include <QObject>
+#include <CTG_constants.h>
 #include <qwt_series_data.h>
 #include <qwt_plot_curve.h>
 #include <math.h>
@@ -12,8 +13,8 @@
 #include <scaledsliderwidget.h>
 #include <comboboxwidgetcolor.h>
 
-#define BASE_SIZE 10
-#define CONTROL_WIDTH 200
+//#define BASE_SIZE 10
+//#define CONTROL_WIDTH 200
 
 class GenericTimeData : public QObject
 {
@@ -28,7 +29,7 @@ public:
 
     double maxDuration(){return m_MaxDuration;}
     double sampleRateGeneration() {return m_SR;}
-    double minStartTime(){return m_Min_t0;}
+    double minStartTime(){return m_Min_t0;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
    // double maxEndTime(){return m_Max_t1;}
     long int sampleNumber() {return m_sample;}
     bool isEnabled() { return m_curve->isVisible();}
@@ -78,8 +79,7 @@ private:
      double * m_s;//The pointer to array of the signal
      long int m_sample;//Number of sample of m_s and m_t
 
-     double static const MIN_TIME=0.0;
-     double static const MAX_TIME=5.0;
+
 
      void initBaseControlWidget();//Create only the base control
      struct {

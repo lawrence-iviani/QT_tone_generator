@@ -2,6 +2,7 @@
 #define FREQPLOTWIDGET_H
 
 #include "plotwidget.h"
+#include <CTG_constants.h>
 
 class FreqPlotWidget : public PlotWidget
 {

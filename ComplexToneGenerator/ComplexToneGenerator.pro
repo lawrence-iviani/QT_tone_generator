@@ -33,6 +33,7 @@ HEADERS  += mainwindow.h \
     generictimedata.h \
     sinusdata.h \
     timeplotwidget.h \
-    freqplotwidget.h
+    freqplotwidget.h \
+    CTG_constants.h
 
 FORMS    += mainwindow.ui

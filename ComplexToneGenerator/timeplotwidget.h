@@ -2,6 +2,7 @@
 #define TIMEPLOTWIGET_H
 
 #include "plotwidget.h"
+#include <CTG_constants.h>
 
 class TimePlotWidget : public PlotWidget
 {
@@ -10,6 +11,8 @@ public:
     explicit TimePlotWidget(QWidget *parent = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
     virtual QWidget * getControlWidget() {return m_allControl;}
     double sampleRate() {return m_SR;}
+    double duration() {return m_duration;}
+    double minTime() {return m_t0;}
 
 signals:
     
@@ -20,11 +23,8 @@ public slots:
     void zoomPanButtonPressed();
 
 private:
-    void createControlWidget();//Create the the base contro
+    void createControlWidget();//Create the the base control
     void initBaseControlWidget();
-    static double const BASE_SR=48000;//The base sample rate used as default
-    static double const BASE_T0=0.0;//Start time or lower time limit. For now is always 0, tommorow may change.
-    static double const BASE_DURATION=7.0;//The base duration used as default
 
     double m_SR;
     double m_duration;

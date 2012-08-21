@@ -5,7 +5,7 @@
 PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     QwtPlot(parent)
 {
-    m_dimension=DEFAULT_PLOT_DIMENSION;
+    m_dimension=PLOTWIDGET_DEFAULT_PLOT_DIMENSION;
     this->plotSetup();
     this->setXScaleType(xScaleType);
     this->setYScaleType(yScaleType);

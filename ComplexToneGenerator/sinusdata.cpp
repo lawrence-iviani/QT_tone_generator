@@ -3,11 +3,13 @@
 SinusData::SinusData() :
     GenericTimeData()
 {
-    m_initPhase=0;
-    m_frequency=5;
-    m_amplitude=1.0;
-    m_duration=1.5;
-    m_t0=2.1;
+
+
+    m_initPhase=SINUSDATA_DEFAULT_INITPHASE;
+    m_frequency=SINUSDATA_DEFAULT_FREQUENCY;
+    m_amplitude=SINUSDATA_DEFAULT_AMPLITUDE;
+    m_duration=SINUSDATA_DEFAULT_DURATION;
+    m_t0=SINUSDATA_DEFAULT_INITTIME;
     this->initControl();
     this->setExtendedControl(m_widgetControl);
     connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(maxDurationChanged(double)));
@@ -17,10 +19,11 @@ SinusData::SinusData() :
 SinusData::SinusData(double duration, double SRGen) :
     GenericTimeData(duration,SRGen)
 {
-    m_initPhase=0;
-    m_frequency=5;
-    m_amplitude=1.0;
-    //Init a figure with the same duration and start time  t0 of base class
+    m_initPhase=SINUSDATA_DEFAULT_INITPHASE;
+    m_frequency=SINUSDATA_DEFAULT_FREQUENCY;
+    m_amplitude=SINUSDATA_DEFAULT_AMPLITUDE;
+    m_t0=SINUSDATA_DEFAULT_INITTIME;
+    //Init a figure with the same duration of the base class
     m_duration=duration;
     this->initControl();
     this->setExtendedControl(m_widgetControl);
@@ -47,7 +50,6 @@ SinusData::SinusData( double duration, double SRGen,double amplitude, double fre
 }
 
 void SinusData::recalc() {
-    //double * m_sinus=new double[this->sampleNumber()];
     double * m_sinus=this->getSignalData();
     double * t=this->getTimeData();
     double phase=SinusData::deg2rad(this->initPhase());
@@ -58,7 +60,7 @@ void SinusData::recalc() {
     Q_ASSERT( n_dw >=0);
     Q_ASSERT(n_dw <=this->sampleNumber());
 
-    int n_up=(m_duration)*this->sampleRateGeneration();
+    int n_up=(this->startTime()+this->duration())*this->sampleRateGeneration();
     qDebug() << "m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_up>=0 );
     Q_ASSERT(n_up<=this->sampleNumber());
@@ -69,28 +71,37 @@ void SinusData::recalc() {
     for (int n=n_dw; n < n_up; n++) {
         m_sinus[n]=this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase);
     }
-   //this->setSignalData(m_sinus,this->sampleNumber());
 }
 
 void SinusData::setAmplitudeFrequencyAndPhase(double amplitude,double frequency,double initPhase) {
     m_amplitude=amplitude;
     m_frequency=frequency;
     m_initPhase=initPhase;
+    //updating UI
+    m_dataControl.sliderFrequency->setValue(m_frequency);
+    m_dataControl.sliderAmplitude->setValue(m_amplitude);
+    m_dataControl.sliderInitPhase->setValue(m_initPhase);
     this->updateData();
 }
 
 void SinusData::setAmplitude(double amplitude) {
     m_amplitude=amplitude;
+    //updating UI
+    m_dataControl.sliderAmplitude->setValue(m_amplitude);
     this->updateData();
 }
 
 void SinusData::setFrequency(double frequency) {
     m_frequency=frequency;
+    //updating UI
+    m_dataControl.sliderFrequency->setValue(m_frequency);
     this->updateData();
 }
 
 void SinusData::setInitPhase(double initPhase) {
     m_initPhase=initPhase;
+    //updating UI
+    m_dataControl.sliderInitPhase->setValue(m_initPhase);
     this->updateData();
 }
 
@@ -99,11 +110,13 @@ void SinusData::setDuration(double duration) {
 
     if (duration < 0) {
         m_duration=0;
-    } else if ((this->startTime()+this->duration()) > maxtime) {
+    } else if ((this->startTime()+duration) > maxtime) {
         m_duration=maxtime-this->startTime();
     } else {
         m_duration=duration;
     }
+    //Update UI
+    m_dataControl.sliderDuration->setValue(m_duration);
     this->updateData();
 }
 
@@ -117,6 +130,9 @@ void SinusData::setStartTime(double t0) {
     } else {
         m_t0=t0;
     }
+    //Update UI
+    m_dataControl.slider_t0->setValue(m_t0);
+    //Call set duration to verify if the duration must be clipped and to recalc  the curve
     this->setDuration(m_duration);
 }
 
@@ -130,7 +146,7 @@ void SinusData::initControl() {
 
     //setting font base dimension
     QFont f=*(new QFont());
-    f.setPointSize(BASE_SIZE);
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Widget container and layout
     m_widgetControl=new QWidget();
@@ -141,7 +157,7 @@ void SinusData::initControl() {
 
     //set frequency
     m_dataControl.sliderFrequency= new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Logarithmic) ;
-    m_dataControl.sliderFrequency->setScale(10,22000,1);
+    m_dataControl.sliderFrequency->setScale(10,22000,0.01);
     m_dataControl.sliderFrequency->setValue(m_frequency);
     m_dataControl.sliderFrequency->setName("Freq.");
     m_dataControl.sliderFrequency->setMeasureUnit("Sec.");
@@ -168,7 +184,7 @@ void SinusData::initControl() {
 
     //set duration
     m_dataControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_dataControl.sliderDuration->setScale(0,10,0.1);//TODO: this needs to be set from an external part, ie the base class
+    m_dataControl.sliderDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
     m_dataControl.sliderDuration->setValue(m_duration);
     m_dataControl.sliderDuration->setName("Duration");
     m_dataControl.sliderDuration->setMeasureUnit("Sec.");
@@ -177,7 +193,7 @@ void SinusData::initControl() {
 
     //set t0
     m_dataControl.slider_t0 = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_dataControl.slider_t0->setScale(-10,+10,0.1);
+    m_dataControl.slider_t0->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);
     m_dataControl.slider_t0->setValue(m_t0);
     m_dataControl.slider_t0->setName("Start Time");
     m_dataControl.slider_t0->setMeasureUnit("Sec.");

@@ -3,9 +3,9 @@
 TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     PlotWidget(parent,  xScaleType,  yScaleType)
 {
-    m_SR=BASE_SR;
-    m_t0=BASE_T0;
-    m_duration=BASE_DURATION;
+    m_SR=TIMEDATA_DEFAULT_SR;
+    m_t0=TIMEDATA_DEFAULT_MIN_TIME;
+    m_duration=TIMEDATA_DEFAULT_MAX_TIME;
     this->createControlWidget();
 }
 
@@ -16,6 +16,8 @@ void TimePlotWidget::setSampleRate(double SR) {
         gtd->setSampleRate(SR);
         gtd=this->getTimeData(++n);
     }
+    m_SR=SR;
+    m_baseControl.sliderSR->setValue(SR);
 }
 
 void TimePlotWidget::setDuration(double duration) {
@@ -25,6 +27,8 @@ void TimePlotWidget::setDuration(double duration) {
         gtd->setMaxDuration(duration);
         gtd=this->getTimeData(++n);
     }
+    m_duration=duration;
+    m_baseControl.sliderDuration->setValue(m_duration);
 }
 
 void TimePlotWidget::createControlWidget() {
@@ -49,7 +53,7 @@ void TimePlotWidget::createControlWidget() {
 void TimePlotWidget::initBaseControlWidget() {
     //setting font base dimension
     QFont f=*(new QFont());
-    f.setPointSize(BASE_SIZE);
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Widget container and layout for the real control option
     m_baseControl.baseControlWidget=new QWidget();
@@ -76,7 +80,7 @@ void TimePlotWidget::initBaseControlWidget() {
 
     //set duration
     m_baseControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_baseControl.sliderDuration->setScale(0,10,0.1);
+    m_baseControl.sliderDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);
     m_baseControl.sliderDuration->setValue(m_duration);
     m_baseControl.sliderDuration->setName("Duration Generated file");
     m_baseControl.sliderDuration->setMeasureUnit("Sec.");
