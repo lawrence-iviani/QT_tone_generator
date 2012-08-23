@@ -25,12 +25,12 @@ public slots:
     void newCurve();
     void removeCurve();
     void changedCurve(int index);
-    void dataUpdated();
+    void timeDataUpdated();
 
 private:
     Ui::MainWindow *ui;
-    PlotWidget * m_plotTime;
-    PlotWidget * m_plotFreq;
+    TimePlotWidget * m_plotTime;
+    FreqPlotWidget * m_plotFreq;
     QFrame * m_FramePlot;
     QFrame * m_FrameCurves;
     QFrame * m_FrameButton;
@@ -43,9 +43,8 @@ private:
     int m_lastIndexCurve;//This is the last index in the combo box curve, we need to know what's what the last curve selected.
     int m_indexGenerator; //It needs only to name a new curve with a progressive id, ie curve_1, curve_2, etc...
 
-    //static QString curveName={"Base curve","Tone generator"};
-    //static QString curveDescription={"This curve generate a constant zero signal (not so useful :) )","This curve generate a pure tone"};
-    //static int curveNumbers=2;
+
+   // GenericTimeData m_digestCurve; //This curve is a summarize of all the curve. The calculation is made by inerithed class
 
 };
 

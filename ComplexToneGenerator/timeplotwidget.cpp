@@ -6,29 +6,56 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
     m_SR=TIMEDATA_DEFAULT_SR;
     m_t0=TIMEDATA_DEFAULT_MIN_TIME;
     m_duration=TIMEDATA_DEFAULT_MAX_TIME;
+    m_digestCurve=new DigestTimeData(&m_curveList,m_duration,m_SR);
+    m_digestCurve->getCurve()->attach(this);
     this->createControlWidget();
+}
+
+TimePlotWidget::~TimePlotWidget() {
+    delete m_digestCurve;
 }
 
 void TimePlotWidget::setSampleRate(double SR) {
     int n=0;
     GenericTimeData * gtd=this->getTimeData(n);
+    bool sigStatus;
     while (gtd!=NULL) {
+        sigStatus=gtd->blockSignals(true);
         gtd->setSampleRate(SR);
+        gtd->blockSignals(sigStatus);
         gtd=this->getTimeData(++n);
     }
     m_SR=SR;
+
+    //Update UI
+    sigStatus=m_baseControl.sliderSR->blockSignals(true);
     m_baseControl.sliderSR->setValue(SR);
+    m_baseControl.sliderSR->blockSignals(sigStatus);
+
+    //update the digest curve
+    m_digestCurve->setSampleRate(SR);
 }
 
 void TimePlotWidget::setDuration(double duration) {
     int n=0;
     GenericTimeData * gtd=this->getTimeData(n);
+    bool sigStatus;
     while (gtd!=NULL) {
+        sigStatus=gtd->blockSignals(true);
         gtd->setMaxDuration(duration);
+        gtd->blockSignals(sigStatus);
         gtd=this->getTimeData(++n);
     }
     m_duration=duration;
+
+    //Update UI
+    sigStatus=m_baseControl.sliderDuration->blockSignals(true);
     m_baseControl.sliderDuration->setValue(m_duration);
+    m_baseControl.sliderDuration->blockSignals(sigStatus);
+
+    //update the digest curve
+    m_digestCurve->setMaxDuration(m_duration);
+
 }
 
 void TimePlotWidget::createControlWidget() {
@@ -109,3 +136,5 @@ void TimePlotWidget::zoomPanButtonPressed() {
         m_baseControl.m_zmp->enableZoomer();
     }
 }
+
+

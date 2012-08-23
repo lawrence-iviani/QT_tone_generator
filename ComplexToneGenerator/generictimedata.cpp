@@ -16,7 +16,7 @@ GenericTimeData::GenericTimeData()
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
     m_allControl=NULL;
     this->createBaseControl();
-    this->updateData();
+    //this->updateData();
 }
 
 GenericTimeData::GenericTimeData(double maxDuration, double SRGen)
@@ -35,7 +35,7 @@ GenericTimeData::GenericTimeData(double maxDuration, double SRGen)
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
     m_allControl=NULL;
     this->createBaseControl();
-    this->updateData();
+    //this->updateData();
 }
 
 GenericTimeData::~GenericTimeData() {
@@ -69,8 +69,9 @@ void GenericTimeData::resetAllData() {
 
     m_t=new double[m_sample];
     m_s=new double[m_sample];
+
     for (int n=0; n < m_sample ; n++) {
-        m_t[n]=m_Min_t0+n*SL;
+        m_t[n]=this->minStartTime()+n*SL;
         m_s[n]=0;
     }
 }

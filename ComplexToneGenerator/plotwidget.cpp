@@ -104,7 +104,9 @@ void PlotWidget::setDimension(int pointDimension) {
 int PlotWidget::addTimeData(GenericTimeData * gtd) {
     m_curveList.append(gtd);
     gtd->getCurve()->attach(this);
-    this->replot();
+    connect(gtd,SIGNAL(dataUpdated()),this,SLOT(dataUpdated()));
+    this->dataUpdated();
+    emit curveListChanged();
     return (m_curveList.length()-1);
 }
 
@@ -113,11 +115,13 @@ bool PlotWidget::removeTimeData(int index) {
     if (  (0 <= index) && (index < m_curveList.length()) ) {
         GenericTimeData *  gtd=this->getTimeData(index);
         gtd->getCurve()->detach();
+        disconnect(gtd,SIGNAL(dataUpdated()),this,SLOT(dataUpdated()));
         Q_ASSERT(gtd!=NULL);
         delete gtd;
         m_curveList.removeAt(index);
         retval=true;
-        this->replot();
+        this->dataUpdated();
+        emit curveListChanged();
     }
     return retval;
 }
@@ -129,3 +133,5 @@ GenericTimeData * PlotWidget::getTimeData(int index) {
     }
     return retval;
 }
+
+

@@ -41,21 +41,28 @@ public:
     int yScaleType() {return m_yScaleType;}
     int dimension()  {return m_dimension;}
 
+
+
 signals:
-
+    void curveListChanged();
 public slots:
+  /**
+    * his method grant to be called when never one of the curve stored in this class, or extended class,is modified.
+    * Extended class handle the curves correctly in order to obtain the correct results.
+    * All the stuff of init, object handling etc. are delegated to the inheriting class.
+    */
+    virtual void dataUpdated() { qDebug() << "PlotWidget::dataUpdated() CALLED";this->replot();} //
+protected:
+    QList<GenericTimeData*> m_curveList;
 
+    int m_xScaleType;
+    int m_yScaleType;
 private:
-
     void plotSetup();
     int m_dimension;
 
-    QList<GenericTimeData*> m_curveList;
-
-
 protected:
-    int m_xScaleType;
-    int m_yScaleType;
+
 };
 
 #endif // PLOTWIDGET_H

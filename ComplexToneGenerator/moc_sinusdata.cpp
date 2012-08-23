@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'sinusdata.h'
 **
-** Created: Tue Aug 21 11:07:21 2012
+** Created: Fri Aug 24 00:14:15 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!

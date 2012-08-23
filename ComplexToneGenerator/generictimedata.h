@@ -56,14 +56,15 @@ public slots:
      void showBaseControl();
      void showExtendedControl();
 
+
 protected:
      virtual void recalc() {} //Reimplement this method to update data with the want function, rembert to delete and regenearte m_data and m_curve.
      void deleteAllData(); //Delete all referenced internal pointed data (m_t, m_y).
      void resetAllData(); //Reset all referenced internal pointed data (m_t, m_y).
-
-     void createDataCurve();//Set
      double * getTimeData() {return m_t;}
      double * getSignalData() {return m_s;}
+     void createDataCurve();//Set
+
      void setTimeData(double * t, long int len);
      void setSignalData(double * s, long int len);
      void setExtendedControl(QWidget * extendedWidget);// This method allows the extended class to add its own UI controllers

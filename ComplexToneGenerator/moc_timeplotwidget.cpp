@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'timeplotwidget.h'
 **
-** Created: Tue Aug 21 10:50:04 2012
+** Created: Fri Aug 24 00:14:16 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_TimePlotWidget[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -35,6 +35,7 @@ static const uint qt_meta_data_TimePlotWidget[] = {
       50,   41,   15,   15, 0x0a,
       70,   15,   15,   15, 0x0a,
       90,   15,   15,   15, 0x0a,
+     113,   15,   15,   15, 0x0a,
 
        0        // eod
 };
@@ -43,6 +44,7 @@ static const char qt_meta_stringdata_TimePlotWidget[] = {
     "TimePlotWidget\0\0SR\0setSampleRate(double)\0"
     "duration\0setDuration(double)\0"
     "timeOptionPressed()\0zoomPanButtonPressed()\0"
+    "dataUpdated()\0"
 };
 
 void TimePlotWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -55,6 +57,7 @@ void TimePlotWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 1: _t->setDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 2: _t->timeOptionPressed(); break;
         case 3: _t->zoomPanButtonPressed(); break;
+        case 4: _t->dataUpdated(); break;
         default: ;
         }
     }
@@ -92,9 +95,9 @@ int TimePlotWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 5;
     }
     return _id;
 }

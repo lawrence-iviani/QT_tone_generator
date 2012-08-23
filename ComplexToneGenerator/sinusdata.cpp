@@ -3,15 +3,14 @@
 SinusData::SinusData() :
     GenericTimeData()
 {
-
-
     m_initPhase=SINUSDATA_DEFAULT_INITPHASE;
     m_frequency=SINUSDATA_DEFAULT_FREQUENCY;
     m_amplitude=SINUSDATA_DEFAULT_AMPLITUDE;
-    m_duration=SINUSDATA_DEFAULT_DURATION;
+
     m_t0=SINUSDATA_DEFAULT_INITTIME;
     this->initControl();
     this->setExtendedControl(m_widgetControl);
+    this->setDuration(SINUSDATA_DEFAULT_DURATION);
     connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(maxDurationChanged(double)));
     this->updateData();
 }
@@ -23,10 +22,10 @@ SinusData::SinusData(double duration, double SRGen) :
     m_frequency=SINUSDATA_DEFAULT_FREQUENCY;
     m_amplitude=SINUSDATA_DEFAULT_AMPLITUDE;
     m_t0=SINUSDATA_DEFAULT_INITTIME;
-    //Init a figure with the same duration of the base class
-    m_duration=duration;
+    //Init a figure with the same duration of the base class  
     this->initControl();
     this->setExtendedControl(m_widgetControl);
+    this->setDuration(duration);
     connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(maxDurationChanged(double)));
     this->updateData();
 }
@@ -35,16 +34,16 @@ SinusData::~SinusData() {
 
 }
 
-SinusData::SinusData( double duration, double SRGen,double amplitude, double frequency) :
+SinusData::SinusData( double duration, double SRGen,double amplitude, double frequency, double initPhase) :
     GenericTimeData(duration,SRGen)
 {
-    m_initPhase=0;
+    m_initPhase=initPhase;
     m_frequency=frequency;
     m_amplitude=amplitude;
-    //Init a figure with the same duration and start time  t0 of base class
-    m_duration=duration;
+    m_t0=SINUSDATA_DEFAULT_INITTIME;
     this->initControl();
     this->setExtendedControl(m_widgetControl);
+    this->setDuration(duration);
     connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(signalLimitsChanged()));
     this->updateData();
 }
@@ -55,7 +54,7 @@ void SinusData::recalc() {
     double phase=SinusData::deg2rad(this->initPhase());
 
     int n_dw=(this->startTime()-this->minStartTime())*this->sampleRateGeneration();
-    qDebug()<< "----------------";
+    qDebug()<< "SinusData::recalc() ---------------- " << this->name();
     qDebug() << "m_t0=" << this->startTime() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_dw >=0);
     Q_ASSERT(n_dw <=this->sampleNumber());
@@ -77,31 +76,47 @@ void SinusData::setAmplitudeFrequencyAndPhase(double amplitude,double frequency,
     m_amplitude=amplitude;
     m_frequency=frequency;
     m_initPhase=initPhase;
+
     //updating UI
+    bool sigStatus=m_dataControl.sliderFrequency->blockSignals(true);
     m_dataControl.sliderFrequency->setValue(m_frequency);
+    m_dataControl.sliderFrequency->blockSignals(sigStatus);
+
+    sigStatus=m_dataControl.sliderAmplitude->blockSignals(true);
     m_dataControl.sliderAmplitude->setValue(m_amplitude);
+    m_dataControl.sliderAmplitude->blockSignals(sigStatus);
+
+    sigStatus=m_dataControl.sliderInitPhase->blockSignals(true);
     m_dataControl.sliderInitPhase->setValue(m_initPhase);
+    m_dataControl.sliderInitPhase->blockSignals(sigStatus);
+
     this->updateData();
 }
 
 void SinusData::setAmplitude(double amplitude) {
     m_amplitude=amplitude;
     //updating UI
+    bool sigStatus=m_dataControl.sliderAmplitude->blockSignals(true);
     m_dataControl.sliderAmplitude->setValue(m_amplitude);
+    m_dataControl.sliderAmplitude->blockSignals(sigStatus);
     this->updateData();
 }
 
 void SinusData::setFrequency(double frequency) {
     m_frequency=frequency;
     //updating UI
+    bool sigStatus=m_dataControl.sliderFrequency->blockSignals(true);
     m_dataControl.sliderFrequency->setValue(m_frequency);
+    m_dataControl.sliderFrequency->blockSignals(sigStatus);
     this->updateData();
 }
 
 void SinusData::setInitPhase(double initPhase) {
     m_initPhase=initPhase;
     //updating UI
+    bool sigStatus=m_dataControl.sliderInitPhase->blockSignals(true);
     m_dataControl.sliderInitPhase->setValue(m_initPhase);
+    m_dataControl.sliderInitPhase->blockSignals(sigStatus);
     this->updateData();
 }
 
@@ -116,7 +131,9 @@ void SinusData::setDuration(double duration) {
         m_duration=duration;
     }
     //Update UI
+    bool sigStatus=m_dataControl.sliderDuration->blockSignals(true);
     m_dataControl.sliderDuration->setValue(m_duration);
+    m_dataControl.sliderDuration->blockSignals(sigStatus);
     this->updateData();
 }
 
@@ -131,7 +148,9 @@ void SinusData::setStartTime(double t0) {
         m_t0=t0;
     }
     //Update UI
+    bool sigStatus=m_dataControl.slider_t0->blockSignals(true);
     m_dataControl.slider_t0->setValue(m_t0);
+    m_dataControl.slider_t0->blockSignals(sigStatus);
     //Call set duration to verify if the duration must be clipped and to recalc  the curve
     this->setDuration(m_duration);
 }

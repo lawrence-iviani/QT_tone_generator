@@ -2,6 +2,7 @@
 #define TIMEPLOTWIGET_H
 
 #include "plotwidget.h"
+#include "digesttimedata.h"
 #include <CTG_constants.h>
 
 class TimePlotWidget : public PlotWidget
@@ -9,11 +10,12 @@ class TimePlotWidget : public PlotWidget
     Q_OBJECT
 public:
     explicit TimePlotWidget(QWidget *parent = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
+    ~TimePlotWidget();
     virtual QWidget * getControlWidget() {return m_allControl;}
     double sampleRate() {return m_SR;}
     double duration() {return m_duration;}
     double minTime() {return m_t0;}
-
+    DigestTimeData * getDigestCurve() {return m_digestCurve;} //return the digest curve
 signals:
     
 public slots:
@@ -21,6 +23,10 @@ public slots:
     void setDuration(double duration);
     void timeOptionPressed();
     void zoomPanButtonPressed();
+    virtual void dataUpdated() { qDebug() << "TimePlotWidget::dataUpdated() CALLED"; m_digestCurve->updateData(); ;this->replot();} //
+   // void curveListHasChanged();
+protected:
+    DigestTimeData * m_digestCurve;
 
 private:
     void createControlWidget();//Create the the base control

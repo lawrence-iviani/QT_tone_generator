@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'mainwindow.h'
 **
-** Created: Tue Aug 21 10:50:03 2012
+** Created: Fri Aug 24 00:14:12 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -41,7 +41,7 @@ static const uint qt_meta_data_MainWindow[] = {
 
 static const char qt_meta_stringdata_MainWindow[] = {
     "MainWindow\0\0newCurve()\0removeCurve()\0"
-    "index\0changedCurve(int)\0dataUpdated()\0"
+    "index\0changedCurve(int)\0timeDataUpdated()\0"
 };
 
 void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -53,7 +53,7 @@ void MainWindow::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         case 0: _t->newCurve(); break;
         case 1: _t->removeCurve(); break;
         case 2: _t->changedCurve((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 3: _t->dataUpdated(); break;
+        case 3: _t->timeDataUpdated(); break;
         default: ;
         }
     }

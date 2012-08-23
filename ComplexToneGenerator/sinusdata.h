@@ -11,7 +11,7 @@ class SinusData : public GenericTimeData
 public:
     SinusData();
     SinusData(double duration, double SRGen);
-    SinusData(double duration,double SRGen, double amplitude, double frequency );
+    SinusData(double duration,double SRGen, double amplitude, double frequency, double initPhase );
     virtual ~SinusData();
     static double deg2rad(double deg) {return deg*M_PI/180.0;}
     double amplitude() {return m_amplitude;}
@@ -34,6 +34,7 @@ public slots:
 
 protected:
     virtual void recalc();
+
  private:
     static double const SINUSDATA_DEFAULT_INITPHASE=0;
     static double const SINUSDATA_DEFAULT_FREQUENCY=10;
