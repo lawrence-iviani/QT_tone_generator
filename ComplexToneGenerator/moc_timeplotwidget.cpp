@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'timeplotwidget.h'
 **
-** Created: Fri Aug 24 00:14:16 2012
+** Created: Fri Aug 24 19:54:40 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -44,7 +44,7 @@ static const char qt_meta_stringdata_TimePlotWidget[] = {
     "TimePlotWidget\0\0SR\0setSampleRate(double)\0"
     "duration\0setDuration(double)\0"
     "timeOptionPressed()\0zoomPanButtonPressed()\0"
-    "dataUpdated()\0"
+    "updatePlot()\0"
 };
 
 void TimePlotWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -57,7 +57,7 @@ void TimePlotWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 1: _t->setDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 2: _t->timeOptionPressed(); break;
         case 3: _t->zoomPanButtonPressed(); break;
-        case 4: _t->dataUpdated(); break;
+        case 4: _t->updatePlot(); break;
         default: ;
         }
     }

@@ -51,7 +51,7 @@ public slots:
     * Extended class handle the curves correctly in order to obtain the correct results.
     * All the stuff of init, object handling etc. are delegated to the inheriting class.
     */
-    virtual void dataUpdated() { qDebug() << "PlotWidget::dataUpdated() CALLED";this->replot();} //
+    virtual void updatePlot() { qDebug() << "PlotWidget::dataUpdated() CALLED";this->replot();} //
 protected:
     QList<GenericTimeData*> m_curveList;
 

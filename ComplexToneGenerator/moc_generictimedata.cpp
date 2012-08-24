@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'generictimedata.h'
 **
-** Created: Fri Aug 24 00:14:14 2012
+** Created: Fri Aug 24 19:54:38 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,40 +23,43 @@ static const uint qt_meta_data_GenericTimeData[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-      11,   14, // methods
+      13,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
        0,       // flags
-       2,       // signalCount
+       1,       // signalCount
 
  // signals: signature, parameters, type, tag, flags
       17,   16,   16,   16, 0x05,
-      43,   31,   16,   16, 0x05,
 
  // slots: signature, parameters, type, tag, flags
-      69,   31,   16,   16, 0x0a,
-      95,   92,   16,   16, 0x0a,
-     122,  117,   16,   16, 0x0a,
-     145,  139,   16,   16, 0x0a,
-     169,  162,   16,   16, 0x0a,
-     190,   16,   16,   16, 0x0a,
-     204,   16,   16,   16, 0x0a,
-     217,   16,   16,   16, 0x0a,
-     235,   16,   16,   16, 0x0a,
+      43,   31,   16,   16, 0x0a,
+      69,   66,   16,   16, 0x0a,
+      96,   91,   16,   16, 0x0a,
+     119,  113,   16,   16, 0x0a,
+     143,  136,   16,   16, 0x0a,
+     164,  136,   16,   16, 0x0a,
+     183,   16,   16,   16, 0x0a,
+     197,   16,   16,   16, 0x0a,
+     210,   16,   16,   16, 0x0a,
+     228,   16,   16,   16, 0x0a,
+     258,   16,  250,   16, 0x0a,
+     272,   16,  250,   16, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_GenericTimeData[] = {
     "GenericTimeData\0\0dataUpdated()\0"
-    "maxDuration\0maxDurationUpdate(double)\0"
-    "setMaxDuration(double)\0SR\0"
-    "setSampleRate(double)\0name\0setName(QString)\0"
-    "color\0setColor(QColor)\0enable\0"
-    "setEnableCurve(bool)\0nameUpdated()\0"
+    "maxDuration\0setMaxDuration(double)\0"
+    "SR\0setSampleRate(double)\0name\0"
+    "setName(QString)\0color\0setColor(QColor)\0"
+    "enable\0setEnableCurve(bool)\0"
+    "setShowCurve(bool)\0nameUpdated()\0"
     "updateData()\0showBaseControl()\0"
-    "showExtendedControl()\0"
+    "showExtendedControl()\0double*\0"
+    "getTimeData()\0getSignalData()\0"
 };
 
 void GenericTimeData::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -66,16 +69,20 @@ void GenericTimeData::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int 
         GenericTimeData *_t = static_cast<GenericTimeData *>(_o);
         switch (_id) {
         case 0: _t->dataUpdated(); break;
-        case 1: _t->maxDurationUpdate((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 2: _t->setMaxDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 3: _t->setSampleRate((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 4: _t->setName((*reinterpret_cast< QString(*)>(_a[1]))); break;
-        case 5: _t->setColor((*reinterpret_cast< QColor(*)>(_a[1]))); break;
-        case 6: _t->setEnableCurve((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 1: _t->setMaxDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 2: _t->setSampleRate((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 3: _t->setName((*reinterpret_cast< QString(*)>(_a[1]))); break;
+        case 4: _t->setColor((*reinterpret_cast< QColor(*)>(_a[1]))); break;
+        case 5: _t->setEnableCurve((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 6: _t->setShowCurve((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 7: _t->nameUpdated(); break;
         case 8: _t->updateData(); break;
         case 9: _t->showBaseControl(); break;
         case 10: _t->showExtendedControl(); break;
+        case 11: { double* _r = _t->getTimeData();
+            if (_a[0]) *reinterpret_cast< double**>(_a[0]) = _r; }  break;
+        case 12: { double* _r = _t->getSignalData();
+            if (_a[0]) *reinterpret_cast< double**>(_a[0]) = _r; }  break;
         default: ;
         }
     }
@@ -113,9 +120,9 @@ int GenericTimeData::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 11)
+        if (_id < 13)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 11;
+        _id -= 13;
     }
     return _id;
 }
@@ -124,12 +131,5 @@ int GenericTimeData::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
 void GenericTimeData::dataUpdated()
 {
     QMetaObject::activate(this, &staticMetaObject, 0, 0);
-}
-
-// SIGNAL 1
-void GenericTimeData::maxDurationUpdate(double _t1)
-{
-    void *_a[] = { 0, const_cast<void*>(reinterpret_cast<const void*>(&_t1)) };
-    QMetaObject::activate(this, &staticMetaObject, 1, _a);
 }
 QT_END_MOC_NAMESPACE

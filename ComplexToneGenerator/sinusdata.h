@@ -30,7 +30,7 @@ public slots:
     void setDuration(double duration);//Set the duration of this signal, it will be clipped by the base class if the min or max time values are outside the limits of the base class
     void setStartTime(double t0);//Set the min start time of this signal, it will be clipped by the base class if the min or max time values are outside the limits of the base class
     //void minStartTimeChanged(double t0);//Call this slot if some lower time limit is changed in the base class.
-    void maxDurationChanged(double maxDuration);//Call this slot if the duration of the whole signal is changed in the base class.
+    virtual void setMaxDuration(double maxDuration);//
 
 protected:
     virtual void recalc();
@@ -48,7 +48,7 @@ protected:
     double m_t0;
     double m_duration;
     double * m_sinus;
-    QWidget * m_widgetControl;
+    QFrame * m_widgetControl;
     void initControl();
 
     struct {

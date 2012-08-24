@@ -10,6 +10,7 @@ GenericTimeData::GenericTimeData()
     m_curve=NULL;
     m_data=NULL;
     m_sample=0;
+    m_curveEnabled=true;
     m_name=QString("no name");
     m_curve=new QwtPlotCurve(m_name);
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -29,6 +30,7 @@ GenericTimeData::GenericTimeData(double maxDuration, double SRGen)
     m_curve=NULL;
     m_data=NULL;
     m_sample=0;
+    m_curveEnabled=true;
     m_name=QString("no name");
     m_curve=new QwtPlotCurve(m_name);
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
@@ -44,11 +46,6 @@ GenericTimeData::~GenericTimeData() {
         free(m_curve);
     }
     free(m_data);
-}
-
-void GenericTimeData::setSampleRate(double SR) {
-    m_SR=SR;
-    this->updateData();
 }
 
 void GenericTimeData::updateData() {
@@ -79,7 +76,7 @@ void GenericTimeData::resetAllData() {
 void GenericTimeData::createDataCurve() {
     Q_ASSERT(m_curve!=NULL);
     m_data=new QwtCPointerData(m_t,m_s,m_sample);
-    m_curve->setData(m_data);
+    m_curve->setData(m_data);//m_data is freed in the setData, see QWT documentation regarding QwtPlotCurve class beahvior
 }
 
 void GenericTimeData::deleteAllData() {
@@ -116,16 +113,28 @@ void GenericTimeData::deleteAllData() {
 //    this->updateData();
 //}
 
-void GenericTimeData::setMaxDuration(double  maxDuration) {
+void GenericTimeData::setMaxDurationAndUpdate(double  maxDuration, bool updateData) {
     if (maxDuration < 0) {
         m_MaxDuration=0;
     } else {
         m_MaxDuration=maxDuration;
     }
     // m_Max_t1=m_MaxDuration+m_Min_t0;
-     emit maxDurationUpdate(m_MaxDuration);
-     this->updateData();
- }
+    if (updateData) this->updateData();
+}
+
+void GenericTimeData::setMaxDuration(double  maxDuration) {
+    this->setMaxDurationAndUpdate(maxDuration,true);
+}
+
+void GenericTimeData::setSampleRate(double SR) {
+    this->setSampleRateAndUpdate(SR,true);
+}
+
+void GenericTimeData::setSampleRateAndUpdate(double SR, bool updateData) {
+    m_SR=SR;
+    if (updateData) this->updateData();
+}
 
 //void GenericTimeData::setMaxEndTime(double  t1) {
 //    if (t1 < m_Min_t0) {
@@ -170,6 +179,15 @@ void GenericTimeData::setName(QString name) {
 }
 
 void GenericTimeData::setEnableCurve(bool enable) {
+    this->m_curveEnabled=enable;
+    bool prevSig=m_baseControl.checkBoxShowCurve->blockSignals(true);
+    m_baseControl.checkBoxShowCurve->setDisabled(!enable);
+    m_baseControl.checkBoxShowCurve->setChecked(enable);
+    m_baseControl.checkBoxShowCurve->blockSignals(prevSig);
+    this->setShowCurve(enable);
+}
+
+void GenericTimeData::setShowCurve(bool enable) {
     if (enable) {
         m_curve->show();
     } else {
@@ -207,7 +225,9 @@ void GenericTimeData::showExtendedControl() {
 }
 
 void GenericTimeData::createBaseControl() {
-    m_allControl=new QWidget();
+    m_allControl=new QFrame();
+    m_allControl->setFrameShape(QFrame::WinPanel);
+    m_allControl->setFrameShadow(QFrame::Raised);
     m_allControl->setLayout(new QVBoxLayout());
     QVBoxLayout * l=(QVBoxLayout*) m_allControl->layout();
 
@@ -232,7 +252,7 @@ void GenericTimeData::setExtendedControl(QWidget * extendedWidget) {
     connect(m_extendedControl.toggleButtonOptionControl,SIGNAL(clicked(bool)),this,SLOT(showExtendedControl()));
 
     //Adding widget
-    m_extendedControl.extendedWidget=extendedWidget;
+    m_extendedControl.extendedWidget=(QFrame*)extendedWidget;
     if (m_extendedControl.extendedWidget!=NULL) {
         //Add button
         l->addWidget(m_extendedControl.toggleButtonOptionControl,1);//,Qt::AlignLeft);
@@ -244,13 +264,14 @@ void GenericTimeData::setExtendedControl(QWidget * extendedWidget) {
 }
 
 void GenericTimeData::initBaseControlWidget() {
-
     //setting font base dimension
     QFont f=*(new QFont());
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Widget container and layout
-    m_baseControl.baseWidget=new QWidget();
+    m_baseControl.baseWidget=new QFrame();
+    m_baseControl.baseWidget->setFrameShape(QFrame::WinPanel);
+    m_baseControl.baseWidget->setFrameShadow(QFrame::Raised);
     QVBoxLayout * l=new QVBoxLayout();
     l->setSizeConstraint(QLayout::SetMinimumSize);
     m_baseControl.baseWidget->setLayout(l) ;
@@ -265,11 +286,17 @@ void GenericTimeData::initBaseControlWidget() {
     m_baseControl.lineName->setFont(f);
     connect( m_baseControl.lineName,SIGNAL(editingFinished()) ,this,SLOT(nameUpdated()) );
 
+    //Show curve
+    m_baseControl.checkBoxShowCurve=new QCheckBox("Show curve",NULL);
+    m_baseControl.checkBoxShowCurve->setChecked(true);
+    m_baseControl.checkBoxShowCurve->setFont(f);
+    connect(m_baseControl.checkBoxShowCurve,SIGNAL(toggled(bool)),this,SLOT(setShowCurve(bool)));
+
     //Enable curve
     m_baseControl.checkBoxEnableCurve=new QCheckBox("Enable curve",NULL);
     m_baseControl.checkBoxEnableCurve->setChecked(true);
     m_baseControl.checkBoxEnableCurve->setFont(f);
-    connect(m_baseControl.checkBoxEnableCurve,SIGNAL(toggled(bool)),this,SLOT(setEnableCurve(bool)));
+    connect(m_baseControl.checkBoxEnableCurve,SIGNAL(toggled(bool)),this,SLOT(setEnableCurve(bool)) );
 
     //Curve color
     m_baseControl.comboColor=new ComboBoxWidgetColor(NULL);
@@ -281,9 +308,8 @@ void GenericTimeData::initBaseControlWidget() {
     l->addWidget(_nameLabel,1,Qt::AlignCenter);
     l->addWidget(m_baseControl.lineName,1,Qt::AlignCenter);
     l->addWidget(m_baseControl.checkBoxEnableCurve,1,Qt::AlignCenter);
+    l->addWidget(m_baseControl.checkBoxShowCurve,1,Qt::AlignCenter);
     l->addWidget(m_baseControl.comboColor,1,Qt::AlignCenter);
-
-
 }
 
 

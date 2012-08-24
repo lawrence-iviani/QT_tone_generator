@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'plotwidget.h'
 **
-** Created: Fri Aug 24 00:14:13 2012
+** Created: Fri Aug 24 19:54:36 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -37,18 +37,18 @@ static const uint qt_meta_data_PlotWidget[] = {
       31,   11,   11,   11, 0x0a,
 
  // enums: name, flags, count, data
-      45, 0x0,    2,   28,
+      44, 0x0,    2,   28,
 
  // enum data: key, value
-      51, uint(PlotWidget::Linear),
-      58, uint(PlotWidget::Logarithmic),
+      50, uint(PlotWidget::Linear),
+      57, uint(PlotWidget::Logarithmic),
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_PlotWidget[] = {
     "PlotWidget\0\0curveListChanged()\0"
-    "dataUpdated()\0Scale\0Linear\0Logarithmic\0"
+    "updatePlot()\0Scale\0Linear\0Logarithmic\0"
 };
 
 void PlotWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -58,7 +58,7 @@ void PlotWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, 
         PlotWidget *_t = static_cast<PlotWidget *>(_o);
         switch (_id) {
         case 0: _t->curveListChanged(); break;
-        case 1: _t->dataUpdated(); break;
+        case 1: _t->updatePlot(); break;
         default: ;
         }
     }

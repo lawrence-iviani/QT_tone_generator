@@ -23,7 +23,11 @@ public slots:
     void setDuration(double duration);
     void timeOptionPressed();
     void zoomPanButtonPressed();
-    virtual void dataUpdated() { qDebug() << "TimePlotWidget::dataUpdated() CALLED"; m_digestCurve->updateData(); ;this->replot();} //
+
+    /**
+      * this function override base class function and before replot update the data in the digest curve.
+      */
+    virtual void updatePlot() { qDebug() << "TimePlotWidget::dataUpdated() CALLED"; m_digestCurve->updateData(); this->replot();}
    // void curveListHasChanged();
 protected:
     DigestTimeData * m_digestCurve;
@@ -36,14 +40,14 @@ private:
     double m_duration;
     double m_t0;
     struct {
-      QWidget * baseControlWidget;
+      QFrame * baseControlWidget;
       ZMP_Handler * m_zmp;//Handle zoom, panel etc
       QPushButton * toggleButtonOptionEnable;
       QPushButton * toggleButtonZMP;//Zoom Move Pan enable button
       ScaledSliderWidget * sliderSR;//Allows to change the sample rate of the whole generated signal
       ScaledSliderWidget * sliderDuration;//Allows to change the max duration of ALL the signals. The reference is ALWAYS t0
     } m_baseControl;
-    QWidget * m_allControl;//The widget with all control (base and eventually extended
+    QFrame * m_allControl;//The widget with all control (base and eventually extended
 
 };
 

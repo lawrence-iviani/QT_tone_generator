@@ -12,10 +12,12 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
 }
 
 TimePlotWidget::~TimePlotWidget() {
-    delete m_digestCurve;
+
 }
 
 void TimePlotWidget::setSampleRate(double SR) {
+    m_SR=SR;
+
     int n=0;
     GenericTimeData * gtd=this->getTimeData(n);
     bool sigStatus;
@@ -25,18 +27,24 @@ void TimePlotWidget::setSampleRate(double SR) {
         gtd->blockSignals(sigStatus);
         gtd=this->getTimeData(++n);
     }
-    m_SR=SR;
+    //update the digest curve
+    sigStatus=m_digestCurve->blockSignals(true);
+    m_digestCurve->setSampleRate(SR);
+    m_digestCurve->blockSignals(sigStatus);
 
     //Update UI
     sigStatus=m_baseControl.sliderSR->blockSignals(true);
     m_baseControl.sliderSR->setValue(SR);
+    this->updatePlot();
     m_baseControl.sliderSR->blockSignals(sigStatus);
 
-    //update the digest curve
-    m_digestCurve->setSampleRate(SR);
+    //Replot and recalc digest
+    //this->updatePlot();
 }
 
 void TimePlotWidget::setDuration(double duration) {
+    m_duration=duration;
+
     int n=0;
     GenericTimeData * gtd=this->getTimeData(n);
     bool sigStatus;
@@ -46,15 +54,19 @@ void TimePlotWidget::setDuration(double duration) {
         gtd->blockSignals(sigStatus);
         gtd=this->getTimeData(++n);
     }
-    m_duration=duration;
+
+    //update the digest curve
+    sigStatus=m_digestCurve->blockSignals(true);
+    m_digestCurve->setMaxDuration(m_duration);
+    m_digestCurve->blockSignals(sigStatus);
 
     //Update UI
     sigStatus=m_baseControl.sliderDuration->blockSignals(true);
     m_baseControl.sliderDuration->setValue(m_duration);
     m_baseControl.sliderDuration->blockSignals(sigStatus);
 
-    //update the digest curve
-    m_digestCurve->setMaxDuration(m_duration);
+    //Replot and recalc digest
+    this->updatePlot();
 
 }
 
@@ -62,7 +74,9 @@ void TimePlotWidget::createControlWidget() {
     //Init the control, ZMP. Other??
     m_baseControl.m_zmp=new ZMP_Handler(this->canvas());
 
-    m_allControl=new QWidget();
+    m_allControl=new QFrame();
+    m_allControl->setFrameShape(QFrame::WinPanel);
+    m_allControl->setFrameShadow(QFrame::Raised);
     m_allControl->setLayout(new QVBoxLayout());
     QVBoxLayout * l=(QVBoxLayout*)m_allControl->layout();
 
@@ -83,7 +97,9 @@ void TimePlotWidget::initBaseControlWidget() {
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Widget container and layout for the real control option
-    m_baseControl.baseControlWidget=new QWidget();
+    m_baseControl.baseControlWidget=new QFrame();
+    m_baseControl.baseControlWidget->setFrameShape(QFrame::WinPanel);
+    m_baseControl.baseControlWidget->setFrameShadow(QFrame::Raised);
     QVBoxLayout * lBase=new QVBoxLayout();
     m_baseControl.baseControlWidget->setLayout(lBase) ;
     m_baseControl.baseControlWidget->hide();
@@ -97,7 +113,7 @@ void TimePlotWidget::initBaseControlWidget() {
 
     //set Sample rate
     m_baseControl.sliderSR = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_baseControl.sliderSR->setScale(24000,96000,12000);
+    m_baseControl.sliderSR->setScale(TIMEDATA_DEFAULT_MIN_SR,TIMEDATA_DEFAULT_MAX_SR,TIMEDATA_DEFAULT_STEP_SR);
     m_baseControl.sliderSR->setValue(m_SR);
     m_baseControl.sliderSR->setName("SR Generation");
     m_baseControl.sliderSR->setMeasureUnit("Hz");

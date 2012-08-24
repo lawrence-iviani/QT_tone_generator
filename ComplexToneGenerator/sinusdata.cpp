@@ -49,12 +49,12 @@ SinusData::SinusData( double duration, double SRGen,double amplitude, double fre
 }
 
 void SinusData::recalc() {
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - SinusData::recalc() ---------------- " << this->name();
     double * m_sinus=this->getSignalData();
     double * t=this->getTimeData();
     double phase=SinusData::deg2rad(this->initPhase());
 
     int n_dw=(this->startTime()-this->minStartTime())*this->sampleRateGeneration();
-    qDebug()<< "SinusData::recalc() ---------------- " << this->name();
     qDebug() << "m_t0=" << this->startTime() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_dw >=0);
     Q_ASSERT(n_dw <=this->sampleNumber());
@@ -64,9 +64,6 @@ void SinusData::recalc() {
     Q_ASSERT( n_up>=0 );
     Q_ASSERT(n_up<=this->sampleNumber());
 
-
-    qDebug() << "m_min_t0=" << this->minStartTime() << " m_max_Duration=" << this->maxDuration() << " SR=" << this->sampleRateGeneration();
-    qDebug() << "NSample=" << this->sampleNumber() << " n_dw=" << n_dw << " n_up=" << n_up;
     for (int n=n_dw; n < n_up; n++) {
         m_sinus[n]=this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase);
     }
@@ -155,9 +152,12 @@ void SinusData::setStartTime(double t0) {
     this->setDuration(m_duration);
 }
 
-void SinusData::maxDurationChanged(double maxDuration) {
-    if ( (this->startTime()+this->duration()) >maxDuration ) {
+void SinusData::setMaxDuration(double maxDuration) {
+    if ( (this->startTime()+this->duration())>maxDuration ) {
+        this->setMaxDurationAndUpdate(maxDuration,false);
         this->setDuration(maxDuration-this->startTime());
+    } else {
+        this->setMaxDurationAndUpdate(maxDuration,true);
     }
 }
 
@@ -168,7 +168,9 @@ void SinusData::initControl() {
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Widget container and layout
-    m_widgetControl=new QWidget();
+    m_widgetControl=new QFrame();
+    m_widgetControl->setFrameShape(QFrame::WinPanel);
+    m_widgetControl->setFrameShadow(QFrame::Raised);
     QVBoxLayout * l=new QVBoxLayout();
     m_widgetControl->setLayout(l) ;
     m_widgetControl->hide();

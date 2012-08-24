@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'sinusdata.h'
 **
-** Created: Fri Aug 24 00:14:15 2012
+** Created: Fri Aug 24 19:54:39 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -49,7 +49,7 @@ static const char qt_meta_stringdata_SinusData[] = {
     "setFrequency(double)\0initPhase\0"
     "setInitPhase(double)\0duration\0"
     "setDuration(double)\0t0\0setStartTime(double)\0"
-    "maxDuration\0maxDurationChanged(double)\0"
+    "maxDuration\0setMaxDuration(double)\0"
 };
 
 void SinusData::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -64,7 +64,7 @@ void SinusData::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, v
         case 3: _t->setInitPhase((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 4: _t->setDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
         case 5: _t->setStartTime((*reinterpret_cast< double(*)>(_a[1]))); break;
-        case 6: _t->maxDurationChanged((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 6: _t->setMaxDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
         default: ;
         }
     }

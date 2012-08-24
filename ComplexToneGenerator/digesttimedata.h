@@ -16,11 +16,13 @@ public:
 signals:
     
 public slots:
-    void maxDurationChanged(double maxDuration);//Call this slot if the duration of the whole signal is changed in the base class.
+    virtual void setMaxDuration(double maxDuration);//Set the max duration of this data set,  in this case i don't want a dataUpdate call
+    virtual void setSampleRate(double SR);
     void setTimeDataList(QList<GenericTimeData*> *m_curveList);
 protected:
-    virtual void recalc();
+
 private:
+    virtual void recalc();
     QList<GenericTimeData*> * m_curveList;
     
 };

@@ -128,7 +128,7 @@ void MainWindow::removeCurve(){
         delete s->getControlWidget();
 
         //Disconnecting signal
-        disconnect(s,SIGNAL(dataUpdated()),this,SLOT(timeDataUpdated()));
+        //disconnect(s,SIGNAL(dataUpdated()),this,SLOT(timeDataUpdated()));
 
         //Remove curve from plot
         m_plotTime->removeTimeData(index);
