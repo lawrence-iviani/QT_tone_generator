@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'timeplotwidget.h'
 **
-** Created: Mon Aug 20 13:26:22 2012
+** Created: Fri Aug 24 19:54:40 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_TimePlotWidget[] = {
        6,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -31,15 +31,20 @@ static const uint qt_meta_data_TimePlotWidget[] = {
        0,       // signalCount
 
  // slots: signature, parameters, type, tag, flags
-      16,   15,   15,   15, 0x08,
-      36,   15,   15,   15, 0x08,
+      19,   16,   15,   15, 0x0a,
+      50,   41,   15,   15, 0x0a,
+      70,   15,   15,   15, 0x0a,
+      90,   15,   15,   15, 0x0a,
+     113,   15,   15,   15, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_TimePlotWidget[] = {
-    "TimePlotWidget\0\0timeOptionPressed()\0"
-    "zoomPanButtonPressed()\0"
+    "TimePlotWidget\0\0SR\0setSampleRate(double)\0"
+    "duration\0setDuration(double)\0"
+    "timeOptionPressed()\0zoomPanButtonPressed()\0"
+    "updatePlot()\0"
 };
 
 void TimePlotWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _id, void **_a)
@@ -48,12 +53,14 @@ void TimePlotWidget::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         Q_ASSERT(staticMetaObject.cast(_o));
         TimePlotWidget *_t = static_cast<TimePlotWidget *>(_o);
         switch (_id) {
-        case 0: _t->timeOptionPressed(); break;
-        case 1: _t->zoomPanButtonPressed(); break;
+        case 0: _t->setSampleRate((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 1: _t->setDuration((*reinterpret_cast< double(*)>(_a[1]))); break;
+        case 2: _t->timeOptionPressed(); break;
+        case 3: _t->zoomPanButtonPressed(); break;
+        case 4: _t->updatePlot(); break;
         default: ;
         }
     }
-    Q_UNUSED(_a);
 }
 
 const QMetaObjectExtraData TimePlotWidget::staticMetaObjectExtraData = {
@@ -88,9 +95,9 @@ int TimePlotWidget::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 5;
     }
     return _id;
 }

@@ -7,9 +7,9 @@ FreqPlotWidget::FreqPlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
 }
 
 void FreqPlotWidget::createControlWidget() {
-
-
-    m_allControl=new QWidget();
+    m_allControl=new QFrame();
+    m_allControl->setFrameShape(QFrame::WinPanel);
+    m_allControl->setFrameShadow(QFrame::Raised);
     m_allControl->setLayout(new QVBoxLayout());
     QVBoxLayout * l=(QVBoxLayout*)m_allControl->layout();
 
@@ -27,10 +27,12 @@ void FreqPlotWidget::createControlWidget() {
 void FreqPlotWidget::initBaseControlWidget() {
     //setting font base dimension
     QFont f=*(new QFont());
-    f.setPointSize(BASE_SIZE);
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Widget container and layout for the real control option
-    m_baseControl.baseControlWidget=new QWidget();
+    m_baseControl.baseControlWidget=new QFrame();
+    m_baseControl.baseControlWidget->setFrameShape(QFrame::WinPanel);
+    m_baseControl.baseControlWidget->setFrameShadow(QFrame::Raised);
     QVBoxLayout * lBase=new QVBoxLayout();
     m_baseControl.baseControlWidget->setLayout(lBase) ;
     m_baseControl.baseControlWidget->hide();

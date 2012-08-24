@@ -5,7 +5,7 @@
 PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     QwtPlot(parent)
 {
-    m_dimension=DEFAULT_PLOT_DIMENSION;
+    m_dimension=PLOTWIDGET_DEFAULT_PLOT_DIMENSION;
     this->plotSetup();
     this->setXScaleType(xScaleType);
     this->setYScaleType(yScaleType);
@@ -104,7 +104,9 @@ void PlotWidget::setDimension(int pointDimension) {
 int PlotWidget::addTimeData(GenericTimeData * gtd) {
     m_curveList.append(gtd);
     gtd->getCurve()->attach(this);
-    this->replot();
+    connect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
+    this->updatePlot();
+    emit curveListChanged();
     return (m_curveList.length()-1);
 }
 
@@ -113,11 +115,13 @@ bool PlotWidget::removeTimeData(int index) {
     if (  (0 <= index) && (index < m_curveList.length()) ) {
         GenericTimeData *  gtd=this->getTimeData(index);
         gtd->getCurve()->detach();
+        disconnect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
         Q_ASSERT(gtd!=NULL);
         delete gtd;
         m_curveList.removeAt(index);
         retval=true;
-        this->replot();
+        this->updatePlot();
+        emit curveListChanged();
     }
     return retval;
 }
@@ -129,3 +133,5 @@ GenericTimeData * PlotWidget::getTimeData(int index) {
     }
     return retval;
 }
+
+

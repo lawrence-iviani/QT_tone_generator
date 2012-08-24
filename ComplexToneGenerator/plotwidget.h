@@ -2,6 +2,7 @@
 #define PLOTWIDGET_H
 
 #include <QWidget>
+#include <CTG_constants.h>
 #include <qwt.h>
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
@@ -40,21 +41,28 @@ public:
     int yScaleType() {return m_yScaleType;}
     int dimension()  {return m_dimension;}
 
+
+
 signals:
-
+    void curveListChanged();
 public slots:
-
-private:
-
-    void plotSetup();
-    int m_dimension;
-    static const int DEFAULT_PLOT_DIMENSION=11;
+  /**
+    * his method grant to be called when never one of the curve stored in this class, or extended class,is modified.
+    * Extended class handle the curves correctly in order to obtain the correct results.
+    * All the stuff of init, object handling etc. are delegated to the inheriting class.
+    */
+    virtual void updatePlot() { qDebug() << "PlotWidget::dataUpdated() CALLED";this->replot();} //
+protected:
     QList<GenericTimeData*> m_curveList;
 
-
-protected:
     int m_xScaleType;
     int m_yScaleType;
+private:
+    void plotSetup();
+    int m_dimension;
+
+protected:
+
 };
 
 #endif // PLOTWIDGET_H

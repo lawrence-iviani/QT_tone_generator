@@ -30,13 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->scrollAreaWidgetContents->setLayout(ui->scrollAreaLayout);
 
-    m_plotTime->setBothAxisScale(0.0,10.0,-1.0,1.0);
+    m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_MAX_TIME,-1.0,1.0);
     ui->scrollAreaLayout->addWidget(m_plotTime->getControlWidget(),1,Qt::AlignTop);
     ui->scrollAreaLayout->addWidget(m_plotFreq->getControlWidget(),1,Qt::AlignTop);
-
-   // m_plotTime->getControlWidget()->setParent(ui->scrollAreaWidgetContents);//TODO: questo setParent va re-implementato per tutti i widget nella istanza s?
-   // m_plotTime->getControlWidget()->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
-  //  ui->scrollAreaWidgetContents->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Maximum);
 
     m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
 
@@ -71,7 +67,7 @@ void MainWindow::newCurve() {
     m_plotTime->addTimeData(s);
 
     //connecting data to the interface
-    connect(s,SIGNAL(dataUpdated()),this,SLOT(dataUpdated()));
+    //connect(s,SIGNAL(dataUpdated()),this,SLOT(timeDataUpdated()));
 
     //adding controls to plot
     ui->scrollAreaLayout->addWidget(s->getControlWidget());
@@ -87,11 +83,11 @@ void MainWindow::setupCurves(SelectCurveWindowHelper * selectCurveHelper) {
 
     S_DataCurve t;
     t.name="Base curve";
-    t.description="This curve generate a constant zero signal (not so useful :) )";
+    t.description="  This curve generate a constant zero signal (not so useful :) )  ";
     selectCurveHelper->addData(t);
 
     t.name="Tone generator";
-    t.description="This curve generate a pure tone";
+    t.description=" This curve generate a pure tone ";
     selectCurveHelper->addData(t);
 }
 
@@ -99,11 +95,13 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     GenericTimeData * retval=NULL;
 
     if (QString::compare(selectCurveHelper->getSelectedDataCurve().name,"Base curve") ) {
-        retval=new GenericTimeData(1.1,7.9,96000);
+        retval=new GenericTimeData(m_plotTime->duration() , m_plotTime->sampleRate());
         return retval;
     }
     if (QString::compare(selectCurveHelper->getSelectedDataCurve().name,"Tone generator") ) {
-        SinusData * s=new SinusData(1.1,7.9,96000);
+        SinusData * s=new SinusData(m_plotTime->duration() , m_plotTime->sampleRate());
+        s->setStartTime(0.4);
+        s->setDuration(5.1);
         s->setAmplitudeFrequencyAndPhase(0.707,10,90);
         retval=(GenericTimeData*) s;
         return retval;
@@ -111,9 +109,10 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     return retval;
 }
 
-void MainWindow::dataUpdated() {
+void MainWindow::timeDataUpdated() {
     ui->comboBoxCurve->setItemText(m_lastIndexCurve,m_plotTime->getTimeData(m_lastIndexCurve)->name());
     m_plotTime->replot();
+    //replot the digest curve too!
 }
 
 void MainWindow::removeCurve(){
@@ -129,7 +128,7 @@ void MainWindow::removeCurve(){
         delete s->getControlWidget();
 
         //Disconnecting signal
-        disconnect(s,SIGNAL(dataUpdated()),this,SLOT(dataUpdated()));
+        //disconnect(s,SIGNAL(dataUpdated()),this,SLOT(timeDataUpdated()));
 
         //Remove curve from plot
         m_plotTime->removeTimeData(index);

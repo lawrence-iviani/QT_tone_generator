@@ -2,6 +2,7 @@
 #define FREQPLOTWIDGET_H
 
 #include "plotwidget.h"
+#include <CTG_constants.h>
 
 class FreqPlotWidget : public PlotWidget
 {
@@ -21,10 +22,10 @@ private:
     void initBaseControlWidget();
 
     struct {
-      QWidget * baseControlWidget;
+      QFrame * baseControlWidget;
       QPushButton * toggleButtonOptionEnable;
     } m_baseControl;
-    QWidget * m_allControl;//The widget with all control (base and eventually extended
+    QFrame * m_allControl;//The widget with all control (base and eventually extended
 
 };
 

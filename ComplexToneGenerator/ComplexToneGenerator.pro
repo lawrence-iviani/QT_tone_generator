@@ -26,13 +26,16 @@ SOURCES += main.cpp\
     generictimedata.cpp \
     sinusdata.cpp \
     timeplotwidget.cpp \
-    freqplotwidget.cpp
+    freqplotwidget.cpp \
+    digesttimedata.cpp
 
 HEADERS  += mainwindow.h \
     plotwidget.h \
     generictimedata.h \
     sinusdata.h \
     timeplotwidget.h \
-    freqplotwidget.h
+    freqplotwidget.h \
+    CTG_constants.h \
+    digesttimedata.h
 
 FORMS    += mainwindow.ui
