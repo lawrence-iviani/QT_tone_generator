@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'comboboxwidgetcolor.ui'
 **
-** Created: Sun Jul 1 17:23:59 2012
+** Created: Sun Aug 26 11:18:25 2012
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!

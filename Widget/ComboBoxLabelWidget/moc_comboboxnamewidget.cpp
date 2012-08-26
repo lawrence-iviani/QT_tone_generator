@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'comboboxnamewidget.h'
 **
-** Created: Sun Jul 1 18:15:23 2012
+** Created: Sun Aug 26 11:18:24 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!

@@ -19,6 +19,8 @@ HEADERS += qwthelpers.h\
         QwtHelpers_global.h \
     zmp_handler.h
 
+QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
+
 symbian {
     MMP_RULES += EXPORTUNFROZEN
     TARGET.UID3 = 0xE7379BC8

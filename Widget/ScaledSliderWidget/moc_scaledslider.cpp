@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'scaledslider.h'
 **
-** Created: Mon Jun 11 22:04:10 2012
+** Created: Sun Aug 26 11:18:21 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!

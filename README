@@ -1,1 +1,23 @@
 This project want realize a custom signal generator in QT with some function imported with matlab.
+This sw in the very early stage and it's more a test than a useful app.
+
+TODO:
+- Export file in .wav (and may be flac??) formats?
+- Saving project and re-open project
+- FFT representation of the digest signal in real time
+- Envelope function for any signal
+- Improve widget signal option layout
+- Add splitter on the main window 
+- Improve zoom and pointer information (QWT)
+- Multiplatform test
+- FIX for mac framework/library install 
+
+DOCS:
+- Documentation of the working principle
+- Guide to build your own signal function
+- Complete function documentation
+
+WISHES:
+- Calculation of the crest factor
+- Import .wav signal (and may be flac?)
+- Resample of .wav signal
