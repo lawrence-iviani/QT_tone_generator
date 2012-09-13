@@ -9,17 +9,31 @@ QT       += core gui
 TARGET = ComplexToneGenerator
 TEMPLATE = app
 
+
+
+
+
+# ------ Dependecies libs:
+# qwt
 LIBS += -F/usr/local/qwt-6.0.1/lib/ -framework qwt
-LIBS += -L../Widget/ -lwidget
-
-
 INCLUDEPATH += /usr/local/qwt-6.0.1/lib/qwt.framework/Headers/
+
+# libsndifle
+INCLUDEPATH += /opt/local/include/
+LIBS += -L/opt/local/lib -lsndfile
+
+# ------ End Dependecies libs:
+
+# ------ Internal deps
 INCLUDEPATH += ../Widget/SelectCurveWindowDialog
 INCLUDEPATH += ../Widget/ScaledSliderWidget
 INCLUDEPATH += ../Widget/ComboBoxWidgetColor
 INCLUDEPATH += ../Widget/ComboBoxLabelWidget
 INCLUDEPATH += ../Widget/QwtHelpers
 
+LIBS += -L../Widget/WidgetLib/ -lwidget
+
+# ------ Files
 SOURCES += main.cpp\
         mainwindow.cpp \
     plotwidget.cpp \

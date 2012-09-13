@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-** Created: Fri Aug 24 15:33:59 2012
+** Created: Thu Sep 13 07:40:51 2012
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -58,6 +58,7 @@ public:
     QVBoxLayout *layoutButtonFrame;
     QPushButton *pushButtonRemoveCurve;
     QPushButton *pushButtonAddCurve;
+    QPushButton *pushButtonExportDigetCurve;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -203,6 +204,11 @@ public:
 
         layoutButtonFrame->addWidget(pushButtonAddCurve);
 
+        pushButtonExportDigetCurve = new QPushButton(verticalLayoutWidget_3);
+        pushButtonExportDigetCurve->setObjectName(QString::fromUtf8("pushButtonExportDigetCurve"));
+
+        layoutButtonFrame->addWidget(pushButtonExportDigetCurve);
+
 
         gridLayoutCentralWidget->addWidget(frameButton, 1, 1, 1, 1);
 
@@ -222,6 +228,7 @@ public:
         QObject::connect(pushButtonRemoveCurve, SIGNAL(clicked()), MainWindow, SLOT(newCurve()));
         QObject::connect(pushButtonAddCurve, SIGNAL(clicked()), MainWindow, SLOT(removeCurve()));
         QObject::connect(comboBoxCurve, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(changedCurve(int)));
+        QObject::connect(pushButtonExportDigetCurve, SIGNAL(clicked()), MainWindow, SLOT(exportDigestCurve()));
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -231,6 +238,7 @@ public:
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
         pushButtonRemoveCurve->setText(QApplication::translate("MainWindow", "Add curve", 0, QApplication::UnicodeUTF8));
         pushButtonAddCurve->setText(QApplication::translate("MainWindow", "Remove Curve", 0, QApplication::UnicodeUTF8));
+        pushButtonExportDigetCurve->setText(QApplication::translate("MainWindow", "Export Digest", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

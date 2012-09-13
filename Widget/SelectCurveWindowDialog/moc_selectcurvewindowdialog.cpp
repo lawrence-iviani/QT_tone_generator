@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'selectcurvewindowdialog.h'
 **
-** Created: Sun Aug 26 11:18:32 2012
+** Created: Tue Aug 28 20:33:45 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!

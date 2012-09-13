@@ -19,17 +19,17 @@ INCLUDEPATH += ../QwtHelpers
 INCLUDEPATH += ../SelectCurveWindowDialog
 
 LIBS += -F/usr/local/qwt-6.0.1/lib/ -framework qwt
-#LIBS += -L../ScaledSliderWidget -lscaledsliderwidget.o -lscaledslider.o -lmoc_scaledslider.o -lmoc_scaledsliderwidget.o
-#LIBS += -L../ComboBoxWidgetColor -lmoc_comboboxwidgetcolor.o -lcomboboxwidgetcolor.o
-#LIBS += -L../ComboBoxLabelWidget -lmoc_comboboxnamewidget.o -lcomboboxnamewidget.o
-#LIBS += -L../QwtHelpers -lzmp_handler.o -lqwthelpers.o -lmoc_zmp_handler.o
-#LIBS += -L../SelectCurveWindowDialog -lselectcurvewindowdialog.o -lmoc_selectcurvewindowdialog.o -lselectcurvewindowhelper.o -lmoc_selectcurvewindowhelper.o
+LIBS += -L../ScaledSliderWidget -lscaledsliderwidget.o -lscaledslider.o -lmoc_scaledslider.o -lmoc_scaledsliderwidget.o
+LIBS += -L../ComboBoxWidgetColor -lmoc_comboboxwidgetcolor.o -lcomboboxwidgetcolor.o
+LIBS += -L../ComboBoxLabelWidget -lmoc_comboboxnamewidget.o -lcomboboxnamewidget.o
+LIBS += -L../QwtHelpers -lzmp_handler.o -lqwthelpers.o -lmoc_zmp_handler.o
+LIBS += -L../SelectCurveWindowDialog -lselectcurvewindowdialog.o -lmoc_selectcurvewindowdialog.o -lselectcurvewindowhelper.o -lmoc_selectcurvewindowhelper.o
 
-LIBS += -L../ComboBoxLabelWidget -lComboBoxLabelWidget
-LIBS += -L../ScaledSliderWidget -lScaledSliderWidget
-LIBS += -L../ComboBoxWidgetColor -lComboBoxWidgetColor
-LIBS += -L../QwtHelpers -lQwtHelpers
-LIBS += -L../SelectCurveWindowDialog -lSelectCurveWindowDialog
+#LIBS += -L../ComboBoxLabelWidget -lComboBoxLabelWidget
+#LIBS += -L../ScaledSliderWidget -lScaledSliderWidget
+#LIBS += -L../ComboBoxWidgetColor -lComboBoxWidgetColor
+#LIBS += -L../QwtHelpers -lQwtHelpers
+#LIBS += -L../SelectCurveWindowDialog -lSelectCurveWindowDialog
 
 QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 

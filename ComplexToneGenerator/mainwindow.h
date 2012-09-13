@@ -5,7 +5,9 @@
 #include "timeplotwidget.h"
 #include "freqplotwidget.h"
 #include "plotwidget.h"
+#include "sinusdata.h"
 #include "selectcurvewindowdialog.h"
+#include <sndfile.hh>
 
 namespace Ui {
 class MainWindow;
@@ -24,6 +26,7 @@ signals:
 public slots:
     void newCurve();
     void removeCurve();
+    void exportDigestCurce();
     void changedCurve(int index);
     void timeDataUpdated();
 

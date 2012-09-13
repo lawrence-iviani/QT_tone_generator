@@ -1,6 +1,5 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include "sinusdata.h"
 #include <QThread>
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -65,9 +64,6 @@ void MainWindow::newCurve() {
 
     //adding data to the plot time
     m_plotTime->addTimeData(s);
-
-    //connecting data to the interface
-    //connect(s,SIGNAL(dataUpdated()),this,SLOT(timeDataUpdated()));
 
     //adding controls to plot
     ui->scrollAreaLayout->addWidget(s->getControlWidget());
@@ -158,4 +154,15 @@ void MainWindow::changedCurve(int index) {
     } else {
         m_lastIndexCurve=-1;
     }
+}
+
+void MainWindow::exportDigestCurce() {
+    const int format=SF_FORMAT_WAV | SF_FORMAT_PCM_16;
+    //  const int format=SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+    const int channels=1;
+    const int sampleRate=48000;
+    const char* outfilename="foo.wav";
+    SndfileHandle outfile(outfilename, SFM_WRITE, format, channels, sampleRate);
+    if (not outfile) return;
+
 }

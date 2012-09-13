@@ -211,6 +211,13 @@
            </property>
           </widget>
          </item>
+         <item>
+          <widget class="QPushButton" name="pushButtonExportDigetCurve">
+           <property name="text">
+            <string>Export Digest</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </widget>
@@ -254,8 +261,8 @@
    <slot>removeCurve()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>674</x>
-     <y>528</y>
+     <x>712</x>
+     <y>519</y>
     </hint>
     <hint type="destinationlabel">
      <x>571</x>
@@ -279,10 +286,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButtonExportDigetCurve</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>exportDigestCurve()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>661</x>
+     <y>549</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>728</x>
+     <y>524</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>newCurve()</slot>
   <slot>removeCurve()</slot>
   <slot>changedCurve(int)</slot>
+  <slot>exportDigestCurve()</slot>
  </slots>
 </ui>

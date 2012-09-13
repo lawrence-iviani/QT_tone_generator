@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'timeplotwidget.h'
 **
-** Created: Sat Aug 25 00:16:03 2012
+** Created: Thu Sep 13 07:34:18 2012
 **      by: The Qt Meta Object Compiler version 63 (Qt 4.8.0)
 **
 ** WARNING! All changes made in this file will be lost!
