@@ -11,6 +11,7 @@ TODO:
 - Improve zoom and pointer information (QWT)
 - Multiplatform test
 - FIX for mac framework/library install 
+- Play digest curve
 
 DOCS:
 - Documentation of the working principle

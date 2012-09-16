@@ -1,27 +1,25 @@
 #include "sinusdata.h"
 
 SinusData::SinusData() :
-    GenericTimeData()
+    PartialTimeData()
 {
     m_initPhase=SINUSDATA_DEFAULT_INITPHASE;
     m_frequency=SINUSDATA_DEFAULT_FREQUENCY;
     m_amplitude=SINUSDATA_DEFAULT_AMPLITUDE;
 
-    m_t0=SINUSDATA_DEFAULT_INITTIME;
     this->initControl();
     this->setExtendedControl(m_widgetControl);
-    this->setDuration(SINUSDATA_DEFAULT_DURATION);
     connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(maxDurationChanged(double)));
     this->updateData();
 }
 
 SinusData::SinusData(double duration, double SRGen) :
-    GenericTimeData(duration,SRGen)
+    PartialTimeData(duration,SRGen)
 {
     m_initPhase=SINUSDATA_DEFAULT_INITPHASE;
     m_frequency=SINUSDATA_DEFAULT_FREQUENCY;
     m_amplitude=SINUSDATA_DEFAULT_AMPLITUDE;
-    m_t0=SINUSDATA_DEFAULT_INITTIME;
+
     //Init a figure with the same duration of the base class  
     this->initControl();
     this->setExtendedControl(m_widgetControl);
@@ -35,12 +33,12 @@ SinusData::~SinusData() {
 }
 
 SinusData::SinusData( double duration, double SRGen,double amplitude, double frequency, double initPhase) :
-    GenericTimeData(duration,SRGen)
+    PartialTimeData(duration,SRGen)
 {
     m_initPhase=initPhase;
     m_frequency=frequency;
     m_amplitude=amplitude;
-    m_t0=SINUSDATA_DEFAULT_INITTIME;
+
     this->initControl();
     this->setExtendedControl(m_widgetControl);
     this->setDuration(duration);
@@ -119,54 +117,6 @@ void SinusData::setInitPhase(double initPhase) {
     this->updateData();
 }
 
-void SinusData::setDuration(double duration) {
-    if (duration < 0) {
-        duration=0;
-    }
-
-    /*This avoid start time happens afer max duration.
-      */
-    if (this->startTime() > this->maxDuration()) this->setStartTime(this->maxDuration());
-
-    double maxtime=this->minStartTime()+this->maxDuration();//The max time allowed by the base class
-    if ((this->startTime()+duration) > maxtime) {
-        m_duration=maxtime-this->startTime();
-    } else {
-        m_duration=duration;
-    }
-    //Update UI
-    bool sigStatus=m_dataControl.sliderDuration->blockSignals(true);
-    m_dataControl.sliderDuration->setValue(m_duration);
-    m_dataControl.sliderDuration->blockSignals(sigStatus);
-    this->updateData();
-}
-
-void SinusData::setStartTime(double t0) {
-    double maxtime=this->minStartTime()+this->maxDuration();//The max time allowed by the base class
-
-    if (t0 < this->minStartTime()) {
-        m_t0=this->minStartTime();
-    } else if ( t0>maxtime) {
-        m_t0=maxtime;
-    } else {
-        m_t0=t0;
-    }
-    //Update UI
-    bool sigStatus=m_dataControl.slider_t0->blockSignals(true);
-    m_dataControl.slider_t0->setValue(m_t0);
-    m_dataControl.slider_t0->blockSignals(sigStatus);
-    //Call set duration to verify if the duration must be clipped and to recalc  the curve
-    this->setDuration(m_duration);
-}
-
-void SinusData::setMaxDuration(double maxDuration) {
-    if ( (this->startTime()+this->duration())>maxDuration ) {
-        this->setMaxDurationAndUpdate(maxDuration,false);
-        this->setDuration(maxDuration-this->startTime());
-    } else {
-        this->setMaxDurationAndUpdate(maxDuration,true);
-    }
-}
 
 void SinusData::initControl() {
 
@@ -210,28 +160,11 @@ void SinusData::initControl() {
     m_dataControl.sliderInitPhase->setFont(f);
     connect(m_dataControl.sliderInitPhase,SIGNAL(valueChanged(double)),this,SLOT(setInitPhase(double)));
 
-    //set duration
-    m_dataControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_dataControl.sliderDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
-    m_dataControl.sliderDuration->setValue(m_duration);
-    m_dataControl.sliderDuration->setName("Duration");
-    m_dataControl.sliderDuration->setMeasureUnit("Sec.");
-    m_dataControl.sliderDuration->setFont(f);
-    connect(m_dataControl.sliderDuration,SIGNAL(valueChanged(double)),this,SLOT(setDuration(double)));
-
-    //set t0
-    m_dataControl.slider_t0 = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_dataControl.slider_t0->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);
-    m_dataControl.slider_t0->setValue(m_t0);
-    m_dataControl.slider_t0->setName("Start Time");
-    m_dataControl.slider_t0->setMeasureUnit("Sec.");
-    m_dataControl.slider_t0->setFont(f);
-    connect(m_dataControl.slider_t0,SIGNAL(valueChanged(double)),this,SLOT(setStartTime(double)));
-
     //Lay out all the control);
     l->addWidget(m_dataControl.sliderFrequency,1);//,Qt::AlignCenter);
     l->addWidget(m_dataControl.sliderAmplitude,1);//,Qt::AlignCenter);
     l->addWidget(m_dataControl.sliderInitPhase,1);//,Qt::AlignCenter);
-    l->addWidget(m_dataControl.sliderDuration,1);
-    l->addWidget(m_dataControl.slider_t0,1);
+    //Control Widget from partialtimedata
+    l->addWidget(m_partialDataControl.widgetDuration,1);
+    l->addWidget(m_partialDataControl.widget_t0,1);
 }

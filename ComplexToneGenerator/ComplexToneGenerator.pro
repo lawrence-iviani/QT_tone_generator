@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     sinusdata.cpp \
     timeplotwidget.cpp \
     freqplotwidget.cpp \
-    digesttimedata.cpp
+    digesttimedata.cpp \
+    partialtimedata.cpp
 
 HEADERS  += mainwindow.h \
     plotwidget.h \
@@ -51,6 +52,7 @@ HEADERS  += mainwindow.h \
     timeplotwidget.h \
     freqplotwidget.h \
     CTG_constants.h \
-    digesttimedata.h
+    digesttimedata.h \
+    partialtimedata.h
 
 FORMS    += mainwindow.ui

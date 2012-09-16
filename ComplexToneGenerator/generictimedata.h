@@ -51,7 +51,7 @@ public slots:
        * Set the max duration of this signal and update for data, redefine in the inerithed class if you want change beaviour. (ie don't call an update)
        * you have to change the singal length. Tipically you should override this method.
        */
-     virtual void setMaxDuration(double maxDuration);//
+     virtual void setMaxDuration(double maxDuration);
 
      /**
        * Set the max duration of this signal and update for data, redefine in the inerithed class if you want change beaviour. (ie don't call an update).
