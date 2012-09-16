@@ -55,6 +55,7 @@ void SinusData::recalc() {
     double phase=SinusData::deg2rad(this->initPhase());
 
     int n_dw=(this->startTime()-this->minStartTime())*this->sampleRate();
+    qDebug() << "initPhase=" << this->initPhase() << " frequency=" << this->frequency() << " amplitude=" << this->amplitude() ;
     qDebug() << "m_t0=" << this->startTime() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_dw >=0);
     Q_ASSERT(n_dw <=this->sampleNumber());
@@ -63,6 +64,7 @@ void SinusData::recalc() {
     qDebug() << "m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_up>=0 );
     Q_ASSERT(n_up<=this->sampleNumber());
+    Q_ASSERT(n_dw<=n_up);
 
     for (int n=n_dw; n < n_up; n++) {
         m_sinus[n]=this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase);
@@ -118,11 +120,16 @@ void SinusData::setInitPhase(double initPhase) {
 }
 
 void SinusData::setDuration(double duration) {
-    double maxtime=this->minStartTime()+this->maxDuration();//The max time allowed by the base class
-
     if (duration < 0) {
-        m_duration=0;
-    } else if ((this->startTime()+duration) > maxtime) {
+        duration=0;
+    }
+
+    /*This avoid start time happens afer max duration.
+      */
+    if (this->startTime() > this->maxDuration()) this->setStartTime(this->maxDuration());
+
+    double maxtime=this->minStartTime()+this->maxDuration();//The max time allowed by the base class
+    if ((this->startTime()+duration) > maxtime) {
         m_duration=maxtime-this->startTime();
     } else {
         m_duration=duration;

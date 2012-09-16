@@ -7,6 +7,7 @@
 #include  <QLayout>
 #include  <QSizePolicy>
 #include  <QFont>
+#include  <QDebug>
 #include "scaledslider.h"
 
 class ScaledSliderWidget : public QWidget
@@ -28,6 +29,8 @@ signals:
     void valueChanged(double);
 public slots:
     void updateValue(double val);
+    void sliderStartMoving();
+    void sliderStopMoving();
 private:
     void horizontalLayout(QWidget *parent);
     void verticalLayout(QWidget *parent);
@@ -44,6 +47,8 @@ private:
     QLabel * m_sliderName;
     QLabel * m_magnitudeMeasure;
     QLineEdit * m_magnitudeValue;
+    double m_previousValue;
+    bool m_sliderIsMoving;
 };
 
 #endif // SCALEDSLIDERWIDGET_H

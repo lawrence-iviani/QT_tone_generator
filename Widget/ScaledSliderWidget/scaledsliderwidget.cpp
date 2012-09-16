@@ -9,7 +9,10 @@ ScaledSliderWidget::ScaledSliderWidget( QWidget *parent, Qt::Orientation orienta
     } else {
         m_slider=new ScaledSlider(parent, orientation, QwtSlider::LeftScale, QwtSlider::Trough | QwtSlider::Groove,type);
         this->verticalLayout(parent);
-    }
+    }    
+    connect(m_slider,SIGNAL(sliderPressed()),this,SLOT(sliderStartMoving()));
+    connect(m_slider,SIGNAL(sliderReleased()) ,this,SLOT(sliderStopMoving()));
+    m_sliderIsMoving=false;
     connect(m_slider,SIGNAL(convertedValueChanged(double)), this ,SLOT(updateValue(double)));
 }
 
@@ -21,6 +24,9 @@ ScaledSliderWidget::ScaledSliderWidget( QWidget *parent, Qt::Orientation orienta
         m_slider=new ScaledSlider(parent, orientation, QwtSlider::LeftScale, QwtSlider::Trough | QwtSlider::Groove);
         this->verticalLayout(parent);
     }
+    connect(m_slider,SIGNAL(sliderPressed()),this,SLOT(sliderStartMoving()));
+    connect(m_slider,SIGNAL(sliderReleased()) ,this,SLOT(sliderStopMoving()));
+    m_sliderIsMoving=false;
     connect(m_slider,SIGNAL(convertedValueChanged(double)), this ,SLOT(updateValue(double)));
 }
 
@@ -65,8 +71,6 @@ void ScaledSliderWidget::verticalLayout(QWidget *parent) {
     f.setPointSize(fontBasePoint);
     this->setFont(f);
     this->setLayout(l);
-    //this->setMinimumWidth(verticalOrientation_minWidth);
-    //this->setMinimumHeight(verticalOrientation_minHeight);
 }
 
 void ScaledSliderWidget::horizontalLayout(QWidget *parent)
@@ -109,17 +113,25 @@ void ScaledSliderWidget::horizontalLayout(QWidget *parent)
     f.setPointSize(fontBasePoint);
     this->setFont(f);
     this->setLayout(l);
-   // this->setMinimumWidth(horizontalOrientation_minWidth);
-    //this->setMinimumHeight(horizontalOrientation_minHeight);
-  //  this->setMaximumWidth(horizontalOrientation_minWidth);
-  //  this->setMaximumHeight(horizontalOrientation_minHeight);
 }
 
 void ScaledSliderWidget::updateValue(double val) {
     m_magnitudeValue->setText(QString::number ( val, 'f', 2 ) );
-    emit(valueChanged(val));
+    if ((!m_sliderIsMoving) && (m_previousValue!=val)) {
+        //qDebug() << "ScaledSliderWidget::updateValue emiting valueChanged("<< val <<")";
+        emit(valueChanged(val));
+        m_previousValue=val;
+    }
 }
 
+void ScaledSliderWidget::sliderStartMoving() {
+    m_sliderIsMoving=true;
+}
+
+void ScaledSliderWidget::sliderStopMoving() {
+    m_sliderIsMoving=false;
+    this->updateValue(m_slider->convertedValue());
+}
 
 void ScaledSliderWidget::setName(QString name) {
     m_sliderName->setText(name);
