@@ -156,13 +156,50 @@ void MainWindow::changedCurve(int index) {
     }
 }
 
-void MainWindow::exportDigestCurce() {
-    const int format=SF_FORMAT_WAV | SF_FORMAT_PCM_16;
-    //  const int format=SF_FORMAT_WAV | SF_FORMAT_FLOAT;
-    const int channels=1;
-    const int sampleRate=48000;
-    const char* outfilename="foo.wav";
-    SndfileHandle outfile(outfilename, SFM_WRITE, format, channels, sampleRate);
-    if (not outfile) return;
+void MainWindow::exportDigestCurve() {
+    ExportAudioFileDialog dialog;
+    int format;
+    int channels=1;
+    int sampleRate=(int) m_plotTime->sampleRate();
 
+    dialog.exec();
+    QString filename=dialog.getSelectedFileName();
+    char* outfilename=filename.toLocal8Bit().data();// see http://qt-project.org/faq/answer/how_can_i_convert_a_qstring_to_char_and_vice_versa
+    if (!filename.isEmpty()) {
+        switch (dialog.getSelecedType()) {
+            case ExportAudioFileDialog::WAVE:
+                format=SF_FORMAT_WAV | SF_FORMAT_FLOAT;
+                break;
+            case ExportAudioFileDialog::FLAC:
+                format= SF_FORMAT_FLAC | SF_FORMAT_PCM_24;
+                break;
+            default:
+                return;
+        }
+    }
+
+    if (!SndfileHandle::formatCheck(format, channels, sampleRate) ) {
+        QMessageBox::warning(this,"Can't save","The selected format is not supported. File not saved");
+        return;
+     }
+
+    SndfileHandle outfile(outfilename, SFM_WRITE, format, channels, sampleRate);
+    if (not outfile) {
+        QString msg="Can't create file: ";
+        msg.append(outfilename);
+        QMessageBox::warning(this,"Can't save",msg);
+        //A warning dialog here
+        return;
+    }
+
+    double * s=m_plotTime->getDigestCurve()->getSignalData();
+
+    //Manca Min time!!!
+    double length=m_plotTime->duration();
+
+    outfile.write(s, length*sampleRate);
+
+    QString msg="Saved file ";
+    msg.append(outfilename);
+    QMessageBox::information(this,"Save ok!",msg);
 }

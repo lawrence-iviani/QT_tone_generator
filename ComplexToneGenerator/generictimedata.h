@@ -14,6 +14,10 @@
 #include <comboboxwidgetcolor.h>
 #include  <QTime>
 
+/**
+  * This class handle a generic time data object. Is useful to handle time data as data container for a time data.
+  */
+
 class GenericTimeData : public QObject
 {
     Q_OBJECT
@@ -26,7 +30,7 @@ public:
     QWidget * getControlWidget() {return m_allControl; }// Give back a QWidget that can be used to control this class.
 
     double maxDuration(){return m_MaxDuration;}
-    double sampleRateGeneration() {return m_SR;}
+    double sampleRate() {return m_SR;}
     double minStartTime(){return m_Min_t0;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
    // double maxEndTime(){return m_Max_t1;}
     long int sampleNumber() {return m_sample;}
@@ -70,15 +74,39 @@ public slots:
      double * getTimeData()   {return m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
      double * getSignalData() {return m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
 protected:
+     /**
+       * The method is called every time and updateData is called. In this way extension class can implement it own calculation to provide the signal data.
+       * The inerithed class implement this method with its own code to generate signal data but eventually different time data (TIME DATA MODIFICATION NEVER TESTED BEFORE!!)
+       */
      virtual void recalc() {} //Reimplement this method to update data with the want function, rembert to delete and regenearte m_data and m_curve.
      void deleteAllData(); //Delete all referenced internal pointed data (m_t, m_y).
      void resetAllData(); //Reset all referenced internal pointed data (m_t, m_y).
      void createDataCurve();//Set
+
+     /**
+       * The method provide capability to the extended class to set modified time data
+       */
      void setTimeData(double * t, long int len);
+
+     /**
+       * The method provide capability to the extended class to set modified signal data
+       */
      void setSignalData(double * s, long int len);
+
+     /**
+       * This method is called when the extended class set itself widget to add more control
+       */
      void setExtendedControl(QWidget * extendedWidget);// This method allows the extended class to add its own UI controllers
-     void setMaxDurationAndUpdate(double  maxDuration, bool updateData);//Decide if you want to update data or not, useful in some inerithed class
-     void setSampleRateAndUpdate(double SR, bool updateData);//Decide if you want to update data or not, useful in some inerithed class.
+
+     /**
+       * This method leaves the decision to update data after set the duration or not, useful in some inerithed class when you want do other stuff before update
+       */
+     void setMaxDurationAndUpdate(double  maxDuration, bool updateData);
+
+     /**
+       * This method leaves the decision to update data after set the SR or not, useful in some inerithed class when you want do other stuff before update
+       */
+     void setSampleRateAndUpdate(double SR, bool updateData);
 private:
      QwtPlotCurve * m_curve;
      QwtCPointerData * m_data;

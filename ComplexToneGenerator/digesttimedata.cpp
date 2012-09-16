@@ -39,12 +39,12 @@ void DigestTimeData::recalc() {
     GenericTimeData * gtd;
     double * gtdData;
 
-    int n_dw=(this->minStartTime())*this->sampleRateGeneration();
+    int n_dw=(this->minStartTime())*this->sampleRate();
     qDebug() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_dw >=0);
     Q_ASSERT(n_dw <=this->sampleNumber());
 
-    int n_up=(this->minStartTime()+this->maxDuration())*this->sampleRateGeneration();
+    int n_up=(this->minStartTime()+this->maxDuration())*this->sampleRate();
     qDebug() << "m_max_Duration=" << this->maxDuration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_up>=0 );
     Q_ASSERT(n_up<=this->sampleNumber());

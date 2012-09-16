@@ -30,6 +30,7 @@ INCLUDEPATH += ../Widget/ScaledSliderWidget
 INCLUDEPATH += ../Widget/ComboBoxWidgetColor
 INCLUDEPATH += ../Widget/ComboBoxLabelWidget
 INCLUDEPATH += ../Widget/QwtHelpers
+INCLUDEPATH += ../Widget/ExportAudioFileWidget
 
 LIBS += -L../Widget/WidgetLib/ -lwidget
 

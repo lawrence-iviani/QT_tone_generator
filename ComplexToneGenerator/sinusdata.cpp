@@ -54,12 +54,12 @@ void SinusData::recalc() {
     double * t=this->getTimeData();
     double phase=SinusData::deg2rad(this->initPhase());
 
-    int n_dw=(this->startTime()-this->minStartTime())*this->sampleRateGeneration();
+    int n_dw=(this->startTime()-this->minStartTime())*this->sampleRate();
     qDebug() << "m_t0=" << this->startTime() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_dw >=0);
     Q_ASSERT(n_dw <=this->sampleNumber());
 
-    int n_up=(this->startTime()+this->duration())*this->sampleRateGeneration();
+    int n_up=(this->startTime()+this->duration())*this->sampleRate();
     qDebug() << "m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
     Q_ASSERT( n_up>=0 );
     Q_ASSERT(n_up<=this->sampleNumber());

@@ -19,7 +19,11 @@
 #include "generictimedata.h"
 #include "zmp_handler.h"
 
-
+/**
+  * This class is an extension of the QwtPlot class. This class provide the following feature:
+  * - handle XY scales in terms of limits and type (log and linear).
+  * - a set of time data curve, these can be elaborated by extension of this class (ie in time domain and freq. domain).
+  */
 class PlotWidget : public QwtPlot
 {
     Q_OBJECT
@@ -33,9 +37,21 @@ public:
     void setXScaleType(int xScaleType);
     void setYScaleType(int yScaleType);
     void setDimension(int pointDimension);
+
+    /**
+      * Add a time data series to the class, return the position in the internal list of the last add
+      */
     int addTimeData(GenericTimeData * gtd);
     virtual QWidget * getControlWidget() {return NULL;}// Give back a QWidget that can be used to control this class. The class that inherits implement its controls widget
+
+    /**
+      * Remove a time data series to the class, return if the data was removed.
+      */
     bool removeTimeData(int index);//True, curve removed, false curve not found
+
+    /**
+      * Get back the time data at index
+      */
     GenericTimeData * getTimeData(int index);//return the curve at index
     int xScaleType() {return m_xScaleType;}
     int yScaleType() {return m_yScaleType;}
@@ -47,8 +63,8 @@ signals:
     void curveListChanged();
 public slots:
   /**
-    * his method grant to be called when never one of the curve stored in this class, or extended class,is modified.
-    * Extended class handle the curves correctly in order to obtain the correct results.
+    * This method is called when never one of the curve stored in this class, or extended class,is modified.
+    * Extended class should re-implent the curves correctly in order to obtain the correct results.
     * All the stuff of init, object handling etc. are delegated to the inheriting class.
     */
     virtual void updatePlot() { qDebug() << "PlotWidget::dataUpdated() CALLED";this->replot();} //

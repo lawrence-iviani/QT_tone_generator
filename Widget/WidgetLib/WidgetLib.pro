@@ -17,6 +17,7 @@ INCLUDEPATH += ../ComboBoxWidgetColor
 INCLUDEPATH += ../ComboBoxLabelWidget
 INCLUDEPATH += ../QwtHelpers
 INCLUDEPATH += ../SelectCurveWindowDialog
+INCLUDEPATH += ../ExportAudioFileWidget
 
 LIBS += -F/usr/local/qwt-6.0.1/lib/ -framework qwt
 LIBS += -L../ScaledSliderWidget -lscaledsliderwidget.o -lscaledslider.o -lmoc_scaledslider.o -lmoc_scaledsliderwidget.o
@@ -24,6 +25,8 @@ LIBS += -L../ComboBoxWidgetColor -lmoc_comboboxwidgetcolor.o -lcomboboxwidgetcol
 LIBS += -L../ComboBoxLabelWidget -lmoc_comboboxnamewidget.o -lcomboboxnamewidget.o
 LIBS += -L../QwtHelpers -lzmp_handler.o -lqwthelpers.o -lmoc_zmp_handler.o
 LIBS += -L../SelectCurveWindowDialog -lselectcurvewindowdialog.o -lmoc_selectcurvewindowdialog.o -lselectcurvewindowhelper.o -lmoc_selectcurvewindowhelper.o
+LIBS += -L../ExportAudioFileWidget -lexportaudiofiledialog.o  -lmoc_exportaudiofiledialog.o
+
 
 #LIBS += -L../ComboBoxLabelWidget -lComboBoxLabelWidget
 #LIBS += -L../ScaledSliderWidget -lScaledSliderWidget

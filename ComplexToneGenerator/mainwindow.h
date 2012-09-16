@@ -2,12 +2,17 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QFileDialog>
+#include <QMessageBox>
 #include "timeplotwidget.h"
 #include "freqplotwidget.h"
 #include "plotwidget.h"
 #include "sinusdata.h"
 #include "selectcurvewindowdialog.h"
+#include "exportaudiofiledialog.h"
 #include <sndfile.hh>
+
+
 
 namespace Ui {
 class MainWindow;
@@ -26,7 +31,7 @@ signals:
 public slots:
     void newCurve();
     void removeCurve();
-    void exportDigestCurce();
+    void exportDigestCurve();
     void changedCurve(int index);
     void timeDataUpdated();
 

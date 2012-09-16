@@ -5,6 +5,10 @@
 #include <generictimedata.h>
 #include <CTG_constants.h>
 
+/**
+  * This class inherits from GenericTimeData and handles a list of time data in order to generate a new time data calculated as a sum of all the curves into the list.
+  * In the future may be more options of sum (ie average, median point by point etc.)
+  */
 class DigestTimeData : public GenericTimeData
 {
     Q_OBJECT

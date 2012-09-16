@@ -5,6 +5,9 @@
 #include "digesttimedata.h"
 #include <CTG_constants.h>
 
+/**
+  * This class specializes the PlotWidget with a data digest class, and some zoom&pan option. Also provide controls for the max duration of the time data and the SR of the project.
+  */
 class TimePlotWidget : public PlotWidget
 {
     Q_OBJECT
