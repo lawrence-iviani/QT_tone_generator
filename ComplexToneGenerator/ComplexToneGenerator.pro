@@ -34,6 +34,8 @@ INCLUDEPATH += ../Widget/ExportAudioFileWidget
 
 LIBS += -L../Widget/WidgetLib/ -lwidget
 
+QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
+
 # ------ Files
 SOURCES += main.cpp\
         mainwindow.cpp \
