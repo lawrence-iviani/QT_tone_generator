@@ -11,6 +11,7 @@
 #include "selectcurvewindowdialog.h"
 #include "exportaudiofiledialog.h"
 #include <sndfile.hh>
+#include <audioplayer.h>
 
 
 
@@ -34,6 +35,8 @@ public slots:
     void exportDigestCurve();
     void changedCurve(int index);
     void timeDataUpdated();
+    void digestCurveChanged();
+    void streamPositionUpdate(qint64 position);
 
 private:
     Ui::MainWindow *ui;
@@ -44,6 +47,9 @@ private:
     QFrame * m_FrameButton;
     QWidget * m_WidgetFreqPlot;
     QWidget * m_WidgetTimePlot;
+
+    AudioPlayer * m_audioPlayer;
+    InternalStreamDevice * m_digestCurveStream;
 
     void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window
     GenericTimeData *  decodeSelectedCurve(SelectCurveWindowHelper * selectCurveHelper);

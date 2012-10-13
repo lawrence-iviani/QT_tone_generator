@@ -13,6 +13,7 @@ PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
 }
 
 void PlotWidget::plotSetup() {
+    this->setAutoReplot(false);
     this->setAutoFillBackground( true );
     this->setPalette( QPalette( QColor( 165, 193, 228 ) ) );
     this->insertLegend(new QwtLegend(), QwtPlot::RightLegend);
@@ -39,6 +40,8 @@ void PlotWidget::plotSetup() {
     canvasPalette.setColor( QPalette::Foreground, QColor( 133, 190, 232 ) );
     this->canvas()->setPalette( canvasPalette );
     //this->setDimension(m_dimension);
+    x=new QPainter( this->canvas());
+
 }
 
 
@@ -76,8 +79,8 @@ void PlotWidget::setBothAxisScale(int xScaleType, double xmin, double xmax,int y
 }
 
 void PlotWidget::setBothAxisScale(double xmin, double xmax,double ymin, double ymax) {
-    this->setAxisScale(xBottom, xmin, xmax);
-    this->setAxisScale(yLeft, ymin, ymax);
+    this->setAxisScale(xBottom, xmin, 1.1*xmax);
+    this->setAxisScale(yLeft, ymin, 1.1*ymax);
 }
 
 void PlotWidget::setDimension(int pointDimension) {
@@ -132,6 +135,7 @@ GenericTimeData * PlotWidget::getTimeData(int index) {
         retval=m_curveList.at(index);
     }
     return retval;
+
 }
 
 

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia
 
 TARGET = ComplexToneGenerator
 TEMPLATE = app
@@ -31,8 +31,9 @@ INCLUDEPATH += ../Widget/ComboBoxWidgetColor
 INCLUDEPATH += ../Widget/ComboBoxLabelWidget
 INCLUDEPATH += ../Widget/QwtHelpers
 INCLUDEPATH += ../Widget/ExportAudioFileWidget
+INCLUDEPATH += ../AudioEngine
 
-LIBS += -L../Widget/WidgetLib/ -lwidget
+LIBS += -L../Widget/WidgetLib/ -lwidget -L../AudioEngine -lAudioEngine
 
 QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 

@@ -15,7 +15,7 @@
 #include  <QTime>
 
 /**
-  * This class handle a generic time data object. Is useful to handle time data as data container for a time data.
+  * This class handle a generic time data object. Is useful to handle time based series as data container for a time data.
   */
 
 class GenericTimeData : public QObject

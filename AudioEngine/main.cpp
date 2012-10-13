@@ -10,25 +10,26 @@ void setupStream(AudioPlayer * w) {
     int loop=10;
     int SR=96000;
     format.setSampleRate(SR);
-
+    format.setSampleSize(16);
+    format.setSampleType(QAudioFormat::SignedInt);
+   // QSysInfo::ByteOrder
 
     Generator * gen=new Generator(durationUs,frequency,SR,loop,NULL);
     stream=new InternalStreamDevice(format);
     qreal * data=gen->getData();
-    stream->setData(data,(qint64) gen->getNumberOfSample());
+    stream->setAudioData(data,(qint64) gen->getNumberOfSample());
 
     w->setStream(stream);
     w->setFileName("/Volumes/MYDATA/Ascolti/Tuck&Patty - 09 Track 9-44.1k_cuted.wav");
-
 }
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    AudioPlayer w;
-    setupStream(&w);
-    w.show();
+    AudioPlayer * ap=new AudioPlayer();
+    setupStream(ap);
+    QWidget * w=ap->getTestControlWidget();
+    w->show();
     
-
     return a.exec();
 }

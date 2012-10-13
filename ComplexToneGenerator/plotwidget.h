@@ -19,6 +19,8 @@
 #include "generictimedata.h"
 #include "zmp_handler.h"
 
+#include <QPainter>
+
 /**
   * This class is an extension of the QwtPlot class. This class provide the following feature:
   * - handle XY scales in terms of limits and type (log and linear).
@@ -56,7 +58,7 @@ public:
     int xScaleType() {return m_xScaleType;}
     int yScaleType() {return m_yScaleType;}
     int dimension()  {return m_dimension;}
-
+    virtual void setPosition(qreal position) {}
 
 
 signals:
@@ -76,6 +78,7 @@ protected:
 private:
     void plotSetup();
     int m_dimension;
+    QPainter * x;
 
 protected:
 

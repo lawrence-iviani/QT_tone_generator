@@ -18,7 +18,6 @@ public:
     virtual ~DigestTimeData();
     
 signals:
-    
 public slots:
     virtual void setMaxDuration(double maxDuration);//Set the max duration of this data set,  in this case i don't want a dataUpdate call
     virtual void setSampleRate(double SR);

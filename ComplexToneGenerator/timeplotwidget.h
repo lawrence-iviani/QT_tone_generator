@@ -3,10 +3,16 @@
 
 #include "plotwidget.h"
 #include "digesttimedata.h"
+#include  <qwt_plot_marker.h>
+#include  <qwt_symbol.h>
 #include <CTG_constants.h>
 
 /**
-  * This class specializes the PlotWidget with a data digest class, and some zoom&pan option. Also provide controls for the max duration of the time data and the SR of the project.
+  * This class specializes the PlotWidget with a data digest class a sum of all the init timedata in the prject.
+  * Aleo provides:
+  * Options for zoom&pan option.
+  * Controls for the max duration of the time data and the SR of the project.
+  * Play the digest curve.
   */
 class TimePlotWidget : public PlotWidget
 {
@@ -19,6 +25,7 @@ public:
     double duration() {return m_duration;}
     double minTime() {return m_t0;}
     DigestTimeData * getDigestCurve() {return m_digestCurve;} //return the digest curve
+    virtual void setPosition(qreal position);
 signals:
     
 public slots:
@@ -51,7 +58,7 @@ private:
       ScaledSliderWidget * sliderDuration;//Allows to change the max duration of ALL the signals. The reference is ALWAYS t0
     } m_baseControl;
     QFrame * m_allControl;//The widget with all control (base and eventually extended
-
+    QwtPlotMarker * m_markerPosition;
 };
 
 #endif // TIMEPLOTWIGET_H

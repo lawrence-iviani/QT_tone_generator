@@ -9,6 +9,15 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
     m_digestCurve=new DigestTimeData(&m_curveList,m_duration,m_SR);
     m_digestCurve->getCurve()->attach(this);
     this->createControlWidget();
+
+    m_markerPosition =new QwtPlotMarker();
+    m_markerPosition->setLineStyle(QwtPlotMarker::VLine);
+    //marker->setLabelAlignment(Qt::AlignRight |  Qt::AlignBottom);
+    //m_markerPosition->setLinePen( new QPen(Qt::darkBlue));
+    //, 1, Qt::DashLine));
+    m_markerPosition->setSymbol( new QwtSymbol( QwtSymbol::XCross));
+    m_markerPosition->attach(this);
+    this->setPosition(0);
 }
 
 TimePlotWidget::~TimePlotWidget() {
@@ -64,7 +73,7 @@ void TimePlotWidget::setDuration(double duration) {
     sigStatus=m_baseControl.sliderDuration->blockSignals(true);
     m_baseControl.sliderDuration->setValue(m_duration);
     m_baseControl.sliderDuration->blockSignals(sigStatus);
-
+    this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*duration);
     //Replot and recalc digest
     this->updatePlot();
 
@@ -153,4 +162,7 @@ void TimePlotWidget::zoomPanButtonPressed() {
     }
 }
 
-
+void TimePlotWidget::setPosition(qreal position) {
+    m_markerPosition->setValue(position, position);
+   // m_markerPosition->attach(this);
+}

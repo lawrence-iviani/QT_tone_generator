@@ -34,7 +34,7 @@ qreal * Generator::generateData(quint64 durationUs, int frequency, int SR,int lo
 
     while (t_len < m_nSample) {
         for (i=t_len; i< t_len+lengthLoop ;i++)
-            m_data[i]=0.25*sin(2 * M_PI * frequency * i / SR);
+            m_data[i]=0.9*sin(2 * M_PI * frequency * i / SR);
         t_len +=2*lengthLoop;
     }
     qWarning() << "Generator::generateData allocated bytes length=" << m_nSample << " @"<<m_data;

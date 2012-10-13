@@ -13,6 +13,7 @@ CONFIG   += ordered
 
 SUBDIRS = \
 	Widget \
-    ComplexToneGenerator 
+        AudioEngine \
+        ComplexToneGenerator
     
 

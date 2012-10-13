@@ -14,22 +14,23 @@
 #include <QFile>
 
 #include "internalstreamdevice.h"
-#include "sndfile.hh"
+#include "audioutils.h"
+
+//TODO:
+//1. Handle float stream
+//2. Optimize allocation in InternalStreamDevice class
+//3. Fix problem with Unsigned int 16 bit
+//4. Noise in playback
+//5. Seeking on start is not working
 
 const int AUDIOPLAYER_DEFAULT_DURATION_SEC = 5; //in seconds
 const int AUDIOPLAYER_DEFAULT_TONE_FREQ = 1000;
-const int AUDIOPLAYER_DEFAULT_SR = 44100;
 const int AUDIOPLAYER_DEFAULT_BUFFER_LEN= 32768;
-const int AUDIOPLAYER_DEFAULT_NCHANNELS=2;
-const int AUDIOPLAYER_DEFAULT_SAMPLESIZE=16;
-const QAudioFormat::SampleType AUDIOPLAYER_DEFAULT_SAMPLETYPE=QAudioFormat::SignedInt;
-const QString AUDIOPLAYER_DEFAULT_CODEC="audio/pcm";
-const QAudioFormat::Endian AUDIOPLAYER_DEFAULT_BYTEORDER=QAudioFormat::LittleEndian;
 const int AUDIOPLAYER_NOTIFY_INTERVAL= 100;//ms
 const int AUDIOPLAYER_PULL_INTERVAL=20; //ms
 const qint64 AUDIOPLAYER_HEADER_WAV_SAMPLES=48; //number of sample of the WAV header.
 
-class AudioPlayer : public QWidget
+class AudioPlayer : public QObject
 {
     Q_OBJECT
     Q_ENUMS(PlayMode)
@@ -38,26 +39,17 @@ public:
     enum PlayMode {PUSH=0,PULL=1};
     enum SourceTest {STREAM=2,FILE=3};
 
-    AudioPlayer(QWidget *parent = 0);
+    AudioPlayer(QObject *parent = 0);
+    AudioPlayer(QWidget * parentWidget, QObject *parent = 0);
     ~AudioPlayer();
 
-    //QAudioFormat to string
-    static const QString audioFormatToString(QAudioFormat *format);
-    static const QString audioStateToString(int state);
-    static const QString audioSampleTypeToString(int sampleType);
-    static const QString endianessFormatToString(QAudioFormat::Endian format);
 
-    //libsndfile to QAudioFormat values
-    static const QString decodeCodec(int format);
-    const QAudioFormat::Endian decodeEndianess(int format);
-    static const int decodePCMSampleSizeFormat(int format);
-    static const QAudioFormat::SampleType decodePCMSignFormat(int format);
 
     //other func
     QAudioFormat getAudioFormat() {return m_audioOutput->format();}
     AudioPlayer::PlayMode playMode();
     bool pause();
-    QAudioFormat readFileHeader (QString filename);
+
     QIODevice * stream();
 
     //Position function
@@ -65,12 +57,16 @@ public:
     qint64 totalStreamSample();
     qint64 remainingStreamSample();
 
+    //Widget control function
+    QWidget * getTestControlWidget()  {return  m_testControlWidget; }
+    QWidget * getAudioControlWidget() {return  m_audioControlWidget; }
+    QWidget * getAudioOptionWidget()  {return  m_audioOptionWidget; }
 
 public slots:
     void setFileName(QString filename);
     void setPlayMode(AudioPlayer::PlayMode playMode);
     void setPause(bool pause);
-    void setStart(bool start);
+    void setStart(bool start,int position=0);
     void setStream(InternalStreamDevice *stream);
     bool setStreamSamplePosition(qint64 position);
 
@@ -78,23 +74,25 @@ signals:
     void streamPositionChanged(qint64 sample);
 
 private:
-    void initializeWidget();
+    void initClass();
+    void initializeWidget(QWidget *parentWidget=0);
     void initializeAudio(QAudioFormat format);
-    void startPlayPull();
-    void startPlayPush();
+    void startPlayPull(int position);
+    void startPlayPush(int position);
     void stopPlay();
     void startPlay();
+    void startPlay(int position);
     void pauseUI();
     void stopUI();
     void startUI();
+    qint64 convertSliderPositionToStreamSample(int position);
+    int convertStreamSampleToSliderPosition(qint64 position);
 
     int m_durationSeconds;
     int m_toneFreq;
     int m_sr;
     int m_bufferLength;
 
-
-   private:
     QTimer*          m_pullTimer;
 
     // Owned by layout
@@ -103,7 +101,7 @@ private:
     QPushButton*     m_suspendResumeButton;
     QPushButton*     m_sourceButton;
     QComboBox*       m_deviceBox;
-    QSlider*         m_streamPosition;
+    QSlider*         m_streamPositionSlider;
 
     QAudioDeviceInfo m_device;
     InternalStreamDevice*       m_inputStream;
@@ -116,6 +114,10 @@ private:
     QByteArray       m_buffer;
     QAudio::State    m_previousState;
 
+    //create widget for various control...
+    QWidget *  m_testControlWidget;
+    QWidget *  m_audioControlWidget;
+    QWidget *  m_audioOptionWidget;
 
 private slots:
     void notified();
@@ -127,8 +129,8 @@ private slots:
     void stateChanged(QAudio::State state);
     void deviceChanged(int index);
     void setAudioFormat(QAudioFormat format);
-    void convertSliderPositionToStreamSample(int position);
-    void convertStreamSampleToSliderPosition(qint64 position);
+    void convertAndSetSliderPositionToStreamSample(int position);
+    void convertAndSetStreamSampleToSliderPosition(qint64 position);
 };
 
 

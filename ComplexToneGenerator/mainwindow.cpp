@@ -6,7 +6,8 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow),
     m_plotTime(new TimePlotWidget),
-    m_plotFreq(new FreqPlotWidget)
+    m_plotFreq(new FreqPlotWidget),
+    m_audioPlayer(new AudioPlayer)
 {
     ui->setupUi(this);
 
@@ -30,9 +31,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->scrollAreaWidgetContents->setLayout(ui->scrollAreaLayout);
 
     m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_MAX_TIME,-1.0,1.0);
-    ui->scrollAreaLayout->addWidget(m_plotTime->getControlWidget(),1,Qt::AlignTop);
+    ui->scrollAreaLayout->addWidget(m_plotTime->getControlWidget(),0,Qt::AlignTop);
     ui->scrollAreaLayout->addWidget(m_plotFreq->getControlWidget(),1,Qt::AlignTop);
 
+    //Setting audio player control and digest curve stream
+    ui->scrollAreaLayout->addWidget(m_audioPlayer->getAudioControlWidget(),1,Qt::AlignTop);
     m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
 
     m_lastIndexCurve=-1;
@@ -40,9 +43,14 @@ MainWindow::MainWindow(QWidget *parent) :
     QFont f=ui->comboBoxCurve->font();
     f.setPointSize(9);
     ui->comboBoxCurve->setFont(f);
+
+    //connect digest curve to handle update in the plots
+    connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
+    connect(m_audioPlayer,SIGNAL(streamPositionChanged(qint64)),this,SLOT(streamPositionUpdate(qint64)));
+    m_digestCurveStream=new InternalStreamDevice(AudioUtils::getStandardFormat(AudioUtils::DAT));
+    m_digestCurveStream->setAudioData(m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
+    m_audioPlayer->setStream(m_digestCurveStream);
 }
-
-
 
 MainWindow::~MainWindow()
 {
@@ -66,7 +74,7 @@ void MainWindow::newCurve() {
     m_plotTime->addTimeData(s);
 
     //adding controls to plot
-    ui->scrollAreaLayout->addWidget(s->getControlWidget());
+    ui->scrollAreaLayout->addWidget(s->getControlWidget(),2,Qt::AlignTop);
 
     //Adding data to the combo box
     ui->comboBoxCurve->addItem(name);
@@ -154,6 +162,15 @@ void MainWindow::changedCurve(int index) {
     } else {
         m_lastIndexCurve=-1;
     }
+}
+
+void MainWindow::digestCurveChanged() {
+    m_digestCurveStream->setAudioData(m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
+}
+
+void MainWindow::streamPositionUpdate(qint64 position) {
+    qDebug() << "MainWindow::streamPositionUpdate position=" << position << " timePos=" << position/m_plotTime->sampleRate();
+    m_plotTime->setPosition(position/m_plotTime->sampleRate());
 }
 
 void MainWindow::exportDigestCurve() {
