@@ -174,7 +174,7 @@ void GenericTimeData::setName(QString name) {
         m_name=name;
         m_curve->setTitle(m_name);
         m_baseControl.lineName->setText(m_name);
-        emit(dataUpdated());
+        emit(nameChanged());
     }
 }
 
@@ -206,59 +206,30 @@ void GenericTimeData::setColor(QColor color) {
     }
 }
 
-void GenericTimeData::showBaseControl() {
-    Q_ASSERT(m_baseControl.baseWidget!=NULL);
-    if (m_baseControl.toggleButtonOptionControl->isChecked()) {
-        m_baseControl.baseWidget->show();
-    } else {
-        m_baseControl.baseWidget->hide();
-    }
-}
 
-void GenericTimeData::showExtendedControl() {
-    Q_ASSERT(m_extendedControl.extendedWidget!=NULL);
-    if (m_extendedControl.toggleButtonOptionControl->isChecked()) {
-        m_extendedControl.extendedWidget->show();
-    } else {
-        m_extendedControl.extendedWidget->hide();
-    }
-}
 
 void GenericTimeData::createBaseControl() {
     m_allControl=new QFrame();
-    m_allControl->setFrameShape(QFrame::WinPanel);
-    m_allControl->setFrameShadow(QFrame::Raised);
     m_allControl->setLayout(new QVBoxLayout());
     QVBoxLayout * l=(QVBoxLayout*) m_allControl->layout();
-
-    m_baseControl.toggleButtonOptionControl=new QPushButton("Base control");
-    m_baseControl.toggleButtonOptionControl->setCheckable(true);
-    connect(m_baseControl.toggleButtonOptionControl,SIGNAL(clicked(bool)),this,SLOT(showBaseControl()));
-    l->addWidget(m_baseControl.toggleButtonOptionControl,1);
 
     //Adding base control
     this->initBaseControlWidget();
     l->addWidget(m_baseControl.baseWidget,1);
-
-    this->showBaseControl();
+    //m_allControl->show();
 }
 
 void GenericTimeData::setExtendedControl(QWidget * extendedWidget) {
     QVBoxLayout * l=(QVBoxLayout *)m_allControl->layout();
 
-    //Create extended control button
-    m_extendedControl.toggleButtonOptionControl=new QPushButton("Extended control");
-    m_extendedControl.toggleButtonOptionControl->setCheckable(true);
-    connect(m_extendedControl.toggleButtonOptionControl,SIGNAL(clicked(bool)),this,SLOT(showExtendedControl()));
-
-    //Adding widget
+    //Adding extended control widget
     m_extendedControl.extendedWidget=(QFrame*)extendedWidget;
     if (m_extendedControl.extendedWidget!=NULL) {
         //Add button
         l->addWidget(m_extendedControl.toggleButtonOptionControl,1);//,Qt::AlignLeft);
         //Add control
         l->addWidget(m_extendedControl.extendedWidget,1);//,Qt::AlignLeft);
-        this->showExtendedControl();
+        m_extendedControl.extendedWidget->show();
     }
 
 }
@@ -270,12 +241,9 @@ void GenericTimeData::initBaseControlWidget() {
 
     //Widget container and layout
     m_baseControl.baseWidget=new QFrame();
-    m_baseControl.baseWidget->setFrameShape(QFrame::WinPanel);
-    m_baseControl.baseWidget->setFrameShadow(QFrame::Raised);
     QVBoxLayout * l=new QVBoxLayout();
     l->setSizeConstraint(QLayout::SetMinimumSize);
     m_baseControl.baseWidget->setLayout(l) ;
-    m_baseControl.baseWidget->hide();
     m_baseControl.baseWidget->setFont(f);
 
     //Name the curve
@@ -306,10 +274,10 @@ void GenericTimeData::initBaseControlWidget() {
 
     //Lay out all the controls
     l->addWidget(_nameLabel,1,Qt::AlignCenter);
-    l->addWidget(m_baseControl.lineName,1,Qt::AlignCenter);
-    l->addWidget(m_baseControl.checkBoxEnableCurve,1,Qt::AlignCenter);
-    l->addWidget(m_baseControl.checkBoxShowCurve,1,Qt::AlignCenter);
-    l->addWidget(m_baseControl.comboColor,1,Qt::AlignCenter);
+    l->addWidget(m_baseControl.lineName,1,Qt::AlignLeft);
+    l->addWidget(m_baseControl.checkBoxEnableCurve,1,Qt::AlignLeft);
+    l->addWidget(m_baseControl.checkBoxShowCurve,1,Qt::AlignLeft);
+    l->addWidget(m_baseControl.comboColor,1,Qt::AlignLeft);
 }
 
 

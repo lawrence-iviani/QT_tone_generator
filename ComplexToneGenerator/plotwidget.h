@@ -18,8 +18,10 @@
 #include <QList>
 #include "generictimedata.h"
 #include "zmp_handler.h"
+#include "scrollrubberband.h"
 
-#include <QPainter>
+
+
 
 /**
   * This class is an extension of the QwtPlot class. This class provide the following feature:
@@ -52,13 +54,25 @@ public:
     bool removeTimeData(int index);//True, curve removed, false curve not found
 
     /**
-      * Get back the time data at index
+      * Get back the time data at index.
       */
-    GenericTimeData * getTimeData(int index);//return the curve at index
+    GenericTimeData * getTimeDataList(int index);//return the curve at index
+
+    /**
+      * Get back the whole list of curve stored in this instance.
+      */
+    QList<GenericTimeData*> * getTimeDataList() {return &m_curveList;}//return the whole list of curve stored in this instance.
+
+    /**
+      * Get back the whole list of curvename  stored in this instance.
+      * The name position index in the list is consistent with the internal curves list.
+      */
+    QStringList  getTimeDataStringList();
+
     int xScaleType() {return m_xScaleType;}
     int yScaleType() {return m_yScaleType;}
     int dimension()  {return m_dimension;}
-    virtual void setPosition(qreal position) {}
+    virtual void setRubberBandPosition(qreal position) {}
 
 
 signals:
@@ -75,10 +89,10 @@ protected:
 
     int m_xScaleType;
     int m_yScaleType;
+    ScrollRubberBand * m_scrollRubberBand;//Object to scroll a vertical or horizontal line in order to display where the signal is analyzed.
 private:
     void plotSetup();
     int m_dimension;
-    QPainter * x;
 
 protected:
 

@@ -29,6 +29,17 @@ InternalStreamDevice::~InternalStreamDevice()
 
 }
 
+const int InternalStreamDevice::getSampleLength() {
+    const int channelBytes = m_format.sampleSize() / 8;
+    const int sampleBytes = m_format.channels() * channelBytes;
+    return sampleBytes;
+}
+
+const qint64 InternalStreamDevice::getStreamLength() {
+    const qint64 retval=this->size()/this->getSampleLength();
+    return retval;
+}
+
 bool InternalStreamDevice::setAudioData(qreal * data, qint64 len) {
 
     //Verify if data are present

@@ -81,7 +81,7 @@ void AudioPlayer::initializeWidget(QWidget * parentWidget)
     m_streamPositionSlider = new QSlider(Qt::Horizontal,parentWidget);
     m_streamPositionSlider->setTickPosition(QSlider::TicksBothSides);
     connect(m_streamPositionSlider,SIGNAL(valueChanged(int)),this,SLOT(convertAndSetSliderPositionToStreamSample(int)));
-    connect(this,SIGNAL(streamPositionChanged(qint64)),this,SLOT(convertAndSetStreamSampleToSliderPosition(qint64)));
+    connect(this,SIGNAL(streamSamplePositionChanged(qint64)),this,SLOT(convertAndSetStreamSampleToSliderPosition(qint64)));
     m_streamPositionSlider->setMaximum(200);
 
 
@@ -308,6 +308,57 @@ bool AudioPlayer::setStreamSamplePosition(qint64 position) {
     return retval;
 }
 
+qreal AudioPlayer::actualStreamTimePosition() {
+    qint64 retval=0;
+    switch (m_source) {
+        case AudioPlayer::STREAM:
+            if (m_inputStream && m_inputStream->isOpen()) {
+                retval=m_inputStream->pos();
+            }
+            break;
+        case AudioPlayer::FILE:
+            if (m_inputFile.isOpen()) {
+                retval=m_inputFile.pos();
+            }
+            break;
+    }
+    return ((qreal)retval)/(qreal)(m_audioOutput->format().sampleRate()*m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
+}
+
+qreal AudioPlayer::actualStreamTotalTime() {
+    qint64 retval=0;
+    switch (m_source) {
+        case AudioPlayer::STREAM:
+            if (m_inputStream && m_inputStream->isOpen()) {
+                retval=m_inputStream->size();
+            }
+            break;
+        case AudioPlayer::FILE:
+            if (m_inputFile.isOpen()) {
+                retval=m_inputFile.size();
+            }
+            break;
+    }
+    return ((qreal)retval)/(qreal)(m_audioOutput->format().sampleRate()*m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
+}
+
+qreal AudioPlayer::actualStreamRemainingTime() {
+    qint64 retval=0;
+    switch (m_source) {
+        case AudioPlayer::STREAM:
+            if (m_inputStream && m_inputStream->isOpen()) {
+                retval=m_inputStream->bytesAvailable();
+            }
+            break;
+        case AudioPlayer::FILE:
+            if (m_inputFile.isOpen()) {
+                retval=m_inputFile.bytesAvailable();
+            }
+            break;
+    }
+    return ((qreal)retval)/(qreal)(m_audioOutput->format().sampleRate()*m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
+}
+
 qint64 AudioPlayer::actualStreamSamplePosition() {
     qint64 retval=0;
     switch (m_source) {
@@ -322,10 +373,10 @@ qint64 AudioPlayer::actualStreamSamplePosition() {
             }
             break;
     }
-    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize());
+    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
 }
 
-qint64 AudioPlayer::totalStreamSample() {
+qint64 AudioPlayer::actualStreamTotalSample() {
     qint64 retval=0;
     switch (m_source) {
         case AudioPlayer::STREAM:
@@ -339,10 +390,10 @@ qint64 AudioPlayer::totalStreamSample() {
             }
             break;
     }
-    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize());
+    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
 }
 
-qint64 AudioPlayer::remainingStreamSample() {
+qint64 AudioPlayer::actualStreamRemainingSample() {
     qint64 retval=0;
     switch (m_source) {
         case AudioPlayer::STREAM:
@@ -356,7 +407,7 @@ qint64 AudioPlayer::remainingStreamSample() {
             }
             break;
     }
-    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize());
+    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
 }
 
 void AudioPlayer::convertAndSetStreamSampleToSliderPosition(qint64 position) {
@@ -370,19 +421,19 @@ void AudioPlayer::convertAndSetStreamSampleToSliderPosition(qint64 position) {
 }
 
 int AudioPlayer::convertStreamSampleToSliderPosition(qint64 position) {
-    return (int) (m_streamPositionSlider->maximum()* ((qreal)position/(qreal)this->totalStreamSample()));
+    return (int) (m_streamPositionSlider->maximum()* ((qreal)position/(qreal)this->actualStreamTotalSample()));
 }
 
 void AudioPlayer::convertAndSetSliderPositionToStreamSample(int position) {
     if (!m_streamPositionSlider->isSliderDown()) {
         qint64 streamPosition=this->convertSliderPositionToStreamSample(position);
-        qDebug() << "AudioPlayer::convertSliderPositionToStreamSample setPosition@" << streamPosition << "/"<<this->totalStreamSample();
+        qDebug() << "AudioPlayer::convertSliderPositionToStreamSample setPosition@" << streamPosition << "/"<<this->actualStreamTotalSample();
         this->setStreamSamplePosition(streamPosition);
     }
 }
 
 qint64 AudioPlayer::convertSliderPositionToStreamSample(int position) {
-    return (qint64) ( (position*this->totalStreamSample())/(qreal)m_streamPositionSlider->maximum());
+    return (qint64) ( (position*this->actualStreamTotalSample())/(qreal)m_streamPositionSlider->maximum());
 }
 
 AudioPlayer::~AudioPlayer()
@@ -400,12 +451,15 @@ void AudioPlayer::deviceChanged(int index) {
 
 void AudioPlayer::notified()
 {    
- //   qDebug() << "AudioPlayer::notified: bytesFree=" << m_audioOutput->bytesFree()
- //              << ", " << "elapsedUSecs=" << m_audioOutput->elapsedUSecs()
- //              << ", " << "processedUSecs=" << m_audioOutput->processedUSecs()
- //              << ", " << "stream@sample/len=" << this->actualStreamSamplePosition()<< "/"<< this->totalStreamSample()
- //              << ","  << " remaining sample" << this->remainingStreamSample();
-    emit streamPositionChanged(this->actualStreamSamplePosition());
+//    qDebug() << "AudioPlayer::notified: bytesFree=" << m_audioOutput->bytesFree()
+//               << ", " << "elapsedUSecs=" << m_audioOutput->elapsedUSecs()
+//               << ", " << "processedUSecs=" << m_audioOutput->processedUSecs()
+//               << ", " << "channels="<< m_audioOutput->format().channels()
+//               << ", " << " sampleSize=" << m_audioOutput->format().sampleSize()
+//               << ", " << "stream@sample/len=" << this->actualStreamSamplePosition()<< "/"<< this->actualStreamTotalSample()
+//               << ","  << " remaining sample" << this->actualStreamRemainingSample();
+    emit streamSamplePositionChanged(this->actualStreamSamplePosition());
+    emit streamTimePositionChanged(this->actualStreamTimePosition());
 }
 
 void AudioPlayer::pullTimerExpired()

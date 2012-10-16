@@ -20,6 +20,8 @@ public:
     ~InternalStreamDevice();
 
     QAudioFormat getAudioFormat() { return m_format;}
+    const int getSampleLength();
+    const qint64 getStreamLength();
 
 signals:
     void dataChanged();

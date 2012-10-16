@@ -17,6 +17,7 @@ INCLUDEPATH += ../ComboBoxWidgetColor
 INCLUDEPATH += ../ComboBoxLabelWidget
 INCLUDEPATH += ../QwtHelpers
 INCLUDEPATH += ../SelectCurveWindowDialog
+INCLUDEPATH += ../SelectRemoveCurveWindowDialog
 INCLUDEPATH += ../ExportAudioFileWidget
 
 LIBS += -F/usr/local/qwt-6.0.1/lib/ -framework qwt
@@ -25,6 +26,8 @@ LIBS += -L../ComboBoxWidgetColor -lmoc_comboboxwidgetcolor.o -lcomboboxwidgetcol
 LIBS += -L../ComboBoxLabelWidget -lmoc_comboboxnamewidget.o -lcomboboxnamewidget.o
 LIBS += -L../QwtHelpers -lzmp_handler.o -lqwthelpers.o -lmoc_zmp_handler.o
 LIBS += -L../SelectCurveWindowDialog -lselectcurvewindowdialog.o -lmoc_selectcurvewindowdialog.o -lselectcurvewindowhelper.o -lmoc_selectcurvewindowhelper.o
+LIBS += -L../SelectRemoveCurveWindowDialog -lselectremovecurvewindowdialog.o -lmoc_selectremovecurvewindowdialog.o
+
 LIBS += -L../ExportAudioFileWidget -lexportaudiofiledialog.o  -lmoc_exportaudiofiledialog.o
 
 

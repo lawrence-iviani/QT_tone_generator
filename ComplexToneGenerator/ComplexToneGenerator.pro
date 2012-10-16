@@ -26,6 +26,7 @@ LIBS += -L/opt/local/lib -lsndfile
 
 # ------ Internal deps
 INCLUDEPATH += ../Widget/SelectCurveWindowDialog
+INCLUDEPATH += ../Widget/SelectRemoveCurveWindowDialog
 INCLUDEPATH += ../Widget/ScaledSliderWidget
 INCLUDEPATH += ../Widget/ComboBoxWidgetColor
 INCLUDEPATH += ../Widget/ComboBoxLabelWidget
@@ -56,6 +57,7 @@ HEADERS  += mainwindow.h \
     freqplotwidget.h \
     CTG_constants.h \
     digesttimedata.h \
-    partialtimedata.h
+    partialtimedata.h \
+    scrollrubberband.h
 
 FORMS    += mainwindow.ui

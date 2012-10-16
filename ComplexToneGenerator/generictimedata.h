@@ -42,6 +42,7 @@ public:
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
 signals:
      void dataUpdated();
+     void nameChanged();
      //void maxDurationUpdate(double maxDuration);
     // void minStartTimeUpdate(double t0);
     // void maxEndTimeUpdate(double t1);
@@ -68,8 +69,6 @@ public slots:
      void setShowCurve(bool enable);//Show/hide the curve but keep enabled in the calculation (ie digest)
      void nameUpdated();
      void updateData();
-     void showBaseControl();
-     void showExtendedControl();
 
      double * getTimeData()   {return m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
      double * getSignalData() {return m_s;}//return the pointer to internal data of the signal. This should be a duplicate??

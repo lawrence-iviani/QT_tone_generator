@@ -6,6 +6,10 @@
 #include  <qwt_plot_marker.h>
 #include  <qwt_symbol.h>
 #include <CTG_constants.h>
+#include <QRadioButton>
+#include <QGroupBox>
+
+
 
 /**
   * This class specializes the PlotWidget with a data digest class a sum of all the init timedata in the prject.
@@ -25,14 +29,13 @@ public:
     double duration() {return m_duration;}
     double minTime() {return m_t0;}
     DigestTimeData * getDigestCurve() {return m_digestCurve;} //return the digest curve
-    virtual void setPosition(qreal position);
+    virtual void setRubberBandPosition(qreal position);
 signals:
     
 public slots:
     void setSampleRate(double SR);
     void setDuration(double duration);
-    void timeOptionPressed();
-    void zoomPanButtonPressed();
+    void ZMP_statusChanged();
 
     /**
       * this function override base class function and before replot update the data in the digest curve.
@@ -52,13 +55,16 @@ private:
     struct {
       QFrame * baseControlWidget;
       ZMP_Handler * m_zmp;//Handle zoom, panel etc
-      QPushButton * toggleButtonOptionEnable;
-      QPushButton * toggleButtonZMP;//Zoom Move Pan enable button
+      struct {
+          QGroupBox * groupBox;
+          QRadioButton * PICKER;
+          QRadioButton * PAN;
+          QRadioButton * ZOOM;
+      } ZMP_RadioButton;//Zoom Move Pan Pick enable radio button
       ScaledSliderWidget * sliderSR;//Allows to change the sample rate of the whole generated signal
       ScaledSliderWidget * sliderDuration;//Allows to change the max duration of ALL the signals. The reference is ALWAYS t0
     } m_baseControl;
     QFrame * m_allControl;//The widget with all control (base and eventually extended
-    QwtPlotMarker * m_markerPosition;
 };
 
 #endif // TIMEPLOTWIGET_H
