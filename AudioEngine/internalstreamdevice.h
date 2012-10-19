@@ -10,7 +10,10 @@
 
 #include "generator.h"
 
-
+/**
+  * This class is an estension of the QBuffer class that allows to insert in the internal buffer a formatted audio data.
+  * All the functions are inerithed from the IODevice, thus the class can be used as a stream.
+  */
 class InternalStreamDevice : public QBuffer
 {
     Q_OBJECT
@@ -19,11 +22,30 @@ public:
     InternalStreamDevice(QAudioFormat format, QObject *parent=0);
     ~InternalStreamDevice();
 
+    /**
+      * Return the audio format associated to this stream
+      */
     QAudioFormat getAudioFormat() { return m_format;}
+
+    /**
+      * Return the actual position in sample
+      */
+    const qint64 getAudioBufferPos();
+
+    /**
+      * Return the length in byte of a single sample
+      */
     const int getSampleLength();
-    const qint64 getStreamLength();
+
+    /**
+      * Return the total length of the stream in sample
+      */
+    const qint64 getAudioBufferLength();
 
 signals:
+    /**
+      * This signal is emitted whenever a new Audio data set is inserted.
+      */
     void dataChanged();
 
 public slots:
@@ -34,8 +56,6 @@ public slots:
       */
    bool setAudioData(qreal * data, qint64 len);
 
-private:
-    void generateData(qint64 durationUs, int frequency);
 
 private:
     //qint64 m_pos;

@@ -35,7 +35,12 @@ const int InternalStreamDevice::getSampleLength() {
     return sampleBytes;
 }
 
-const qint64 InternalStreamDevice::getStreamLength() {
+const qint64 InternalStreamDevice::getAudioBufferPos() {
+    const qint64 retval=this->pos()/this->getSampleLength();
+    return retval;
+}
+
+const qint64 InternalStreamDevice::getAudioBufferLength() {
     const qint64 retval=this->size()/this->getSampleLength();
     return retval;
 }
