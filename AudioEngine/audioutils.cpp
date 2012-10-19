@@ -36,8 +36,9 @@ const QAudioFormat AudioUtils::readFileHeader (QString filename) {
     qDebug() <<  "AudioUtils::readFileHeader hedaer of "<< filename << " format " <<  QString::number(file.format(),16) <<" SR=" << file.samplerate () <<" channels=" << file.channels ();
 
     retval.setCodec(AudioUtils::decodeCodec(file.format()));
-    if (!retval.codec().compare("audio/pcm")) {
-       qWarning() <<  "AudioUtils::readFileHeader unsupported type " <<  retval.codec();
+
+    if (retval.codec().compare("audio/pcm")) {
+        qWarning() <<  "AudioUtils::readFileHeader unsupported type " <<  retval.codec();
     }
     retval.setChannelCount(file.channels());
     retval.setSampleRate(file.samplerate());
@@ -62,9 +63,9 @@ const QString AudioUtils::audioFormatToString(QAudioFormat *format) {
     return  *text.string();
 }
 
-const QString AudioUtils::decodeCodec(int format) {
+const QString AudioUtils::decodeCodec(int header) {
     QString retval;
-    switch (format & SF_FORMAT_TYPEMASK ) {
+    switch (header & SF_FORMAT_TYPEMASK ) {
         case SF_FORMAT_WAV:   /* Microsoft WAV format (little endian). */
             retval="audio/pcm";
             break;
@@ -81,9 +82,9 @@ const QString AudioUtils::decodeCodec(int format) {
     return retval;
 }
 
-const QAudioFormat::Endian AudioUtils::decodeEndianess(int format) {
+const QAudioFormat::Endian AudioUtils::decodeEndianess(int header) {
     QAudioFormat::Endian retval=(QAudioFormat::Endian)QSysInfo::ByteOrder;
-    switch (format & SF_FORMAT_ENDMASK ) {
+    switch (header & SF_FORMAT_ENDMASK ) {
         case SF_ENDIAN_LITTLE:
             retval=QAudioFormat::LittleEndian;
             break;
@@ -109,9 +110,9 @@ const QString AudioUtils::endianessFormatToString(QAudioFormat::Endian format) {
     return retval;
 }
 
-const QAudioFormat::SampleType AudioUtils::decodePCMSignFormat(int format) {
+const QAudioFormat::SampleType AudioUtils::decodePCMSignFormat(int header) {
     QAudioFormat::SampleType retval;
-    switch (format & SF_FORMAT_SUBMASK ) {
+    switch (header & SF_FORMAT_SUBMASK ) {
         case SF_FORMAT_PCM_16:/* Signed 16 bit data */
         case SF_FORMAT_PCM_24:/* Signed 24 bit data */
         case SF_FORMAT_PCM_32:/* Signed 32 bit data */
@@ -133,9 +134,9 @@ const QAudioFormat::SampleType AudioUtils::decodePCMSignFormat(int format) {
     return retval;
 }
 
-const int AudioUtils::decodePCMSampleSizeFormat(int format) {
+const int AudioUtils::decodePCMSampleSizeFormat(int header) {
     int retval;
-    switch (format & SF_FORMAT_SUBMASK ) {
+    switch (header & SF_FORMAT_SUBMASK ) {
         case SF_FORMAT_PCM_S8:/* Signed 8 bit data */
             retval=8;
             break;

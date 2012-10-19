@@ -24,19 +24,60 @@ public:
     explicit AudioUtils(QObject *parent = 0);
     
     //Generate Standard Format
-    static QAudioFormat getStandardFormat(AudioUtils::StandardFormat format);
+
+    /**
+      * Return a QAudioFormat based on the input format request
+      * \param the enumerator AudioUtils::StandardFormat
+      */
+    static QAudioFormat getStandardFormat(AudioUtils::StandardFormat header);
     //QAudioFormat to string
-    static const QString audioFormatToString(QAudioFormat *format);
+
+    /**
+      * Convert an audio format in a readable string
+      */
+    static const QString audioFormatToString(QAudioFormat *header);
+
+    /**
+      * Convert an audio device state in a readable string
+      */
     static const QString audioStateToString(int state);
+
+    /**
+      * Convert an audio sample in a readable string
+      */
     static const QString audioSampleTypeToString(int sampleType);
-    static const QString endianessFormatToString(QAudioFormat::Endian format);
+
+    /**
+      * Convert the endianess flag in a readable string
+      */
+    static const QString endianessFormatToString(QAudioFormat::Endian header);
 
 
     //libsndfile to QAudioFormat values
-    static const QString decodeCodec(int format);
-    static const QAudioFormat::Endian decodeEndianess(int format);
-    static const int decodePCMSampleSizeFormat(int format);
-    static const QAudioFormat::SampleType decodePCMSignFormat(int format);
+
+    /**
+      * Decode an header read with lib_soundfile in a readable string
+      */
+    static const QString decodeCodec(int header);
+
+    /**
+      * Decode an header read with lib_soundfile in a readable string
+      */
+    static const QAudioFormat::Endian decodeEndianess(int header);
+
+    /**
+      * Decode an header read with lib_soundfile in a readable string
+      */
+    static const int decodePCMSampleSizeFormat(int header);
+
+    /**
+      * Decode an header read with lib_soundfile in a readable string
+      */
+    static const QAudioFormat::SampleType decodePCMSignFormat(int header);
+
+    /**
+      * From a file try to understand ( if exista) the wav header.
+      */
     static const QAudioFormat readFileHeader (QString filename);
 
 signals:
