@@ -3,6 +3,7 @@
 
 AudioPlayer::AudioPlayer(QObject *parent)
     :   QObject(parent)
+    ,   m_bufferLength(AUDIOPLAYER_DEFAULT_BUFFER_LEN)
     ,   m_pullTimer(new QTimer(this))
     ,   m_modeButton(0)
     ,   m_suspendResumeButton(0)
@@ -17,6 +18,7 @@ AudioPlayer::AudioPlayer(QObject *parent)
 
 AudioPlayer::AudioPlayer(QWidget *parentWidget, QObject *parent )
     :   QObject(parent)
+    ,   m_bufferLength(AUDIOPLAYER_DEFAULT_BUFFER_LEN)
     ,   m_pullTimer(new QTimer(this))
     ,   m_modeButton(0)
     ,   m_suspendResumeButton(0)
@@ -30,10 +32,6 @@ AudioPlayer::AudioPlayer(QWidget *parentWidget, QObject *parent )
 }
 
 void AudioPlayer::initClass() {
-    m_durationSeconds=AUDIOPLAYER_DEFAULT_DURATION_SEC;
-    m_toneFreq=AUDIOPLAYER_DEFAULT_TONE_FREQ;
-    m_bufferLength=AUDIOPLAYER_DEFAULT_BUFFER_LEN;
-
     QAudioFormat format;
     format.setFrequency(AUDIOUTILS_DEFAULT_SR);
     format.setChannels(AUDIOUTILS_DEFAULT_NCHANNELS);
@@ -43,7 +41,6 @@ void AudioPlayer::initClass() {
     format.setByteOrder(AUDIOUTILS_DEFAULT_BYTEORDER);
 
     m_buffer=QByteArray(m_bufferLength,0);
-
     m_pullMode = true;
     m_source=AudioPlayer::STREAM;
     connect(m_pullTimer, SIGNAL(timeout()), SLOT(pullTimerExpired()));
@@ -80,10 +77,11 @@ void AudioPlayer::initializeWidget(QWidget * parentWidget)
 
     m_streamPositionSlider = new QSlider(Qt::Horizontal,parentWidget);
     m_streamPositionSlider->setTickPosition(QSlider::TicksBothSides);
-    connect(m_streamPositionSlider,SIGNAL(valueChanged(int)),this,SLOT(convertAndSetSliderPositionToStreamSample(int)));
-    connect(this,SIGNAL(streamPositionChanged(qint64)),this,SLOT(convertAndSetStreamSampleToSliderPosition(qint64)));
+    //connect(m_streamPositionSlider,SIGNAL(valueChanged(int)),this,SLOT(convertAndSetSliderPositionToStreamSample(int)));
+    connect(m_streamPositionSlider,SIGNAL(sliderReleased()),this,SLOT(sliderToggled()));
+    connect(m_streamPositionSlider,SIGNAL(sliderPressed()),this,SLOT(sliderToggled()));
+    connect(this,SIGNAL(streamSamplePositionChanged(qint64)),this,SLOT(convertAndSetStreamSampleToSliderPosition(qint64)));
     m_streamPositionSlider->setMaximum(200);
-
 
     //Layouyt different control widget
     m_audioControlWidget=new QWidget(parentWidget);
@@ -173,30 +171,35 @@ void AudioPlayer::setFileName(QString filename) {
     qDebug() << "AudioPlayer::setFileName set file name " << m_inputFile.fileName();
 }
 
-void AudioPlayer::startPlayPush(int position) {
+void AudioPlayer::startPlayPush(qint64 samplePosition) {
     m_pullMode=false;
     switch (m_source) {
         case AudioPlayer::STREAM:
-            qDebug() << "AudioPlayer::startPlayPush starting  with STREAM@position " << position;
+            qDebug() << "AudioPlayer::startPlayPush starting  with STREAM@samplePosition " << samplePosition;
             if (m_inputStream && m_inputStream->open(QIODevice::ReadOnly)) {
                 this->setAudioFormat(m_inputStream->getAudioFormat());//Change format only if needed
                 m_audioOutput->start(m_inputStream);
-                m_inputStream->seek(this->convertSliderPositionToStreamSample(position));
+                if (!this->setStreamSamplePosition(samplePosition))
+                    qWarning() << "AudioPlayer::startPlayPull CAN'T' SET STREAM@samplePosition=" <<samplePosition;
+                //m_inputStream->seek(this->convertSliderPositionToStreamSample(samplePosition));
                 qDebug() << "AudioPlayer::startPlayPush started  with SR=" << m_audioOutput->format().sampleRate() <<
-                            " @samplePos=" << this->convertSliderPositionToStreamSample(position);
+                            " @samplePos=" << this->convertSliderPositionToStreamSample(samplePosition);
             } else {
                 qWarning() << "AudioPlayer::startPlayPush nothing to play";
               //  this->setPause(true);
             }
             break;
         case AudioPlayer::FILE:
-            qDebug() << "AudioPlayer::startPlayPush starting  with FILE@position " << position;
+            qDebug() << "AudioPlayer::startPlayPush starting  with FILE@samplePosition " << samplePosition;
             if (m_inputFile.open(QIODevice::ReadOnly)){
                 this->setAudioFormat(AudioUtils::readFileHeader(m_inputFile.fileName()));
                 m_audioOutput->start(&m_inputFile);
-                m_inputFile.seek(AUDIOPLAYER_HEADER_WAV_SAMPLES+ (position<4 ? 4:this->convertSliderPositionToStreamSample(position)) );
+                samplePosition=samplePosition<AUDIOPLAYER_HEADER_WAV_SAMPLES+4 ? AUDIOPLAYER_HEADER_WAV_SAMPLES+4 : samplePosition;
+                if (!this->setStreamSamplePosition(samplePosition))
+                    qWarning() << "AudioPlayer::startPlayPull CAN'T' SET FILE@samplePosition=" <<samplePosition;
+                //m_inputFile.seek(AUDIOPLAYER_HEADER_WAV_SAMPLES+ (samplePosition<4 ? 4:samplePosition)) ;
                 qDebug() << "AudioPlayer::startPlayPush started  with SR=" << m_audioOutput->format().sampleRate() <<
-                            " @samplePos=" << this->convertSliderPositionToStreamSample(position);
+                            " @samplePos=" << samplePosition;
             } else {
                 qWarning() << "AudioPlayer::startPlayPush can't open "<< m_inputFile.fileName();
             }
@@ -204,32 +207,38 @@ void AudioPlayer::startPlayPush(int position) {
     }
 }
 
-void AudioPlayer::startPlayPull(int position) {
+void AudioPlayer::startPlayPull(qint64 samplePosition) {
     m_pullMode=true;
     switch (m_source) {
         case AudioPlayer::STREAM:
-            qWarning() << "AudioPlayer::startPlayPull starting  with STREAM@position " << position;
             if (m_inputStream && m_inputStream->open(QIODevice::ReadOnly)) {
                 this->setAudioFormat(m_inputStream->getAudioFormat());//Change format only if needed
+                qWarning() << "AudioPlayer::startPlayPull starting  with STREAM@position " << samplePosition;
                 m_output_IODev = m_audioOutput->start();
-                m_output_IODev->seek(this->convertSliderPositionToStreamSample(position));
+                if (!this->setStreamSamplePosition(samplePosition))
+                    qWarning() << "AudioPlayer::startPlayPull CAN'T' SET STREAM@samplePosition=" <<samplePosition;
+                //m_output_IODev->seek(samplePosition);
+
                 m_pullTimer->start(AUDIOPLAYER_PULL_INTERVAL);
                 qDebug() << "AudioPlayer::startPlayPush started  with SR=" << m_audioOutput->format().sampleRate() <<
-                            " @samplePos=" << this->convertSliderPositionToStreamSample(position);
+                            " @samplePos=" << samplePosition;
             } else {
                 qDebug() << "AudioPlayer::startPlayPull nothing to play, can't open stream";
                // this->setPause(true);
             }
             break;
         case AudioPlayer::FILE:
-            qWarning() << "AudioPlayer::startPlayPull starting  with FILE@position " << position;
+            qWarning() << "AudioPlayer::startPlayPull starting  with FILE@samplePosition " << samplePosition;
             if (m_inputFile.open(QIODevice::ReadOnly)){
                 this->setAudioFormat(AudioUtils::readFileHeader(m_inputFile.fileName()));
                 m_output_IODev = m_audioOutput->start();
-                m_inputFile.seek(AUDIOPLAYER_HEADER_WAV_SAMPLES+ (position<4 ? 4:this->convertSliderPositionToStreamSample(position)) );
+                samplePosition=samplePosition<AUDIOPLAYER_HEADER_WAV_SAMPLES+4 ? AUDIOPLAYER_HEADER_WAV_SAMPLES+4 : samplePosition;
+                if (!this->setStreamSamplePosition(samplePosition))
+                    qWarning() << "AudioPlayer::startPlayPull CAN'T' SET FILE@samplePosition=" <<samplePosition;
+                //m_inputFile.seek(AUDIOPLAYER_HEADER_WAV_SAMPLES+ (position<4 ? 4:samplePosition;
                 m_pullTimer->start(AUDIOPLAYER_PULL_INTERVAL);
                 qDebug() << "AudioPlayer::startPlayPush started  with SR=" << m_audioOutput->format().sampleRate() <<
-                            " @samplePos=" << this->convertSliderPositionToStreamSample(position);
+                            " @samplePos=" << samplePosition;
             } else {
                 qDebug() << "AudioPlayer::startPlayPull can't open "<< m_inputFile.fileName();
             }
@@ -241,13 +250,13 @@ void AudioPlayer::startPlay() {
    this->startPlay(0);
 }
 
-void AudioPlayer::startPlay(int position) {
+void AudioPlayer::startPlay(qint64 samplePosition) {
     stopPlay();
-    qDebug() << "AudioPlayer::startPlay starting@position " << position;
+    qDebug() << "AudioPlayer::startPlay starting@position " << samplePosition;
     if (m_pullMode) {
-        startPlayPull(position);
+        startPlayPull(samplePosition);
     } else {
-        startPlayPush(position);
+        startPlayPush(samplePosition);
     }
 }
 
@@ -272,40 +281,90 @@ void AudioPlayer::stopPlay() {
             }
             break;
     }
-    //Need to force UI.. why?
-    this->stopUI();
 }
 
-bool AudioPlayer::setStreamSamplePosition(qint64 position) {
+bool AudioPlayer::setStreamSamplePosition(qint64 samplePosition) {
     bool retval=false;
     qint64 bytesPosition=0;
-    if (m_audioOutput && (m_audioOutput->state() == QAudio::ActiveState || m_audioOutput->state() == QAudio::SuspendedState)) {
+  //  if (m_audioOutput && (m_audioOutput->state() == QAudio::ActiveState || m_audioOutput->state() == QAudio::SuspendedState)) {
+    if (m_audioOutput ) {
         switch (m_source) {
             case AudioPlayer::STREAM:
                 if (m_inputStream && m_inputStream->isOpen()) {
-                    bytesPosition=qMin(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()*position,m_inputStream->size() );
+                    bytesPosition=qMin(m_audioOutput->format().channels()*(m_audioOutput->format().sampleSize()/8)*samplePosition,m_inputStream->size() );
                     retval=m_inputStream->seek(bytesPosition);
                     if (retval)
-                        qDebug() << "AudioPlayer::setBytesPosition set STREAM position@" << bytesPosition << "/"<< m_inputStream->size() << " bytes";
+                        qDebug() << "AudioPlayer::setStreamSamplePosition set STREAM position@" << bytesPosition << "/"<< m_inputStream->size() << " bytes";
                     else
-                        qDebug() << "AudioPlayer::setBytesPosition CAN'T' set STREAM position@" << bytesPosition << "/"<< m_inputStream->size() << " bytes";
+                        qWarning() << "AudioPlayer::setStreamSamplePosition CAN'T' set STREAM position@" << bytesPosition << "/"<< m_inputStream->size() << " bytes";
                 }
                 break;
             case AudioPlayer::FILE:
                 if (m_inputFile.isOpen()) {
-                    bytesPosition=qMin(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()*position,m_inputFile.size() );
+                    bytesPosition=qMin(m_audioOutput->format().channels()*(m_audioOutput->format().sampleSize()/8)*samplePosition,m_inputFile.size() );
                     retval=m_inputFile.seek(bytesPosition+AUDIOPLAYER_HEADER_WAV_SAMPLES); //TODO: + header!
                     if (retval)
-                            qDebug() << "AudioPlayer::setBytesPosition set FILE position@" << bytesPosition << "/"<< m_inputFile.size() << " bytes";
+                            qDebug() << "AudioPlayer::setStreamSamplePosition set FILE position@" << samplePosition << "/"<< m_inputFile.size() << " bytes";
                         else
-                            qDebug() << "AudioPlayer::setBytesPosition CAN'T' set FILE position@" << bytesPosition << "/"<< m_inputFile.size() << " bytes";
+                            qWarning() << "AudioPlayer::setStreamSamplePosition CAN'T' set FILE position@" << bytesPosition << "/"<< m_inputFile.size() << " bytes";
                 }
                 break;
         }
     } else {
-         qWarning() << "AudioPlayer::setBytesPosition: DO NOTHING";
+         qWarning() << "AudioPlayer::setStreamSamplePosition: DO NOTHING";
     }
     return retval;
+}
+
+qreal AudioPlayer::actualStreamTimePosition() {
+    qint64 retval=0;
+    switch (m_source) {
+        case AudioPlayer::STREAM:
+            if (m_inputStream && m_inputStream->isOpen()) {
+                retval=m_inputStream->pos();
+            }
+            break;
+        case AudioPlayer::FILE:
+            if (m_inputFile.isOpen()) {
+                retval=m_inputFile.pos();
+            }
+            break;
+    }
+    return ((qreal)retval)/(qreal)(m_audioOutput->format().sampleRate()*m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
+}
+
+qreal AudioPlayer::actualStreamTotalTime() {
+    qint64 retval=0;
+    switch (m_source) {
+        case AudioPlayer::STREAM:
+            if (m_inputStream && m_inputStream->isOpen()) {
+                retval=m_inputStream->size();
+            }
+            break;
+        case AudioPlayer::FILE:
+            if (m_inputFile.isOpen()) {
+                retval=m_inputFile.size();
+            }
+            break;
+    }
+    return ((qreal)retval)/(qreal)(m_audioOutput->format().sampleRate()*m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
+}
+
+qreal AudioPlayer::actualStreamRemainingTime() {
+    qint64 retval=0;
+    switch (m_source) {
+        case AudioPlayer::STREAM:
+            if (m_inputStream && m_inputStream->isOpen()) {
+                retval=m_inputStream->bytesAvailable();
+            }
+            break;
+        case AudioPlayer::FILE:
+            if (m_inputFile.isOpen()) {
+                retval=m_inputFile.bytesAvailable();
+            }
+            break;
+    }
+    return ((qreal)retval)/(qreal)(m_audioOutput->format().sampleRate()*m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
 }
 
 qint64 AudioPlayer::actualStreamSamplePosition() {
@@ -322,10 +381,10 @@ qint64 AudioPlayer::actualStreamSamplePosition() {
             }
             break;
     }
-    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize());
+    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
 }
 
-qint64 AudioPlayer::totalStreamSample() {
+qint64 AudioPlayer::actualStreamTotalSample() {
     qint64 retval=0;
     switch (m_source) {
         case AudioPlayer::STREAM:
@@ -339,10 +398,10 @@ qint64 AudioPlayer::totalStreamSample() {
             }
             break;
     }
-    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize());
+    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
 }
 
-qint64 AudioPlayer::remainingStreamSample() {
+qint64 AudioPlayer::actualStreamRemainingSample() {
     qint64 retval=0;
     switch (m_source) {
         case AudioPlayer::STREAM:
@@ -356,12 +415,16 @@ qint64 AudioPlayer::remainingStreamSample() {
             }
             break;
     }
-    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize());
+    return retval/(m_audioOutput->format().channels()*m_audioOutput->format().sampleSize()/8);
 }
 
-void AudioPlayer::convertAndSetStreamSampleToSliderPosition(qint64 position) {
+void AudioPlayer::sliderToggled() {
+    this->convertAndSetSliderPositionToStreamSample( m_streamPositionSlider->value() );
+}
+
+void AudioPlayer::convertAndSetStreamSampleToSliderPosition(qint64 samplePosition) {
     if (!m_streamPositionSlider->isSliderDown()) {
-        int sliderPosition=this->convertStreamSampleToSliderPosition(position);
+        int sliderPosition=this->convertStreamSampleToSliderPosition(samplePosition);
         //qDebug() << "AudioPlayer::convertStreamSampleToSliderPosition sliderPosition=" << sliderPosition;
         bool sigStatus=m_streamPositionSlider->blockSignals(true);
         m_streamPositionSlider->setValue(sliderPosition);
@@ -369,20 +432,19 @@ void AudioPlayer::convertAndSetStreamSampleToSliderPosition(qint64 position) {
     }
 }
 
-int AudioPlayer::convertStreamSampleToSliderPosition(qint64 position) {
-    return (int) (m_streamPositionSlider->maximum()* ((qreal)position/(qreal)this->totalStreamSample()));
+int AudioPlayer::convertStreamSampleToSliderPosition(qint64 samplePosition) {
+    return (int) (m_streamPositionSlider->maximum()* ((qreal)samplePosition/(qreal)this->actualStreamTotalSample()));
 }
 
-void AudioPlayer::convertAndSetSliderPositionToStreamSample(int position) {
-    if (!m_streamPositionSlider->isSliderDown()) {
-        qint64 streamPosition=this->convertSliderPositionToStreamSample(position);
-        qDebug() << "AudioPlayer::convertSliderPositionToStreamSample setPosition@" << streamPosition << "/"<<this->totalStreamSample();
-        this->setStreamSamplePosition(streamPosition);
-    }
+void AudioPlayer::convertAndSetSliderPositionToStreamSample(int sliderPosition) {
+    qint64 streamPosition=this->convertSliderPositionToStreamSample(sliderPosition);
+    qDebug() << "AudioPlayer::convertSliderPositionToStreamSample setPosition@" << streamPosition << "/"<<this->actualStreamTotalSample();
+    this->setStreamSamplePosition(streamPosition);
+
 }
 
-qint64 AudioPlayer::convertSliderPositionToStreamSample(int position) {
-    return (qint64) ( (position*this->totalStreamSample())/(qreal)m_streamPositionSlider->maximum());
+qint64 AudioPlayer::convertSliderPositionToStreamSample(int sliderPosition) {          
+    return (qint64) ( ((qreal)sliderPosition)/((qreal)m_streamPositionSlider->maximum())*this->actualStreamTotalSample());
 }
 
 AudioPlayer::~AudioPlayer()
@@ -393,6 +455,8 @@ AudioPlayer::~AudioPlayer()
 
 void AudioPlayer::deviceChanged(int index) {
     stopPlay();
+    stopUI();
+    m_audioOutput->reset();
     m_audioOutput->disconnect(this);
     m_device = m_deviceBox->itemData(index).value<QAudioDeviceInfo>();
     this->initializeAudio(m_audioOutput->format());
@@ -400,12 +464,14 @@ void AudioPlayer::deviceChanged(int index) {
 
 void AudioPlayer::notified()
 {    
- //   qDebug() << "AudioPlayer::notified: bytesFree=" << m_audioOutput->bytesFree()
- //              << ", " << "elapsedUSecs=" << m_audioOutput->elapsedUSecs()
- //              << ", " << "processedUSecs=" << m_audioOutput->processedUSecs()
- //              << ", " << "stream@sample/len=" << this->actualStreamSamplePosition()<< "/"<< this->totalStreamSample()
- //              << ","  << " remaining sample" << this->remainingStreamSample();
-    emit streamPositionChanged(this->actualStreamSamplePosition());
+//    qDebug() << "AudioPlayer::notified:  state is " << AudioUtils::audioStateToString(m_audioOutput->state())
+//               << ", " << "bytesFree=" << m_audioOutput->bytesFree()
+//               << ", " << "elapsedUSecs=" << m_audioOutput->elapsedUSecs()
+//               << ", " << "processedUSecs=" << m_audioOutput->processedUSecs()
+//               << ", " << "stream@sample/len=" << this->actualStreamSamplePosition()<< "/"<< this->actualStreamTotalSample()
+//               << ","  << " remaining sample" << this->actualStreamRemainingSample();
+    emit streamSamplePositionChanged(this->actualStreamSamplePosition());
+    emit streamTimePositionChanged(this->actualStreamTimePosition());
 }
 
 void AudioPlayer::pullTimerExpired()
@@ -428,7 +494,6 @@ void AudioPlayer::pullTimerExpired()
                         len = m_inputFile.read(m_buffer.data(), m_audioOutput->periodSize());
                     break;
             }
-
            if (len) m_output_IODev->write(m_buffer.data(), len);
            if (len != m_audioOutput->periodSize()) //If the last read is shorter of the period size stream is finished and then exit.
                break;
@@ -452,15 +517,15 @@ void AudioPlayer::toggleSuspendResume()
 
 void AudioPlayer::toggleStartStop()
 {
-    qDebug() << "AudioPlayer::toggleStartStop sliderValue=" <<m_streamPositionSlider->value();
+    qDebug() << "AudioPlayer::toggleStartStop sliderValue=" << this->convertSliderPositionToStreamSample(m_streamPositionSlider->value());
     if (m_audioOutput) {
         if (m_audioOutput->state() == QAudio::StoppedState) {
-            this->setStart(true,m_streamPositionSlider->value());
+            this->setStart(true,this->convertSliderPositionToStreamSample(m_streamPositionSlider->value()) );
         } else if (m_audioOutput->state() == QAudio::ActiveState) {
             this->setStart(false);
         } else if (m_audioOutput->state() == QAudio::IdleState) {
             qDebug() << "AudioPlayer::toggleStartStop status: IdleState, going to start.";
-            this->setStart(true,m_streamPositionSlider->value());
+            this->setStart(true,this->convertSliderPositionToStreamSample(m_streamPositionSlider->value()) );
         }  else if (m_audioOutput->state() == QAudio::SuspendedState) {
             qDebug() << "AudioPlayer::toggleStartStop status: IdleState, going to start.";
             this->setStart(false);
@@ -480,7 +545,6 @@ void AudioPlayer::toggleMode()
         m_modeButton->setText("Enable push mode");
         m_pullMode = true;
     }
-    //setStart(true);
 }
 
 void AudioPlayer::toggleSource() {
@@ -511,15 +575,15 @@ void AudioPlayer::setPause(bool pause) {
     }
 }
 
-void AudioPlayer::setStart(bool start, int position) {
+void AudioPlayer::setStart(bool start, int samplePosition) {
     if (m_audioOutput) {
         if (start) {
-            qDebug() << "AudioPlayer::setStart status: start() @ " << position;
-            this->startUI();
-            startPlay(position);
+            qDebug() << "AudioPlayer::setStart status: start() @ " << samplePosition;
+            //this->startUI();
+            startPlay(samplePosition);
         } else {            
             qDebug() << "AudioPlayer::setStart stop()";
-            this->stopUI();
+            //this->stopUI();
             stopPlay();
         }
     } else {
@@ -528,11 +592,18 @@ void AudioPlayer::setStart(bool start, int position) {
 }
 
 void AudioPlayer::stopUI() {
+    qDebug() << "AudioPlayer::stopUI stop UI called";
     m_startStopButton->setText("Start audio");
     m_suspendResumeButton->setText("Pause playback");
+
+    //Need to block signals before going on...
+    bool signalStatus=m_streamPositionSlider->blockSignals(true);
+    m_streamPositionSlider->setValue(0);
+    m_streamPositionSlider->blockSignals(signalStatus);
 }
 
 void AudioPlayer::startUI() {
+    qDebug() << "AudioPlayer::startUI start UI called";
     m_startStopButton->setText("Stop Audio");
     m_suspendResumeButton->setText("Pause playback");
 }
@@ -542,24 +613,33 @@ void AudioPlayer::pauseUI() {
 }
 
 void AudioPlayer::stateChanged(QAudio::State state) {
-    qDebug() << "AudioPlayer::stateChanged previous state is " <<AudioUtils::audioStateToString(m_previousState)<< " now is " << AudioUtils::audioStateToString(state);
-    switch (state) {
-        case QAudio::ActiveState:
-            this->startUI();
-            break;
-        case QAudio::SuspendedState:
-            this->pauseUI();
-            break;
-        case QAudio::StoppedState:
-            this->stopUI();
-            break;
-        case QAudio::IdleState:
-            this->stopUI();
-            break;
-        default:
-            break;
+    qDebug() << "AudioPlayer::stateChanged previous state is " <<AudioUtils::audioStateToString(m_previousState)<< " next state " << AudioUtils::audioStateToString(state);
+    if (m_previousState!=state) {
+        qDebug() << "AudioPlayer::stateChanged previous state is " <<AudioUtils::audioStateToString(m_previousState)<< " going to " << AudioUtils::audioStateToString(state);
+        switch (state) {
+            case QAudio::ActiveState:
+                this->startUI();
+                break;
+            case QAudio::SuspendedState:
+                this->pauseUI();
+                break;
+            case QAudio::StoppedState:
+                this->stopUI();
+                break;
+            case QAudio::IdleState:
+                this->stopUI();
+                break;
+            default:
+                break;
+        }
+        m_previousState=state;
+    } else {
+        qDebug() << "AudioPlayer::stateChanged nothing to do.";
     }
-    m_previousState=state;
+
+    //Q_ASSERT(m_audioOutput->state()==m_previousState);
+    qDebug() << "AudioPlayer::stateChanged state is " <<AudioUtils::audioStateToString(m_previousState);
+
 }
 
 
