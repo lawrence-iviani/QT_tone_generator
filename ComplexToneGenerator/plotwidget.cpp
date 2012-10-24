@@ -18,7 +18,7 @@ void PlotWidget::plotSetup() {
     this->setPalette( QPalette( QColor( 165, 193, 228 ) ) );
     this->insertLegend(new QwtLegend(), QwtPlot::RightLegend);
     this->setDimension(m_dimension);
-    this->setTitle("PlotWidget NO TITLE");
+    this->setTitle("No title");
 
     if (m_yScaleType==PlotWidget::Logarithmic) {
         this->setAxisScaleEngine(xBottom,new QwtLog10ScaleEngine());
@@ -33,15 +33,18 @@ void PlotWidget::plotSetup() {
     }
 
     //canvas
-    //this->canvas()->setLineWidth( 1 );
+    this->canvas()->setLineWidth( 1 );
     this->canvas()->setFrameStyle( QFrame::Box | QFrame::Plain );
     this->canvas()->setBorderRadius( 15 );
     QPalette canvasPalette( Qt::lightGray );
     canvasPalette.setColor( QPalette::Foreground, QColor( 133, 190, 232 ) );
     this->canvas()->setPalette( canvasPalette );
-    m_scrollRubberBand=new ScrollRubberBand(this->canvas());
     //this->setDimension(m_dimension);
+    x=new QPainter( this->canvas());
+
 }
+
+
 
 void PlotWidget::setXScaleType(int xScaleType) {
     m_xScaleType=xScaleType;
@@ -113,7 +116,7 @@ int PlotWidget::addTimeData(GenericTimeData * gtd) {
 bool PlotWidget::removeTimeData(int index) {
     bool retval=false;
     if (  (0 <= index) && (index < m_curveList.length()) ) {
-        GenericTimeData *  gtd=this->getTimeDataList(index);
+        GenericTimeData *  gtd=this->getTimeData(index);
         gtd->getCurve()->detach();
         disconnect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
         Q_ASSERT(gtd!=NULL);
@@ -126,7 +129,7 @@ bool PlotWidget::removeTimeData(int index) {
     return retval;
 }
 
-GenericTimeData *PlotWidget::getTimeDataList(int index) {
+GenericTimeData * PlotWidget::getTimeData(int index) {
     GenericTimeData * retval=NULL;
     if (  (0 <= index) && (index < m_curveList.length()) ) {
         retval=m_curveList.at(index);
@@ -136,10 +139,3 @@ GenericTimeData *PlotWidget::getTimeDataList(int index) {
 }
 
 
-QStringList  PlotWidget::getTimeDataStringList() {
-    QStringList retval;
-    foreach(GenericTimeData* p, m_curveList) {
-        retval << p->name();
-    }
-    return retval;
-}

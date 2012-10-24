@@ -126,6 +126,8 @@ void SinusData::initControl() {
 
     //Widget container and layout
     m_widgetControl=new QFrame();
+    m_widgetControl->setFrameShape(QFrame::WinPanel);
+    m_widgetControl->setFrameShadow(QFrame::Raised);
     QVBoxLayout * l=new QVBoxLayout();
     m_widgetControl->setLayout(l) ;
     m_widgetControl->hide();
@@ -159,10 +161,10 @@ void SinusData::initControl() {
     connect(m_dataControl.sliderInitPhase,SIGNAL(valueChanged(double)),this,SLOT(setInitPhase(double)));
 
     //Lay out all the control);
-    l->addWidget(m_dataControl.sliderFrequency,1,Qt::AlignLeft);
-    l->addWidget(m_dataControl.sliderAmplitude,1,Qt::AlignLeft);
-    l->addWidget(m_dataControl.sliderInitPhase,1,Qt::AlignLeft);
+    l->addWidget(m_dataControl.sliderFrequency,1);//,Qt::AlignCenter);
+    l->addWidget(m_dataControl.sliderAmplitude,1);//,Qt::AlignCenter);
+    l->addWidget(m_dataControl.sliderInitPhase,1);//,Qt::AlignCenter);
     //Control Widget from partialtimedata
-    l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignLeft);
-    l->addWidget(m_partialDataControl.widget_t0,1,Qt::AlignLeft);
+    l->addWidget(m_partialDataControl.widgetDuration,1);
+    l->addWidget(m_partialDataControl.widget_t0,1);
 }

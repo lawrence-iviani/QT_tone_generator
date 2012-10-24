@@ -142,6 +142,9 @@
         </property>
         <layout class="QVBoxLayout" name="layoutActualCurvesFrame">
          <item>
+          <widget class="QComboBox" name="comboBoxCurve"/>
+         </item>
+         <item>
           <widget class="QScrollArea" name="scrollArea">
            <property name="widgetResizable">
             <bool>true</bool>
@@ -151,8 +154,8 @@
              <rect>
               <x>0</x>
               <y>0</y>
-              <width>127</width>
-              <height>387</height>
+              <width>123</width>
+              <height>356</height>
              </rect>
             </property>
             <widget class="QWidget" name="verticalLayoutWidget_6">
@@ -164,31 +167,7 @@
                <height>361</height>
               </rect>
              </property>
-             <layout class="QVBoxLayout" name="scrollAreaLayout">
-              <item>
-               <widget class="QToolBox" name="toolBoxOptions">
-                <property name="currentIndex">
-                 <number>0</number>
-                </property>
-                <widget class="QWidget" name="page_2">
-                 <property name="enabled">
-                  <bool>false</bool>
-                 </property>
-                 <property name="geometry">
-                  <rect>
-                   <x>0</x>
-                   <y>0</y>
-                   <width>119</width>
-                   <height>325</height>
-                  </rect>
-                 </property>
-                 <attribute name="label">
-                  <string>Page 2</string>
-                 </attribute>
-                </widget>
-               </widget>
-              </item>
-             </layout>
+             <layout class="QVBoxLayout" name="scrollAreaLayout"/>
             </widget>
            </widget>
           </widget>
@@ -288,6 +267,22 @@
     <hint type="destinationlabel">
      <x>571</x>
      <y>501</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>comboBoxCurve</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>changedCurve(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>658</x>
+     <y>38</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>572</x>
+     <y>137</y>
     </hint>
    </hints>
   </connection>

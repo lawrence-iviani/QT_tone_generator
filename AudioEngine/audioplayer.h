@@ -43,6 +43,8 @@ public:
     AudioPlayer(QWidget * parentWidget, QObject *parent = 0);
     ~AudioPlayer();
 
+
+
     //other func
     QAudioFormat getAudioFormat() {return m_audioOutput->format();}
     AudioPlayer::PlayMode playMode();
@@ -52,11 +54,8 @@ public:
 
     //Position function
     qint64 actualStreamSamplePosition();
-    qint64 actualStreamTotalSample();
-    qint64 actualStreamRemainingSample();
-    qreal actualStreamTimePosition();
-    qreal actualStreamTotalTime();
-    qreal actualStreamRemainingTime();
+    qint64 totalStreamSample();
+    qint64 remainingStreamSample();
 
     //Widget control function
     QWidget * getTestControlWidget()  {return  m_testControlWidget; }
@@ -72,8 +71,7 @@ public slots:
     bool setStreamSamplePosition(qint64 position);
 
 signals:
-    void streamSamplePositionChanged(qint64 sample);
-    void streamTimePositionChanged(qreal time);
+    void streamPositionChanged(qint64 sample);
 
 private:
     void initClass();

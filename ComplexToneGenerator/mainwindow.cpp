@@ -7,9 +7,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     m_plotTime(new TimePlotWidget),
     m_plotFreq(new FreqPlotWidget),
-    m_audioPlayer(new AudioPlayer),
-    m_indexGenerator(1),
-    m_toolBoxFixedItem(0)
+    m_audioPlayer(new AudioPlayer)
 {
     ui->setupUi(this);
 
@@ -33,20 +31,22 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->scrollAreaWidgetContents->setLayout(ui->scrollAreaLayout);
 
     m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_MAX_TIME,-1.0,1.0);
-
-    //Adding widget to the toolbox option
-    ui->toolBoxOptions->removeItem(m_toolBoxFixedItem);//QT creator doesn't leaves to remove the first items. Little trick
-    ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++,m_plotTime->getControlWidget(),"Time Option");
-    ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Freq Option");
+    ui->scrollAreaLayout->addWidget(m_plotTime->getControlWidget(),0,Qt::AlignTop);
+    ui->scrollAreaLayout->addWidget(m_plotFreq->getControlWidget(),1,Qt::AlignTop);
 
     //Setting audio player control and digest curve stream
-    ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++,m_audioPlayer->getAudioControlWidget(),"Audio Player");
+    ui->scrollAreaLayout->addWidget(m_audioPlayer->getAudioControlWidget(),1,Qt::AlignTop);
     m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
+
+    m_lastIndexCurve=-1;
+    m_indexGenerator=1;
+    QFont f=ui->comboBoxCurve->font();
+    f.setPointSize(9);
+    ui->comboBoxCurve->setFont(f);
 
     //connect digest curve to handle update in the plots
     connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
-    connect(m_audioPlayer,SIGNAL(streamTimePositionChanged(qreal)) ,this,SLOT(streamPositionUpdate(qreal)));
-
+    connect(m_audioPlayer,SIGNAL(streamPositionChanged(qint64)),this,SLOT(streamPositionUpdate(qint64)));
     m_digestCurveStream=new InternalStreamDevice(AudioUtils::getStandardFormat(AudioUtils::DAT));
     m_digestCurveStream->setAudioData(m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
     m_audioPlayer->setStream(m_digestCurveStream);
@@ -67,18 +67,19 @@ void MainWindow::newCurve() {
     selectDialog->exec();
     GenericTimeData * s=this->decodeSelectedCurve(selectCurveHelper);
 
-    s->setColor(Qt::white);
+    s->setColor(Qt::black);
     s->setName(name);
-    connect(s,SIGNAL(nameChanged()),this,SLOT(updateCurvesName()));
 
     //adding data to the plot time
     m_plotTime->addTimeData(s);
 
     //adding controls to plot
-    ui->toolBoxOptions->addItem(s->getControlWidget(),s->name());
+    ui->scrollAreaLayout->addWidget(s->getControlWidget(),2,Qt::AlignTop);
 
-    delete selectCurveHelper;
-    delete selectDialog;
+    //Adding data to the combo box
+    ui->comboBoxCurve->addItem(name);
+    ui->comboBoxCurve->setCurrentIndex(ui->comboBoxCurve->count()-1);
+    m_lastIndexCurve=ui->comboBoxCurve->currentIndex();
 }
 
 void MainWindow::setupCurves(SelectCurveWindowHelper * selectCurveHelper) {
@@ -105,7 +106,7 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
         SinusData * s=new SinusData(m_plotTime->duration() , m_plotTime->sampleRate());
         s->setStartTime(0.4);
         s->setDuration(5.1);
-        s->setAmplitudeFrequencyAndPhase(0.707,1000,90);
+        s->setAmplitudeFrequencyAndPhase(0.707,10,90);
         retval=(GenericTimeData*) s;
         return retval;
     }
@@ -113,45 +114,63 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
 }
 
 void MainWindow::timeDataUpdated() {
+    ui->comboBoxCurve->setItemText(m_lastIndexCurve,m_plotTime->getTimeData(m_lastIndexCurve)->name());
     m_plotTime->replot();
+    //replot the digest curve too!
 }
 
 void MainWindow::removeCurve(){
+    int index=ui->comboBoxCurve->currentIndex();
 
-     QStringList  sl=m_plotTime->getTimeDataStringList();
-     SelectRemoveCurveWindowDialog * removeDialog=new SelectRemoveCurveWindowDialog(&sl,this);//(sl,this);
-     removeDialog->exec();
-     foreach (int i, removeDialog->getRemoveCurvesIndex()) {
-            if (!m_plotTime->removeTimeData(i)) {
-                qWarning() << "MainWindow::removeCurve: can't remove GenericTimeData@index=" <<i;
-            } else {
-                qDebug() << "MainWindow::removeCurve: removed GenericTimeData@index=" <<i;
-            }
+    GenericTimeData * s=(GenericTimeData*)m_plotTime->getTimeData(index);
+    if (s!=NULL) {
+        //Removing from combo box
+        ui->comboBoxCurve->removeItem(index);
 
-     }
-     delete removeDialog;
+        //Removing controls widget
+        ui->scrollAreaLayout->removeWidget(s->getControlWidget());
+        delete s->getControlWidget();
+
+        //Disconnecting signal
+        //disconnect(s,SIGNAL(dataUpdated()),this,SLOT(timeDataUpdated()));
+
+        //Remove curve from plot
+        m_plotTime->removeTimeData(index);
+    }
+
+    //Setting new values
+    m_lastIndexCurve=ui->comboBoxCurve->currentIndex();
+    s=(GenericTimeData*)m_plotTime->getTimeData(m_lastIndexCurve);
+    if  (s!=NULL) {
+        s->getControlWidget()->show();
+    }
+}
+
+void MainWindow::changedCurve(int index) {
+    if (index==m_lastIndexCurve) return;
+    GenericTimeData * s=(GenericTimeData*)m_plotTime->getTimeData(m_lastIndexCurve);
+    if (s!=NULL) {
+        s->getControlWidget()->hide();
+    }
+
+    index=ui->comboBoxCurve->currentIndex();
+    s=(GenericTimeData*)m_plotTime->getTimeData(index);
+    if  (s!=NULL) {
+        s->getControlWidget()->show();
+        //adding controls to plot
+        m_lastIndexCurve=index;
+    } else {
+        m_lastIndexCurve=-1;
+    }
 }
 
 void MainWindow::digestCurveChanged() {
     m_digestCurveStream->setAudioData(m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
 }
 
-void MainWindow::streamPositionUpdate(qreal position) {
-    //TODO, ACTUALLY IF THE SR OF THE PROJECT CHANGES STREAM REMAIN AT DEFAULT SR
-    Q_ASSERT(m_plotTime->sampleRate()==m_digestCurveStream->getAudioFormat().sampleRate());
-
-    qDebug() << "MainWindow::streamPositionUpdate: position=" <<position <<  "/"<< m_audioPlayer->actualStreamTotalTime();
-    m_plotTime->setRubberBandPosition( position );
-}
-
-void MainWindow::updateCurvesName() {
-    GenericTimeData * s;
-    int i=0;
-    s=m_plotTime->getTimeDataList(i);
-    while(s) {
-        ui->toolBoxOptions->setItemText(m_toolBoxFixedItem+i, s->name());
-        s=m_plotTime->getTimeDataList(++i);
-    }
+void MainWindow::streamPositionUpdate(qint64 position) {
+    qDebug() << "MainWindow::streamPositionUpdate position=" << position << " timePos=" << position/m_plotTime->sampleRate();
+    m_plotTime->setPosition(position/m_plotTime->sampleRate());
 }
 
 void MainWindow::exportDigestCurve() {
