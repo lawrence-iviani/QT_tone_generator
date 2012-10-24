@@ -55,6 +55,7 @@ void DigestTimeData::recalc() {
             Q_ASSERT(gtd!=NULL);
             if (m_curveList->at(m)->isEnabled()) {
                 gtdData=gtd->getSignalData();
+                qDebug() << "gtd->sampleNumber()=" << gtd->sampleNumber() << "=this->sampleNumber()" << this->sampleNumber();
                 Q_ASSERT(gtd->sampleNumber()==this->sampleNumber());
                 for (int n=0; n < gtd->sampleNumber(); n++) {
                     digestData[n]+=gtdData[n];

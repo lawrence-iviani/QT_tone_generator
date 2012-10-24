@@ -8,7 +8,9 @@
 #include "freqplotwidget.h"
 #include "plotwidget.h"
 #include "sinusdata.h"
+#include "constanttimedata.h"
 #include "selectcurvewindowdialog.h"
+#include "selectremovecurvewindowdialog.h"
 #include "exportaudiofiledialog.h"
 #include <sndfile.hh>
 #include <audioplayer.h>
@@ -33,10 +35,10 @@ public slots:
     void newCurve();
     void removeCurve();
     void exportDigestCurve();
-    void changedCurve(int index);
+    void updateCurvesName();
     void timeDataUpdated();
     void digestCurveChanged();
-    void streamPositionUpdate(qint64 position);
+    void streamPositionUpdate(qreal position);
 
 private:
     Ui::MainWindow *ui;
@@ -54,12 +56,8 @@ private:
     void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window
     GenericTimeData *  decodeSelectedCurve(SelectCurveWindowHelper * selectCurveHelper);
 
-    int m_lastIndexCurve;//This is the last index in the combo box curve, we need to know what's what the last curve selected.
     int m_indexGenerator; //It needs only to name a new curve with a progressive id, ie curve_1, curve_2, etc...
-
-
-   // GenericTimeData m_digestCurve; //This curve is a summarize of all the curve. The calculation is made by inerithed class
-
+    int m_toolBoxFixedItem; //The number of fixed item for general purpose control, useful to know the first item used for a curve.
 };
 
 #endif // MAINWINDOW_H

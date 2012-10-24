@@ -29,10 +29,10 @@ public:
     QwtCPointerData * getData() {return m_data;}
     QWidget * getControlWidget() {return m_allControl; }// Give back a QWidget that can be used to control this class.
 
-    double maxDuration(){return m_MaxDuration;}
+    double duration() {return m_MaxDuration;}
+    double maxDuration() {return m_MaxDuration;}
     double sampleRate() {return m_SR;}
-    double minStartTime(){return m_Min_t0;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
-   // double maxEndTime(){return m_Max_t1;}
+    double minStartTime() {return m_Min_t0;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
     long int sampleNumber() {return m_sample;}
     bool isEnabled() { return m_curveEnabled;}
     bool isShowEnabled() { return m_curve->isVisible();}
@@ -42,9 +42,7 @@ public:
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
 signals:
      void dataUpdated();
-     //void maxDurationUpdate(double maxDuration);
-    // void minStartTimeUpdate(double t0);
-    // void maxEndTimeUpdate(double t1);
+     void nameChanged();
 
 public slots:
      /**
@@ -68,8 +66,6 @@ public slots:
      void setShowCurve(bool enable);//Show/hide the curve but keep enabled in the calculation (ie digest)
      void nameUpdated();
      void updateData();
-     void showBaseControl();
-     void showExtendedControl();
 
      double * getTimeData()   {return m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
      double * getSignalData() {return m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
@@ -127,13 +123,9 @@ private:
        ComboBoxWidgetColor * comboColor;
        QCheckBox * checkBoxEnableCurve;
        QCheckBox * checkBoxShowCurve;
-       QPushButton * toggleButtonOptionControl;
      } m_baseControl; //This class control.
 
-     struct {
-        QFrame * extendedWidget;
-        QPushButton * toggleButtonOptionControl;
-     } m_extendedControl;//Extended class control, if a class extend this class can improve control
+     QFrame * m_extendedWidget; //Extended class control, if a class extend this class can improve control
 
      void createBaseControl();//Create all the control, of the base class and of any eventual extended class. It llayouts all together.
      QFrame * m_allControl;//The widget with all control (base and extended)

@@ -26,6 +26,12 @@ public slots:
     virtual void setMaxDuration(double maxDuration);
 
 protected:
+
+    /**
+      * This struct contains controls useful to be integrated in the inerhit class.
+      * This means that this struct should be inserted in the widget that will be associated to the method
+      * of an instance of GenericTimeData::setControlWidget(QWidget *). In this case will possible add the control implemented in this struct
+      */
     struct {
       ScaledSliderWidget * widgetDuration;
       ScaledSliderWidget * widget_t0;

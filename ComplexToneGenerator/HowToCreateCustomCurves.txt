@@ -1,0 +1,155 @@
+== Introduction ==
+This is a short how to write a new custom curve in complex generator
+
+Three kinds of curves are provided with this generator:
+
+- A curves with data for the whole duration, this can inherits from GenericTimeData
+- A curves with data for an interval of the whole  duration, this can inherits from PartialTimeData
+- A curves with repeated data, this can inherits from RepeatTimeData (TODO)
+
+Start as example from the constanttimedata.h/cpp, that generates an useless constant value.
+Another and more complete example is the class SinusData and PartialSinusData.
+
+Here you have the examples for all classes (EXCEPT FOR NOW RepeatTimeData, TODO)
+
+== Write the code ==
+
+=== Inherit from GenericTimeData ===
+
+First of all, setup the constructor, with a call to to the constructor of the super class
+ConstantTimeData::ConstantTimeData(double duration, double SRGen) :
+    GenericTimeData(duration,SRGen)
+{
+    m_amplitude=CONSTDATA_DEFAULT_AMPLITUDE;
+    //Init a figure with the same duration of the base class
+    this->initControl();
+    this->setExtendedControl(m_widgetControl);
+    this->updateData();
+}
+m_amplitude is an the unique variable of this class, and modify the amplitude of the constant
+m_widgetControl is the widget containing the modificable values of this class (m_amplitude)
+
+setExtendedControl and updateData are functions from inherited class and must be called to set the control widget for this class and update the data inside the framework.
+
+
+The recalc function is a virtual function that must implemented in order to provide the want values to the curve.
+m_const is a pointer to the internal data of the super class, modify the pointed data in order to create your custom curve.
+
+void ConstantTimeData::recalc() {
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - ConstantTimeData::recalc() ---------------- " << this->name();
+    double * m_const=this->getSignalData();//get the pointer from super class. The base class values are all 0
+
+    int n_dw=(this->minStartTime())*this->sampleRate();
+    Q_ASSERT( n_dw >=0);
+    Q_ASSERT(n_dw <=this->sampleNumber());
+
+    int n_up=(this->minStartTime()+this->duration())*this->sampleRate();
+    qDebug() << "amplitude= " << this->amplitude() << "m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
+    Q_ASSERT( n_up>=0 );
+    Q_ASSERT(n_up<=this->sampleNumber());
+    Q_ASSERT(n_dw<=n_up);
+
+    for (int n=n_dw; n < n_up; n++) {
+        m_const[n]=this->amplitude();//write the wanted values
+    }
+}
+
+
+//The logic to handle the amplitude variable
+void ConstantTimeData::setAmplitude(double amplitude) {
+    m_amplitude=amplitude;
+    //updating UI
+    bool sigStatus=m_dataControl.sliderAmplitude->blockSignals(true);
+    m_dataControl.sliderAmplitude->setValue(m_amplitude);
+    m_dataControl.sliderAmplitude->blockSignals(sigStatus);
+    this->updateData();
+}
+
+
+//This class implement all the logic for the UI and init the m_widgetControl
+void ConstantTimeData::initControl() {
+
+    //setting font base dimension
+    QFont f=*(new QFont());
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
+
+    //Widget container and layout
+    m_widgetControl=new QFrame();
+    QVBoxLayout * l=new QVBoxLayout();
+    m_widgetControl->setLayout(l) ;
+    m_widgetControl->hide();
+    m_widgetControl->setFont(f);
+
+    //set amplitude
+    m_dataControl.sliderAmplitude=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_dataControl.sliderAmplitude->setScale(-1.0,1.0,0.01);
+    m_dataControl.sliderAmplitude->setValue(m_amplitude);
+    m_dataControl.sliderAmplitude->setName("Amplitude");
+    m_dataControl.sliderAmplitude->setMeasureUnit("-1 - +1");
+    m_dataControl.sliderAmplitude->setFont(f);
+    connect(m_dataControl.sliderAmplitude,SIGNAL(valueChanged(double)),this,SLOT(setAmplitude(double)));
+
+    //Lay out all the control);
+    l->addWidget(m_dataControl.sliderAmplitude,1,Qt::AlignLeft);
+}
+
+=== Inherit from PartialGenericTimeData ===
+
+The method is very similar to the one above, there are two main differences:
+In int n_dw=(this->startTime()-this->minStartTime())*this->sampleRate();
+Exists the this->startTime() function in PartialTimeData super class that indicates the start time of the curves (in the ConstantTimeData)
+the function is without startTime() and becomes int n_dw=(this->minStartTime())*this->sampleRate(); )
+
+void PartialConstantTimeData::recalc() {
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - PartialConstantTimeData::recalc() ---------------- " << this->name();
+    double * m_const=this->getSignalData();//get the pointer from super class. The base class values are all 0
+
+    int n_dw=(this->startTime()-this->minStartTime())*this->sampleRate();
+    qDebug() << "amplitude=" << this->amplitude() << "m_t0=" << this->startTime() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
+    Q_ASSERT( n_dw >=0);
+    Q_ASSERT(n_dw <=this->sampleNumber());
+
+    int n_up=(this->startTime()+this->duration())*this->sampleRate();
+    qDebug() << "m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
+    Q_ASSERT( n_up>=0 );
+    Q_ASSERT(n_up<=this->sampleNumber());
+    Q_ASSERT(n_dw<=n_up);
+
+    for (int n=n_dw; n < n_up; n++) {
+        m_const[n]=this->amplitude();//write the wanted values
+    }
+}
+
+In init control the only difference is to remember to insert the widget to control the time extension of this curve
+ //Control Widget from partialtimedata
+    l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignLeft);
+    l->addWidget(m_partialDataControl.widget_t0,1,Qt::AlignLeft);
+
+void PartialConstantTimeData::initControl() {
+
+    //setting font base dimension
+    QFont f=*(new QFont());
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
+
+    //Widget container and layout
+    m_widgetControl=new QFrame();
+    QVBoxLayout * l=new QVBoxLayout();
+    m_widgetControl->setLayout(l) ;
+    m_widgetControl->hide();
+    m_widgetControl->setFont(f);
+
+    //set amplitude
+    m_dataControl.sliderAmplitude=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_dataControl.sliderAmplitude->setScale(-1.0,1.0,0.01);
+    m_dataControl.sliderAmplitude->setValue(m_amplitude);
+    m_dataControl.sliderAmplitude->setName("Amplitude");
+    m_dataControl.sliderAmplitude->setMeasureUnit("-1 - +1");
+    m_dataControl.sliderAmplitude->setFont(f);
+    connect(m_dataControl.sliderAmplitude,SIGNAL(valueChanged(double)),this,SLOT(setAmplitude(double)));
+
+    //Lay out all the control);
+    l->addWidget(m_dataControl.sliderAmplitude,1,Qt::AlignLeft);
+    //Control Widget from partialtimedata
+    l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignLeft);
+    l->addWidget(m_partialDataControl.widget_t0,1,Qt::AlignLeft);
+}

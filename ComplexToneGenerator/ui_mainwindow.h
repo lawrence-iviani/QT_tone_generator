@@ -1,15 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'mainwindow.ui'
 **
-<<<<<<< HEAD
-<<<<<<< HEAD
-** Created: Wed Oct 24 22:26:25 2012
-=======
-** Created: Tue Oct 16 08:20:30 2012
->>>>>>> parent of 8cd2bb0... Revert "Revert "improvement and bug fix in the audio engine""
-=======
-** Created: Tue Oct 9 09:13:31 2012
->>>>>>> parent of c1b747a... Added progress rubber bar in the timeplotwidget, changed UI in the options
+** Created: Fri Oct 19 20:36:33 2012
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -22,7 +14,6 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
-#include <QtGui/QComboBox>
 #include <QtGui/QFrame>
 #include <QtGui/QGridLayout>
 #include <QtGui/QHeaderView>
@@ -31,6 +22,7 @@
 #include <QtGui/QScrollArea>
 #include <QtGui/QStatusBar>
 #include <QtGui/QToolBar>
+#include <QtGui/QToolBox>
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QWidget>
 
@@ -56,11 +48,12 @@ public:
     QFrame *frameCurves;
     QWidget *verticalLayoutWidget;
     QVBoxLayout *layoutActualCurvesFrame;
-    QComboBox *comboBoxCurve;
     QScrollArea *scrollArea;
     QWidget *scrollAreaWidgetContents;
     QWidget *verticalLayoutWidget_6;
     QVBoxLayout *scrollAreaLayout;
+    QToolBox *toolBoxOptions;
+    QWidget *page_2;
     QFrame *frameButton;
     QWidget *verticalLayoutWidget_3;
     QVBoxLayout *layoutButtonFrame;
@@ -163,17 +156,12 @@ public:
         layoutActualCurvesFrame->setContentsMargins(11, 11, 11, 11);
         layoutActualCurvesFrame->setObjectName(QString::fromUtf8("layoutActualCurvesFrame"));
         layoutActualCurvesFrame->setContentsMargins(0, 0, 0, 0);
-        comboBoxCurve = new QComboBox(verticalLayoutWidget);
-        comboBoxCurve->setObjectName(QString::fromUtf8("comboBoxCurve"));
-
-        layoutActualCurvesFrame->addWidget(comboBoxCurve);
-
         scrollArea = new QScrollArea(verticalLayoutWidget);
         scrollArea->setObjectName(QString::fromUtf8("scrollArea"));
         scrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 123, 356));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 127, 387));
         verticalLayoutWidget_6 = new QWidget(scrollAreaWidgetContents);
         verticalLayoutWidget_6->setObjectName(QString::fromUtf8("verticalLayoutWidget_6"));
         verticalLayoutWidget_6->setGeometry(QRect(0, 0, 121, 361));
@@ -182,6 +170,16 @@ public:
         scrollAreaLayout->setContentsMargins(11, 11, 11, 11);
         scrollAreaLayout->setObjectName(QString::fromUtf8("scrollAreaLayout"));
         scrollAreaLayout->setContentsMargins(0, 0, 0, 0);
+        toolBoxOptions = new QToolBox(verticalLayoutWidget_6);
+        toolBoxOptions->setObjectName(QString::fromUtf8("toolBoxOptions"));
+        page_2 = new QWidget();
+        page_2->setObjectName(QString::fromUtf8("page_2"));
+        page_2->setEnabled(false);
+        page_2->setGeometry(QRect(0, 0, 119, 325));
+        toolBoxOptions->addItem(page_2, QString::fromUtf8("Page 2"));
+
+        scrollAreaLayout->addWidget(toolBoxOptions);
+
         scrollArea->setWidget(scrollAreaWidgetContents);
 
         layoutActualCurvesFrame->addWidget(scrollArea);
@@ -235,8 +233,10 @@ public:
         retranslateUi(MainWindow);
         QObject::connect(pushButtonRemoveCurve, SIGNAL(clicked()), MainWindow, SLOT(newCurve()));
         QObject::connect(pushButtonAddCurve, SIGNAL(clicked()), MainWindow, SLOT(removeCurve()));
-        QObject::connect(comboBoxCurve, SIGNAL(currentIndexChanged(int)), MainWindow, SLOT(changedCurve(int)));
         QObject::connect(pushButtonExportDigetCurve, SIGNAL(clicked()), MainWindow, SLOT(exportDigestCurve()));
+
+        toolBoxOptions->setCurrentIndex(0);
+
 
         QMetaObject::connectSlotsByName(MainWindow);
     } // setupUi
@@ -244,6 +244,7 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0, QApplication::UnicodeUTF8));
+        toolBoxOptions->setItemText(toolBoxOptions->indexOf(page_2), QApplication::translate("MainWindow", "Page 2", 0, QApplication::UnicodeUTF8));
         pushButtonRemoveCurve->setText(QApplication::translate("MainWindow", "Add curve", 0, QApplication::UnicodeUTF8));
         pushButtonAddCurve->setText(QApplication::translate("MainWindow", "Remove Curve", 0, QApplication::UnicodeUTF8));
         pushButtonExportDigetCurve->setText(QApplication::translate("MainWindow", "Export Digest", 0, QApplication::UnicodeUTF8));
