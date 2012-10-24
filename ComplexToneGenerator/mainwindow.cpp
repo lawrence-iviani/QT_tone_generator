@@ -40,7 +40,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Freq Option");
 
     //Setting audio player control and digest curve stream
-    ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player");
+    ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++,m_audioPlayer->getAudioControlWidget(),"Audio Player");
     m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
 
     //connect digest curve to handle update in the plots
