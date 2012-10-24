@@ -27,11 +27,6 @@ signals:
     void dataChanged();
 
 public slots:
-    /**
-      * set the outside data inside the internal buffer
-      * \param data pointer to the buffer the data that needs to be handled
-      * \param len the length of the data needs to be handled
-      */
    bool setAudioData(qreal * data, qint64 len);
 
 private:
