@@ -10,9 +10,6 @@
 #include <QDebug>
 #include <math.h>
 
-/**
-  * Only used for internal test
-  */
 class Generator : public QObject
 {
     Q_OBJECT

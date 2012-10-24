@@ -15,10 +15,6 @@ const QAudioFormat::SampleType AUDIOUTILS_DEFAULT_SAMPLETYPE=QAudioFormat::Signe
 const QString AUDIOUTILS_DEFAULT_CODEC="audio/pcm";
 const QAudioFormat::Endian AUDIOUTILS_DEFAULT_BYTEORDER=(QAudioFormat::Endian) QSysInfo::ByteOrder;
 
-
-/**
-  * The class provide static method for useful conversion, decodification of the QAudioFormat, libsoundfile etc.
-  */
 class AudioUtils : public QObject
 {
     Q_OBJECT
@@ -60,27 +56,27 @@ public:
     //libsndfile to QAudioFormat values
 
     /**
-      * Decode an header read with libsoundfile a return a string with the relative codec
+      * Decode an header read with lib_soundfile in a readable string
       */
     static const QString decodeCodec(int header);
 
     /**
-      * Decode an header read with libsoundfile a return the Endian enumerator of the QAudioFormat
+      * Decode an header read with lib_soundfile in a readable string
       */
     static const QAudioFormat::Endian decodeEndianess(int header);
 
     /**
-      * Decode an header read with libsoundfile a return the size of the sample
+      * Decode an header read with lib_soundfile in a readable string
       */
     static const int decodePCMSampleSizeFormat(int header);
 
     /**
-      * Decode an header read with libsoundfile a return the SampleType enumerator of the QAudioFormat
+      * Decode an header read with lib_soundfile in a readable string
       */
     static const QAudioFormat::SampleType decodePCMSignFormat(int header);
 
     /**
-      * Decode an header read with libsoundfile a return the decoded QAudioFormat class
+      * From a file try to understand ( if exista) the wav header.
       */
     static const QAudioFormat readFileHeader (QString filename);
 
