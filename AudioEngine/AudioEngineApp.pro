@@ -6,7 +6,7 @@
 
 QT       += core gui multimedia
 
-TARGET = AudioEngine
+TARGET = AudioEngineTest
 TEMPLATE = app
 
 INCLUDEPATH += /opt/local/include/

@@ -30,11 +30,23 @@ const int AUDIOPLAYER_NOTIFY_INTERVAL= 100;//ms
 const int AUDIOPLAYER_PULL_INTERVAL=20; //ms
 const qint64 AUDIOPLAYER_HEADER_WAV_SAMPLES=48; //number of sample of the WAV header.
 
+/**
+  * This class provide a programmable interface in order to play file and internal streams (see the class Internal Streams).
+  * It's strong derived from the QT example.
+  * It provides some reusable widget for fast integration into other sw (at cost of flexibility). But at this stage of the development i'm not looking for the perfet UI but only usability.
+  * It's possible:
+  * 1. Select the audio interface on the device
+  * 2. Select the mode (push or pull) See REFERENCE TO THE QT AUDIO EXAMPLE
+  * 3. Handle play/stop pause/resume and  position
+  * 4.
+  */
+
 class AudioPlayer : public QObject
 {
     Q_OBJECT
     Q_ENUMS(PlayMode)
     Q_ENUMS(SourceTest)
+
 public:
     enum PlayMode {PUSH=0,PULL=1};
     enum SourceTest {STREAM=2,FILE=3};
@@ -44,18 +56,55 @@ public:
     ~AudioPlayer();
 
     //other func
+    /**
+      * Return the audio format actually in use
+      */
     QAudioFormat getAudioFormat() {return m_audioOutput->format();}
+
+    /**
+      * Return the play mode techinques actually in use format actually in use
+      */
     AudioPlayer::PlayMode playMode();
+
+    /**
+      * Return the pause status.
+      */
     bool pause();
 
+    /**
+      * Return the stream pointer actually in use
+      */
     QIODevice * stream();
 
     //Position function
+    /**
+      * Return the actual stream index position
+      */
     qint64 actualStreamSamplePosition();
+
+    /**
+      * Return the total number of index in the actual stream
+      */
     qint64 actualStreamTotalSample();
+
+    /**
+      * Return the remaining number of sample of the actual stream
+      */
     qint64 actualStreamRemainingSample();
+
+    /**
+      * Return the actual time position in sec.
+      */
     qreal actualStreamTimePosition();
+
+    /**
+      * Return the total time of the actual stream in sec.
+      */
     qreal actualStreamTotalTime();
+
+    /**
+      * Return the remaining time of the actual stream in sec.
+      */
     qreal actualStreamRemainingTime();
 
     //Widget control function
@@ -67,32 +116,96 @@ public slots:
     void setFileName(QString filename);
     void setPlayMode(AudioPlayer::PlayMode playMode);
     void setPause(bool pause);
-    void setStart(bool start,int position=0);
+    void setStart(bool start,int samplePosition=0);
     void setStream(InternalStreamDevice *stream);
-    bool setStreamSamplePosition(qint64 position);
+
+    /**
+      * This function is an abstarction to set a generic sample stream in the correct bytes position of the stream
+      * Transform a generic index in byte index keeping in mind the sample len, the number of channels
+      * \param samplePosition the index of the sample wants set.
+      */
+    bool setStreamSamplePosition(qint64 samplePosition);
 
 signals:
-    void streamSamplePositionChanged(qint64 sample);
-    void streamTimePositionChanged(qreal time);
+    /**
+      * This is emitted when the position of the stream is changed. It's emitted by the notified function with an  interval of AUDIOPLAYER_NOTIFY_INTERVAL
+      * \param samplePosition the index of the new sample position
+      */
+    void streamSamplePositionChanged(qint64 samplePosition);
+
+    /**
+      * This is emitted when the position of the stream is changed. It's emitted by the notified function with an  interval of AUDIOPLAYER_NOTIFY_INTERVAL
+      * \param timePosition the index of the new position in seconds
+      */
+    void streamTimePositionChanged(qreal timePosition);
 
 private:
     void initClass();
     void initializeWidget(QWidget *parentWidget=0);
-    void initializeAudio(QAudioFormat format);
-    void startPlayPull(int position);
-    void startPlayPush(int position);
-    void stopPlay();
-    void startPlay();
-    void startPlay(int position);
-    void pauseUI();
-    void stopUI();
-    void startUI();
-    qint64 convertSliderPositionToStreamSample(int position);
-    int convertStreamSampleToSliderPosition(qint64 position);
 
-    int m_durationSeconds;
-    int m_toneFreq;
-    int m_sr;
+    /**
+      * This function init the output device with the wanted device.
+      * 1. Remove any previous output device.
+      * 2. If the format is not avialble try to use the nearest format.
+      * \param format the QAudioFormat you want init this output device
+      */
+    void initializeAudio(QAudioFormat format);
+
+    /**
+      * Start to play in pull mode at sample index.
+      * \param samplePosition the index where to start
+      */
+    void startPlayPull(qint64 samplePosition);
+
+    /**
+      * Start to play in push mode at sample index.
+      * \param samplePosition the index where to start
+      */
+    void startPlayPush(qint64 samplePosition);
+
+    /**
+      * Stop to play .any streams.
+      */
+    void stopPlay();
+
+    /**
+      * Start to play .the selected stream from the start
+      */
+    void startPlay();
+
+    /**
+      * Start to play .the selected stream from the samplePosition
+      * \param samplePosition the index where to start
+      */
+    void startPlay(qint64 samplePosition);
+
+    /**
+      * Set the UI in pause position
+      */
+    void pauseUI();
+
+    /**
+      * Set the UI in stop position
+      */
+    void stopUI();
+
+    /**
+      * Set the UI in start position
+      */
+    void startUI();
+
+    /**
+      * Utility to convert the internal slider position to a valid index sample
+      * \param sliderPosition the index of the slide
+      */
+    qint64 convertSliderPositionToStreamSample(int sliderPosition);
+
+    /**
+      * Utility to convert the stream position to the slider position
+      * \param samplePosition the index of the stream that has to be converted.
+      */
+    int convertStreamSampleToSliderPosition(qint64 samplePosition);
+
     int m_bufferLength;
 
     QTimer*          m_pullTimer;
@@ -131,8 +244,9 @@ private slots:
     void stateChanged(QAudio::State state);
     void deviceChanged(int index);
     void setAudioFormat(QAudioFormat format);
-    void convertAndSetSliderPositionToStreamSample(int position);
-    void convertAndSetStreamSampleToSliderPosition(qint64 position);
+    void sliderToggled();
+    void convertAndSetSliderPositionToStreamSample(int sliderPosition);
+    void convertAndSetStreamSampleToSliderPosition(qint64 samplePosition);
 };
 
 
