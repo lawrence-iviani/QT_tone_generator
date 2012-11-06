@@ -8,7 +8,7 @@ class FreqPlotWidget : public PlotWidget
 {
     Q_OBJECT
 public:
-    explicit FreqPlotWidget(QWidget *parent = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
+    explicit FreqPlotWidget(QWidget *widget = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
     virtual QWidget * getControlWidget() {return m_allControl;}
 signals:
     

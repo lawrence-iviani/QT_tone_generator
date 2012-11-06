@@ -3,13 +3,13 @@
 
 
 //Generic time data constant
-double static const TIMEDATA_DEFAULT_MIN_TIME=0.0;//This indicates the minimum starting point in time (sec.)
-double static const TIMEDATA_DEFAULT_MAX_TIME=30.0;//This indicates the maximum dimension  in time (sec.)
-double static const TIMEDATA_DEFAULT_SR=48000.0;//This indicates the constant SR
-double static const TIMEDATA_DEFAULT_TIMESTEP=0.05;//This indcates the min time step of every time controls (ie time duration)
-double static const TIMEDATA_DEFAULT_MIN_SR=4000.0;
-double static const TIMEDATA_DEFAULT_MAX_SR=96000.0;
-double static const TIMEDATA_DEFAULT_STEP_SR=4000.0;
+qreal static const TIMEDATA_DEFAULT_MIN_TIME=0.0;//This indicates the minimum starting point in time (sec.)
+qreal static const TIMEDATA_DEFAULT_MAX_TIME=20.0;//This indicates the maximum dimension  in time (sec.)
+qreal static const TIMEDATA_DEFAULT_SR=48000.0;//This indicates the constant SR
+qreal static const TIMEDATA_DEFAULT_TIMESTEP=0.05;//This indcates the min time step of every time controls (ie time duration)
+qreal static const TIMEDATA_DEFAULT_MIN_SR=4000.0;
+qreal static const TIMEDATA_DEFAULT_MAX_SR=96000.0;
+qreal static const TIMEDATA_DEFAULT_STEP_SR=4000.0;
 
 
 

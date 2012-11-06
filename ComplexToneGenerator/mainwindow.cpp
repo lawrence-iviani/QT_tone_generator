@@ -41,7 +41,6 @@ MainWindow::MainWindow(QWidget *parent) :
 
     //Setting audio player control and digest curve stream
     ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player");
-    //ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioOptionWidget(),"Audio Player2");
     m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
 
     //connect digest curve to handle update in the plots
@@ -50,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(m_audioPlayer,SIGNAL(streamTimePositionChanged(qreal)) ,this,SLOT(streamPositionUpdate(qreal)));
 
     m_digestCurveStream=new InternalStreamDevice(AudioUtils::getStandardFormat(AudioUtils::DAT));
-    m_digestCurveStream->setAudioData(m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
+    m_digestCurveStream->setAudioData((qreal*) m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
     m_audioPlayer->setStream(m_digestCurveStream);
 }
 
@@ -78,8 +77,9 @@ void MainWindow::newCurve() {
     m_plotTime->addTimeData(s);
 
     //adding controls to plot
-    ui->toolBoxOptions->addItem(s->getControlWidget(),s->name());
+    QWidget *temp=(QWidget*)s->getControlWidget();
 
+    ui->toolBoxOptions->addItem(temp,s->name());
     delete selectCurveHelper;
     delete selectDialog;
 }
@@ -150,23 +150,22 @@ void MainWindow::timeDataUpdated() {
 }
 
 void MainWindow::removeCurve(){
-
      QStringList  sl=m_plotTime->getTimeDataStringList();
      SelectRemoveCurveWindowDialog * removeDialog=new SelectRemoveCurveWindowDialog(&sl,this);//(sl,this);
      removeDialog->exec();
      foreach (int i, removeDialog->getRemoveCurvesIndex()) {
+            ui->toolBoxOptions->removeItem(i+m_toolBoxFixedItem);
             if (!m_plotTime->removeTimeData(i)) {
                 qWarning() << "MainWindow::removeCurve: can't remove GenericTimeData@index=" <<i;
             } else {
                 qDebug() << "MainWindow::removeCurve: removed GenericTimeData@index=" <<i;
             }
-
      }
      delete removeDialog;
 }
 
 void MainWindow::digestCurveChanged() {
-    m_digestCurveStream->setAudioData(m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
+    m_digestCurveStream->setAudioData((qreal*)m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
 }
 
 void MainWindow::streamPositionUpdate(qreal position) {
@@ -202,7 +201,7 @@ void MainWindow::exportDigestCurve() {
                 format=SF_FORMAT_WAV | SF_FORMAT_FLOAT;
                 break;
             case ExportAudioFileDialog::FLAC:
-                format= SF_FORMAT_FLAC | SF_FORMAT_PCM_24;
+                format=SF_FORMAT_FLAC | SF_FORMAT_PCM_24;
                 break;
             default:
                 return;
@@ -223,10 +222,10 @@ void MainWindow::exportDigestCurve() {
         return;
     }
 
-    double * s=m_plotTime->getDigestCurve()->getSignalData();
+    const qreal * s=m_plotTime->getDigestCurve()->getSignalData();
 
     //Manca Min time!!!
-    double length=m_plotTime->duration();
+    qreal length=m_plotTime->duration();
 
     outfile.write(s, length*sampleRate);
 

@@ -16,9 +16,9 @@
 #include <qwt_interval.h>
 #include <qwt_scale_engine.h>
 #include <QList>
-#include "generictimedata.h"
+#include "timedata/generictimedata.h"
 #include "zmp_handler.h"
-#include "scrollrubberband.h"
+#include "plotwidget/scrollrubberband.h"
 
 
 
@@ -34,10 +34,10 @@ class PlotWidget : public QwtPlot
     Q_ENUMS( Scale )
 public:
     enum Scale {Linear=0, Logarithmic=1};
-    explicit PlotWidget(QWidget *parent = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
+    explicit PlotWidget(QWidget *widget = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
     void setAxisName(QString xName,QString yName);
-    void setBothAxisScale(double xmin, double xmax,double ymin, double ymax);
-    void setBothAxisScale(int xScaleType, double xmin, double xmax,int yScaleType,double ymin, double ymax);
+    void setBothAxisScale(qreal xmin, qreal xmax,qreal ymin, qreal ymax);
+    void setBothAxisScale(int xScaleType, qreal xmin, qreal xmax,int yScaleType,qreal ymin, qreal ymax);
     void setXScaleType(int xScaleType);
     void setYScaleType(int yScaleType);
     void setDimension(int pointDimension);
@@ -72,7 +72,7 @@ public:
     int xScaleType() {return m_xScaleType;}
     int yScaleType() {return m_yScaleType;}
     int dimension()  {return m_dimension;}
-    virtual void setRubberBandPosition(qreal position) {}
+    virtual void setRubberBandPosition(qreal position) {Q_UNUSED(position);}
 
 
 signals:

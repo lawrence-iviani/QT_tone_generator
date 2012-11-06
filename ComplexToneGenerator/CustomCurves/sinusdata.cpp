@@ -2,7 +2,7 @@
 
 
 
-SinusData::SinusData(double duration, double SRGen) :
+SinusData::SinusData(qreal duration, qreal SRGen) :
     GenericTimeData(duration,SRGen)
 {
     m_initPhase=SINUSDATA_DEFAULT_INITPHASE;
@@ -11,8 +11,8 @@ SinusData::SinusData(double duration, double SRGen) :
 
     //Init a figure with the same duration of the base class
     this->initControl();
-    this->setExtendedControl(m_widgetControl);
-    //connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(maxDurationChanged(double)));
+    //this->getControlWidget()->setExtendedControl(m_widgetControl);
+    //connect(this,SIGNAL(maxDurationUpdate(qreal)),this,SLOT(maxDurationChanged(qreal)));
     this->updateData();
 }
 
@@ -20,7 +20,7 @@ SinusData::~SinusData() {
 
 }
 
-SinusData::SinusData( double duration, double SRGen,double amplitude, double frequency, double initPhase) :
+SinusData::SinusData( qreal duration, qreal SRGen,qreal amplitude, qreal frequency, qreal initPhase) :
     GenericTimeData(duration,SRGen)
 {
     m_initPhase=initPhase;
@@ -28,34 +28,25 @@ SinusData::SinusData( double duration, double SRGen,double amplitude, double fre
     m_amplitude=amplitude;
 
     this->initControl();
-    this->setExtendedControl(m_widgetControl);
+    //this->getControlWidget()->setExtendedControl(m_widgetControl);
     this->updateData();
 }
 
 void SinusData::recalc() {
     qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - SinusData::recalc() ---------------- " << this->name();
-    double * m_sinus=this->getSignalData();
-    double * t=this->getTimeData();
-    double phase=SinusData::deg2rad(this->initPhase());
+    const qreal * t=this->getTimeData();
+    qreal phase=PartialSinusData::deg2rad(this->initPhase());
 
-    int n_dw=(this->minStartTime())*this->sampleRate();
-    qDebug() << "initPhase=" << this->initPhase() << " frequency=" << this->frequency() << " amplitude=" << this->amplitude() ;
-    qDebug() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
-    Q_ASSERT( n_dw >=0);
-    Q_ASSERT(n_dw <=this->sampleNumber());
+    qint64 n_dw=this->lowestSampleIndexForModification();
+    qint64 n_up=this->highestSampleIndexForModification();
+    qDebug() << "SinusData::recalc() m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_dw=" << n_dw << " n_up=" << n_up << " nsample=" << this->sampleNumber();
 
-    int n_up=(this->duration())*this->sampleRate();
-    qDebug() << "m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
-    Q_ASSERT( n_up>=0 );
-    Q_ASSERT(n_up<=this->sampleNumber());
-    Q_ASSERT(n_dw<=n_up);
-
-    for (int n=n_dw; n < n_up; n++) {
-        m_sinus[n]=this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase);
+    for (qint64 n=n_dw; n < n_up; n++) {
+        Q_ASSERT(this->insertSignalValue(n,this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase)));
     }
 }
 
-void SinusData::setAmplitudeFrequencyAndPhase(double amplitude,double frequency,double initPhase) {
+void SinusData::setAmplitudeFrequencyAndPhase(qreal amplitude,qreal frequency,qreal initPhase) {
     m_amplitude=amplitude;
     m_frequency=frequency;
     m_initPhase=initPhase;
@@ -76,7 +67,7 @@ void SinusData::setAmplitudeFrequencyAndPhase(double amplitude,double frequency,
     this->updateData();
 }
 
-void SinusData::setAmplitude(double amplitude) {
+void SinusData::setAmplitude(qreal amplitude) {
     m_amplitude=amplitude;
     //updating UI
     bool sigStatus=m_dataControl.sliderAmplitude->blockSignals(true);
@@ -85,7 +76,7 @@ void SinusData::setAmplitude(double amplitude) {
     this->updateData();
 }
 
-void SinusData::setFrequency(double frequency) {
+void SinusData::setFrequency(qreal frequency) {
     m_frequency=frequency;
     //updating UI
     bool sigStatus=m_dataControl.sliderFrequency->blockSignals(true);
@@ -94,7 +85,7 @@ void SinusData::setFrequency(double frequency) {
     this->updateData();
 }
 
-void SinusData::setInitPhase(double initPhase) {
+void SinusData::setInitPhase(qreal initPhase) {
     m_initPhase=initPhase;
     //updating UI
     bool sigStatus=m_dataControl.sliderInitPhase->blockSignals(true);
@@ -124,7 +115,7 @@ void SinusData::initControl() {
     m_dataControl.sliderFrequency->setName("Freq.");
     m_dataControl.sliderFrequency->setMeasureUnit("Sec.");
     m_dataControl.sliderFrequency->setFont(f);
-    connect(m_dataControl.sliderFrequency,SIGNAL(valueChanged(double)),this,SLOT(setFrequency(double)));
+    connect(m_dataControl.sliderFrequency,SIGNAL(valueChanged(qreal)),this,SLOT(setFrequency(qreal)));
 
     //set amplitude
     m_dataControl.sliderAmplitude=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
@@ -133,7 +124,7 @@ void SinusData::initControl() {
     m_dataControl.sliderAmplitude->setName("Amplitude");
     m_dataControl.sliderAmplitude->setMeasureUnit("0-1");
     m_dataControl.sliderAmplitude->setFont(f);
-    connect(m_dataControl.sliderAmplitude,SIGNAL(valueChanged(double)),this,SLOT(setAmplitude(double)));
+    connect(m_dataControl.sliderAmplitude,SIGNAL(valueChanged(qreal)),this,SLOT(setAmplitude(qreal)));
 
     //set init phase
     m_dataControl.sliderInitPhase=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
@@ -142,7 +133,7 @@ void SinusData::initControl() {
     m_dataControl.sliderInitPhase->setName("Phase");
     m_dataControl.sliderInitPhase->setMeasureUnit("deg.");
     m_dataControl.sliderInitPhase->setFont(f);
-    connect(m_dataControl.sliderInitPhase,SIGNAL(valueChanged(double)),this,SLOT(setInitPhase(double)));
+    connect(m_dataControl.sliderInitPhase,SIGNAL(valueChanged(qreal)),this,SLOT(setInitPhase(qreal)));
 
     //Lay out all the control);
     l->addWidget(m_dataControl.sliderFrequency,1,Qt::AlignLeft);
@@ -157,7 +148,7 @@ void SinusData::initControl() {
 //------------PartialSinusData init here --------------
 
 
-PartialSinusData::PartialSinusData(double duration, double SRGen) :
+PartialSinusData::PartialSinusData(qreal duration, qreal SRGen) :
     PartialTimeData(duration,SRGen)
 {
     m_initPhase=SINUSDATA_DEFAULT_INITPHASE;
@@ -166,9 +157,9 @@ PartialSinusData::PartialSinusData(double duration, double SRGen) :
 
     //Init a figure with the same duration of the base class  
     this->initControl();
-    this->setExtendedControl(m_widgetControl);
+    //this->getControlWidget()->setExtendedControl(m_widgetControl);
     this->setDuration(duration);
-    //connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(maxDurationChanged(double)));
+    //connect(this,SIGNAL(maxDurationUpdate(qreal)),this,SLOT(maxDurationChanged(qreal)));
     this->updateData();
 }
 
@@ -176,7 +167,7 @@ PartialSinusData::~PartialSinusData() {
 
 }
 
-PartialSinusData::PartialSinusData( double duration, double SRGen,double amplitude, double frequency, double initPhase) :
+PartialSinusData::PartialSinusData( qreal duration, qreal SRGen,qreal amplitude, qreal frequency, qreal initPhase) :
     PartialTimeData(duration,SRGen)
 {
     m_initPhase=initPhase;
@@ -184,36 +175,27 @@ PartialSinusData::PartialSinusData( double duration, double SRGen,double amplitu
     m_amplitude=amplitude;
 
     this->initControl();
-    this->setExtendedControl(m_widgetControl);
+    //this->getControlWidget()->setExtendedControl(m_widgetControl);
     this->setDuration(duration);
-    connect(this,SIGNAL(maxDurationUpdate(double)),this,SLOT(signalLimitsChanged()));
+    connect(this,SIGNAL(maxDurationUpdate(qreal)),this,SLOT(signalLimitsChanged()));
     this->updateData();
 }
 
 void PartialSinusData::recalc() {
     qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - PartialSinusData::recalc() ---------------- " << this->name();
-    double * m_sinus=this->getSignalData();
-    double * t=this->getTimeData();
-    double phase=PartialSinusData::deg2rad(this->initPhase());
+    const qreal * t=this->getTimeData();
+    qreal phase=PartialSinusData::deg2rad(this->initPhase());
 
-    int n_dw=(this->startTime()-this->minStartTime())*this->sampleRate();
-    qDebug() << "initPhase=" << this->initPhase() << " frequency=" << this->frequency() << " amplitude=" << this->amplitude() ;
-    qDebug() << "m_t0=" << this->startTime() << " m_min_t0=" << this->minStartTime() << " n_dw=" << n_dw << " NSample=" << this->sampleNumber();
-    Q_ASSERT( n_dw >=0);
-    Q_ASSERT(n_dw <=this->sampleNumber());
+    qint64 n_dw=this->lowestSampleIndexForModification();
+    qint64 n_up=this->highestSampleIndexForModification();
+    qDebug() << "PartialSinusData::recalc() m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_dw=" << n_dw << " n_up=" << n_up << " nsample=" << this->sampleNumber();
 
-    int n_up=(this->startTime()+this->duration())*this->sampleRate();
-    qDebug() << "m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_up=" << n_up << " NSample=" << this->sampleNumber();
-    Q_ASSERT( n_up>=0 );
-    Q_ASSERT(n_up<=this->sampleNumber());
-    Q_ASSERT(n_dw<=n_up);
-
-    for (int n=n_dw; n < n_up; n++) {
-        m_sinus[n]=this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase);
+    for (qint64 n=n_dw; n < n_up; n++) {
+        Q_ASSERT(this->insertSignalValue(n,this->amplitude()*sin(2*M_PI*this->frequency()*t[n]+phase)));
     }
 }
 
-void PartialSinusData::setAmplitudeFrequencyAndPhase(double amplitude,double frequency,double initPhase) {
+void PartialSinusData::setAmplitudeFrequencyAndPhase(qreal amplitude,qreal frequency,qreal initPhase) {
     m_amplitude=amplitude;
     m_frequency=frequency;
     m_initPhase=initPhase;
@@ -234,7 +216,7 @@ void PartialSinusData::setAmplitudeFrequencyAndPhase(double amplitude,double fre
     this->updateData();
 }
 
-void PartialSinusData::setAmplitude(double amplitude) {
+void PartialSinusData::setAmplitude(qreal amplitude) {
     m_amplitude=amplitude;
     //updating UI
     bool sigStatus=m_dataControl.sliderAmplitude->blockSignals(true);
@@ -243,7 +225,7 @@ void PartialSinusData::setAmplitude(double amplitude) {
     this->updateData();
 }
 
-void PartialSinusData::setFrequency(double frequency) {
+void PartialSinusData::setFrequency(qreal frequency) {
     m_frequency=frequency;
     //updating UI
     bool sigStatus=m_dataControl.sliderFrequency->blockSignals(true);
@@ -252,7 +234,7 @@ void PartialSinusData::setFrequency(double frequency) {
     this->updateData();
 }
 
-void PartialSinusData::setInitPhase(double initPhase) {
+void PartialSinusData::setInitPhase(qreal initPhase) {
     m_initPhase=initPhase;
     //updating UI
     bool sigStatus=m_dataControl.sliderInitPhase->blockSignals(true);
@@ -282,7 +264,7 @@ void PartialSinusData::initControl() {
     m_dataControl.sliderFrequency->setName("Freq.");
     m_dataControl.sliderFrequency->setMeasureUnit("Sec.");
     m_dataControl.sliderFrequency->setFont(f);
-    connect(m_dataControl.sliderFrequency,SIGNAL(valueChanged(double)),this,SLOT(setFrequency(double)));
+    connect(m_dataControl.sliderFrequency,SIGNAL(valueChanged(qreal)),this,SLOT(setFrequency(qreal)));
 
     //set amplitude
     m_dataControl.sliderAmplitude=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
@@ -291,7 +273,7 @@ void PartialSinusData::initControl() {
     m_dataControl.sliderAmplitude->setName("Amplitude");
     m_dataControl.sliderAmplitude->setMeasureUnit("0-1");
     m_dataControl.sliderAmplitude->setFont(f);
-    connect(m_dataControl.sliderAmplitude,SIGNAL(valueChanged(double)),this,SLOT(setAmplitude(double)));
+    connect(m_dataControl.sliderAmplitude,SIGNAL(valueChanged(qreal)),this,SLOT(setAmplitude(qreal)));
 
     //set init phase
     m_dataControl.sliderInitPhase=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
@@ -300,13 +282,13 @@ void PartialSinusData::initControl() {
     m_dataControl.sliderInitPhase->setName("Phase");
     m_dataControl.sliderInitPhase->setMeasureUnit("deg.");
     m_dataControl.sliderInitPhase->setFont(f);
-    connect(m_dataControl.sliderInitPhase,SIGNAL(valueChanged(double)),this,SLOT(setInitPhase(double)));
+    connect(m_dataControl.sliderInitPhase,SIGNAL(valueChanged(qreal)),this,SLOT(setInitPhase(qreal)));
 
     //Lay out all the control);
     l->addWidget(m_dataControl.sliderFrequency,1,Qt::AlignLeft);
     l->addWidget(m_dataControl.sliderAmplitude,1,Qt::AlignLeft);
     l->addWidget(m_dataControl.sliderInitPhase,1,Qt::AlignLeft);
     //Control Widget from partialtimedata
-    l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignLeft);
-    l->addWidget(m_partialDataControl.widget_t0,1,Qt::AlignLeft);
+    //l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignLeft);
+    //l->addWidget(m_partialDataControl.widget_t0,1,Qt::AlignLeft);
 }

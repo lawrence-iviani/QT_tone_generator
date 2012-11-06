@@ -9,7 +9,7 @@ QT       += core gui multimedia
 TARGET = ComplexToneGenerator
 TEMPLATE = app
 
-
+OBJECTS_DIR = obj
 
 
 
@@ -39,27 +39,43 @@ LIBS += -L../Widget/WidgetLib/ -lwidget -L../AudioEngine -lAudioEngine
 QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 
 # ------ Files
-SOURCES += main.cpp\
-        mainwindow.cpp \
-    plotwidget.cpp \
-    generictimedata.cpp \
-    sinusdata.cpp \
-    timeplotwidget.cpp \
-    freqplotwidget.cpp \
-    digesttimedata.cpp \
-    partialtimedata.cpp \
-    constanttimedata.cpp
+SOURCES += envelope/dataenvelope.cpp \
+    envelope/dataenvelopeparameters.cpp \
+    envelope/dataenvelopeui.cpp \
+    timedata/generictimedata.cpp \
+    timedata/generictimedataui.cpp \
+    timedata/digesttimedata.cpp \
+    timedata/partialtimedata.cpp \
+    timedata/partialtimedataui.cpp \
+    timedata/timedatacontrolui.cpp \
+    plotwidget/plotwidget.cpp \
+    plotwidget/timeplotwidget.cpp \
+    plotwidget/freqplotwidget.cpp \
+    CustomCurves/sinusdata.cpp \
+    CustomCurves/constanttimedata.cpp \
+    mainwindow.cpp \
+    main.cpp
 
-HEADERS  += mainwindow.h \
-    plotwidget.h \
-    generictimedata.h \
-    sinusdata.h \
-    timeplotwidget.h \
-    freqplotwidget.h \
-    CTG_constants.h \
-    digesttimedata.h \
-    partialtimedata.h \
-    scrollrubberband.h \
-    constanttimedata.h
 
-FORMS    += mainwindow.ui
+
+HEADERS  += CTG_constants.h \
+    envelope/dataenvelope.h \
+    envelope/dataenvelopeparameters.h \
+    envelope/dataenvelopeui.h \
+    timedata/generictimedata.h \
+    timedata/digesttimedata.h \
+    timedata/partialtimedata.h \
+    timedata/generictimedataui.h \
+    timedata/partialtimedataui.h \
+    timedata/timedatacontrolui.h \
+    plotwidget/plotwidget.h \
+    plotwidget/timeplotwidget.h \
+    plotwidget/freqplotwidget.h \
+    plotwidget/scrollrubberband.h \
+    CustomCurves/sinusdata.h \
+    CustomCurves/constanttimedata.h \
+    CustomCurves/customcurveui.h \
+    mainwindow.h
+
+FORMS    += mainwindow.ui \
+    envelope/dataenvelopeui.ui

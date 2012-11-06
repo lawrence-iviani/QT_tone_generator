@@ -1,7 +1,5 @@
 #include "plotwidget.h"
 
-
-
 PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     QwtPlot(parent)
 {
@@ -63,19 +61,18 @@ void PlotWidget::setYScaleType(int yScaleType) {
     }
 }
 
-
 void PlotWidget::setAxisName(QString xName,QString yName) {
     this->setAxisTitle(xBottom, xName );
     this->setAxisTitle(yLeft, yName );
 }
 
-void PlotWidget::setBothAxisScale(int xScaleType, double xmin, double xmax,int yScaleType,double ymin, double ymax) {
+void PlotWidget::setBothAxisScale(int xScaleType, qreal xmin, qreal xmax,int yScaleType,qreal ymin, qreal ymax) {
     this->setXScaleType(xScaleType);
     this->setYScaleType(yScaleType);
     this->setBothAxisScale(xmin,xmax,ymin,ymax);
 }
 
-void PlotWidget::setBothAxisScale(double xmin, double xmax,double ymin, double ymax) {
+void PlotWidget::setBothAxisScale(qreal xmin, qreal xmax,qreal ymin, qreal ymax) {
     this->setAxisScale(xBottom, xmin, 1.1*xmax);
     this->setAxisScale(yLeft, ymin, 1.1*ymax);
 }
@@ -105,6 +102,7 @@ int PlotWidget::addTimeData(GenericTimeData * gtd) {
     m_curveList.append(gtd);
     gtd->getCurve()->attach(this);
     connect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
+    connect(gtd,SIGNAL(curveAttributeUpdated()),this,SLOT(updatePlot()));
     this->updatePlot();
     emit curveListChanged();
     return (m_curveList.length()-1);
@@ -116,6 +114,7 @@ bool PlotWidget::removeTimeData(int index) {
         GenericTimeData *  gtd=this->getTimeDataList(index);
         gtd->getCurve()->detach();
         disconnect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
+        disconnect(gtd,SIGNAL(curveUpdated()),this,SLOT(updatePlot()));
         Q_ASSERT(gtd!=NULL);
         delete gtd;
         m_curveList.removeAt(index);

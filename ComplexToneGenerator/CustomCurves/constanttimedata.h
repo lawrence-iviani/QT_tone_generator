@@ -1,30 +1,30 @@
 #ifndef PARTIALCONSTANTTIMEDATA_H
 #define PARTIALCONSTANTTIMEDATA_H
 
-#include "partialtimedata.h"
-#include "generictimedata.h"
+#include "timedata/partialtimedata.h"
+#include "timedata/generictimedata.h"
 
 class PartialConstantTimeData : public PartialTimeData
 {
     Q_OBJECT
 public:
 
-    PartialConstantTimeData(double duration, double SRGen);
-    double amplitude() {return m_amplitude;}
+    PartialConstantTimeData(qreal duration, qreal SRGen);
+    qreal amplitude() {return m_amplitude;}
 
 signals:
 
 public slots:
-    void setAmplitude(double amplitude);
+    void setAmplitude(qreal amplitude);
 
 protected:
     virtual void recalc();
 
  private:
 
-    static double const CONSTDATA_DEFAULT_AMPLITUDE=0.5;
+    static qreal const CONSTDATA_DEFAULT_AMPLITUDE=0.5;
 
-    double m_amplitude;
+    qreal m_amplitude;
     QFrame * m_widgetControl;
     void initControl();
 
@@ -38,28 +38,28 @@ protected:
 #ifndef CONSTANTTIMEDATA_H
 #define CONSTANTTIMEDATA_H
 
-#include "generictimedata.h"
+#include "timedata/generictimedata.h"
 
 class ConstantTimeData : public GenericTimeData
 {
     Q_OBJECT
 public:
-    ConstantTimeData(double duration, double SRGen);
-    double amplitude() {return m_amplitude;}
+    ConstantTimeData(qreal duration, qreal SRGen);
+    qreal amplitude() {return m_amplitude;}
 
 signals:
 
 public slots:
-    void setAmplitude(double amplitude);
+    void setAmplitude(qreal amplitude);
 
 protected:
     virtual void recalc();
 
  private:
 
-    static double const CONSTDATA_DEFAULT_AMPLITUDE=0.5;
+    static qreal const CONSTDATA_DEFAULT_AMPLITUDE=0.5;
 
-    double m_amplitude;
+    qreal m_amplitude;
     QFrame * m_widgetControl;
     void initControl();
 

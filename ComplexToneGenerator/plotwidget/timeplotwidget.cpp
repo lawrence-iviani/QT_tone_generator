@@ -19,7 +19,7 @@ TimePlotWidget::~TimePlotWidget() {
 
 }
 
-void TimePlotWidget::setSampleRate(double SR) {
+void TimePlotWidget::setSampleRate(qreal SR) {
     m_SR=SR;
 
     int n=0;
@@ -46,7 +46,7 @@ void TimePlotWidget::setSampleRate(double SR) {
     //this->updatePlot();
 }
 
-void TimePlotWidget::setDuration(double duration) {
+void TimePlotWidget::setDuration(qreal duration) {
     m_duration=duration;
 
     int n=0;
@@ -127,7 +127,7 @@ void TimePlotWidget::initBaseControlWidget() {
     m_baseControl.sliderSR->setMeasureUnit("Hz");
     m_baseControl.sliderSR->setFont(f);
     lBase->addWidget( m_baseControl.sliderSR,1,Qt::AlignLeft|Qt::AlignTop);
-    connect(m_baseControl.sliderSR,SIGNAL(valueChanged(double)),this,SLOT(setSampleRate(double)));
+    connect(m_baseControl.sliderSR,SIGNAL(valueChanged(qreal)),this,SLOT(setSampleRate(qreal)));
 
     //set duration
     m_baseControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
@@ -137,7 +137,7 @@ void TimePlotWidget::initBaseControlWidget() {
     m_baseControl.sliderDuration->setMeasureUnit("Sec.");
     m_baseControl.sliderDuration->setFont(f);
     lBase->addWidget( m_baseControl.sliderDuration,1, Qt::AlignLeft|Qt::AlignTop);
-    connect(m_baseControl.sliderDuration,SIGNAL(valueChanged(double)),this,SLOT(setDuration(double)));
+    connect(m_baseControl.sliderDuration,SIGNAL(valueChanged(qreal)),this,SLOT(setDuration(qreal)));
 
     m_baseControl.baseControlWidget->show();
 }

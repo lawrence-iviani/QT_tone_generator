@@ -1,8 +1,8 @@
 #ifndef TIMEPLOTWIGET_H
 #define TIMEPLOTWIGET_H
 
-#include "plotwidget.h"
-#include "digesttimedata.h"
+#include "plotwidget/plotwidget.h"
+#include "timedata/digesttimedata.h"
 #include  <qwt_plot_marker.h>
 #include  <qwt_symbol.h>
 #include <CTG_constants.h>
@@ -22,19 +22,19 @@ class TimePlotWidget : public PlotWidget
 {
     Q_OBJECT
 public:
-    explicit TimePlotWidget(QWidget *parent = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
+    explicit TimePlotWidget(QWidget *widget = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
     ~TimePlotWidget();
     virtual QWidget * getControlWidget() {return m_allControl;}
-    double sampleRate() {return m_SR;}
-    double duration() {return m_duration;}
-    double minTime() {return m_t0;}
+    qreal sampleRate() {return m_SR;}
+    qreal duration() {return m_duration;}
+    qreal minTime() {return m_t0;}
     DigestTimeData * getDigestCurve() {return m_digestCurve;} //return the digest curve
     virtual void setRubberBandPosition(qreal position);
 signals:
     
 public slots:
-    void setSampleRate(double SR);
-    void setDuration(double duration);
+    void setSampleRate(qreal SR);
+    void setDuration(qreal duration);
     void ZMP_statusChanged();
 
     /**
@@ -51,9 +51,9 @@ private:
     void createControlWidget();//Create the the base control
     void initBaseControlWidget();
 
-    double m_SR;
-    double m_duration;
-    double m_t0;
+    qreal m_SR;
+    qreal m_duration;
+    qreal m_t0;
     struct {
       QFrame * baseControlWidget;
       ZMP_Handler * m_zmp;//Handle zoom, panel etc

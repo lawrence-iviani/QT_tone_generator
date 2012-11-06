@@ -40,7 +40,7 @@ public:
          else setRubberBand( VLineRubberBand );
      }
 
-     void setValue( double x )
+     void setValue( qreal x )
      {
          const QwtScaleMap xMap = plot()->canvasMap( xAxis() );
          int tx = qRound( xMap.transform( x ) );
@@ -50,7 +50,7 @@ public:
      virtual bool eventFilter( QObject *object, QEvent *event )
      {
          bool ok = QwtPlotPicker::eventFilter( object, event );
-         if ( event->type() == QEvent::Resize && object == parent() )
+         if ( event->type() == QEvent::Resize && object == this->parent() )
          {
              // work around a bug in QwtPicker
              updateDisplay();

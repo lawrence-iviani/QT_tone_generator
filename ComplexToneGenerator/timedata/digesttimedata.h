@@ -2,7 +2,7 @@
 #define DIGESTTIMEDATA_H
 
 
-#include <generictimedata.h>
+#include <timedata/generictimedata.h>
 #include <CTG_constants.h>
 
 /**
@@ -21,13 +21,13 @@ signals:
 public slots:
     virtual void setMaxDuration(double maxDuration);//Set the max duration of this data set,  in this case i don't want a dataUpdate call
     virtual void setSampleRate(double SR);
+    void updateData();
     void setTimeDataList(QList<GenericTimeData*> *m_curveList);
 protected:
 
 private:
     virtual void recalc();
     QList<GenericTimeData*> * m_curveList;
-    
 };
 
 #endif // DIGESTTIMEDATA_H

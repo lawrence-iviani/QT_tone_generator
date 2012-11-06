@@ -4,11 +4,11 @@
 #include <QMainWindow>
 #include <QFileDialog>
 #include <QMessageBox>
-#include "timeplotwidget.h"
-#include "freqplotwidget.h"
-#include "plotwidget.h"
-#include "sinusdata.h"
-#include "constanttimedata.h"
+#include "plotwidget/timeplotwidget.h"
+#include "plotwidget/freqplotwidget.h"
+#include "plotwidget/plotwidget.h"
+#include "CustomCurves/sinusdata.h"
+#include "CustomCurves/constanttimedata.h"
 #include "selectcurvewindowdialog.h"
 #include "selectremovecurvewindowdialog.h"
 #include "exportaudiofiledialog.h"
@@ -26,7 +26,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
     
 public:
-    explicit MainWindow(QWidget *parent = 0);
+    explicit MainWindow(QWidget *widget = 0);
     ~MainWindow();
 
 signals:
