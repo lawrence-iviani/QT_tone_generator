@@ -115,7 +115,7 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     qDebug() << "MainWindow::decodeSelectedCurve curve selected is " << curveName;
 
     if (QString::compare(curveName,"Limited Tone generator")==0 ) {
-        PartialSinusData * s=new PartialSinusData(m_plotTime->duration() , m_plotTime->sampleRate());
+        PartialSinusData * s=new PartialSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
         s->setStartTime(0.4);
         s->setDuration(5.1);
         s->setAmplitudeFrequencyAndPhase(0.707,1000,90);
@@ -123,7 +123,7 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
         return retval;
     }
     if (QString::compare(curveName,"Tone generator")==0 ) {
-        SinusData * s=new SinusData(m_plotTime->duration() , m_plotTime->sampleRate());
+        SinusData * s=new SinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
         s->setAmplitudeFrequencyAndPhase(0.333,250,0);
         retval=(GenericTimeData*) s;
         return retval;

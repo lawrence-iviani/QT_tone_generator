@@ -29,12 +29,6 @@ public slots:
     
 protected:
 
-    /**
-      * This method is called when the extended class set itself widget to add more control
-      */
-   // void setExtendedControl(CustomCurveUI *customCurveControl);
-
-
 private:
     void initControlWidget();//Create only the base control
 

@@ -1,7 +1,6 @@
-#ifndef SINUSDATA_H
-#define SINUSDATA_H
+#ifndef PARTIALSINUSDATA_H
+#define PARTIALSINUSDATA_H
 
-#include <timedata/generictimedata.h>
 #include <timedata/partialtimedata.h>
 #include <CustomCurves/sinusdataui.h>
 #include <CTG_constants.h>
@@ -9,14 +8,13 @@
 
 class SinusDataUI;
 
-class SinusData : public GenericTimeData
+class PartialSinusData : public PartialTimeData
 {
     Q_OBJECT
 public:
-
-    SinusData(qreal duration, qreal SRGen, QWidget *widget=0);
-    SinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
-    virtual ~SinusData();
+    PartialSinusData(qreal duration, qreal SRGen, QWidget *widget=0);
+    PartialSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
+    virtual ~PartialSinusData();
     static qreal deg2rad(qreal deg) {return deg*M_PI/180.0;}
     qreal amplitude() {return m_amplitude;}
     qreal frequency() {return m_frequency;}
@@ -45,6 +43,4 @@ protected:
     SinusDataUI *m_sinusDataUI;
 };
 
-#endif // SINUSDATA_H
-
-
+#endif // PARTIALSINUSDATA_H
