@@ -2,7 +2,7 @@
 #include "ui_dataenvelopeui.h"
 
 DataEnvelopeUI::DataEnvelopeUI(QWidget *parent) :
-    QFrame(parent),
+    CustomCurveUI(parent),
     ui(new Ui::DataEnvelopeUI)
 {
     ui->setupUi(this);
@@ -13,14 +13,20 @@ DataEnvelopeUI::DataEnvelopeUI(QWidget *parent) :
 }
 
 DataEnvelopeUI::DataEnvelopeUI(DataEnvelopeParameters *params , QWidget *parent) :
-    QFrame(parent),
+    CustomCurveUI(parent),
     ui(new Ui::DataEnvelopeUI),
     m_parameters(params)
 {
     ui->setupUi(this);
     this->setLayout(ui->verticalLayout);
+    this->initEnvelopeWidget();
     this->initAmplitudeWidget();
     this->initTimeWidget();
+}
+
+DataEnvelopeUI::~DataEnvelopeUI()
+{
+    delete ui;
 }
 
 void DataEnvelopeUI::initAmplitudeWidget() {
@@ -120,9 +126,33 @@ void DataEnvelopeUI::initTimeWidget() {
     }
 }
 
-DataEnvelopeUI::~DataEnvelopeUI()
-{
-    delete ui;
+void DataEnvelopeUI::initEnvelopeWidget() {
+    QFont f=*(new QFont());
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
+
+    //Enable curve
+    m_checkBoxEnableEnvelope=new QCheckBox("Enable envelope");
+    m_checkBoxEnableEnvelope->setFont(f);
+
+    QVBoxLayout *l= (QVBoxLayout *)this->layout();
+    l->addWidget(m_checkBoxEnableEnvelope,1);
+    connect(m_checkBoxEnableEnvelope ,SIGNAL(toggled(bool)), m_parameters,SLOT(setEnableEnvelope(bool)));
+
+    if (m_parameters!=NULL) {
+        this->setEnableEnvelopeUI(m_parameters->isEnableEnvelope());
+    }
+
+}
+
+void DataEnvelopeUI::setEnableEnvelopeUI(bool enable) {
+    m_checkBoxEnableEnvelope->setChecked(enable);
+    if (enable) {
+        ui->widgetTime->show();
+        ui->widgetAmplitude->show();
+    } else {
+        ui->widgetTime->hide();
+        ui->widgetAmplitude->hide();
+    }
 }
 
 void DataEnvelopeUI::setHoldAmplitude(qreal holdAmplitude) {
@@ -137,8 +167,6 @@ void DataEnvelopeUI::setSustainAmplitude(qreal sustainAmplitude) {
 
 void DataEnvelopeUI::setAttackTime(qreal attackTime) {
     if (attackTime==m_structTime.attack->value() && m_parameters==NULL) return;
-    //setTimeSlider(m_structTime.attack,attackTime);
-    //qDebug() << "DataEnvelopeUI::setAttackTime going to set " << m_structTime.attack->value() << m_structTime.hold->value() << m_structTime.decay->value() << m_structTime.sustain->value()<< m_structTime.release->value();
     m_parameters->setTimeParameters(m_structTime.attack->value(),m_structTime.hold->value(),m_structTime.decay->value(),m_structTime.sustain->value(),m_structTime.release->value());
 }
 
@@ -163,6 +191,17 @@ void DataEnvelopeUI::setReleaseTime(qreal releaseTime) {
 }
 
 void DataEnvelopeUI::updateUI() {
+    updateControlUI();
+}
+
+void DataEnvelopeUI::updateControlUI() {
+    qDebug() << "DataEnvelopeUI::updateControlUI called";
+
+    //Enable
+    bool sig=m_checkBoxEnableEnvelope->blockSignals(true);
+    this->setEnableEnvelopeUI(m_parameters->isEnableEnvelope());
+    m_checkBoxEnableEnvelope->blockSignals(sig);
+
     //Set amplitude
     setSliderValue(m_structAmplitude.hold,m_parameters->holdLevel());
     setSliderValue(m_structAmplitude.sustain,m_parameters->sustainLevel());
@@ -180,7 +219,7 @@ void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget * slider, qreal val) {
     //Setting scale
     qreal settedTime=m_parameters->attack() + m_parameters->hold() + m_parameters->decay() + m_parameters->sustain() + m_parameters->release();
     qreal remainingTime=m_parameters->total()-settedTime;
-    qDebug() << "DataEnvelopeUI::setTimeSlider slider@" <<slider << "setTime="<<settedTime<<"remainingTime=" << remainingTime << " totalTime="<< m_parameters->total() ;
+//    qDebug() << "DataEnvelopeUI::setTimeSlider slider@" <<slider << "setTime="<<settedTime<<"remainingTime=" << remainingTime << " totalTime="<< m_parameters->total() ;
 
     Q_ASSERT( remainingTime>=0.0);
     Q_ASSERT( remainingTime<=m_parameters->total());
@@ -195,7 +234,7 @@ void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget * slider, qreal val) {
 
 void DataEnvelopeUI::setSliderValue(ScaledSliderWidget * slider, qreal val) {
     if (slider==NULL ) return;
-    qDebug() << "DataEnvelopeUI::setSliderValue slider@" <<slider << " value=" <<val;
+//    qDebug() << "DataEnvelopeUI::setSliderValue slider@" <<slider << " value=" <<val;
     bool sig=slider->blockSignals(true);
     slider->setValue(((qreal)qFloor(val*100.0))/100.0);
     slider->blockSignals(sig);

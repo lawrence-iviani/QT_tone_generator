@@ -7,7 +7,7 @@
 #include <QObject>
 #include <QList>
 #include "CustomCurves/customcurveui.h"
-
+#include <QDebug>
 
 
 typedef struct  {
@@ -27,7 +27,7 @@ class TimeDataControlUI : public QWidget
 public:
     explicit TimeDataControlUI(QWidget *widget = 0);
 
-    void addControlFrame(CustomCurveUI *controlFrame,const QString name="");
+    void addControlFrame(CustomCurveUI *controlFrame,const QString name);
 
 signals:
     
@@ -39,9 +39,8 @@ public slots:
     virtual void updateUI();
 
 private:
-
+    //QList<CustomCurveUI*> m_controlFrameList;
     QList<s_frameListElement> m_controlFrameList;
-    QFrame *  m_globalFrame;
 };
 
 #endif // TIMEDATACONTROLUI_H

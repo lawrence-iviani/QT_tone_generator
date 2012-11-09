@@ -2,16 +2,18 @@
 #define DATAENVELOPEUI_H
 
 #include <QFrame>
+#include <QCheckBox>
 #include <qmath.h>
 #include "scaledsliderwidget.h"
 #include "envelope/dataenvelopeparameters.h"
+#include <CustomCurves/customcurveui.h>
 #include "CTG_constants.h"
 
 namespace Ui {
 class DataEnvelopeUI;
 }
 
-class DataEnvelopeUI : public QFrame
+class DataEnvelopeUI : public CustomCurveUI
 {
     Q_OBJECT
     
@@ -19,6 +21,12 @@ public:
     explicit DataEnvelopeUI(QWidget *widget = 0);
     explicit DataEnvelopeUI(DataEnvelopeParameters *params ,  QWidget *widget = 0);
     ~DataEnvelopeUI();
+
+    /**
+     * @brief isEnabledEnvelopeUI, return if is enabled the envloper.
+     * @return true, envelope enabled, false envelope disabled.
+     */
+    bool isEnabledEnvelopeUI() {return m_checkBoxEnableEnvelope->isChecked();}
 
     static const qreal  DATAENVELOPEUI_TIME_STEP=0.001;
 signals:
@@ -30,8 +38,9 @@ public slots:
     void setHoldAmplitude(qreal holdAmplitude);
 
     /**
-      * Set the sustain amplitude value
-      */
+     * @brief setSustainAmplitude , Set the sustain amplitude value
+     * @param sustainAmplitude amplitude sustain to set.
+     */
     void setSustainAmplitude(qreal sustainAmplitude);
 
     void setAttackTime(qreal attackTime);
@@ -41,13 +50,23 @@ public slots:
     void setReleaseTime(qreal releaseTime);
 
     /**
+     * @brief setEnableEnvelopeUI enable/disable the UI checkbox related to envelope and emit
+     * @param true enable check
+     */
+    void setEnableEnvelopeUI(bool enable);
+
+    /**
       * Refresh the ui with the actual value in the DataEnvelopeParameters class
       */
+    virtual void updateControlUI();
+
     void updateUI();
 
 
 private:
     Ui::DataEnvelopeUI *ui;
+
+    QCheckBox  *m_checkBoxEnableEnvelope;
 
     //Amplitude slider
     struct {
@@ -65,6 +84,7 @@ private:
     }  m_structTime;
 
     DataEnvelopeParameters *  m_parameters;
+    void initEnvelopeWidget();
     void initAmplitudeWidget();
     void initTimeWidget();
     void setSliderValue(ScaledSliderWidget * slider, qreal val);

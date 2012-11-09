@@ -36,10 +36,11 @@ void GenericTimeData::init(QWidget * widget) {
     m_curve=new QwtPlotCurve(m_name);
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
-    m_envelope=new DataEnvelope(m_SR,this);
+    m_timeDataUI=new TimeDataControlUI(widget);
     m_genericTimeDataUI=new GenericTimeDataUI(this,widget);
-    this->connectSignal();
+    m_envelope=new DataEnvelope(m_SR,this);
     this->createData();
+    this->connectSignal();
 }
 
 
@@ -52,9 +53,12 @@ GenericTimeData::~GenericTimeData() {
 }
 
 void GenericTimeData::connectSignal() {
-    connect(this,SIGNAL(dataUpdated()),m_genericTimeDataUI,SLOT(updateUI()));
-    connect(this,SIGNAL(nameChanged()),m_genericTimeDataUI,SLOT(updateUI()));
-    connect(this,SIGNAL(curveAttributeUpdated()),m_genericTimeDataUI,SLOT(updateUI()));
+    connect(this,SIGNAL(dataUpdated()),m_timeDataUI,SLOT(updateUI()));
+    connect(this,SIGNAL(nameChanged()),m_timeDataUI,SLOT(updateUI()));
+    connect(this,SIGNAL(curveAttributeUpdated()),m_timeDataUI,SLOT(updateUI()));
+    connect(m_envelope,SIGNAL(enableToggled(bool)),this,SLOT(setEnableEnvelope(bool)));
+    connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData()));
+
 }
 
 void GenericTimeData::updateData() {
@@ -185,17 +189,15 @@ void GenericTimeData::setShowCurve(bool enable) {
 }
 
 void GenericTimeData::setEnableEnvelope(bool enable) {
-    if (enable!=m_enableEnvelope) {
+    if (m_enableEnvelope!=enable) {
         m_enableEnvelope=enable;
-        if (m_enableEnvelope) {
-            qDebug() << "GenericTimeData::setEnableEnvelope highind=" <<this->highestSampleIndexForModification()
-                     << " lowind=" << this->lowestSampleIndexForModification()
-                     << " len=" <<this->highestSampleIndexForModification()-this->lowestSampleIndexForModification();
-            connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData()));
+        if (enable) {
+//            qDebug() << "GenericTimeData::setEnableEnvelope highind=" <<this->highestSampleIndexForModification()
+//                         << " lowind=" << this->lowestSampleIndexForModification()
+//                         << " len=" <<this->highestSampleIndexForModification()-this->lowestSampleIndexForModification();
             m_envelope->setLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
-        } else {
-            disconnect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData()));
         }
+        updateData();
     }
 }
 

@@ -7,7 +7,9 @@
 #include <QDebug>
 #include "dataenvelopeparameters.h"
 #include "dataenvelopeui.h"
+#include "timedata/generictimedata.h"
 
+class GenericTimeData;
 
 /**
   * The DataEnvelope class is a that contains the amplitude envelope of a signal in terms of description but also in terms of data.
@@ -18,9 +20,9 @@ class DataEnvelope : public QObject
     Q_OBJECT
     Q_ENUMS(TransientFunction)
 public:
-    explicit DataEnvelope(QObject *widget=0);
-    explicit DataEnvelope(qreal SR, QObject *widget=0 );
-    explicit DataEnvelope(DataEnvelopeParameters *params, qint64 length , qreal SR, QWidget *widget = 0, QObject *widget=0);
+    explicit DataEnvelope(GenericTimeData *parent=0, QWidget *widget=0);
+    explicit DataEnvelope(qreal SR, GenericTimeData *parent=0, QWidget *widget=0);
+    explicit DataEnvelope(DataEnvelopeParameters *params, qint64 length , qreal SR, GenericTimeData *parent=0, QWidget *widget = 0 );
 
     enum TransientFunction {Linear, Exponential, Logarithmic};
     virtual ~DataEnvelope();
@@ -38,15 +40,31 @@ public:
     /**
       * Return the ui to control this envelope
       */
-    QFrame * getEnvelopeUI() {return (QFrame*) m_envelopeUI;}
+    CustomCurveUI * getEnvelopeUI() {return m_envelopeUI;}
 
     /**
       * Return the data class with envelope parameters
       */
     const DataEnvelopeParameters * getEnvelopeParameters() {return (const DataEnvelopeParameters *) m_envelopeParams;}
 
+    /**
+     * @brief isEnableEnvelope tell if the envelope is enabled
+     * @return true if enabled
+     */
+    bool isEnableEnvelope() {return m_envelopeParams->isEnableEnvelope();}
+
 signals:
+    /**
+     * @brief enabledToggle, the envelope enabled was toggled
+     * @param toggle, true if envelope is enabled
+     */
+    void enableToggled(bool enable);
+
+    /**
+     * @brief envelopeChanged, emitted whenever the enable is modified (length or parameters)
+     */
     void envelopeChanged();
+
 public slots:
 
     /**
@@ -79,12 +97,20 @@ public slots:
       */
     void timeEnvelopeChanged();
 
+    /**
+     * @brief enabledToggle, the envelope enabled was toggled
+     * @param toggle, true if envelope is enabled
+     */
+    void enableEnvelope(bool enable) {m_envelopeParams->setEnableEnvelope(enable);}
+
 private:
     DataEnvelopeParameters * m_envelopeParams;
-    DataEnvelopeUI * m_envelopeUI;
+    DataEnvelopeUI *m_envelopeUI;
+    GenericTimeData *m_genericTimeData;
     qint64 m_length;
     qreal * m_envelope;
     qreal m_SR;
+    void init(QWidget *widget);
     void recalculateEnvelope();
     void connectingSignals();
 };

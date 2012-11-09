@@ -8,7 +8,7 @@
 
 class PartialTimeData;
 
-class PartialTimeDataUI : public GenericTimeDataUI
+class PartialTimeDataUI : public CustomCurveUI
 {
     Q_OBJECT
 public:
@@ -30,7 +30,7 @@ protected:
    // void setExtendedControl(CustomCurveUI * customCurveControl);
 
 private:
-    void initControl();
+    void initControlWidget();
 
     /**
       * This struct contains controls useful to be integrated in the inerhit class.
@@ -38,7 +38,6 @@ private:
       * of an instance of GenericTimeData::setControlWidget(QWidget *). In this case will possible add the control implemented in this struct
       */
     struct {
-        CustomCurveUI *controlFrame;
         ScaledSliderWidget *widgetDuration;
         ScaledSliderWidget *widget_t0;
     } m_partialDataControl;

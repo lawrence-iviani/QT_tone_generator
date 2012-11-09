@@ -56,16 +56,29 @@ public:
       */
     qreal total() {return m_total;}
 
-signals:
     /**
-      * Emitted if some amplitude params are changhed.
-      */
+     * @brief isEnabledEnvelope tell if the envelope is enabled
+     * @return true if enabled
+     */
+    bool isEnableEnvelope() {return m_enable;}
+signals:
+
+    /**
+     * @brief amplitudeParametersChanged,    Emitted if some amplitude params are changhed.
+     */
     void amplitudeParametersChanged();
 
     /**
-      * Emitted if some time params are changhed.
-      */
+     * @brief timeParametersChanged, Emitted if some time params are changhed
+     */
     void timeParametersChanged();
+
+    /**
+     * @brief enabledToggle, the envelope enabled was toggled
+     * @param toggle, true if envelope is enabled
+     */
+    void enableToggled(bool enable);
+
 public slots:
 
     /**
@@ -84,7 +97,15 @@ public slots:
       */
     void setTimeLength(qreal length);
 
+    /**
+     * @brief set if enable/disable the envelopeUI or not
+     * @param enable true enable the UI, false disable UI
+     */
+    void setEnableEnvelope(bool enable);
+
 private:
+    bool m_enable;
+
     qreal m_total;
     qreal m_attack;
     qreal m_hold;

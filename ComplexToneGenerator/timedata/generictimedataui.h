@@ -36,17 +36,16 @@ protected:
 
 
 private:
-    void createBaseControl();//Create all the control, of the base class and of any eventual extended class. It llayouts all together.
-    void initBaseControlWidget();//Create only the base control
+    void initControlWidget();//Create only the base control
+
     GenericTimeData * m_genericTimeData;
     struct {
-      CustomCurveUI *controlFrame;
       QLineEdit * lineName;
       ComboBoxWidgetColor *comboColor;
       QCheckBox *checkBoxEnableCurve;
       QCheckBox *checkBoxShowCurve;
-      QCheckBox *checkBoxEnableEnvelope;
-      QWidget *envelopeWidget;
+      //QCheckBox *checkBoxEnableEnvelope;
+      //QWidget *envelopeWidget;
     } m_baseControl; //This class control.
 
 private slots:

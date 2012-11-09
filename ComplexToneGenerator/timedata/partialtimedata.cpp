@@ -4,7 +4,7 @@ PartialTimeData::PartialTimeData(QObject *parent,QWidget *widget) :
     GenericTimeData(parent,widget)
 {
     m_t0=TIMEDATA_DEFAULT_INITTIME;
-   // this->connectSignal();
+    this->connectSignal();
     this->setDuration(TIMEDATA_DEFAULT_DURATION);
     m_partialTimeDataUI=new PartialTimeDataUI(this,widget);
 }
@@ -13,14 +13,16 @@ PartialTimeData::PartialTimeData(qreal duration, qreal SRGen,QObject *parent,QWi
     GenericTimeData(duration,SRGen,parent,widget)
 {
     m_t0=TIMEDATA_DEFAULT_INITTIME;
-  //  this->connectSignal();
+    this->connectSignal();
     this->setDuration(duration);
     m_partialTimeDataUI=new PartialTimeDataUI(this,widget);
 }
 
 void PartialTimeData::connectSignal() {
-    connect(this,SIGNAL(dataUpdated()),m_partialTimeDataUI,SLOT(updateUI()));
-    connect(this,SIGNAL(curveAttributeUpdated()),m_partialTimeDataUI,SLOT(updateUI()));
+
+    //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
+    //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
+
 }
 
 void PartialTimeData::setDuration(qreal duration) {

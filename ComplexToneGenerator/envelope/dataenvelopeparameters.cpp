@@ -8,6 +8,7 @@ DataEnvelopeParameters::DataEnvelopeParameters(QObject *parent) :
         this->setTimeParameters(1.0,1.0,1.0,1.0,1.0);
         m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
         m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
+        m_enable=false;
     }
 
 DataEnvelopeParameters::DataEnvelopeParameters(qreal attack, qreal hold, qreal decay ,qreal sustain, qreal release, QObject *parent) :
@@ -17,7 +18,15 @@ DataEnvelopeParameters::DataEnvelopeParameters(qreal attack, qreal hold, qreal d
         this->setTimeParameters(attack,hold,decay,sustain,release);
         m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
         m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
+        m_enable=false;
     }
+
+void DataEnvelopeParameters::setEnableEnvelope(bool enable) {
+    if(m_enable!=enable) {
+        m_enable=enable;
+        emit (enableToggled(enable));
+    }
+}
 
 void DataEnvelopeParameters::setTimeLength(qreal length) {
 
@@ -87,7 +96,7 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
     sustain=(sustain>=0 ? sustain : 0);
     release=(release>=0 ? release : 0);
     qreal _total=attack+hold+decay+sustain+release;
-    qDebug() << "DataEnvelopeParameters::setTimeParameters _total=" << _total << " m_total=" << m_total << " comparison (_total <= m_total) is " <<(_total <= m_total);
+   // qDebug() << "DataEnvelopeParameters::setTimeParameters _total=" << _total << " m_total=" << m_total << " comparison (_total <= m_total) is " <<(_total <= m_total);
 
     //Set only if _total is adequate
     if (_total <= m_total) {

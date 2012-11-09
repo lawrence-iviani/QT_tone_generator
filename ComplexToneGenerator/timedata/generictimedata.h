@@ -14,6 +14,7 @@
 
 class GenericTimeDataUI;
 class TimeDataControlUI;
+class DataEnvelope;
 
 /**
   * This class handle a generic time data object. Is useful to handle time based series as data container for a time data.
