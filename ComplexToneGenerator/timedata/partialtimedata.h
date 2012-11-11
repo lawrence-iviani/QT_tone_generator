@@ -35,7 +35,7 @@ protected:
       * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
       * Reimplemented from GenericTimeData.
       */
-    qint64 lowestSampleIndexForModification()  {
+    virtual qint64 lowestSampleIndexForModification()  {
         qint64 retval=(this->startTime()-this->minStartTime())*this->sampleRate();
         Q_ASSERT(retval >=0);
         Q_ASSERT(retval <=this->sampleNumber());
@@ -46,7 +46,7 @@ protected:
       * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
       * Reimplemented from GenericTimeData.
       */
-    qint64 highestSampleIndexForModification() {
+    virtual qint64 highestSampleIndexForModification() {
         qint64 retval=(this->startTime()+this->duration())*this->sampleRate();
         Q_ASSERT(retval >=0);
         Q_ASSERT(retval <=this->sampleNumber());

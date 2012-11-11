@@ -9,19 +9,24 @@ TimeDataControlUI::TimeDataControlUI(QWidget *parent) :
 
 void TimeDataControlUI::addControlFrame(CustomCurveUI *controlFrame,const QString name) {
     if (controlFrame==NULL) return;
-
-
-    controlFrame->setFrameShape(QFrame::Box);
-    controlFrame->setFrameStyle(QFrame::Raised);
-    controlFrame->setLineWidth(1);
     controlFrame->setParent(this);
-
     qDebug() << "TimeDataControlUI::addControlFrame "<< this <<"adding " << controlFrame << " " << name << " to container ";
     s_frameListElement  _t;
     _t.frame=controlFrame;
     _t.name=name;
     m_controlFrameList.append(_t);
-    this->layout()->addWidget(controlFrame);
+
+    //Preparing name label
+    QWidget * _w=new QWidget(this);
+    QVBoxLayout * _l=new QVBoxLayout();
+    controlFrame->setFrameStyle(QFrame::QFrame::Raised);
+    controlFrame->setFrameShape(QFrame::QFrame::Panel);
+    controlFrame->setLineWidth(1);
+    controlFrame->setMidLineWidth(1);
+    _l->addWidget(new QLabel(name),1 );
+    _l->addWidget(controlFrame);
+    _w->setLayout(_l);
+    this->layout()->addWidget(_w);
 }
 
 void TimeDataControlUI::updateUI() {

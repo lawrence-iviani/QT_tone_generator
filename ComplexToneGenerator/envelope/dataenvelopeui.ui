@@ -27,6 +27,13 @@
      <enum>QLayout::SetMinimumSize</enum>
     </property>
     <item>
+     <widget class="QCheckBox" name="checkBoxEnableEnvelope">
+      <property name="text">
+       <string>Enable envelope</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QWidget" name="widgetAmplitude" native="true">
       <widget class="QWidget" name="horizontalLayoutWidget_2">
        <property name="geometry">

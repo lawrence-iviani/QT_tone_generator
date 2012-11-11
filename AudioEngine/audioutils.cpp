@@ -211,3 +211,80 @@ QAudioFormat AudioUtils::getStandardFormat(AudioUtils::StandardFormat format) {
 
     return retval;
 }
+
+const AudioUtils_structMeter AudioUtils::getAudioPeak(const char *data, int length, QAudioFormat format ) {
+
+    AudioUtils_structMeter retval;
+    retval.peak=0;
+    retval.rms=0;
+    int _maxAmplitude;
+    quint16 _maxValue=0;
+    qreal _rmsValue=0;
+
+    switch (format.sampleSize()) {
+        case 8:
+            switch (format.sampleType()) {
+            case QAudioFormat::UnSignedInt:
+                _maxAmplitude = 255;
+                break;
+            case QAudioFormat::SignedInt:
+                _maxAmplitude = 127;
+                break;
+            default:
+                break;
+            }
+            break;
+        case 16:
+            switch (format.sampleType()) {
+            case QAudioFormat::UnSignedInt:
+                _maxAmplitude = 65535;
+                break;
+            case QAudioFormat::SignedInt:
+                _maxAmplitude = 32767;
+                break;
+            default:
+                qWarning() << "AudioUtils::getAudioPeak " << AudioUtils::audioSampleTypeToString(format.sampleType())<< " format not supported";
+                break;
+            }
+            break;
+        default:
+            break;
+    }
+
+    Q_ASSERT(format.sampleSize() % 8 == 0);
+    const int channelBytes = format.sampleSize() / 8;
+    const int sampleBytes = format.channels() * channelBytes;
+    Q_ASSERT(length % sampleBytes == 0);
+    const int numSamples = length / sampleBytes;
+
+    const unsigned char *ptr = reinterpret_cast<const unsigned char *>(data);
+
+    for (int i = 0; i < numSamples; ++i) {
+        for(int j = 0; j < format.channels(); ++j) {
+            quint16 _value = 0;
+            if (format.sampleSize() == 8 && format.sampleType() == QAudioFormat::UnSignedInt) {
+                _value = *reinterpret_cast<const quint8*>(ptr);
+            } else if (format.sampleSize() == 8 && format.sampleType() == QAudioFormat::SignedInt) {
+                _value = qAbs(*reinterpret_cast<const qint8*>(ptr));
+            } else if (format.sampleSize() == 16 && format.sampleType() == QAudioFormat::UnSignedInt) {
+                if (format.byteOrder() == QAudioFormat::LittleEndian)
+                    _value = qFromLittleEndian<quint16>(ptr);
+                else
+                    _value = qFromBigEndian<quint16>(ptr);
+            } else if (format.sampleSize() == 16 && format.sampleType() == QAudioFormat::SignedInt) {
+                if (format.byteOrder() == QAudioFormat::LittleEndian)
+                    _value = qAbs(qFromLittleEndian<qint16>(ptr));
+                else
+                    _value = qAbs(qFromBigEndian<qint16>(ptr));
+            }
+
+            _maxValue = qMax(_value, _maxValue);
+            _rmsValue+=qPow( qreal(_value) / qreal(_maxAmplitude) ,2);
+            ptr += channelBytes;
+        }
+    }
+    retval.rms=qSqrt(_rmsValue/qreal(numSamples*format.channels()));
+    retval.peak=qreal(_maxValue) / qreal(_maxAmplitude);
+    return retval;
+
+}

@@ -55,7 +55,7 @@ void SinusDataUI::initControl() {
     QFont f=*(new QFont());
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
-    QVBoxLayout * l=new QVBoxLayout();
+    QHBoxLayout * l=new QHBoxLayout();
     this->setLayout(l);
     this->setFont(f);
 

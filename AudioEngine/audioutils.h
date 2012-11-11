@@ -7,6 +7,8 @@
 #include <QAudio>
 #include <QTextStream>
 #include <QDebug>
+#include <QtEndian>
+#include <qmath.h>
 
 const int AUDIOUTILS_DEFAULT_SR = 48000;
 const int AUDIOUTILS_DEFAULT_NCHANNELS=2;
@@ -14,6 +16,11 @@ const int AUDIOUTILS_DEFAULT_SAMPLESIZE=16;
 const QAudioFormat::SampleType AUDIOUTILS_DEFAULT_SAMPLETYPE=QAudioFormat::SignedInt;
 const QString AUDIOUTILS_DEFAULT_CODEC="audio/pcm";
 const QAudioFormat::Endian AUDIOUTILS_DEFAULT_BYTEORDER=(QAudioFormat::Endian) QSysInfo::ByteOrder;
+
+typedef struct {
+    qreal peak;
+    qreal rms;
+} AudioUtils_structMeter;
 
 class AudioUtils : public QObject
 {
@@ -38,6 +45,9 @@ public:
     static const int decodePCMSampleSizeFormat(int format);
     static const QAudioFormat::SampleType decodePCMSignFormat(int format);
     static const QAudioFormat readFileHeader (QString filename);
+
+    //Convert stream value to a qreal peak between 0 & 1
+    static const AudioUtils_structMeter getAudioPeak(const char *data, int length, QAudioFormat format );
 
 signals:
     

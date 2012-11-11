@@ -28,7 +28,7 @@ void PartialTimeDataUI::initControlWidget() {
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Widget container and layout
-    QVBoxLayout * l=new QVBoxLayout();
+    QHBoxLayout * l=new QHBoxLayout();
     l->setSizeConstraint(QLayout::SetMinimumSize);
     this->setLayout(l) ;
     this->setFont(f);
@@ -51,7 +51,7 @@ void PartialTimeDataUI::initControlWidget() {
     connect(m_partialDataControl.widget_t0,SIGNAL(valueChanged(qreal)),m_partiaTimeData,SLOT(setStartTime(qreal)));
 
     //layouting
-    l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignCenter);
+    l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignLeft);
     l->addWidget(m_partialDataControl.widget_t0,1,Qt::AlignLeft);
 
     //Setting values

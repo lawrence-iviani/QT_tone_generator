@@ -26,7 +26,7 @@ public:
      * @brief isEnabledEnvelopeUI, return if is enabled the envloper.
      * @return true, envelope enabled, false envelope disabled.
      */
-    bool isEnabledEnvelopeUI() {return m_checkBoxEnableEnvelope->isChecked();}
+    bool isEnabledEnvelopeUI();
 
     static const qreal  DATAENVELOPEUI_TIME_STEP=0.001;
 signals:
@@ -65,8 +65,6 @@ public slots:
 
 private:
     Ui::DataEnvelopeUI *ui;
-
-    QCheckBox  *m_checkBoxEnableEnvelope;
 
     //Amplitude slider
     struct {

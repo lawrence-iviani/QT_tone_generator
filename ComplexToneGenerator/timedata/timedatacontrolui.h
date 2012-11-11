@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QVBoxLayout>
-//#include <QFrame>
+#include <QLabel>
 #include <QObject>
 #include <QList>
 #include "CustomCurves/customcurveui.h"

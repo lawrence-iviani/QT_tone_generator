@@ -74,7 +74,7 @@ void GenericTimeDataUI::initControlWidget() {
     connect(m_baseControl.comboColor, SIGNAL(colorChanged(QColor)),m_genericTimeData,SLOT(setColor(QColor)) );
 
     //Lay out all the controls
-    l->addWidget(_nameLabel,1,Qt::AlignCenter);
+    l->addWidget(_nameLabel,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.lineName,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.checkBoxEnableCurve,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.checkBoxShowCurve,1,Qt::AlignLeft);

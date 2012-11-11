@@ -16,13 +16,15 @@ SOURCES += main.cpp\
     internalstreamdevice.cpp \
     audioplayer.cpp \
     generator.cpp \
-    audioutils.cpp
+    audioutils.cpp \
+    qvumeter.cpp
 
 HEADERS  += mainwindow.h \
     internalstreamdevice.h \
     audioplayer.h \
     generator.h \
-    audioutils.h
+    audioutils.h \
+    qvumeter.h
 
 FORMS    +=
 

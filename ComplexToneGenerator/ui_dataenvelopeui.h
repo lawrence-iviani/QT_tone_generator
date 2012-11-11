@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'dataenvelopeui.ui'
 **
-** Created: Fri Nov 9 22:06:21 2012
+** Created: Sat Nov 10 19:38:16 2012
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
@@ -14,6 +14,7 @@
 #include <QtGui/QAction>
 #include <QtGui/QApplication>
 #include <QtGui/QButtonGroup>
+#include <QtGui/QCheckBox>
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QHeaderView>
 #include <QtGui/QVBoxLayout>
@@ -26,6 +27,7 @@ class Ui_DataEnvelopeUI
 public:
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
+    QCheckBox *checkBoxEnableEnvelope;
     QWidget *widgetAmplitude;
     QWidget *horizontalLayoutWidget_2;
     QHBoxLayout *hlayoutAmplitude;
@@ -45,6 +47,11 @@ public:
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setSizeConstraint(QLayout::SetMinimumSize);
         verticalLayout->setContentsMargins(0, 0, 0, 0);
+        checkBoxEnableEnvelope = new QCheckBox(verticalLayoutWidget);
+        checkBoxEnableEnvelope->setObjectName(QString::fromUtf8("checkBoxEnableEnvelope"));
+
+        verticalLayout->addWidget(checkBoxEnableEnvelope);
+
         widgetAmplitude = new QWidget(verticalLayoutWidget);
         widgetAmplitude->setObjectName(QString::fromUtf8("widgetAmplitude"));
         horizontalLayoutWidget_2 = new QWidget(widgetAmplitude);
@@ -78,6 +85,7 @@ public:
     void retranslateUi(QWidget *DataEnvelopeUI)
     {
         DataEnvelopeUI->setWindowTitle(QApplication::translate("DataEnvelopeUI", "Form", 0, QApplication::UnicodeUTF8));
+        checkBoxEnableEnvelope->setText(QApplication::translate("DataEnvelopeUI", "Enable envelope", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };

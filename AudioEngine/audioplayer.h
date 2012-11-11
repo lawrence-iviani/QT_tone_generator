@@ -12,6 +12,8 @@
 #include <QByteArray>
 #include <QAudioOutput>
 #include <QFile>
+#include <QSizePolicy>
+#include "qvumeter.h"
 
 #include "internalstreamdevice.h"
 #include "audioutils.h"
@@ -26,8 +28,8 @@
 const int AUDIOPLAYER_DEFAULT_DURATION_SEC = 5; //in seconds
 const int AUDIOPLAYER_DEFAULT_TONE_FREQ = 1000;
 const int AUDIOPLAYER_DEFAULT_BUFFER_LEN= 32768;
-const int AUDIOPLAYER_NOTIFY_INTERVAL= 100;//ms
-const int AUDIOPLAYER_PULL_INTERVAL=20; //ms
+const int AUDIOPLAYER_NOTIFY_INTERVAL= 50;//ms
+const int AUDIOPLAYER_PULL_INTERVAL=10; //ms
 const qint64 AUDIOPLAYER_HEADER_WAV_SAMPLES=48; //number of sample of the WAV header.
 
 /**
@@ -217,6 +219,7 @@ private:
     QPushButton*     m_sourceButton;
     QComboBox*       m_deviceBox;
     QSlider*         m_streamPositionSlider;
+    QVUMeter*        m_qvumeter;
 
     QAudioDeviceInfo m_device;
     InternalStreamDevice*       m_inputStream;
@@ -228,6 +231,7 @@ private:
     bool             m_pullMode;
     QByteArray       m_buffer;
     QAudio::State    m_previousState;
+    qint64           m_previousPosition;
 
     //create widget for various control...
     QWidget *  m_testControlWidget;

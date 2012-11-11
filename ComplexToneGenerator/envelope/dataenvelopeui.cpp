@@ -57,8 +57,8 @@ void DataEnvelopeUI::initAmplitudeWidget() {
     connect(m_structAmplitude.sustain,SIGNAL(valueChanged(qreal)),this,SLOT(setSustainAmplitude(qreal)));
 
     //Layouting
-    ui->hlayoutAmplitude->addWidget(m_structAmplitude.hold);
-    ui->hlayoutAmplitude->addWidget(m_structAmplitude.sustain);
+    ui->hlayoutAmplitude->addWidget(m_structAmplitude.hold,1,Qt::AlignLeft);
+    ui->hlayoutAmplitude->addWidget(m_structAmplitude.sustain,1,Qt::AlignLeft);
 
     if (m_parameters!=NULL) {
         setSliderValue(m_structAmplitude.hold,m_parameters->holdLevel());
@@ -110,11 +110,11 @@ void DataEnvelopeUI::initTimeWidget() {
     connect(m_structTime.release,SIGNAL(valueChanged(qreal)),this,SLOT(setReleaseTime(qreal)) );
 
     //Layouting
-    ui->hlayoutTime->addWidget(m_structTime.attack);
-    ui->hlayoutTime->addWidget(m_structTime.hold);
-    ui->hlayoutTime->addWidget(m_structTime.decay);
-    ui->hlayoutTime->addWidget(m_structTime.sustain);
-    ui->hlayoutTime->addWidget(m_structTime.release);
+    ui->hlayoutTime->addWidget(m_structTime.attack,1,Qt::AlignLeft);
+    ui->hlayoutTime->addWidget(m_structTime.hold,1,Qt::AlignLeft);
+    ui->hlayoutTime->addWidget(m_structTime.decay,1,Qt::AlignLeft);
+    ui->hlayoutTime->addWidget(m_structTime.sustain,1,Qt::AlignLeft);
+    ui->hlayoutTime->addWidget(m_structTime.release,1,Qt::AlignLeft);
 
     //setting init values
     if (m_parameters!=NULL) {
@@ -131,12 +131,8 @@ void DataEnvelopeUI::initEnvelopeWidget() {
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
     //Enable curve
-    m_checkBoxEnableEnvelope=new QCheckBox("Enable envelope");
-    m_checkBoxEnableEnvelope->setFont(f);
-
-    QVBoxLayout *l= (QVBoxLayout *)this->layout();
-    l->addWidget(m_checkBoxEnableEnvelope,1);
-    connect(m_checkBoxEnableEnvelope ,SIGNAL(toggled(bool)), m_parameters,SLOT(setEnableEnvelope(bool)));
+    ui->checkBoxEnableEnvelope->setFont(f);
+    connect(ui->checkBoxEnableEnvelope ,SIGNAL(toggled(bool)), m_parameters,SLOT(setEnableEnvelope(bool)));
 
     if (m_parameters!=NULL) {
         this->setEnableEnvelopeUI(m_parameters->isEnableEnvelope());
@@ -145,7 +141,7 @@ void DataEnvelopeUI::initEnvelopeWidget() {
 }
 
 void DataEnvelopeUI::setEnableEnvelopeUI(bool enable) {
-    m_checkBoxEnableEnvelope->setChecked(enable);
+    ui->checkBoxEnableEnvelope->setChecked(enable);
     if (enable) {
         ui->widgetTime->show();
         ui->widgetAmplitude->show();
@@ -198,9 +194,9 @@ void DataEnvelopeUI::updateControlUI() {
     qDebug() << "DataEnvelopeUI::updateControlUI called";
 
     //Enable
-    bool sig=m_checkBoxEnableEnvelope->blockSignals(true);
+    bool sig=ui->checkBoxEnableEnvelope->blockSignals(true);
     this->setEnableEnvelopeUI(m_parameters->isEnableEnvelope());
-    m_checkBoxEnableEnvelope->blockSignals(sig);
+    ui->checkBoxEnableEnvelope->blockSignals(sig);
 
     //Set amplitude
     setSliderValue(m_structAmplitude.hold,m_parameters->holdLevel());
@@ -215,7 +211,7 @@ void DataEnvelopeUI::updateControlUI() {
     setTimeSlider(m_structTime.release,m_parameters->release());
 }
 
-void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget * slider, qreal val) {
+void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget *slider, qreal val) {
     //Setting scale
     qreal settedTime=m_parameters->attack() + m_parameters->hold() + m_parameters->decay() + m_parameters->sustain() + m_parameters->release();
     qreal remainingTime=m_parameters->total()-settedTime;
@@ -232,10 +228,13 @@ void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget * slider, qreal val) {
     setSliderValue(slider,val);
 }
 
-void DataEnvelopeUI::setSliderValue(ScaledSliderWidget * slider, qreal val) {
+void DataEnvelopeUI::setSliderValue(ScaledSliderWidget *slider, qreal val) {
     if (slider==NULL ) return;
 //    qDebug() << "DataEnvelopeUI::setSliderValue slider@" <<slider << " value=" <<val;
     bool sig=slider->blockSignals(true);
     slider->setValue(((qreal)qFloor(val*100.0))/100.0);
     slider->blockSignals(sig);
 }
+
+bool DataEnvelopeUI::isEnabledEnvelopeUI()
+{return ui->checkBoxEnableEnvelope->isChecked();}
