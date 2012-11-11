@@ -36,7 +36,8 @@ void RepeatedTimeData::updateRepetitions() {
     //Calculate the one shot duration
     qreal _singleShotDuration=duration()+m_blankTime;
 
-    m_repetitions=qFloor(_availableDuration/_singleShotDuration);
+    m_repetitions=qFloor(_availableDuration/(_singleShotDuration));
+    qDebug() << "RepeatedTimeData::updateRepetitions _availableDuration/"<< _availableDuration<<"_singleShotDuration"<<_singleShotDuration<< "="<< _availableDuration/_singleShotDuration;;
     qDebug() << "RepeatedTimeData::updateRepetitions m_repetitions=" <<m_repetitions;
 }
 
@@ -70,10 +71,8 @@ bool RepeatedTimeData::insertSignalValue(qint64 index, qreal value) {
         _tVal=(isEnvelopeEnabled() ? value*envelopData[index-lowestIndex] : value);
         qint64 i;
         for (unsigned int _rep=0; _rep < m_repetitions; _rep++) {
-            i=lowestIndex+_rep*_sampleShotDuration+index;
-            if (i>sampleNumber()){
-                qDebug() << "USTI i=" <<i;
-            }
+            i=/*lowestIndex*/+_rep*_sampleShotDuration+index;
+
             Q_ASSERT(i<=sampleNumber());
             _s[i]=_tVal;
         }
