@@ -2,6 +2,7 @@
 #define DATAENVELOPEPARAMETERS_H
 
 #include <QObject>
+#include <qmath.h>
 
 /**
   * This class is a container for the parameters describing the Envelope, the absolute value should be in sec.

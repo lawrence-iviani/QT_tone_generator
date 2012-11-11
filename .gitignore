@@ -55,3 +55,5 @@ Widget/ComboBoxLabelWidget/ComboBoxLabelWidget.pro.user
 *.5pre1
 
 ._.gitignore
+
+ComplexToneGenerator/Makefile

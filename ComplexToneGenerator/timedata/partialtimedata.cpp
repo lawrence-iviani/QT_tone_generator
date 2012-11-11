@@ -20,12 +20,22 @@ PartialTimeData::PartialTimeData(qreal duration, qreal SRGen,QObject *parent,QWi
 
 void PartialTimeData::connectSignal() {
 
+    //Connect the slot to change the max duration
+    connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(maxDurationChange(qreal)));
     //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
     //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
 
 }
 
 void PartialTimeData::setDuration(qreal duration) {
+    if (duration!=m_duration) {
+        privateSetDuration(duration);
+        emit (durationChanged(duration));
+        this->createData();//Data need to be recalculated, not only updated
+    }
+}
+
+void PartialTimeData::privateSetDuration(qreal duration) {
     if (duration < 0) {
         duration=0;
     }
@@ -40,7 +50,6 @@ void PartialTimeData::setDuration(qreal duration) {
     } else {
         m_duration=duration;
     }
-    this->createData();//Data need to be recalculated, not only updated
 }
 
 void PartialTimeData::setStartTime(qreal t0) {
@@ -53,16 +62,24 @@ void PartialTimeData::setStartTime(qreal t0) {
     } else {
         m_t0=t0;
     }
+    emit(startTimeChanged(t0));
+
     //Call set duration to verify if the duration must be clipped and to recalc  the curve
-    this->setDuration(m_duration);
+    if ( (m_t0+m_duration)> maxtime ) {
+           privateSetDuration(m_duration);
+    }
+    resetAllData();
+    updateData();
+
+
+
+
 }
 
-void PartialTimeData::setMaxDuration(qreal maxDuration) {
+
+void PartialTimeData::maxDurationChange(qreal maxDuration) {
     if ( (this->startTime()+this->duration())>maxDuration ) {
-        this->setMaxDurationAndUpdate(maxDuration,false);
         this->setDuration(maxDuration-this->startTime());
-    } else {
-        this->setMaxDurationAndUpdate(maxDuration,true);
     }
 }
 

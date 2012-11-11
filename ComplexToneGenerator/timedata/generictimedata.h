@@ -68,6 +68,20 @@ signals:
        */
      void curveAttributeUpdated();
 
+     /**
+      * @brief maxDurationChanged emit a signal for the inerithed subclass to signal the length is changed. Inerithed class should not call createData
+      * beause it's called by this function before exit
+      * @param maxduration
+      */
+     void maxDurationChanged(qreal maxduration);
+
+     /**
+      * @brief sampleRateChanged emit a signal for the inerithed subclass to signal the SR is changed. Inerithed class should not call createData
+      * beause it's called by this function before exit
+      * @param samplerate
+      */
+     void sampleRateChanged(qreal samplerate);
+
 public slots:
      /**
        * Set the max duration of this signal and update for data, redefine in the inerithed class if you want change beaviour. (ie don't call an update)
@@ -80,10 +94,6 @@ public slots:
        * Normally you shouldn't override this method
        */
      virtual void setSampleRate(qreal SR);//Set the SR of this signal
-
-     //void setMinStartTimeAndMaxDuration(qreal t0, qreal maxDuration);//Set the min start time and the max duration of the signal.
-     //void setMinStartTime(qreal t0);//Set the min start timethis signal.
-     //void setMaxEndTime(qreal t1);//Set the max start time  of this signal.
 
      void setName(QString name);
      void setColor(QColor color);
@@ -154,16 +164,6 @@ protected:
        * The method provide capability to the extended class to set modified signal data
        */
      void setSignalData(qreal * s, qint64 len);
-
-     /**
-       * This method leaves the decision to update data after set the duration or not, useful in some inerithed class when you want do other stuff before update
-       */
-     void setMaxDurationAndUpdate(qreal  maxDuration, bool updateData);
-
-     /**
-       * This method leaves the decision to update data after set the SR or not, useful in some inerithed class when you want do other stuff before update
-       */
-     void setSampleRateAndUpdate(qreal SR, bool updateData);
 
      /**
        * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values

@@ -24,17 +24,21 @@ void TimePlotWidget::setSampleRate(qreal SR) {
 
     int n=0;
     GenericTimeData * gtd=this->getTimeDataList(n);
-    bool sigStatus;
+
+
+    //Block digest, i don't want recalc digest before all the curves was updated
+    bool sigStatus=m_digestCurve->setInhibitRecalc(true);
     while (gtd!=NULL) {
-        sigStatus=gtd->blockSignals(true);
+       // sigStatus=gtd->blockSignals(true);
         gtd->setSampleRate(SR);
-        gtd->blockSignals(sigStatus);
+       // gtd->blockSignals(sigStatus);
         gtd=this->getTimeDataList(++n);
     }
     //update the digest curve
-    sigStatus=m_digestCurve->blockSignals(true);
+    m_digestCurve->setInhibitRecalc(sigStatus);
+    //sigStatus=m_digestCurve->blockSignals(true);
     m_digestCurve->setSampleRate(SR);
-    m_digestCurve->blockSignals(sigStatus);
+    //m_digestCurve->blockSignals(sigStatus);
 
     //Update UI
     sigStatus=m_baseControl.sliderSR->blockSignals(true);
@@ -51,18 +55,19 @@ void TimePlotWidget::setDuration(qreal duration) {
 
     int n=0;
     GenericTimeData * gtd=this->getTimeDataList(n);
-    bool sigStatus;
+
+    //Block digest, i don't want recalc digest before all the curves was updated
+    bool sigStatus=m_digestCurve->setInhibitRecalc(true);
+
     while (gtd!=NULL) {
-        sigStatus=gtd->blockSignals(true);
         gtd->setMaxDuration(duration);
-        gtd->blockSignals(sigStatus);
         gtd=this->getTimeDataList(++n);
     }
 
     //update the digest curve
-    sigStatus=m_digestCurve->blockSignals(true);
+    m_digestCurve->setInhibitRecalc(sigStatus);
     m_digestCurve->setMaxDuration(m_duration);
-    m_digestCurve->blockSignals(sigStatus);
+
 
     //Update UI
     sigStatus=m_baseControl.sliderDuration->blockSignals(true);

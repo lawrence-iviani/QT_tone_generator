@@ -33,12 +33,15 @@ public slots:
      * @param blanktime the blank time between repetitions to set
      */
     void setBlankTime(qreal blanktime);
-private:
 
+private slots:
     /**
      * @brief updateRepetitions recalculate the number of repetitions
      */
     void updateRepetitions();
+private:
+    void connectSignal();
+
 
     static qreal const TIMEDATA_DEFAULT_BLANK=1.0;
     qreal  m_blankTime;

@@ -1,16 +1,20 @@
 #include "digesttimedata.h"
 
 DigestTimeData::DigestTimeData(QList<GenericTimeData *> *curveList) :
-    GenericTimeData()
+    GenericTimeData(),
+    m_inhibitRecalc(false)
 {
     m_curveList=curveList;
+    disconnect(this->getEnvelopeData(),SIGNAL(envelopeChanged()),this,SLOT(updateData()));
     this->updateData();
 }
 
 DigestTimeData::DigestTimeData(QList<GenericTimeData*> *curveList,qreal duration, qreal SRGen) :
-    GenericTimeData(duration,SRGen)
+    GenericTimeData(duration,SRGen),
+    m_inhibitRecalc(false)
 {
     m_curveList=curveList;
+    disconnect(this->getEnvelopeData(),SIGNAL(envelopeChanged()),this,SLOT(updateData()));
     this->updateData();
 }
 
@@ -18,13 +22,13 @@ DigestTimeData::~DigestTimeData() {}
 
 //Due to the fact the digest list is updated when all the curves are updated, this means that
 // for example, SR o duration change this will updated twice
-void DigestTimeData::setMaxDuration(qreal maxDuration) {
-    this->setMaxDurationAndUpdate(maxDuration,false);
-}
+//void DigestTimeData::setMaxDuration(qreal maxDuration) {
+//    this->setMaxDurationAndUpdate(maxDuration,false);
+//}
 
-void DigestTimeData::setSampleRate(qreal SR) {
-    this->setSampleRateAndUpdate(SR,false);
-}
+//void DigestTimeData::setSampleRate(qreal SR) {
+//    this->setSampleRateAndUpdate(SR,false);
+//}
 
 void DigestTimeData::setTimeDataList(QList<GenericTimeData *> *curveList) {
     m_curveList=curveList;
@@ -38,6 +42,10 @@ void DigestTimeData::updateData() {
 }
 
 void DigestTimeData::recalc() {
+    if (m_inhibitRecalc) {
+        qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() DISABLED!! " << this->name();
+        return;
+    }
     qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() ---------------- " << this->name();
 
     Q_ASSERT(m_curveList!=NULL);

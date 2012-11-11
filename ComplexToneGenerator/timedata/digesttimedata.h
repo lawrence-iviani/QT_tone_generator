@@ -16,16 +16,24 @@ public:
     DigestTimeData(QList<GenericTimeData*> * curveList);
     DigestTimeData(QList<GenericTimeData*> * curveList, double maxDuration, double SRGen);
     virtual ~DigestTimeData();
+
+    bool inhibitRecalc() {return m_inhibitRecalc;}
+    bool setInhibitRecalc(bool inhibit) {
+        bool retval=m_inhibitRecalc;
+        m_inhibitRecalc=inhibit;
+        return retval;
+    }
     
 signals:
 public slots:
-    virtual void setMaxDuration(double maxDuration);//Set the max duration of this data set,  in this case i don't want a dataUpdate call
-    virtual void setSampleRate(double SR);
+ //   virtual void setMaxDuration(double maxDuration);//Set the max duration of this data set,  in this case i don't want a dataUpdate call
+ //   virtual void setSampleRate(double SR);
     void updateData();
     void setTimeDataList(QList<GenericTimeData*> *m_curveList);
 protected:
 
 private:
+    bool m_inhibitRecalc;
     virtual void recalc();
     QList<GenericTimeData*> * m_curveList;
 };

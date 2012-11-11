@@ -22,12 +22,12 @@ public:
     qreal startTime() {return m_t0;}
     qreal duration() {return m_duration;}
 signals:
-    
+    void durationChanged(qreal);
+    void startTimeChanged(qreal);
+
 public slots:
     void setDuration(qreal duration);//Set the duration of this signal, it will be clipped by the base class if the min or max time values are outside the limits of the base class
     void setStartTime(qreal t0);//Set the min start time of this signal, it will be clipped by the base class if the min or max time values are outside the limits of the base class
-    //void minStartTimeChanged(qreal t0);//Call this slot if some lower time limit is changed in the base class.
-    virtual void setMaxDuration(qreal maxDuration);
 
 protected:
 
@@ -55,12 +55,17 @@ protected:
 
 private:
     void connectSignal();
+    void privateSetDuration(qreal duration);
+
     static qreal const TIMEDATA_DEFAULT_DURATION=5.0;
     static qreal const TIMEDATA_DEFAULT_INITTIME=0.0;
 
     PartialTimeDataUI *m_partialTimeDataUI;
     qreal m_t0;
     qreal m_duration;
+
+private slots:
+    void maxDurationChange(qreal maxduration);
 };
 
 #endif // PARTIALTIMEDATA_H

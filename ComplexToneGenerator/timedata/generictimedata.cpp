@@ -124,28 +124,31 @@ void GenericTimeData::deleteAllData() {
     }
 }
 
-void GenericTimeData::setMaxDurationAndUpdate(qreal  maxDuration, bool updateData) {
-    if (maxDuration < 0) {
-        m_MaxDuration=0;
-    } else {
-        m_MaxDuration=maxDuration;
-    }
-    // m_Max_t1=m_MaxDuration+m_Min_t0;
-    if (updateData) this->createData();//Data need to be recalculated, not only updated
-}
-
 void GenericTimeData::setMaxDuration(qreal  maxDuration) {
-    this->setMaxDurationAndUpdate(maxDuration,true);
+    if (maxDuration!=m_MaxDuration) {
+        if (maxDuration < 0) {
+            m_MaxDuration=0;
+        } else {
+            m_MaxDuration=maxDuration;
+        }
+        resetAllData();
+        emit(maxDurationChanged(maxDuration));
+        recalc();
+        createDataCurve();
+        //emit dataUpdated();
+    }
+
 }
 
 void GenericTimeData::setSampleRate(qreal SR) {
-    this->setSampleRateAndUpdate(SR,true);
-}
-
-void GenericTimeData::setSampleRateAndUpdate(qreal SR, bool updateData) {
-    m_SR=SR;
-    m_envelope->setSampleRate(SR);
-    if (updateData) this->createData();//Data need to be recalculated, not only updated
+    if ( (SR!=m_SR) && (SR >0) ) {
+        m_SR=SR;
+        m_envelope->setSampleRate(SR);
+        resetAllData();
+        emit (sampleRateChanged(SR));
+        recalc();
+        createDataCurve();
+    }
 }
 
 void GenericTimeData::setTimeData(qreal *t, qint64 len){

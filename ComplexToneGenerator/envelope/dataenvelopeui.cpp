@@ -215,7 +215,7 @@ void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget *slider, qreal val) {
     //Setting scale
     qreal settedTime=m_parameters->attack() + m_parameters->hold() + m_parameters->decay() + m_parameters->sustain() + m_parameters->release();
     qreal remainingTime=m_parameters->total()-settedTime;
-//    qDebug() << "DataEnvelopeUI::setTimeSlider slider@" <<slider << "setTime="<<settedTime<<"remainingTime=" << remainingTime << " totalTime="<< m_parameters->total() ;
+    qDebug() << "DataEnvelopeUI::setTimeSlider slider@" <<slider << "setTime="<<settedTime<<"remainingTime=" << remainingTime << " totalTime="<< m_parameters->total() ;
 
     Q_ASSERT( remainingTime>=0.0);
     Q_ASSERT( remainingTime<=m_parameters->total());

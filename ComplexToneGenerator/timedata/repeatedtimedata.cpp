@@ -6,6 +6,7 @@ RepeatedTimeData::RepeatedTimeData(QObject *parent,QWidget *widget) :
     m_blankTime(TIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();
+    connectSignal();
 }
 
 RepeatedTimeData::RepeatedTimeData(qreal duration, qreal SRGen,QObject *parent,QWidget *widget) :
@@ -13,7 +14,20 @@ RepeatedTimeData::RepeatedTimeData(qreal duration, qreal SRGen,QObject *parent,Q
     m_blankTime(TIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();
+    connectSignal();
 }
+
+void RepeatedTimeData::connectSignal() {
+
+    //Connect the slot to change the max duration
+    connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions()));
+    connect(this ,SIGNAL(startTimeChanged(qreal)),this,SLOT(updateRepetitions()));
+    connect(this ,SIGNAL(durationChanged(qreal)),this,SLOT(updateRepetitions()));
+    //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
+    //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
+
+}
+
 
 void RepeatedTimeData::updateRepetitions() {
     //Get the total time available for all the repetitions (including the first and orginal one)
