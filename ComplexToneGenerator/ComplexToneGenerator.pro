@@ -48,6 +48,7 @@ SOURCES += envelope/dataenvelope.cpp \
     timedata/partialtimedata.cpp \
     timedata/partialtimedataui.cpp \
     timedata/timedatacontrolui.cpp \
+    timedata/repeatedtimedata.cpp \
     plotwidget/plotwidget.cpp \
     plotwidget/timeplotwidget.cpp \
     plotwidget/freqplotwidget.cpp \
@@ -56,7 +57,10 @@ SOURCES += envelope/dataenvelope.cpp \
     CustomCurves/sinusdataui.cpp \
     CustomCurves/partialsinusdata.cpp \
     mainwindow.cpp \
-    main.cpp
+    main.cpp \
+    CustomCurves/repeatedsinusdata.cpp \
+    timedata/repeatedtimedataui.cpp
+
 
 
 
@@ -70,6 +74,7 @@ HEADERS  += CTG_constants.h \
     timedata/generictimedataui.h \
     timedata/partialtimedataui.h \
     timedata/timedatacontrolui.h \
+    timedata/repeatedtimedata.h \
     plotwidget/plotwidget.h \
     plotwidget/timeplotwidget.h \
     plotwidget/freqplotwidget.h \
@@ -79,7 +84,10 @@ HEADERS  += CTG_constants.h \
     CustomCurves/customcurveui.h \
     CustomCurves/sinusdataui.h \
     CustomCurves/partialsinusdata.h \
-    mainwindow.h
+    mainwindow.h \
+    CustomCurves/repeatedsinusdata.h \
+    timedata/repeatedtimedataui.h
+
 
 
 FORMS    += mainwindow.ui \

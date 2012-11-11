@@ -9,6 +9,7 @@
 #include "plotwidget/plotwidget.h"
 #include "CustomCurves/sinusdata.h"
 #include "CustomCurves/constanttimedata.h"
+#include "CustomCurves/repeatedsinusdata.h"
 #include "selectcurvewindowdialog.h"
 #include "selectremovecurvewindowdialog.h"
 #include "exportaudiofiledialog.h"

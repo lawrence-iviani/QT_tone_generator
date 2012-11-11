@@ -89,14 +89,17 @@ void MainWindow::setupCurves(SelectCurveWindowHelper * selectCurveHelper) {
 
     S_DataCurve t;
 
-    t.name="Limited Tone generator";
-    t.description=" This curve generate a pure tone limited in time";
+    t.name="Limited duration Tone generator";
+    t.description=" This curve generate a pure tone with a limited in Duration";
     selectCurveHelper->addData(t);
 
     t.name="Tone generator";
     t.description=" This curve generate a pure tone for the whole duration";
     selectCurveHelper->addData(t);
 
+    t.name="Repeated duration Tone generator";
+    t.description=" This curve generate a pure tone with a limited in Duration";
+    selectCurveHelper->addData(t);
 
     t.name="Limited Const Data";
     t.description=" This curve generate a constant limited in time";
@@ -114,14 +117,25 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     if (curveName==NULL) return NULL;
     qDebug() << "MainWindow::decodeSelectedCurve curve selected is " << curveName;
 
-    if (QString::compare(curveName,"Limited Tone generator")==0 ) {
+    if (QString::compare(curveName,"Limited duration Tone generator")==0 ) {
         PartialSinusData * s=new PartialSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
         s->setStartTime(0.4);
         s->setDuration(5.1);
-        s->setAmplitudeFrequencyAndPhase(0.707,1000,90);
+        s->setAmplitudeFrequencyAndPhase(0.5,1000,90);
         retval=(GenericTimeData*) s;
         return retval;
     }
+
+    if (QString::compare(curveName,"Repeated duration Tone generator")==0 ) {
+        RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
+        s->setStartTime(0.2);
+        s->setDuration(0.5);
+        s->setBlankTime(0.25);
+        s->setAmplitudeFrequencyAndPhase(0.250,500,45);
+        retval=(GenericTimeData*) s;
+        return retval;
+    }
+
     if (QString::compare(curveName,"Tone generator")==0 ) {
         SinusData * s=new SinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
         s->setAmplitudeFrequencyAndPhase(0.333,250,0);

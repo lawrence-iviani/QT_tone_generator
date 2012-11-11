@@ -93,7 +93,7 @@ void GenericTimeData::resetAllData() {
     Q_ASSERT(m_t==NULL);
     Q_ASSERT(m_s==NULL);
 
-    m_sample=floor(m_MaxDuration*m_SR);//number of sample
+    m_sample=qFloor(m_MaxDuration*m_SR);//number of sample
     qreal SL=1/m_SR; //Sample length
 
     m_t=new qreal[m_sample];

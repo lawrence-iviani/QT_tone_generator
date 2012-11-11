@@ -5,9 +5,11 @@
 #include <scaledsliderwidget.h>
 #include <CustomCurves/sinusdata.h>
 #include <CustomCurves/partialsinusdata.h>
+#include <CustomCurves/repeatedsinusdata.h>
 
 class SinusData;
 class PartialSinusData;
+class RepeatedSinusData;
 
 class SinusDataUI : public CustomCurveUI
 {
@@ -15,6 +17,8 @@ class SinusDataUI : public CustomCurveUI
 public:
     explicit SinusDataUI(SinusData *sd, QWidget *widget = 0);
     explicit SinusDataUI(PartialSinusData *psd, QWidget *widget=0);
+    explicit SinusDataUI(RepeatedSinusData *rsd, QWidget *widget=0);
+
 signals:
     
 public slots:
@@ -35,6 +39,7 @@ private:
 
     SinusData *m_sinusData;
     PartialSinusData *m_partialSinusData;
+    RepeatedSinusData *m_repeatedSinusData;
     struct {
       ScaledSliderWidget *sliderFrequency;
       ScaledSliderWidget *sliderAmplitude;

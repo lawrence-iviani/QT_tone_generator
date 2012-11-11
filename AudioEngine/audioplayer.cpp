@@ -308,6 +308,7 @@ bool AudioPlayer::setStreamSamplePosition(qint64 samplePosition) {
                 if (m_inputStream && m_inputStream->isOpen()) {
                     bytesPosition=qMin(m_audioOutput->format().channels()*(m_audioOutput->format().sampleSize()/8)*samplePosition,m_inputStream->size() );
                     retval=m_inputStream->seek(bytesPosition);
+                    m_previousPosition=m_inputStream->pos();
                     if (!retval)
                         qWarning() << "AudioPlayer::setStreamSamplePosition CAN'T' set STREAM position@" << bytesPosition << "/"<< m_inputStream->size() << " bytes";
                 }
@@ -315,7 +316,8 @@ bool AudioPlayer::setStreamSamplePosition(qint64 samplePosition) {
             case AudioPlayer::FILE:
                 if (m_inputFile.isOpen()) {
                     bytesPosition=qMin(m_audioOutput->format().channels()*(m_audioOutput->format().sampleSize()/8)*samplePosition,m_inputFile.size() );
-                    retval=m_inputFile.seek(bytesPosition+AUDIOPLAYER_HEADER_WAV_SAMPLES); //TODO: + header!
+                    retval=m_inputFile.seek(bytesPosition+AUDIOPLAYER_HEADER_WAV_SAMPLES);
+                    m_previousPosition=m_inputFile.pos();
                     if (!retval)
                             qWarning() << "AudioPlayer::setStreamSamplePosition CAN'T' set FILE position@" << bytesPosition << "/"<< m_inputFile.size() << " bytes";
                 }

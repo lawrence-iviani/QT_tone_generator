@@ -41,7 +41,13 @@ public:
     QString name() {return  m_name;}
     QColor color() {return m_curve->pen().color(); }
 
-    bool insertSignalValue(qint64 index, qreal value);
+    /**
+     * @brief insertSignalValue This function insert a qreal value in the sample position index and return true if the insertion is succesful, if return false the index is out of range
+     * @param index the sample index where the value must be inserted
+     * @param value the value to insert
+     * @return True if the insert was succesful.
+     */
+    virtual bool insertSignalValue(qint64 index, qreal value);
     const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
     const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
     DataEnvelope * getEnvelopeData() {return m_envelope;}
@@ -101,11 +107,14 @@ public slots:
      /**
        * Update the actual array of data, overwriting the data actually stored in. Ask only for a recalc and avoid to reinit all the array. Faster mtehod.
        */
+     /**
+      * @brief updateData Update the actual array of data, overwriting the data actually stored in. Ask only for a recalc and avoid to reinit all the array. Faster mtehod.
+       */
      void updateData();
 
      /**
-       * (Re)Create the internal data array, recalculating the sample number. Useful in case of length  array change.
-       */
+      * @brief createData (Re)Create the internal data array (filling of zero), recalculating the sample number. Useful in case of length  array change.
+      */
      void createData();
 
 protected:
@@ -132,6 +141,9 @@ protected:
 
 
      void createDataCurve();//Set
+
+     qreal * timeData() {return m_t;}
+     qreal * signalData() {return m_s;}
 
      /**
        * The method provide capability to the extended class to set modified time data
