@@ -59,3 +59,5 @@ Widget/ComboBoxLabelWidget/ComboBoxLabelWidget.pro.user
 ComplexToneGenerator/Makefile
 
 ComplexToneGenerator/ComplexToneGenerator.pro.user.1.3
+
+*.autosave

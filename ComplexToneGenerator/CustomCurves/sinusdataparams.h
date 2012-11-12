@@ -2,10 +2,8 @@
 #define SINUSDATAPARAMS_H
 
 #include <QObject>
-#include <CustomCurves/sinusdataui.h>
 #include <math.h>
 
-class SinusDataUI;
 
 class SinusDataParams : public QObject
 {
@@ -19,7 +17,6 @@ public:
     qreal amplitude() {return m_amplitude;}
     qreal frequency() {return m_frequency;}
     qreal initPhase() {return m_initPhase;}//In degree
-    CustomCurveUI * getControlUI() {return ( CustomCurveUI *)m_sinusDataUI;}
 
 signals:
     void dataUpdated();
@@ -40,7 +37,6 @@ protected:
     qreal m_frequency;
     qreal m_initPhase;
     qreal * m_sinus;
-    SinusDataUI *m_sinusDataUI;
 };
 
 #endif // SINUSDATAPARAMS_H

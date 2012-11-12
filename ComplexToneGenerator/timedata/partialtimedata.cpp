@@ -1,7 +1,7 @@
 #include "partialtimedata.h"
 
-PartialTimeData::PartialTimeData(QObject *parent,QWidget *widget) :
-    GenericTimeData(parent,widget)
+PartialTimeData::PartialTimeData(QWidget *widget) :
+    GenericTimeData(widget)
 {
     m_t0=TIMEDATA_DEFAULT_INITTIME;
     this->connectSignal();
@@ -9,8 +9,8 @@ PartialTimeData::PartialTimeData(QObject *parent,QWidget *widget) :
     m_partialTimeDataUI=new PartialTimeDataUI(this,widget);
 }
 
-PartialTimeData::PartialTimeData(qreal duration, qreal SRGen,QObject *parent,QWidget *widget) :
-    GenericTimeData(duration,SRGen,parent,widget)
+PartialTimeData::PartialTimeData(qreal duration, qreal SRGen, QWidget *widget) :
+    GenericTimeData(duration,SRGen,widget)
 {
     m_t0=TIMEDATA_DEFAULT_INITTIME;
     this->connectSignal();

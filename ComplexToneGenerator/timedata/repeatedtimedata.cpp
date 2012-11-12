@@ -1,8 +1,8 @@
 #include "repeatedtimedata.h"
 
 
-RepeatedTimeData::RepeatedTimeData(QObject *parent,QWidget *widget) :
-    PartialTimeData(parent,widget),
+RepeatedTimeData::RepeatedTimeData(QWidget *widget) :
+    PartialTimeData(widget),
     m_blankTime(TIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();
@@ -10,8 +10,8 @@ RepeatedTimeData::RepeatedTimeData(QObject *parent,QWidget *widget) :
     m_repeatedTimeDataUI=new RepeatedTimeDataUI(this,widget);
 }
 
-RepeatedTimeData::RepeatedTimeData(qreal duration, qreal SRGen,QObject *parent,QWidget *widget) :
-    PartialTimeData(duration,SRGen,parent,widget),
+RepeatedTimeData::RepeatedTimeData(qreal duration, qreal SRGen,QWidget *widget) :
+    PartialTimeData(duration,SRGen,widget),
     m_blankTime(TIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();

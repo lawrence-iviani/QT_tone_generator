@@ -23,8 +23,8 @@ class GenericTimeData : public QObject
 {
     Q_OBJECT
 public:
-    GenericTimeData(QObject *parent=0,QWidget *widget=0);
-    GenericTimeData(qreal maxDuration, qreal SRGen,QObject *parent=0,QWidget *widget=0);
+    GenericTimeData(QWidget *widget=0);
+    GenericTimeData(qreal maxDuration, qreal SRGen,QWidget *widget=0);
     virtual ~GenericTimeData();
     QwtPlotCurve * getCurve() {return m_curve;}
     QwtCPointerData * getData() {return m_data;}

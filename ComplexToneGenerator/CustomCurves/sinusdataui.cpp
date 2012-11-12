@@ -1,6 +1,6 @@
 #include "sinusdataui.h"
 
-SinusDataUI::SinusDataUI(SinusData *sd, QWidget *widget) :
+SinusDataUI::SinusDataUI(SinusDataParams *sd, QWidget *widget) :
     CustomCurveUI(widget),
     m_sinusData(sd)
 {

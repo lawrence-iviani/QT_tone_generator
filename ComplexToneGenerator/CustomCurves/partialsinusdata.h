@@ -8,7 +8,7 @@
 #include <math.h>
 
 class SinusDataUI;
-class SinusData;
+class SinusDataParams;
 class PartialSinusData;
 
 class PartialSinusData :  public PartialTimeData
@@ -21,10 +21,10 @@ public:
     virtual ~PartialSinusData();
 
     void setAmplitudeFrequencyAndPhase(qreal amplitude,qreal frequency,qreal initPhase)
-            {m_sinusData->setAmplitudeFrequencyAndPhase(amplitude, frequency, initPhase); }
-    qreal amplitude() {return m_sinusData->amplitude();}
-    qreal frequency() {return m_sinusData->frequency();}
-    qreal initPhase() {return m_sinusData->initPhase();}
+            {m_sinusDataParams->setAmplitudeFrequencyAndPhase(amplitude, frequency, initPhase); }
+    qreal amplitude() {return m_sinusDataParams->amplitude();}
+    qreal frequency() {return m_sinusDataParams->frequency();}
+    qreal initPhase() {return m_sinusDataParams->initPhase();}
 signals:
 
 public slots:
@@ -33,7 +33,7 @@ protected:
     virtual void recalc();
 
  private:
-    SinusData *m_sinusData;
+    SinusDataParams *m_sinusDataParams;
     SinusDataUI *m_sinusDataUI;
 };
 

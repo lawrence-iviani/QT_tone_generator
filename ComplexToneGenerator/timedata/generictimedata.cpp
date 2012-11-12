@@ -1,7 +1,7 @@
 #include "generictimedata.h"
 
-GenericTimeData::GenericTimeData(QObject *parent, QWidget *widget) :
-    QObject(parent),
+GenericTimeData::GenericTimeData(QWidget *widget) :
+    QObject((QObject*) widget),
     m_data(NULL),
     m_name(QString("no name")),
     m_MaxDuration(TIMEDATA_DEFAULT_MAX_TIME),
@@ -16,8 +16,8 @@ GenericTimeData::GenericTimeData(QObject *parent, QWidget *widget) :
     init(widget);
 }
 
-GenericTimeData::GenericTimeData(qreal maxDuration, qreal SRGen, QObject *parent, QWidget *widget) :
-    QObject(parent),
+GenericTimeData::GenericTimeData(qreal maxDuration, qreal SRGen, QWidget *widget) :
+    QObject((QObject*)widget),
     m_data(NULL),
     m_name(QString("no name")),
     m_MaxDuration(maxDuration),

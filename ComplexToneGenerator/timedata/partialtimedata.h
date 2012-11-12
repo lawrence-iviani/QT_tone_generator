@@ -16,8 +16,8 @@ class PartialTimeData : public GenericTimeData
 {
     Q_OBJECT
 public:
-    PartialTimeData(QObject *parent=0,QWidget * widget=0);
-    PartialTimeData(qreal maxDuration, qreal SRGen, QObject *parent=0,QWidget *widget=0);
+    PartialTimeData(QWidget * widget=0);
+    PartialTimeData(qreal maxDuration, qreal SRGen, QWidget *widget=0);
     
     qreal startTime() {return m_t0;}
     qreal duration() {return m_duration;}

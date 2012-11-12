@@ -6,13 +6,13 @@
 #include <CustomCurves/sinusdata.h>
 #include <CTG_constants.h>
 
-class SinusData;
+class SinusDataParams;
 
 class SinusDataUI : public CustomCurveUI
 {
     Q_OBJECT
 public:
-    explicit SinusDataUI(SinusData *sd, QWidget *widget = 0);
+    explicit SinusDataUI(SinusDataParams *sd, QWidget *widget = 0);
 signals:
 
 public slots:
@@ -36,7 +36,7 @@ private:
       ScaledSliderWidget *sliderAmplitude;
       ScaledSliderWidget *sliderInitPhase;
     } m_sinusDataControl;
-    SinusData *m_sinusData;
+    SinusDataParams *m_sinusData;
 };
 
 

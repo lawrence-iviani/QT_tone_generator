@@ -52,7 +52,7 @@ SOURCES += envelope/dataenvelope.cpp \
     plotwidget/plotwidget.cpp \
     plotwidget/timeplotwidget.cpp \
     plotwidget/freqplotwidget.cpp \
-    CustomCurves/sinusdata.cpp \
+    CustomCurves/sinusdataparams.cpp \
     CustomCurves/genericsinusdata.cpp \
     CustomCurves/constanttimedata.cpp \
     CustomCurves/sinusdataui.cpp \
@@ -80,7 +80,7 @@ HEADERS  += CTG_constants.h \
     plotwidget/timeplotwidget.h \
     plotwidget/freqplotwidget.h \
     plotwidget/scrollrubberband.h \
-    CustomCurves/sinusdata.h \
+    CustomCurves/sinusdataparams.h \
     CustomCurves/genericsinusdata.h \
     CustomCurves/constanttimedata.h \
     CustomCurves/customcurveui.h \
