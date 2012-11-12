@@ -13,7 +13,7 @@ PartialSinusData::PartialSinusData(qreal duration, qreal SRGen, QWidget *widget)
     //Create a sinusdata UI, connecting the parameters
     m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
     //Register the UI for call general update when something change.
-    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "GenricSinusData control");
+    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "PartialSinusData control");
 }
 
 PartialSinusData::~PartialSinusData() {

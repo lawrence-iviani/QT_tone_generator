@@ -10,7 +10,7 @@ TARGET = ComplexToneGenerator
 TEMPLATE = app
 
 OBJECTS_DIR = obj
-
+MOC_DIR = moc
 
 
 # ------ Dependecies libs:

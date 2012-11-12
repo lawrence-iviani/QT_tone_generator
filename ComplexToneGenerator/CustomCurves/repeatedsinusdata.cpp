@@ -29,7 +29,7 @@ RepeatedSinusData::RepeatedSinusData(qreal duration, qreal SRGen, qreal amplitud
     //Create a sinusdata UI, connecting the parameters
     m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
     //Register the UI for call general update when something change.
-    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "GenricSinusData control");
+    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "RepeatedSinusData control");
 }
 
 void RepeatedSinusData::recalc() {
