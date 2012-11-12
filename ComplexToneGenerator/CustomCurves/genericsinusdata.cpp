@@ -1,9 +1,8 @@
-#include "repeatedsinusdata.h"
+#include "genericsinusdata.h"
 
 
-
-RepeatedSinusData::RepeatedSinusData(qreal duration, qreal SRGen, QWidget *widget) :
-    RepeatedTimeData (duration,SRGen)
+GenericSinusData::GenericSinusData(qreal duration, qreal SRGen, QWidget *widget) :
+    GenericTimeData (duration,SRGen)
 {
     //Create the storage class
     m_sinusData=new SinusData((QObject*)widget);
@@ -15,12 +14,8 @@ RepeatedSinusData::RepeatedSinusData(qreal duration, qreal SRGen, QWidget *widge
     this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "GenricSinusData control");
 }
 
-RepeatedSinusData::~RepeatedSinusData() {
-
-}
-
-RepeatedSinusData::RepeatedSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
-    RepeatedTimeData (duration,SRGen)
+GenericSinusData::GenericSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
+    GenericTimeData (duration,SRGen)
 {
     //Create the storage class
     m_sinusData=new SinusData(amplitude,frequency,initPhase, (QObject*)widget);
@@ -32,16 +27,22 @@ RepeatedSinusData::RepeatedSinusData(qreal duration, qreal SRGen, qreal amplitud
     this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "GenricSinusData control");
 }
 
-void RepeatedSinusData::recalc() {
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - RepeatedSinusData::recalc() ---------------- " << this->name();
+GenericSinusData::~GenericSinusData() {
+
+}
+
+void GenericSinusData::recalc() {
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - GenericSinusData::recalc() ---------------- " << this->name();
     const qreal *t=this->getTimeData();
     qreal phase=SinusData::deg2rad(m_sinusData->initPhase());
 
     qint64 n_dw=this->lowestSampleIndexForModification();
     qint64 n_up=this->highestSampleIndexForModification();
-    qDebug() << "RepeatedSinusData::recalc() m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_dw=" << n_dw << " n_up=" << n_up << " nsample=" << this->sampleNumber();
+    qDebug() << "GenericSinusData::recalc() m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_dw=" << n_dw << " n_up=" << n_up << " nsample=" << this->sampleNumber();
 
     for (qint64 n=n_dw; n < n_up; n++) {
         Q_ASSERT(this->insertSignalValue(n,m_sinusData->amplitude()*sin(2*M_PI*m_sinusData->frequency()*t[n]+phase)));
     }
 }
+
+

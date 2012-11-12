@@ -2,80 +2,28 @@
 
 SinusDataUI::SinusDataUI(SinusData *sd, QWidget *widget) :
     CustomCurveUI(widget),
-    m_sinusData(sd),
-    m_partialSinusData(NULL),
-    m_repeatedSinusData(NULL)
+    m_sinusData(sd)
 {
     initControl();
-    m_sinusData->getControlWidget()->addControlFrame(this,"SinusData control");
+   // m_sinusData->getControlWidget()->addControlFrame(this,"SinusData control");
     connectingControlSignal();
 }
 
-SinusDataUI::SinusDataUI(PartialSinusData *psd, QWidget *widget) :
-    CustomCurveUI(widget),
-    m_sinusData(NULL),
-    m_partialSinusData(psd),
-    m_repeatedSinusData(NULL)
-{
-    initControl();
-    m_partialSinusData->getControlWidget()->addControlFrame(this,"PartialSinusData control");
-    connectingControlSignal();
-}
-
-SinusDataUI::SinusDataUI(RepeatedSinusData *rsd, QWidget *widget) :
-    CustomCurveUI(widget),
-    m_sinusData(NULL),
-    m_partialSinusData(NULL),
-    m_repeatedSinusData(rsd)
-{
-    initControl();
-    m_repeatedSinusData->getControlWidget()->addControlFrame(this,"RepeatedSinusData control");
-    connectingControlSignal();
-}
 
 void SinusDataUI::updateControlUI() {
     qDebug() << "SinusDataUI::updateControlUI called";
 
-    if (m_partialSinusData!=NULL) {
-        Q_ASSERT(m_sinusData==NULL && m_repeatedSinusData==NULL);
-        setSliderValue(m_sinusDataControl.sliderFrequency, m_partialSinusData->frequency());
-        setSliderValue(m_sinusDataControl.sliderAmplitude,m_partialSinusData->amplitude());
-        setSliderValue(m_sinusDataControl.sliderInitPhase,m_partialSinusData->initPhase());
-    }
-    if (m_sinusData!=NULL) {
-        Q_ASSERT(m_partialSinusData==NULL && m_repeatedSinusData==NULL);
-        setSliderValue(m_sinusDataControl.sliderFrequency, m_sinusData->frequency());
-        setSliderValue(m_sinusDataControl.sliderAmplitude, m_sinusData->amplitude());
-        setSliderValue(m_sinusDataControl.sliderInitPhase, m_sinusData->initPhase());
-    }
-    if (m_repeatedSinusData!=NULL) {
-        Q_ASSERT(m_partialSinusData==NULL && m_sinusData==NULL);
-        setSliderValue(m_sinusDataControl.sliderFrequency, m_repeatedSinusData->frequency());
-        setSliderValue(m_sinusDataControl.sliderAmplitude, m_repeatedSinusData->amplitude());
-        setSliderValue(m_sinusDataControl.sliderInitPhase, m_repeatedSinusData->initPhase());
-    }
-
+    setSliderValue(m_sinusDataControl.sliderFrequency, m_sinusData->frequency());
+    setSliderValue(m_sinusDataControl.sliderAmplitude,m_sinusData->amplitude());
+    setSliderValue(m_sinusDataControl.sliderInitPhase,m_sinusData->initPhase());
 }
 
 void SinusDataUI::connectingControlSignal() {
-    if (m_partialSinusData!=NULL) {
-        Q_ASSERT(m_sinusData==NULL && m_repeatedSinusData==NULL);
-        connect(m_sinusDataControl.sliderFrequency,SIGNAL(valueChanged(qreal)),m_partialSinusData,SLOT(setFrequency(qreal)));
-        connect(m_sinusDataControl.sliderAmplitude,SIGNAL(valueChanged(qreal)),m_partialSinusData,SLOT(setAmplitude(qreal)));
-        connect(m_sinusDataControl.sliderInitPhase,SIGNAL(valueChanged(qreal)),m_partialSinusData,SLOT(setInitPhase(qreal)));
-    }
-    if (m_sinusData!=NULL) {
-        Q_ASSERT(m_partialSinusData==NULL && m_repeatedSinusData==NULL);
-        connect(m_sinusDataControl.sliderFrequency,SIGNAL(valueChanged(qreal)),m_sinusData,SLOT(setFrequency(qreal)));
-        connect(m_sinusDataControl.sliderAmplitude,SIGNAL(valueChanged(qreal)),m_sinusData,SLOT(setAmplitude(qreal)));
-        connect(m_sinusDataControl.sliderInitPhase,SIGNAL(valueChanged(qreal)),m_sinusData,SLOT(setInitPhase(qreal)));
-    }
-    if (m_repeatedSinusData!=NULL) {
-        Q_ASSERT(m_partialSinusData==NULL && m_sinusData==NULL);
-        connect(m_sinusDataControl.sliderFrequency,SIGNAL(valueChanged(qreal)),m_repeatedSinusData,SLOT(setFrequency(qreal)));
-        connect(m_sinusDataControl.sliderAmplitude,SIGNAL(valueChanged(qreal)),m_repeatedSinusData,SLOT(setAmplitude(qreal)));
-        connect(m_sinusDataControl.sliderInitPhase,SIGNAL(valueChanged(qreal)),m_repeatedSinusData,SLOT(setInitPhase(qreal)));
-    }
+
+    connect(m_sinusDataControl.sliderFrequency,SIGNAL(valueChanged(qreal)),m_sinusData,SLOT(setFrequency(qreal)));
+    connect(m_sinusDataControl.sliderAmplitude,SIGNAL(valueChanged(qreal)),m_sinusData,SLOT(setAmplitude(qreal)));
+    connect(m_sinusDataControl.sliderInitPhase,SIGNAL(valueChanged(qreal)),m_sinusData,SLOT(setInitPhase(qreal)));
+
 }
 
 void SinusDataUI::initControl() {
@@ -125,3 +73,4 @@ void SinusDataUI::setSliderValue(ScaledSliderWidget * slider, qreal val) {
     slider->setValue(val);
     slider->blockSignals(sig);
 }
+

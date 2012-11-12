@@ -137,7 +137,7 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     }
 
     if (QString::compare(curveName,"Tone generator")==0 ) {
-        SinusData * s=new SinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
+        GenericSinusData * s=new GenericSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
         s->setAmplitudeFrequencyAndPhase(0.333,250,0);
         retval=(GenericTimeData*) s;
         return retval;

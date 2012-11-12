@@ -1,29 +1,28 @@
 #ifndef SINUSDATA_H
 #define SINUSDATA_H
 
-#include <timedata/generictimedata.h>
-#include <timedata/partialtimedata.h>
+#include <QObject>
 #include <CustomCurves/sinusdataui.h>
-#include <CTG_constants.h>
 #include <math.h>
 
 class SinusDataUI;
 
-class SinusData : public GenericTimeData
+class SinusData : public QObject
 {
     Q_OBJECT
 public:
 
-    SinusData(qreal duration, qreal SRGen, QWidget *widget=0);
-    SinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
+    SinusData(QObject *object);
+    SinusData(qreal amplitude, qreal frequency, qreal initPhase , QObject *object);
     virtual ~SinusData();
     static qreal deg2rad(qreal deg) {return deg*M_PI/180.0;}
     qreal amplitude() {return m_amplitude;}
     qreal frequency() {return m_frequency;}
     qreal initPhase() {return m_initPhase;}//In degree
+    CustomCurveUI * getControlUI() {return ( CustomCurveUI *)m_sinusDataUI;}
 
 signals:
-
+    void dataUpdated();
 public slots:
     void setAmplitudeFrequencyAndPhase(qreal amplitude,qreal frequency,qreal initPhase);
     void setAmplitude(qreal amplitude);
@@ -31,7 +30,6 @@ public slots:
     void setInitPhase(qreal initPhase);//In degree
 
 protected:
-    virtual void recalc();
 
  private:
     static qreal const SINUSDATA_DEFAULT_INITPHASE=0;

@@ -1,7 +1,7 @@
-#ifndef PARTIALSINUSDATA_H
-#define PARTIALSINUSDATA_H
+#ifndef GENERICSINUSDATA_H
+#define GENERICSINUSDATA_H
 
-#include <timedata/partialtimedata.h>
+#include <timedata/generictimedata.h>
 #include <CustomCurves/sinusdata.h>
 #include <CustomCurves/sinusdataui.h>
 #include <CTG_constants.h>
@@ -9,22 +9,23 @@
 
 class SinusDataUI;
 class SinusData;
-class PartialSinusData;
+class GenericTimeData;
 
-class PartialSinusData :  public PartialTimeData
+class GenericSinusData :  public GenericTimeData
 {
     Q_OBJECT
 public:
 
-    PartialSinusData(qreal duration, qreal SRGen, QWidget *widget=0);
-    PartialSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
-    virtual ~PartialSinusData();
+    GenericSinusData(qreal duration, qreal SRGen, QWidget *widget=0);
+    GenericSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
+    virtual ~GenericSinusData();
 
     void setAmplitudeFrequencyAndPhase(qreal amplitude,qreal frequency,qreal initPhase)
             {m_sinusData->setAmplitudeFrequencyAndPhase(amplitude, frequency, initPhase); }
     qreal amplitude() {return m_sinusData->amplitude();}
     qreal frequency() {return m_sinusData->frequency();}
     qreal initPhase() {return m_sinusData->initPhase();}
+
 signals:
 
 public slots:
@@ -37,5 +38,6 @@ protected:
     SinusDataUI *m_sinusDataUI;
 };
 
+#endif // GENERICSINUSDATA_H
 
-#endif // PARTIALSINUSDATA_H
+
