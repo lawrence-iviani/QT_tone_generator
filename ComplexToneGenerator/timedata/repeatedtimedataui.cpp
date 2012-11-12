@@ -11,9 +11,9 @@ RepeatedTimeDataUI::RepeatedTimeDataUI(RepeatedTimeData *rtd, QWidget *widget ) 
 void RepeatedTimeDataUI::updateControlUI() {
     qDebug() << "RepeatedTimeDataUI::updateControlUI called";
 
-//    bool sigStatus=m_partialDataControl.widgetDuration->blockSignals(true);
-//    m_partialDataControl.widgetDuration->setValue(m_partiaTimeData->duration());
-//    m_partialDataControl.widgetDuration->blockSignals(sigStatus);
+    bool sigStatus=m_repeatedDataControl.widgetBlankTime->blockSignals(true);
+    m_repeatedDataControl.widgetBlankTime->setValue(m_repeatedTimeData->blankTime());
+    m_repeatedDataControl.widgetBlankTime->blockSignals(sigStatus);
 
 
 
@@ -32,17 +32,17 @@ void RepeatedTimeDataUI::initControlWidget() {
     this->setFont(f);
 
 //    //set duration
-//    m_partialDataControl.widgetDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-//    m_partialDataControl.widgetDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
-//    m_partialDataControl.widgetDuration->setName("Duration");
-//    m_partialDataControl.widgetDuration->setMeasureUnit("Sec.");
-//    m_partialDataControl.widgetDuration->setFont(f);
-//    connect(m_partialDataControl.widgetDuration,SIGNAL(valueChanged(qreal)),m_partiaTimeData,SLOT(setDuration(qreal)));
+    m_repeatedDataControl.widgetBlankTime = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_repeatedDataControl.widgetBlankTime->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
+    m_repeatedDataControl.widgetBlankTime->setName("Blank Time");
+    m_repeatedDataControl.widgetBlankTime->setMeasureUnit("Sec.");
+    m_repeatedDataControl.widgetBlankTime->setFont(f);
+    connect(m_repeatedDataControl.widgetBlankTime,SIGNAL(valueChanged(qreal)),m_repeatedTimeData,SLOT(setBlankTime(qreal)));
 
     //layouting
- //   l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignLeft);
+    l->addWidget(m_repeatedDataControl.widgetBlankTime,1,Qt::AlignLeft);
 
     //Setting values
- //   m_partialDataControl.widget_t0->setValue(m_partiaTimeData->startTime());
+    m_repeatedDataControl.widgetBlankTime->setValue(m_repeatedTimeData->blankTime());
 
 }

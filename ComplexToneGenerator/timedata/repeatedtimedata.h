@@ -2,7 +2,10 @@
 #define REPEATEDTIMEDATA_H
 
 #include <timedata/partialtimedata.h>
+#include <timedata/repeatedtimedataui.h>
 #include <QDebug>
+
+class RepeatedTimeDataUI;
 
 class RepeatedTimeData : public PartialTimeData
 {
@@ -15,7 +18,7 @@ public:
      * @brief blankTime return the blank time between curve repetitions
      * @return the blank time between repetitions
      */
-    qreal blankTime();
+    qreal blankTime() {return m_blankTime;}
 
     /**
      * @brief insertSignalValue This function insert a qreal value in the sample position index and return true if the insertion is succesful, if return false the index is out of range.
@@ -42,7 +45,7 @@ private slots:
 private:
     void connectSignal();
 
-
+    RepeatedTimeDataUI *m_repeatedTimeDataUI;
     static qreal const TIMEDATA_DEFAULT_BLANK=1.0;
     qreal  m_blankTime;
     unsigned int m_repetitions;

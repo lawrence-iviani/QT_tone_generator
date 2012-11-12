@@ -7,6 +7,7 @@ RepeatedTimeData::RepeatedTimeData(QObject *parent,QWidget *widget) :
 {
     updateRepetitions();
     connectSignal();
+    m_repeatedTimeDataUI=new RepeatedTimeDataUI(this,widget);
 }
 
 RepeatedTimeData::RepeatedTimeData(qreal duration, qreal SRGen,QObject *parent,QWidget *widget) :
@@ -15,6 +16,7 @@ RepeatedTimeData::RepeatedTimeData(qreal duration, qreal SRGen,QObject *parent,Q
 {
     updateRepetitions();
     connectSignal();
+    m_repeatedTimeDataUI=new RepeatedTimeDataUI(this,widget);
 }
 
 void RepeatedTimeData::connectSignal() {
@@ -52,6 +54,7 @@ void RepeatedTimeData::setBlankTime(qreal blanktime) {
     m_blankTime=(blanktime < _maxBlankTime ? blanktime : _maxBlankTime);
     updateRepetitions();
 
+    resetAllData();
     updateData();
 }
 
@@ -72,7 +75,6 @@ bool RepeatedTimeData::insertSignalValue(qint64 index, qreal value) {
         qint64 i;
         for (unsigned int _rep=0; _rep < m_repetitions; _rep++) {
             i=/*lowestIndex*/+_rep*_sampleShotDuration+index;
-
             Q_ASSERT(i<=sampleNumber());
             _s[i]=_tVal;
         }

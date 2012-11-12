@@ -4,6 +4,8 @@
 #include <CustomCurves/customcurveui.h>
 #include <timedata/repeatedtimedata.h>
 
+class RepeatedTimeData;
+
 class RepeatedTimeDataUI : public CustomCurveUI
 {
     Q_OBJECT
@@ -34,7 +36,7 @@ private:
       * of an instance of GenericTimeData::setControlWidget(QWidget *). In this case will possible add the control implemented in this struct
       */
     struct {
-
+        ScaledSliderWidget *widgetBlankTime;
     } m_repeatedDataControl;
 
     RepeatedTimeData *m_repeatedTimeData;

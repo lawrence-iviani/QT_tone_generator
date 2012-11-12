@@ -217,7 +217,7 @@ void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget *slider, qreal val) {
     qreal remainingTime=(m_parameters->total()-settedTime);
 
     //Avoid a problem rounding. Assuming remainingTime is 0.0 if smaller than an arbitraty small amount
-    remainingTime=(remainingTime < (1.0e-6) ? 0.0 : remainingTime);
+    remainingTime=(qAbs(remainingTime) < (1.0e-6) ? 0.0 : remainingTime);
 
     //qDebug() << "DataEnvelopeUI::setTimeSlider slider@" <<slider << "setTime="<<settedTime<<"remainingTime=" << remainingTime << " totalTime="<< m_parameters->total() ;
 
