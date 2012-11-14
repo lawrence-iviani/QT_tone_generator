@@ -1,63 +1,126 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QThread>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow),
+    m_audioPlayer(new AudioPlayer),
     m_plotTime(new TimePlotWidget),
     m_plotFreq(new FreqPlotWidget),
-    m_audioPlayer(new AudioPlayer),
     m_indexGenerator(1),
-    m_toolBoxFixedItem(0)
+    m_toolBoxFixedItem(0),
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->centralwidget->setLayout(ui->globalGridLayout);
+    setupUI();
+    initAudio();
+    connectSignals();
 
-    ui->centralWidget->setLayout(ui->gridLayoutCentralWidget);
-    m_FramePlot=ui->framePlot;
-    m_FrameCurves=ui->frameCurves;
-    m_FrameButton=ui->frameButton;
-    m_WidgetFreqPlot=ui->widgetFreqPlot;
-    m_WidgetTimePlot=ui->widgetTimePlot;
 
-    m_FramePlot->setLayout(ui->layoutPlotFrame);
-    m_FrameCurves->setLayout(ui->layoutActualCurvesFrame);
-    m_FrameButton->setLayout(ui->layoutButtonFrame);
+}
 
-    m_WidgetFreqPlot->setLayout(ui->layoutFreqPlot);
-    m_WidgetTimePlot->setLayout(ui->layoutTimePlot);
-
-    ui->layoutFreqPlot->addWidget(m_plotFreq);
-    ui->layoutTimePlot->addWidget(m_plotTime);
-
-    ui->scrollAreaWidgetContents->setLayout(ui->scrollAreaLayout);
-
-    m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_MAX_TIME,-1.0,1.0);
-
-    //Adding widget to the toolbox option
-    ui->toolBoxOptions->removeItem(m_toolBoxFixedItem);//QT creator doesn't leaves to remove the first items. Little trick
-    ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++,m_plotTime->getControlWidget(),"Time Option");
-    ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Freq Option");
-
-    //Setting audio player control and digest curve stream
-    ui->toolBoxOptions->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player");
-    m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
-
-    //connect digest curve to handle update in the plots
-    connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
-    //m_audioPlayer->setPlayMode(AudioPlayer::PUSH);
-    connect(m_audioPlayer,SIGNAL(streamTimePositionChanged(qreal)) ,this,SLOT(streamPositionUpdate(qreal)));
-
+void MainWindow::initAudio() {
     m_digestCurveStream=new InternalStreamDevice(AudioUtils::getStandardFormat(AudioUtils::DAT));
     m_digestCurveStream->setAudioData((qreal*) m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
     m_audioPlayer->setStream(m_digestCurveStream);
 }
+
+void MainWindow::connectSignals() {
+    //connect command buttons
+    connect(s_button.addCurve,SIGNAL(clicked()),SLOT(newCurve()));
+    connect(s_button.removeCurve,SIGNAL(clicked()),SLOT(removeCurve()));
+    connect(s_button.exportDigest,SIGNAL(clicked()),SLOT(exportDigestCurve()));
+
+    //connect digest curve to handle update in the plots
+    connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
+
+    //Connect position slider
+    connect(m_audioPlayer,SIGNAL(streamTimePositionChanged(qreal)) ,this,SLOT(streamPositionUpdate(qreal)));
+}
+
+void MainWindow::setupUI() {
+    setupSplitters();
+    s_widgetUI.createButtonSWidget=createButtonSWidget();
+    setupOptionsWidget();
+    setupPlots();
+
+    //Adding split layout
+    s_widgetUI.plotSplitter->addWidget(m_plotTime);
+    s_widgetUI.plotSplitter->addWidget(m_plotFreq);
+    s_widgetUI.commandSplitter->addWidget(s_widgetUI.toolboxOption);
+    s_widgetUI.commandSplitter->addWidget(s_widgetUI.createButtonSWidget);
+
+    //Layout all the windows
+    ui->centralwidget->layout()->addWidget(s_widgetUI.globalSplitter);
+
+}
+
+void MainWindow::setupSplitters() {
+
+    //Setting  plot area
+    s_widgetUI.plotSplitter= new QSplitter(Qt::Vertical);
+    s_widgetUI.plotSplitter->setFrameStyle(QFrame::QFrame::Raised);
+    s_widgetUI.plotSplitter->setFrameShape(QFrame::QFrame::Panel);
+    s_widgetUI.plotSplitter->setLineWidth(1);
+    s_widgetUI.plotSplitter->setMidLineWidth(1);
+    s_widgetUI.plotSplitter->setStretchFactor(0, 3);
+    s_widgetUI.plotSplitter->setStretchFactor(1, 1);
+
+    //Setting  command area
+    s_widgetUI.commandSplitter= new QSplitter(Qt::Vertical);
+    s_widgetUI.commandSplitter->setFrameStyle(QFrame::QFrame::Raised);
+    s_widgetUI.commandSplitter->setFrameShape(QFrame::QFrame::Panel);
+    s_widgetUI.commandSplitter->setLineWidth(1);
+    s_widgetUI.commandSplitter->setMidLineWidth(1);
+    s_widgetUI.commandSplitter->setStretchFactor(0, 1);
+    s_widgetUI.commandSplitter->setStretchFactor(1, 3);
+
+    //Setting  total area
+    s_widgetUI.globalSplitter= new QSplitter(Qt::Horizontal);
+    s_widgetUI.globalSplitter->addWidget(s_widgetUI.plotSplitter);
+    s_widgetUI.globalSplitter->addWidget(s_widgetUI.commandSplitter);
+
+    s_widgetUI.globalSplitter->setStretchFactor(0, 3);
+    s_widgetUI.globalSplitter->setStretchFactor(1, 1);
+}
+
+QWidget *MainWindow::createButtonSWidget()  {
+    QVBoxLayout *_l=new QVBoxLayout();
+    s_button.addCurve=new QPushButton("Add curve");
+    s_button.removeCurve=new QPushButton("Remove curve");
+    s_button.exportDigest=new QPushButton("Export digest");
+    _l->addWidget(s_button.addCurve);
+    _l->addWidget(s_button.removeCurve);
+    _l->addWidget(s_button.exportDigest);
+
+    QWidget *_w=new QWidget();
+    _w->setLayout((QLayout*)_l);
+    return _w;
+}
+
+void MainWindow::setupOptionsWidget()  {
+    s_widgetUI.toolboxOption=new QToolBox();
+    //Adding widget to the toolbox option
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotTime->getControlWidget(),"Time Option");
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Freq Option");
+
+    //Setting audio player control and digest curve stream
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player");
+
+}
+
+void MainWindow::setupPlots() {
+    m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_MAX_TIME,-1.0,1.0);
+    m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
+}
+
 
 MainWindow::~MainWindow()
 {
     delete ui;
 }
 
+//SLOTS----------
 void MainWindow::newCurve() {
 
     SelectCurveWindowHelper * selectCurveHelper=SelectCurveWindowDialog::getDialogCurveHelper();
@@ -79,7 +142,7 @@ void MainWindow::newCurve() {
     //adding controls to plot
     QWidget *temp=(QWidget*)s->getControlWidget();
 
-    ui->toolBoxOptions->addItem(temp,s->name());
+    s_widgetUI.toolboxOption->addItem(temp,s->name());
     delete selectCurveHelper;
     delete selectDialog;
 }
@@ -118,7 +181,7 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     qDebug() << "MainWindow::decodeSelectedCurve curve selected is " << curveName;
 
     if (QString::compare(curveName,"Limited duration Tone generator")==0 ) {
-        PartialSinusData * s=new PartialSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
+        PartialSinusData * s=new PartialSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),s_widgetUI.toolboxOption);
         s->setStartTime(0.4);
         s->setDuration(5.1);
         s->setAmplitudeFrequencyAndPhase(0.5,1000,90);
@@ -127,7 +190,7 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     }
 
     if (QString::compare(curveName,"Repeated duration Tone generator")==0 ) {
-        RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
+        RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),s_widgetUI.toolboxOption);
         s->setStartTime(0.2);
         s->setDuration(0.5);
         s->setBlankTime(0.25);
@@ -137,7 +200,7 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
     }
 
     if (QString::compare(curveName,"Tone generator")==0 ) {
-        GenericSinusData * s=new GenericSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),ui->toolBoxOptions);
+        GenericSinusData * s=new GenericSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),s_widgetUI.toolboxOption);
         s->setAmplitudeFrequencyAndPhase(0.333,250,0);
         retval=(GenericTimeData*) s;
         return retval;
@@ -168,7 +231,7 @@ void MainWindow::removeCurve(){
      SelectRemoveCurveWindowDialog * removeDialog=new SelectRemoveCurveWindowDialog(&sl,this);//(sl,this);
      removeDialog->exec();
      foreach (int i, removeDialog->getRemoveCurvesIndex()) {
-            ui->toolBoxOptions->removeItem(i+m_toolBoxFixedItem);
+            s_widgetUI.toolboxOption->removeItem(i+m_toolBoxFixedItem);
             if (!m_plotTime->removeTimeData(i)) {
                 qWarning() << "MainWindow::removeCurve: can't remove GenericTimeData@index=" <<i;
             } else {
@@ -195,7 +258,7 @@ void MainWindow::updateCurvesName() {
     int i=0;
     s=m_plotTime->getTimeDataList(i);
     while(s) {
-        ui->toolBoxOptions->setItemText(m_toolBoxFixedItem+i, s->name());
+        s_widgetUI.toolboxOption->setItemText(m_toolBoxFixedItem+i, s->name());
         s=m_plotTime->getTimeDataList(++i);
     }
 }

@@ -57,11 +57,10 @@ SOURCES += envelope/dataenvelope.cpp \
     CustomCurves/constanttimedata.cpp \
     CustomCurves/sinusdataui.cpp \
     CustomCurves/partialsinusdata.cpp \
-    mainwindow.cpp \
-    main.cpp \
     CustomCurves/repeatedsinusdata.cpp \
-    timedata/repeatedtimedataui.cpp
-
+    timedata/repeatedtimedataui.cpp \
+    mainwindow.cpp \
+    main.cpp
 
 
 
@@ -88,7 +87,8 @@ HEADERS  += CTG_constants.h \
     CustomCurves/partialsinusdata.h \
     mainwindow.h \
     CustomCurves/repeatedsinusdata.h \
-    timedata/repeatedtimedataui.h
+    timedata/repeatedtimedataui.h \
+    mainwindow.h
 
 
 
