@@ -40,15 +40,15 @@ void MainWindow::connectSignals() {
 
 void MainWindow::setupUI() {
     setupSplitters();
-    s_widgetUI.createButtonSWidget=createButtonSWidget();
-    setupOptionsWidget();
+    s_widgetUI.buttonsFrame=createButtonsFrame();
+    s_widgetUI.toolboxOptionFrame=setupOptionsFrame();
     setupPlots();
 
     //Adding split layout
     s_widgetUI.plotSplitter->addWidget(m_plotTime);
     s_widgetUI.plotSplitter->addWidget(m_plotFreq);
-    s_widgetUI.commandSplitter->addWidget(s_widgetUI.toolboxOption);
-    s_widgetUI.commandSplitter->addWidget(s_widgetUI.createButtonSWidget);
+    s_widgetUI.commandSplitter->addWidget(s_widgetUI.toolboxOptionFrame);
+    s_widgetUI.commandSplitter->addWidget(s_widgetUI.buttonsFrame);
 
     //Layout all the windows
     ui->centralwidget->layout()->addWidget(s_widgetUI.globalSplitter);
@@ -79,12 +79,11 @@ void MainWindow::setupSplitters() {
     s_widgetUI.globalSplitter= new QSplitter(Qt::Horizontal);
     s_widgetUI.globalSplitter->addWidget(s_widgetUI.plotSplitter);
     s_widgetUI.globalSplitter->addWidget(s_widgetUI.commandSplitter);
-
     s_widgetUI.globalSplitter->setStretchFactor(0, 3);
     s_widgetUI.globalSplitter->setStretchFactor(1, 1);
 }
 
-QWidget *MainWindow::createButtonSWidget()  {
+QFrame *MainWindow::createButtonsFrame()  {
     QVBoxLayout *_l=new QVBoxLayout();
     s_button.addCurve=new QPushButton("Add curve");
     s_button.removeCurve=new QPushButton("Remove curve");
@@ -93,13 +92,20 @@ QWidget *MainWindow::createButtonSWidget()  {
     _l->addWidget(s_button.removeCurve);
     _l->addWidget(s_button.exportDigest);
 
-    QWidget *_w=new QWidget();
+    QFrame *_w=new QFrame();
+    _w->setFrameStyle(QFrame::QFrame::Raised);
+    _w->setFrameShape(QFrame::QFrame::Panel);
+    _w->setLineWidth(1);
+    _w->setMidLineWidth(1);
+
     _w->setLayout((QLayout*)_l);
     return _w;
 }
 
-void MainWindow::setupOptionsWidget()  {
+QFrame *MainWindow::setupOptionsFrame() {
     s_widgetUI.toolboxOption=new QToolBox();
+
+    QVBoxLayout *_l=new QVBoxLayout();
     //Adding widget to the toolbox option
     s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotTime->getControlWidget(),"Time Option");
     s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Freq Option");
@@ -107,6 +113,15 @@ void MainWindow::setupOptionsWidget()  {
     //Setting audio player control and digest curve stream
     s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player");
 
+    QFrame *_w=new QFrame();
+    _w->setFrameStyle(QFrame::QFrame::Raised);
+    _w->setFrameShape(QFrame::QFrame::Panel);
+    _w->setLineWidth(1);
+    _w->setMidLineWidth(1);
+
+    _l->addWidget(s_widgetUI.toolboxOption);
+    _w->setLayout((QLayout*)_l);
+    return _w;
 }
 
 void MainWindow::setupPlots() {

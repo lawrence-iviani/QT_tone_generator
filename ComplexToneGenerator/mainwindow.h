@@ -51,16 +51,15 @@ public slots:
 private:
     void setupUI();
     void setupSplitters();
-    void setupOptionsWidget();
+    QFrame *setupOptionsFrame();
     void setupPlots();
-    QWidget *createButtonSWidget();
+    QFrame *createButtonsFrame();
     void initAudio();
     void connectSignals();
 
     //THESE FUNCTION MUST BE INSERTED IN SOME KIND OF EXTERNAL UTILITY
     void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window
     GenericTimeData *  decodeSelectedCurve(SelectCurveWindowHelper * selectCurveHelper);
-
 
     //Streaming stuff
     AudioPlayer * m_audioPlayer;
@@ -83,7 +82,8 @@ private:
         TimePlotWidget *m_plotTime;
         FreqPlotWidget *m_plotFreq;
         QToolBox *toolboxOption;
-        QWidget *createButtonSWidget;
+        QFrame *toolboxOptionFrame;
+        QFrame *buttonsFrame;
     } s_widgetUI;
     struct {
         QPushButton *addCurve;
