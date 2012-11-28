@@ -3,15 +3,24 @@
 
 #include <QObject>
 #include <qmath.h>
+#include "XML_utils/domhelper.h"
 
 /**
   * This class is a container for the parameters describing the Envelope, the absolute value should be in sec.
   * These params can be returned as percentile (respect to the total of all params inserted) or as original value
   */
-
-class DataEnvelopeParameters : public QObject
+class DataEnvelopeParameters : public QObject , public DomHelper
 {
     Q_OBJECT
+    Q_PROPERTY(qreal attack READ attack WRITE setAttack)
+    Q_PROPERTY(qreal hold READ hold WRITE setHold)
+    Q_PROPERTY(qreal decay READ decay WRITE setDecay)
+    Q_PROPERTY(qreal sustain READ sustain WRITE setSustain)
+    Q_PROPERTY(qreal release READ release WRITE setRelease)
+    Q_PROPERTY(qreal holdlevel READ holdLevel WRITE setHoldLevel)
+    Q_PROPERTY(qreal sustainlevel READ sustainLevel WRITE setSustainLevel)
+    Q_PROPERTY(bool enable READ isEnableEnvelope WRITE setEnableEnvelope)
+
 public:
 
     static const qreal DATAENVELOPE_DEFAULT_HOLDLEVEL=1.0;
@@ -20,7 +29,6 @@ public:
     static const qreal DATAENVELOPE_LOWERBOUND_AMPLITUDE=0.0;
 
     explicit  DataEnvelopeParameters(QObject *widget = 0);
-
 
     /**
       * Set the data with the constructor
@@ -94,6 +102,21 @@ public slots:
     bool setTimeParameters(qreal attack, qreal hold, qreal decay ,qreal sustain, qreal release);
 
     /**
+     * @brief setAttack
+     * @param attack
+     * @return
+     */
+    bool setAttack(qreal attack) {return this->setTimeParameters(attack,m_hold,m_decay,m_sustain,m_release);}
+    bool setHold(qreal hold) {return this->setTimeParameters(m_attack,hold,m_decay,m_sustain,m_release);}
+    bool setDecay(qreal decay) {return this->setTimeParameters(m_attack,m_hold,decay,m_sustain,m_release);}
+    bool setSustain(qreal sustain) {return this->setTimeParameters(m_attack,m_hold,m_decay,sustain,m_release);}
+    bool setRelease(qreal release) {return this->setTimeParameters(m_attack,m_hold,m_decay,m_sustain,release);}
+
+    void setHoldLevel(qreal holdLevel) { setLevelParameters( holdLevel, m_sustainLevel);}
+    void setSustainLevel(qreal sustainLevel) { setLevelParameters( m_holdLevel, sustainLevel);}
+
+
+    /**
       * Set the max length of all the parameters in this class, can be any number (sample, msec whatever).
       */
     void setTimeLength(qreal length);
@@ -104,9 +127,16 @@ public slots:
      */
     void setEnableEnvelope(bool enable);
 
-private:
-    bool m_enable;
+    void regenerateDomDocument() {
+        DomHelper::generateDomDocument("envelopeParams");
+    }
+protected slots:
 
+
+private:
+    void connectSignals();
+
+    bool m_enable;
     qreal m_total;
     qreal m_attack;
     qreal m_hold;

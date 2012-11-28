@@ -10,10 +10,12 @@ class RepeatedTimeDataUI;
 class RepeatedTimeData : public PartialTimeData
 {
     Q_OBJECT
+    Q_PROPERTY(qreal blanktime READ blankTime WRITE setBlankTime)
 public:
     explicit RepeatedTimeData(QWidget * widget=0);
     explicit RepeatedTimeData(qreal maxDuration, qreal SRGen, QWidget *widget=0);
     
+
     /**
      * @brief blankTime return the blank time between curve repetitions
      * @return the blank time between repetitions

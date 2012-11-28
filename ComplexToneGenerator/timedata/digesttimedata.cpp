@@ -5,6 +5,8 @@ DigestTimeData::DigestTimeData(QList<GenericTimeData *> *curveList) :
     m_inhibitRecalc(false)
 {
     m_curveList=curveList;
+    setName(QString("Digest"));
+    //Force to disconnect the envelope data. Saving on performance
     disconnect(this->getEnvelopeData(),SIGNAL(envelopeChanged()),this,SLOT(updateData()));
     this->updateData();
 }
@@ -14,6 +16,8 @@ DigestTimeData::DigestTimeData(QList<GenericTimeData*> *curveList,qreal duration
     m_inhibitRecalc(false)
 {
     m_curveList=curveList;
+    setName(QString("Digest"));
+    //Force to disconnect the envelope data. Saving on performance
     disconnect(this->getEnvelopeData(),SIGNAL(envelopeChanged()),this,SLOT(updateData()));
     this->updateData();
 }

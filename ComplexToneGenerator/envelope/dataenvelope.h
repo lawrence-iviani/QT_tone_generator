@@ -48,6 +48,27 @@ public:
     const DataEnvelopeParameters * getEnvelopeParameters() {return (const DataEnvelopeParameters *) m_envelopeParams;}
 
     /**
+     * @brief getEnvelopeParametersDomDocument Return the envelope parameters in a DomDocument format
+     * @return
+     */
+    const  QDomDocument* getEnvelopeParametersDomDocument() {
+        return (const QDomDocument *) m_envelopeParams->getDomDocument();
+    }
+
+    void forceRegenarateDomDocument() {
+        m_envelopeParams->regenerateDomDocument();
+    }
+
+//    /**
+//     * @brief getEnvelopeParametersDomDocumentFragment Return the envelope parameters in a DomDocumentFragment format
+//     * @return
+//     */
+//    const  QDomDocumentFragment getEnvelopeParametersDomDocumentFragment() {
+//        return (const QDomDocumentFragment) m_envelopeParams->getDomDocumentFragment();
+//    }
+
+
+    /**
      * @brief isEnableEnvelope tell if the envelope is enabled
      * @return true if enabled
      */

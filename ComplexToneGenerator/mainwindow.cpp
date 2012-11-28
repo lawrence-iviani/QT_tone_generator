@@ -30,6 +30,7 @@ void MainWindow::connectSignals() {
     connect(s_button.addCurve,SIGNAL(clicked()),SLOT(newCurve()));
     connect(s_button.removeCurve,SIGNAL(clicked()),SLOT(removeCurve()));
     connect(s_button.exportDigest,SIGNAL(clicked()),SLOT(exportDigestCurve()));
+    connect(s_button.exportXML ,SIGNAL(clicked()),SLOT(exportXML()));
 
     //connect digest curve to handle update in the plots
     connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
@@ -88,9 +89,12 @@ QFrame *MainWindow::createButtonsFrame()  {
     s_button.addCurve=new QPushButton("Add curve");
     s_button.removeCurve=new QPushButton("Remove curve");
     s_button.exportDigest=new QPushButton("Export digest");
+    s_button.exportXML=new QPushButton("Export XML");
+
     _l->addWidget(s_button.addCurve);
     _l->addWidget(s_button.removeCurve);
     _l->addWidget(s_button.exportDigest);
+    _l->addWidget(s_button.exportXML);
 
     QFrame *_w=new QFrame();
     _w->setFrameStyle(QFrame::QFrame::Raised);
@@ -158,6 +162,7 @@ void MainWindow::newCurve() {
     QWidget *temp=(QWidget*)s->getControlWidget();
 
     s_widgetUI.toolboxOption->addItem(temp,s->name());
+
     delete selectCurveHelper;
     delete selectDialog;
 }
@@ -197,9 +202,9 @@ GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sel
 
     if (QString::compare(curveName,"Limited duration Tone generator")==0 ) {
         PartialSinusData * s=new PartialSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),s_widgetUI.toolboxOption);
-        s->setStartTime(0.4);
-        s->setDuration(5.1);
-        s->setAmplitudeFrequencyAndPhase(0.5,1000,90);
+        s->setStartTime(1.414);
+       // s->setDuration(5.1);
+       // s->setAmplitudeFrequencyAndPhase(0.5,1000,90);
         retval=(GenericTimeData*) s;
         return retval;
     }
@@ -324,4 +329,8 @@ void MainWindow::exportDigestCurve() {
     QString msg="Saved file ";
     msg.append(outfilename);
     QMessageBox::information(this,"Save ok!",msg);
+}
+
+void MainWindow::exportXML() {
+
 }

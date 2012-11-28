@@ -11,6 +11,8 @@ qreal static const TIMEDATA_DEFAULT_MIN_SR=4000.0;
 qreal static const TIMEDATA_DEFAULT_MAX_SR=96000.0;
 qreal static const TIMEDATA_DEFAULT_STEP_SR=4000.0;
 
+//The version of the generated XML data structure
+uint static const DOMHELPER_VERSION=1;
 
 
 //Some constant regarding the draw

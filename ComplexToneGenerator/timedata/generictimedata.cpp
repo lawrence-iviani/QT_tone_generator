@@ -2,6 +2,7 @@
 
 GenericTimeData::GenericTimeData(QWidget *widget) :
     QObject((QObject*) widget),
+    DomHelper(this),
     m_data(NULL),
     m_name(QString("no name")),
     m_MaxDuration(TIMEDATA_DEFAULT_MAX_TIME),
@@ -18,6 +19,7 @@ GenericTimeData::GenericTimeData(QWidget *widget) :
 
 GenericTimeData::GenericTimeData(qreal maxDuration, qreal SRGen, QWidget *widget) :
     QObject((QObject*)widget),
+    DomHelper(this),
     m_data(NULL),
     m_name(QString("no name")),
     m_MaxDuration(maxDuration),
@@ -41,6 +43,7 @@ void GenericTimeData::init(QWidget * widget) {
     m_envelope=new DataEnvelope(m_SR,this);
     this->createData();
     this->connectSignal();
+    this->regenerateDomDocument();
 }
 
 
@@ -58,8 +61,53 @@ void GenericTimeData::connectSignal() {
     connect(this,SIGNAL(curveAttributeUpdated()),m_timeDataUI,SLOT(updateUI()));
     connect(m_envelope,SIGNAL(enableToggled(bool)),this,SLOT(setEnableEnvelope(bool)));
     connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData()));
-
+    connect(this,SIGNAL(dataUpdated()),this,SLOT(regenerateDomDocument()));
+    connect(this,SIGNAL(nameChanged()),this,SLOT(regenerateDomDocument()));
+    connect(this,SIGNAL(curveAttributeUpdated()),this,SLOT(regenerateDomDocument()));
 }
+
+void GenericTimeData::regenerateDomDocument()
+{
+    //Generate the DomDocument of this class
+     generateDomDocument();
+
+     const QDomDocument* _d=getEnvelopeData()->getEnvelopeParametersDomDocument();//this->getEnvelopeParametersDomDocument();
+     Q_ASSERT(!_d->isNull());
+     Q_ASSERT(_d->isDocument());
+
+     //This is a fix, it should not work this ways but for some reason it's necessary regenerate the Dom
+     if (_d->firstChild().isNull()) {
+        qDebug() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE DomDocument @"<< _d << "first node null, FORCE REGENERATE!!!!! " << _d->nodeName();
+        m_envelope->forceRegenarateDomDocument();
+        _d=getEnvelopeData()->getEnvelopeParametersDomDocument();
+        qDebug() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE now  DomDocument @"<< _d << " first node is " << _d->nodeName();
+
+     }
+     Q_ASSERT(!_d->isNull());
+     Q_ASSERT(_d->isDocument());
+     Q_ASSERT(!_d->firstChild().isNull());
+     qDebug() << "GenericTimeData::regenerateDomDocument  start parsing " << _d->nodeName() ;
+     qDebug() << "GenericTimeData::regenerateDomDocument  first child node is " << _d->firstChild().nodeName() ;
+    // qDebug() << "DomParser::regenerateDomDocument  doc is " << _d->toString();
+
+     //Append the envelope to the document
+     if (!_d->firstChild().isNull() && appendDomDocument(_d)) {
+         qDebug() << "GenericTimeData::regenerateDomDocument append was fine";
+     } else {
+         qDebug() << "GenericTimeData::regenerateDomDocument append WAS  NOT FINE!!!!!";
+     }
+ }
+
+void GenericTimeData::exportXML() {
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"),
+                               ".",
+                               tr("XML file (*.xml *.XML)"));
+    ReadAndWriteXML rwx;
+//    this->regenerateDomDocument();
+    rwx.save(fileName, this->getDomDocument());
+    rwx.save(fileName, m_envelope->getEnvelopeParametersDomDocument());
+}
+
 
 void GenericTimeData::updateData() {
     recalc();

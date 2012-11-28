@@ -2,10 +2,34 @@
 
 GenericTimeDataUI::GenericTimeDataUI(GenericTimeData *gtd, QWidget *widget) :
     CustomCurveUI(widget),
-    m_genericTimeData(gtd)
+    m_genericTimeData(gtd),
+    m_TreeWidgetshowXML(0)
 {
     this->initControlWidget();
     m_genericTimeData->getControlWidget()->addControlFrame(this,"GTD control");
+}
+
+void GenericTimeDataUI::updateXML() {
+    const QDomDocument *_d=m_genericTimeData->getDomDocument();
+    Q_ASSERT(_d!=NULL);
+    Q_ASSERT(_d->isDocument());
+    ReadAndWriteXML rwx;
+    if (m_TreeWidgetshowXML==NULL) m_TreeWidgetshowXML=new QTreeWidget();
+    m_TreeWidgetshowXML=rwx.parseXMLToQTreeWidget(_d,m_TreeWidgetshowXML);
+
+}
+
+void GenericTimeDataUI::showXML() {
+    if (m_TreeWidgetshowXML==NULL) m_TreeWidgetshowXML=new QTreeWidget();
+
+    if (m_TreeWidgetshowXML->isHidden() ) {
+        m_TreeWidgetshowXML->show();
+        m_TreeWidgetshowXML->setWindowTitle( QString("XML dump of %1").arg(m_genericTimeData->name()) );
+        m_TreeWidgetshowXML->setGeometry(300,200,250,500);
+        Qt::WindowFlags flags = m_TreeWidgetshowXML->windowFlags();
+        m_TreeWidgetshowXML->setWindowFlags(flags | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
+        m_TreeWidgetshowXML->show();
+    }
 }
 
 void GenericTimeDataUI::updateControlUI() {
@@ -28,11 +52,16 @@ void GenericTimeDataUI::updateControlUI() {
     m_baseControl.checkBoxShowCurve->setChecked(m_genericTimeData->isShowEnabled());
     m_baseControl.checkBoxShowCurve->blockSignals(prevSig);
 
-
+    if (m_TreeWidgetshowXML) {
+        updateXML();
+    }
 }
 
 void GenericTimeDataUI::nameUpdated() {
     m_genericTimeData->setName(m_baseControl.lineName->text());
+    if (!m_TreeWidgetshowXML->isHidden() ) {
+        m_TreeWidgetshowXML->setWindowTitle( QString("XML dump of %1").arg(m_genericTimeData->name()) );
+    }
 }
 
 void GenericTimeDataUI::initControlWidget() {
@@ -42,8 +71,8 @@ void GenericTimeDataUI::initControlWidget() {
 
     //Widget  layout
     QVBoxLayout * l=new QVBoxLayout();
-   // l->setSizeConstraint(QLayout::SetMinimumSize);
-    l->setSizeConstraint(QLayout::SetMaximumSize);
+    l->setSizeConstraint(QLayout::SetMinimumSize);
+   // l->setSizeConstraint(QLayout::SetMaximumSize);
     this->setLayout(l) ;
     this->setFont(f);
 
@@ -73,12 +102,28 @@ void GenericTimeDataUI::initControlWidget() {
     m_baseControl.comboColor->setFont(f);
     connect(m_baseControl.comboColor, SIGNAL(colorChanged(QColor)),m_genericTimeData,SLOT(setColor(QColor)) );
 
+    m_baseControl.exportXML=new QPushButton("Export XML");
+    m_baseControl.exportXML->setFont(f);
+    connect(m_baseControl.exportXML ,SIGNAL(clicked()),m_genericTimeData,SLOT(exportXML()));
+
+    m_baseControl.showXML=new QPushButton("Show XML");
+    m_baseControl.showXML->setFont(f);
+    connect(m_baseControl.showXML ,SIGNAL(clicked()),this,SLOT(showXML()));
+
     //Lay out all the controls
     l->addWidget(_nameLabel,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.lineName,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.checkBoxEnableCurve,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.checkBoxShowCurve,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.comboColor,1,Qt::AlignLeft);
+
+    //Adding XML button
+    QHBoxLayout * lh=new QHBoxLayout();
+    lh->addWidget(m_baseControl.exportXML,1,Qt::AlignLeft);
+    lh->addWidget(m_baseControl.showXML,1,Qt::AlignLeft);
+    QWidget *buttonWidget=new QWidget(this);
+    buttonWidget->setLayout((QLayout*)lh);
+    l->addWidget(buttonWidget,1,Qt::AlignLeft);
 
     //update UI
     m_baseControl.lineName->setText(m_genericTimeData->name());

@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia
+QT       += core gui multimedia xml
 
 TARGET = ComplexToneGenerator
 TEMPLATE = app
@@ -42,6 +42,8 @@ QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 SOURCES += envelope/dataenvelope.cpp \
     envelope/dataenvelopeparameters.cpp \
     envelope/dataenvelopeui.cpp \
+    XML_utils/domhelper.cpp \
+    XML_utils/readandwritexml.cpp \
     timedata/generictimedata.cpp \
     timedata/generictimedataui.cpp \
     timedata/digesttimedata.cpp \
@@ -52,6 +54,7 @@ SOURCES += envelope/dataenvelope.cpp \
     plotwidget/plotwidget.cpp \
     plotwidget/timeplotwidget.cpp \
     plotwidget/freqplotwidget.cpp \
+    CustomCurves/customcurvefactory.cpp \
     CustomCurves/sinusdataparams.cpp \
     CustomCurves/genericsinusdata.cpp \
     CustomCurves/constanttimedata.cpp \
@@ -64,10 +67,13 @@ SOURCES += envelope/dataenvelope.cpp \
 
 
 
+
 HEADERS  += CTG_constants.h \
     envelope/dataenvelope.h \
     envelope/dataenvelopeparameters.h \
     envelope/dataenvelopeui.h \
+    XML_utils/domhelper.h \
+    XML_utils/readandwritexml.h \
     timedata/generictimedata.h \
     timedata/digesttimedata.h \
     timedata/partialtimedata.h \
@@ -75,19 +81,21 @@ HEADERS  += CTG_constants.h \
     timedata/partialtimedataui.h \
     timedata/timedatacontrolui.h \
     timedata/repeatedtimedata.h \
+    timedata/repeatedtimedataui.h \
     plotwidget/plotwidget.h \
     plotwidget/timeplotwidget.h \
     plotwidget/freqplotwidget.h \
     plotwidget/scrollrubberband.h \
+    CustomCurves/abstractcurvesfactory.h \
+    CustomCurves/customcurvefactory.h \
     CustomCurves/sinusdataparams.h \
+    CustomCurves/repeatedsinusdata.h \
     CustomCurves/genericsinusdata.h \
     CustomCurves/constanttimedata.h \
     CustomCurves/customcurveui.h \
     CustomCurves/sinusdataui.h \
     CustomCurves/partialsinusdata.h \
     mainwindow.h \
-    CustomCurves/repeatedsinusdata.h \
-    timedata/repeatedtimedataui.h \
     mainwindow.h
 
 

@@ -15,6 +15,9 @@ class PartialTimeDataUI;
 class PartialTimeData : public GenericTimeData
 {
     Q_OBJECT
+    Q_PROPERTY(qreal duration READ duration WRITE setDuration)
+    Q_PROPERTY(qreal starttime READ startTime WRITE setStartTime)
+
 public:
     PartialTimeData(QWidget * widget=0);
     PartialTimeData(qreal maxDuration, qreal SRGen, QWidget *widget=0);

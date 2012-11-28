@@ -6,11 +6,13 @@
 #include <qwt_series_data.h>
 #include <qwt_plot_curve.h>
 #include <math.h>
-#include  <QTime>
+#include <QTime>
+#include <QFileDialog>
 #include <envelope/dataenvelope.h>
 #include <envelope/dataenvelopeparameters.h>
 #include "timedata/generictimedataui.h"
 #include "timedata/timedatacontrolui.h"
+#include "XML_utils/domhelper.h"
 
 class GenericTimeDataUI;
 class TimeDataControlUI;
@@ -19,9 +21,17 @@ class DataEnvelope;
 /**
   * This class handle a generic time data object. Is useful to handle time based series as data container for a time data.
   */
-class GenericTimeData : public QObject
+class GenericTimeData : public QObject, public DomHelper
 {
     Q_OBJECT
+    Q_PROPERTY(qreal maxduration READ maxDuration WRITE setMaxDuration)
+    Q_PROPERTY(qreal samplerate READ sampleRate WRITE setSampleRate)
+    Q_PROPERTY(QString name READ name WRITE setName)
+    Q_PROPERTY(QColor color READ color WRITE setColor)
+    Q_PROPERTY(bool showcurve READ isShowEnabled WRITE setShowCurve)
+    Q_PROPERTY(bool enable READ isEnabled WRITE setEnableCurve)
+    Q_PROPERTY(bool enableenvelope READ isEnvelopeEnabled WRITE setEnableEnvelope)
+
 public:
     GenericTimeData(QWidget *widget=0);
     GenericTimeData(qreal maxDuration, qreal SRGen,QWidget *widget=0);
@@ -38,8 +48,8 @@ public:
     bool isEnabled() { return m_curveEnabled;}
     bool isShowEnabled() { return m_curve->isVisible();}
     bool isEnvelopeEnabled() { return m_enableEnvelope;}
-    QString name() {return  m_name;}
-    QColor color() {return m_curve->pen().color(); }
+    const QString& name() {return  m_name;}
+    const QColor color() {return m_curve->pen().color(); }
 
     /**
      * @brief insertSignalValue This function insert a qreal value in the sample position index and return true if the insertion is succesful, if return false the index is out of range
@@ -51,8 +61,26 @@ public:
     const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
     const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
     DataEnvelope * getEnvelopeData() {return m_envelope;}
-    // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
+
+    /**
+     * @brief getEnvelopeParametersDomDocument Return the envelope parameters in a DomDocument format
+     * @return
+     */
+    const  QDomDocument* getEnvelopeParametersDomDocument() {
+        return (const QDomDocument *) this->getDomDocument();
+    }
+
+//    /**
+//     * @brief getEnvelopeParametersDomDocumentFragment Return the envelope parameters in a DomDocumentFragment format
+//     * @return
+//     */
+//    const  QDomDocumentFragment getEnvelopeParametersDomDocumentFragment() {
+//        return (const QDomDocumentFragment) this->getDomDocumentFragment();
+//    }
+
 signals:
+    // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
+
     /**
       * This signal is emitted whenever the data, and therefore the curve are updated
       */
@@ -113,7 +141,6 @@ public slots:
        */
      void setEnableEnvelope(bool enable);
 
-
      /**
        * Update the actual array of data, overwriting the data actually stored in. Ask only for a recalc and avoid to reinit all the array. Faster mtehod.
        */
@@ -126,6 +153,11 @@ public slots:
       * @brief createData (Re)Create the internal data array (filling of zero), recalculating the sample number. Useful in case of length  array change.
       */
      void createData();
+
+     /**
+      * @brief exportXML open a dialog window and ask to export the XML data structure of this file
+      */
+     void exportXML();
 
 protected:
      /**
@@ -184,8 +216,10 @@ protected:
          Q_ASSERT(retval <=this->sampleNumber());
          return retval;
      }
-
      TimeDataControlUI *m_timeDataUI;
+
+protected slots:
+     void regenerateDomDocument();
 
 private:
      void init(QWidget *widget);

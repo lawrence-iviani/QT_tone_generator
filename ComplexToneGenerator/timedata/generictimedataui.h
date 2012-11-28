@@ -18,8 +18,16 @@ class GenericTimeDataUI : public CustomCurveUI
 public:
     explicit GenericTimeDataUI( GenericTimeData * gtd, QWidget *widget = 0);
 
+    /**
+     * @brief isShowXML tell if the showXML widget is showed
+     * @return  true if is showed
+     */
+    bool isShowXML() {return !m_TreeWidgetshowXML->isHidden();}
+
+
 signals:
     
+
 public slots:
     /**
       * Force the UI to be update re-reading information from the referenced GenericTimeData class.
@@ -27,21 +35,29 @@ public slots:
       */
     virtual void updateControlUI();
     
+    /**
+     * @brief showXML create and show a qtreewidget with the data structure of this curves (this feature is
+     * more for debug purposes and it's very simple).
+     */
+    void showXML();
+
 protected:
 
 private:
     void initControlWidget();//Create only the base control
-
+    void updateXML();
     GenericTimeData * m_genericTimeData;
     struct {
       QLineEdit * lineName;
       ComboBoxWidgetColor *comboColor;
       QCheckBox *checkBoxEnableCurve;
       QCheckBox *checkBoxShowCurve;
+      QPushButton *exportXML;
+      QPushButton *showXML;
       //QCheckBox *checkBoxEnableEnvelope;
       //QWidget *envelopeWidget;
     } m_baseControl; //This class control.
-
+    QTreeWidget * m_TreeWidgetshowXML;
 private slots:
     void nameUpdated();
 };

@@ -2,24 +2,34 @@
 #include <QDebug>
 
 DataEnvelopeParameters::DataEnvelopeParameters(QObject *parent) :
-        QObject(parent)
+        QObject(parent),
+        DomHelper(this)
     {
         m_total=5.0;
         this->setTimeParameters(1.0,1.0,1.0,1.0,1.0);
         m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
         m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
         m_enable=false;
+        connectSignals();
     }
 
 DataEnvelopeParameters::DataEnvelopeParameters(qreal attack, qreal hold, qreal decay ,qreal sustain, qreal release, QObject *parent) :
-        QObject(parent)
+        QObject(parent),
+        DomHelper(this)
     {
         m_total=attack+hold+decay+sustain+release;
         this->setTimeParameters(attack,hold,decay,sustain,release);
         m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
         m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
         m_enable=false;
+        connectSignals();
     }
+
+void  DataEnvelopeParameters::connectSignals() {
+    connect(this,SIGNAL(amplitudeParametersChanged()),this,SLOT(regenerateDomDocument()));
+    connect(this,SIGNAL(timeParametersChanged()),this,SLOT(regenerateDomDocument()));
+    connect(this,SIGNAL(enableToggled(bool)),this,SLOT(regenerateDomDocument()));
+}
 
 void DataEnvelopeParameters::setEnableEnvelope(bool enable) {
     if(m_enable!=enable) {
@@ -99,7 +109,6 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
    // qDebug() << "DataEnvelopeParameters::setTimeParameters _total=" << _total << " m_total=" << m_total << " comparison (_total <= m_total) is " <<(_total <= m_total);
 
     //To avoid prolem of rounding the total is compared with rounding after a multplication by 1000000
-
     //Set only if _total is adequate
     if (qFloor(1000000*_total) <= qFloor(1000000*m_total)) {
         m_attack=attack;

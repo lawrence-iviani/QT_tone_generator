@@ -13,6 +13,10 @@ class RepeatedTimeData;
 class RepeatedSinusData :  public RepeatedTimeData
 {
     Q_OBJECT
+    Q_PROPERTY(qreal amplitude READ amplitude WRITE setAmplitude)
+    Q_PROPERTY(qreal frequency READ frequency WRITE setFrequency)
+    Q_PROPERTY(qreal initphase READ initPhase WRITE setInitPhase)
+
 public:
 
     RepeatedSinusData(qreal duration, qreal SRGen, QWidget *widget=0);
@@ -27,6 +31,9 @@ public:
 signals:
 
 public slots:
+    void setAmplitude(qreal amplitude) {m_sinusDataParams->setAmplitude(amplitude);}
+    void setFrequency(qreal frequency) {m_sinusDataParams->setFrequency(frequency);}
+    void setInitPhase(qreal initphase) {m_sinusDataParams->setInitPhase(initphase);}
 
 protected:
     virtual void recalc();

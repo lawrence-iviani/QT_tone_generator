@@ -27,6 +27,8 @@
 #include "selectremovecurvewindowdialog.h"
 #include "exportaudiofiledialog.h"
 
+#include "XML_utils/readandwritexml.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -43,6 +45,7 @@ public slots:
     void newCurve();
     void removeCurve();
     void exportDigestCurve();
+    void exportXML();
     void updateCurvesName();
     void timeDataUpdated();
     void digestCurveChanged();
@@ -89,6 +92,7 @@ private:
         QPushButton *addCurve;
         QPushButton *removeCurve;
         QPushButton *exportDigest;
+        QPushButton *exportXML;
     } s_button;
 };
 
