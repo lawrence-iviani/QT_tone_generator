@@ -26,7 +26,7 @@ public:
 
 
 signals:
-    
+
 
 public slots:
     /**
@@ -41,11 +41,14 @@ public slots:
      */
     void showXML();
 
+
 protected:
 
+protected slots:
+    virtual void updateXML();
 private:
     void initControlWidget();//Create only the base control
-    void updateXML();
+
     GenericTimeData * m_genericTimeData;
     struct {
       QLineEdit * lineName;
@@ -54,8 +57,6 @@ private:
       QCheckBox *checkBoxShowCurve;
       QPushButton *exportXML;
       QPushButton *showXML;
-      //QCheckBox *checkBoxEnableEnvelope;
-      //QWidget *envelopeWidget;
     } m_baseControl; //This class control.
     QTreeWidget * m_TreeWidgetshowXML;
 private slots:

@@ -5,6 +5,8 @@
 #include <qmath.h>
 #include "XML_utils/domhelper.h"
 
+const static QString ENEVELOPEPARAMETERS_TAG="EnvelopeParams";
+
 /**
   * This class is a container for the parameters describing the Envelope, the absolute value should be in sec.
   * These params can be returned as percentile (respect to the total of all params inserted) or as original value
@@ -70,6 +72,8 @@ public:
      * @return true if enabled
      */
     bool isEnableEnvelope() {return m_enable;}
+
+
 signals:
 
     /**
@@ -128,7 +132,7 @@ public slots:
     void setEnableEnvelope(bool enable);
 
     void regenerateDomDocument() {
-        DomHelper::generateDomDocument("envelopeParams");
+        DomHelper::generateDomDocument(ENEVELOPEPARAMETERS_TAG);
     }
 protected slots:
 

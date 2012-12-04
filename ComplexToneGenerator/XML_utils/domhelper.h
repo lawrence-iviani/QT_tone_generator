@@ -5,12 +5,15 @@
 #include <QMetaProperty>
 #include <QDebug>
 #include <QObject>
-#include "XML_utils/readandwritexml.h"
+#include <QTreeWidget>
+#include <QTreeWidgetItem>
+#include <QMessageBox>
+#include <QFile>
 #include "CTG_constants.h"
 
 static const QString DOMHELPER_OBJECTTYPE_TAG="objectType";
 static const QString DOMHELPER_VERSION_TAG="version";
-static const QString DOMHELPER_ROOT_TAG="rootTag";
+static const QString DOMHELPER_DEFAULT_ROOT_TAG="rootTag";
 
 /**
  * @brief The DomHelper class is an helper class that provides functionalities in order to manage an XML data format rappresenting the class.
@@ -25,6 +28,7 @@ public:
      * @param hostObj
      */
     explicit DomHelper(QObject *hostObj);
+    explicit DomHelper();
     
     const QDomDocument* getDomDocument() { return (const QDomDocument*) m_doc; }
     //const QDomDocumentFragment getDomDocumentFragment() { return (const QDomDocumentFragment) m_doc->createDocumentFragment();}
@@ -37,8 +41,15 @@ public:
     static bool isSameObjectType(const QDomDocument *doc, QObject *obj);
     static QString getObjectType(const QDomDocument & doc);
     static QString getObjectType(const QDomDocument *doc);
-
-protected slots:
+    static bool parseDOMToQTreeWidget(const QDomDocument *doc, QTreeWidget * treeWidget);
+    static bool parseDOMToQTreeWidget(DomHelper *dh, QTreeWidget * treeWidget);
+    static void parseEntry(const QDomElement &element, QTreeWidgetItem *parent, int parentLevel);
+    static void parseAttribute(const QDomNamedNodeMap &element, QTreeWidgetItem *parent, int parentLevel);
+    static bool save(const QString namefile, const QDomDocument * doc);
+    static bool save(const QString namefile, const QDomDocument& doc);
+    static bool load(const QString namefile,  QDomDocument *doc);
+    static const int defaultIndentation = 4;
+public slots:
      //void appendDomDocument(const QDomDocumentFragment & docfrag);
      bool appendDomDocument(const QDomDocument *doc);
      void generateDomDocument(const QString &rootTag);

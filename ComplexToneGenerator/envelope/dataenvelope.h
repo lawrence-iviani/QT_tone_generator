@@ -59,15 +59,6 @@ public:
         m_envelopeParams->regenerateDomDocument();
     }
 
-//    /**
-//     * @brief getEnvelopeParametersDomDocumentFragment Return the envelope parameters in a DomDocumentFragment format
-//     * @return
-//     */
-//    const  QDomDocumentFragment getEnvelopeParametersDomDocumentFragment() {
-//        return (const QDomDocumentFragment) m_envelopeParams->getDomDocumentFragment();
-//    }
-
-
     /**
      * @brief isEnableEnvelope tell if the envelope is enabled
      * @return true if enabled

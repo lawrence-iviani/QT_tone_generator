@@ -43,7 +43,6 @@ SOURCES += envelope/dataenvelope.cpp \
     envelope/dataenvelopeparameters.cpp \
     envelope/dataenvelopeui.cpp \
     XML_utils/domhelper.cpp \
-    XML_utils/readandwritexml.cpp \
     timedata/generictimedata.cpp \
     timedata/generictimedataui.cpp \
     timedata/digesttimedata.cpp \
@@ -73,7 +72,6 @@ HEADERS  += CTG_constants.h \
     envelope/dataenvelopeparameters.h \
     envelope/dataenvelopeui.h \
     XML_utils/domhelper.h \
-    XML_utils/readandwritexml.h \
     timedata/generictimedata.h \
     timedata/digesttimedata.h \
     timedata/partialtimedata.h \

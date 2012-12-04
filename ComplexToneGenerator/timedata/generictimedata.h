@@ -18,6 +18,9 @@ class GenericTimeDataUI;
 class TimeDataControlUI;
 class DataEnvelope;
 
+
+const static QString GENERICTIMEDATA_TAG="TimeData";
+
 /**
   * This class handle a generic time data object. Is useful to handle time based series as data container for a time data.
   */
@@ -61,22 +64,6 @@ public:
     const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
     const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
     DataEnvelope * getEnvelopeData() {return m_envelope;}
-
-    /**
-     * @brief getEnvelopeParametersDomDocument Return the envelope parameters in a DomDocument format
-     * @return
-     */
-    const  QDomDocument* getEnvelopeParametersDomDocument() {
-        return (const QDomDocument *) this->getDomDocument();
-    }
-
-//    /**
-//     * @brief getEnvelopeParametersDomDocumentFragment Return the envelope parameters in a DomDocumentFragment format
-//     * @return
-//     */
-//    const  QDomDocumentFragment getEnvelopeParametersDomDocumentFragment() {
-//        return (const QDomDocumentFragment) this->getDomDocumentFragment();
-//    }
 
 signals:
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
@@ -155,9 +142,15 @@ public slots:
      void createData();
 
      /**
-      * @brief exportXML open a dialog window and ask to export the XML data structure of this file
+      * @brief exportXML open a dialog window and ask for the destionation XML file where to export the DOM data structure
       */
      void exportXML();
+
+     /**
+      * @brief exportXML export the DOM structure to a filename (path+file)
+      * @param filename
+      */
+     void exportXML(const QString filename);
 
 protected:
      /**
@@ -202,8 +195,8 @@ protected:
        */
      virtual qint64 lowestSampleIndexForModification()  {
          qint64 retval=this->minStartTime()*this->sampleRate();
-         Q_ASSERT(retval >=0);
-         Q_ASSERT(retval <=this->sampleNumber());
+         Q_ASSERT(retval>=0);
+         Q_ASSERT(retval<=this->sampleNumber());
          return retval;
      }
 

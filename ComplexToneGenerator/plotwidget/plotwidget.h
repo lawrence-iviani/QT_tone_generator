@@ -61,7 +61,7 @@ public:
     /**
       * Get back the whole list of curve stored in this instance.
       */
-    QList<GenericTimeData*> * getTimeDataList() {return &m_curveList;}//return the whole list of curve stored in this instance.
+    const QList<GenericTimeData*> & getTimeDataList() {return (const QList<GenericTimeData*> &)m_curveList;}//return the whole list of curve stored in this instance.
 
     /**
       * Get back the whole list of curvename  stored in this instance.

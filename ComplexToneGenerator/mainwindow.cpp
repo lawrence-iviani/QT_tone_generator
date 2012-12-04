@@ -8,7 +8,8 @@ MainWindow::MainWindow(QWidget *parent) :
     m_plotFreq(new FreqPlotWidget),
     m_indexGenerator(1),
     m_toolBoxFixedItem(0),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    m_TreeWidgetshowXML(0)
 {
     ui->setupUi(this);
     ui->centralwidget->setLayout(ui->globalGridLayout);
@@ -31,6 +32,7 @@ void MainWindow::connectSignals() {
     connect(s_button.removeCurve,SIGNAL(clicked()),SLOT(removeCurve()));
     connect(s_button.exportDigest,SIGNAL(clicked()),SLOT(exportDigestCurve()));
     connect(s_button.exportXML ,SIGNAL(clicked()),SLOT(exportXML()));
+    connect(s_button.showXML ,SIGNAL(clicked()),SLOT(showXML()));
 
     //connect digest curve to handle update in the plots
     connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
@@ -86,15 +88,26 @@ void MainWindow::setupSplitters() {
 
 QFrame *MainWindow::createButtonsFrame()  {
     QVBoxLayout *_l=new QVBoxLayout();
+
+    //Init buttons
     s_button.addCurve=new QPushButton("Add curve");
     s_button.removeCurve=new QPushButton("Remove curve");
     s_button.exportDigest=new QPushButton("Export digest");
     s_button.exportXML=new QPushButton("Export XML");
+    s_button.showXML=new QPushButton("Show XML");
 
+    //Adding XML button
+    QHBoxLayout * lh=new QHBoxLayout();
+    lh->addWidget(s_button.exportXML,1,Qt::AlignLeft);
+    lh->addWidget(s_button.showXML,1,Qt::AlignLeft);
+    QWidget *_buttonWidget=new QWidget(this);
+    _buttonWidget->setLayout((QLayout*)lh);
+
+    //Layout the button panel
     _l->addWidget(s_button.addCurve);
     _l->addWidget(s_button.removeCurve);
     _l->addWidget(s_button.exportDigest);
-    _l->addWidget(s_button.exportXML);
+    _l->addWidget(_buttonWidget);
 
     QFrame *_w=new QFrame();
     _w->setFrameStyle(QFrame::QFrame::Raised);
@@ -132,7 +145,6 @@ void MainWindow::setupPlots() {
     m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_MAX_TIME,-1.0,1.0);
     m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
 }
-
 
 MainWindow::~MainWindow()
 {
@@ -193,7 +205,7 @@ void MainWindow::setupCurves(SelectCurveWindowHelper * selectCurveHelper) {
     selectCurveHelper->addData(t);
 }
 
-GenericTimeData *  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * selectCurveHelper) {
+GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * selectCurveHelper) {
     GenericTimeData * retval=NULL;
 
     QString curveName=selectCurveHelper->getSelectedDataCurve().name;
@@ -331,6 +343,64 @@ void MainWindow::exportDigestCurve() {
     QMessageBox::information(this,"Save ok!",msg);
 }
 
-void MainWindow::exportXML() {
+QDomDocument MainWindow::createDomDocument() {
+    //Set up the main document
+    QDomDocument _doc("CTG_project");
+    QDomElement _rootNode = _doc.createElement("ProjectRoot");
+    QDomElement _curvesNode = _doc.createElement("Curves");
+    _doc.appendChild(_rootNode);
+    _rootNode.setAttribute(DOMHELPER_VERSION_TAG,DOMHELPER_VERSION);
 
+    //Generate the document to handle the main window data
+    DomHelper _docMainWindow=DomHelper(this);
+    _docMainWindow.generateDomDocument("MainWindow");
+
+    //Append the window details document
+    _rootNode.appendChild(_docMainWindow.getDomDocument()->firstChild());
+    _rootNode.appendChild(_curvesNode);
+    foreach(GenericTimeData* _gtd, m_plotTime->getTimeDataList()) {
+        const QDomDocument * _d=_gtd->getDomDocument();
+        if (_d==NULL) {
+            qDebug() << "MainWindow::exportXML DOM data point to NULL, " << _gtd->name() <<" can't save document";
+            continue;
+        }
+        qDebug() << "MainWindow::appendDomDocument  processing node " << _d->nodeName();
+        if (!_d->isNull()) {
+            _curvesNode.appendChild(_d->firstChild());
+        } else {
+            qDebug() << "MainWindow::exportXML "<< _gtd->name() << " DOM has first node " << _d->nodeName() ;
+
+        }
+    }
+    return _doc;
+}
+
+bool MainWindow::exportXML() {
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"),
+                               ".",
+                               tr("XML file (*.xml *.XML)"));
+    QDomDocument _doc=createDomDocument();
+    bool retval= DomHelper::save(fileName, _doc);
+    return retval;
+}
+
+void MainWindow::showXML() {
+    if (m_TreeWidgetshowXML!=NULL) {
+        m_TreeWidgetshowXML->hide();
+        delete m_TreeWidgetshowXML;
+    }
+
+    m_TreeWidgetshowXML=new QTreeWidget();
+    m_TreeWidgetshowXML->setGeometry(300,200,300,400);
+    Qt::WindowFlags flags = m_TreeWidgetshowXML->windowFlags();
+    m_TreeWidgetshowXML->setWindowFlags(flags | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
+
+    if (m_TreeWidgetshowXML->isHidden() ) {
+        m_TreeWidgetshowXML->setWindowTitle( QString("XML dump of project") );
+        m_TreeWidgetshowXML->show();
+        m_TreeWidgetshowXML->expandAll();
+    }
+    QDomDocument _doc=createDomDocument();
+    DomHelper::parseDOMToQTreeWidget(&_doc,m_TreeWidgetshowXML);
+    m_TreeWidgetshowXML->expandAll();
 }

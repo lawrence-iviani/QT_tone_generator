@@ -61,17 +61,16 @@ void GenericTimeData::connectSignal() {
     connect(this,SIGNAL(curveAttributeUpdated()),m_timeDataUI,SLOT(updateUI()));
     connect(m_envelope,SIGNAL(enableToggled(bool)),this,SLOT(setEnableEnvelope(bool)));
     connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData()));
-    connect(this,SIGNAL(dataUpdated()),this,SLOT(regenerateDomDocument()));
-    connect(this,SIGNAL(nameChanged()),this,SLOT(regenerateDomDocument()));
-    connect(this,SIGNAL(curveAttributeUpdated()),this,SLOT(regenerateDomDocument()));
+    connect(m_genericTimeDataUI,SIGNAL(controlUIUpdated()),this,SLOT(regenerateDomDocument()));
 }
 
 void GenericTimeData::regenerateDomDocument()
 {
     //Generate the DomDocument of this class
-     generateDomDocument();
+    generateDomDocument(GENERICTIMEDATA_TAG);
 
-     const QDomDocument* _d=getEnvelopeData()->getEnvelopeParametersDomDocument();//this->getEnvelopeParametersDomDocument();
+    //Getting the envelop, it will be appended to
+     const QDomDocument* _d=m_envelope->getEnvelopeParametersDomDocument();//this->getEnvelopeParametersDomDocument();//getEnvelopeData()->getEnvelopeParametersDomDocument();//this->getEnvelopeParametersDomDocument();
      Q_ASSERT(!_d->isNull());
      Q_ASSERT(_d->isDocument());
 
@@ -79,9 +78,8 @@ void GenericTimeData::regenerateDomDocument()
      if (_d->firstChild().isNull()) {
         qDebug() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE DomDocument @"<< _d << "first node null, FORCE REGENERATE!!!!! " << _d->nodeName();
         m_envelope->forceRegenarateDomDocument();
-        _d=getEnvelopeData()->getEnvelopeParametersDomDocument();
+        _d=m_envelope->getEnvelopeParametersDomDocument();//_d=getEnvelopeData()->getEnvelopeParametersDomDocument();
         qDebug() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE now  DomDocument @"<< _d << " first node is " << _d->nodeName();
-
      }
      Q_ASSERT(!_d->isNull());
      Q_ASSERT(_d->isDocument());
@@ -102,12 +100,12 @@ void GenericTimeData::exportXML() {
     QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"),
                                ".",
                                tr("XML file (*.xml *.XML)"));
-    ReadAndWriteXML rwx;
-//    this->regenerateDomDocument();
-    rwx.save(fileName, this->getDomDocument());
-    rwx.save(fileName, m_envelope->getEnvelopeParametersDomDocument());
+    this->exportXML(fileName);
 }
 
+void GenericTimeData::exportXML(QString fileName) {
+    DomHelper::save(fileName,this->getDomDocument());
+}
 
 void GenericTimeData::updateData() {
     recalc();

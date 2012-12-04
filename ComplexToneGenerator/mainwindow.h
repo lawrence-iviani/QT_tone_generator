@@ -27,7 +27,6 @@
 #include "selectremovecurvewindowdialog.h"
 #include "exportaudiofiledialog.h"
 
-#include "XML_utils/readandwritexml.h"
 
 namespace Ui {
 class MainWindow;
@@ -45,7 +44,8 @@ public slots:
     void newCurve();
     void removeCurve();
     void exportDigestCurve();
-    void exportXML();
+    bool exportXML();
+    void showXML();
     void updateCurvesName();
     void timeDataUpdated();
     void digestCurveChanged();
@@ -59,6 +59,7 @@ private:
     QFrame *createButtonsFrame();
     void initAudio();
     void connectSignals();
+    QDomDocument createDomDocument();
 
     //THESE FUNCTION MUST BE INSERTED IN SOME KIND OF EXTERNAL UTILITY
     void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window
@@ -93,7 +94,10 @@ private:
         QPushButton *removeCurve;
         QPushButton *exportDigest;
         QPushButton *exportXML;
+        QPushButton *showXML;
     } s_button;
+
+    QTreeWidget * m_TreeWidgetshowXML;
 };
 
 #endif // MAINWINDOW_H

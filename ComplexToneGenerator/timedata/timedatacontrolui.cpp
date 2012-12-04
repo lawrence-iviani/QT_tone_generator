@@ -35,5 +35,6 @@ void TimeDataControlUI::updateUI() {
     foreach(const s_frameListElement f, m_controlFrameList ) {
         qDebug() << "Calling update for " << f.frame << " name is " << f.name;
         f.frame->updateControlUI();
+        f.frame->forceUpdateXML();
     }
 }

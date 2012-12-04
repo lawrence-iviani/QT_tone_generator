@@ -13,27 +13,40 @@ void GenericTimeDataUI::updateXML() {
     const QDomDocument *_d=m_genericTimeData->getDomDocument();
     Q_ASSERT(_d!=NULL);
     Q_ASSERT(_d->isDocument());
-    ReadAndWriteXML rwx;
-    if (m_TreeWidgetshowXML==NULL) m_TreeWidgetshowXML=new QTreeWidget();
-    m_TreeWidgetshowXML=rwx.parseXMLToQTreeWidget(_d,m_TreeWidgetshowXML);
 
+    if (m_TreeWidgetshowXML==NULL) {
+        m_TreeWidgetshowXML=new QTreeWidget();
+        m_TreeWidgetshowXML->setGeometry(300,200,300,400);
+        Qt::WindowFlags flags = m_TreeWidgetshowXML->windowFlags();
+        m_TreeWidgetshowXML->setWindowFlags(flags | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
+    }
+  //  m_TreeWidgetshowXML=rwx.parseXMLToQTreeWidget(_d,m_TreeWidgetshowXML);
+
+    Q_ASSERT(DomHelper::parseDOMToQTreeWidget((DomHelper*)m_genericTimeData,m_TreeWidgetshowXML));
+
+
+    //expand all the tree if was visible before update
+    if (!m_TreeWidgetshowXML->isHidden()) m_TreeWidgetshowXML->expandAll();
 }
 
 void GenericTimeDataUI::showXML() {
-    if (m_TreeWidgetshowXML==NULL) m_TreeWidgetshowXML=new QTreeWidget();
-
-    if (m_TreeWidgetshowXML->isHidden() ) {
-        m_TreeWidgetshowXML->show();
-        m_TreeWidgetshowXML->setWindowTitle( QString("XML dump of %1").arg(m_genericTimeData->name()) );
-        m_TreeWidgetshowXML->setGeometry(300,200,250,500);
+    if (m_TreeWidgetshowXML==NULL) {
+        m_TreeWidgetshowXML=new QTreeWidget();
+        m_TreeWidgetshowXML->setGeometry(300,200,300,400);
         Qt::WindowFlags flags = m_TreeWidgetshowXML->windowFlags();
         m_TreeWidgetshowXML->setWindowFlags(flags | Qt::CustomizeWindowHint | Qt::WindowStaysOnTopHint);
-        m_TreeWidgetshowXML->show();
     }
+
+    if (m_TreeWidgetshowXML->isHidden() ) {
+        m_TreeWidgetshowXML->setWindowTitle( QString("XML dump of %1").arg(m_genericTimeData->name()) );
+        m_TreeWidgetshowXML->show();
+        m_TreeWidgetshowXML->expandAll();
+    }
+    m_TreeWidgetshowXML->expandAll();
 }
 
 void GenericTimeDataUI::updateControlUI() {
-     qDebug() << "GenericTimeDataUI::updateControlUI called";
+    qDebug() << "GenericTimeDataUI::updateControlUI called";
 
     bool prevSig=m_baseControl.lineName->blockSignals(true);
     m_baseControl.lineName->setText(m_genericTimeData->name());
@@ -52,14 +65,15 @@ void GenericTimeDataUI::updateControlUI() {
     m_baseControl.checkBoxShowCurve->setChecked(m_genericTimeData->isShowEnabled());
     m_baseControl.checkBoxShowCurve->blockSignals(prevSig);
 
-    if (m_TreeWidgetshowXML) {
-        updateXML();
-    }
+    emit (controlUIUpdated());
+//    if (m_TreeWidgetshowXML) {
+//        updateXML();
+//    }
 }
 
 void GenericTimeDataUI::nameUpdated() {
     m_genericTimeData->setName(m_baseControl.lineName->text());
-    if (!m_TreeWidgetshowXML->isHidden() ) {
+    if (m_TreeWidgetshowXML && !m_TreeWidgetshowXML->isHidden() ) {
         m_TreeWidgetshowXML->setWindowTitle( QString("XML dump of %1").arg(m_genericTimeData->name()) );
     }
 }
