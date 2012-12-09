@@ -14,9 +14,7 @@ void RepeatedTimeDataUI::updateControlUI() {
     bool sigStatus=m_repeatedDataControl.widgetBlankTime->blockSignals(true);
     m_repeatedDataControl.widgetBlankTime->setValue(m_repeatedTimeData->blankTime());
     m_repeatedDataControl.widgetBlankTime->blockSignals(sigStatus);
-
-
-
+    emit (controlUIUpdated());
 }
 
 void RepeatedTimeDataUI::initControlWidget() {

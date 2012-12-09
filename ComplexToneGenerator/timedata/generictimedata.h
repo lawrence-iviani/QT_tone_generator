@@ -18,9 +18,6 @@ class GenericTimeDataUI;
 class TimeDataControlUI;
 class DataEnvelope;
 
-
-const static QString GENERICTIMEDATA_TAG="TimeData";
-
 /**
   * This class handle a generic time data object. Is useful to handle time based series as data container for a time data.
   */
@@ -36,8 +33,8 @@ class GenericTimeData : public QObject, public DomHelper
     Q_PROPERTY(bool enableenvelope READ isEnvelopeEnabled WRITE setEnableEnvelope)
 
 public:
-    GenericTimeData(QWidget *widget=0);
-    GenericTimeData(qreal maxDuration, qreal SRGen,QWidget *widget=0);
+    explicit GenericTimeData(QWidget *widget=0);
+    explicit GenericTimeData(qreal maxDuration, qreal SRGen,QWidget *widget=0);
     virtual ~GenericTimeData();
     QwtPlotCurve * getCurve() {return m_curve;}
     QwtCPointerData * getData() {return m_data;}
@@ -152,9 +149,40 @@ public slots:
       */
      void exportXML(const QString filename);
 
+     /**
+      * @brief importXML import an XML file by opening a file dialog
+      * @return true if succesful
+      */
+     bool importXML();
+
+     /**
+      * @brief importXML import an XML file
+      * @param fileName the file to import
+      * @return  true if succesful
+      */
+     bool importXML(QString fileName);
+
+     /**
+      * @brief importXML import a QDomDocument
+      * @param doc the DOM document to be imported
+      * @return true if succesfull
+      */
+     bool importXML(const QDomDocument * doc);
+
+     /**
+      * @brief enableRecalc enable/disable recalculation for this curve.
+      * @param enable true, the curve is recalculated
+      * @return the previous state.
+      */
+     bool setEnableRecalc(bool enable) {
+         bool retval=m_enableRecalc;
+         m_enableRecalc=enable;
+         return retval;
+     }
+
 protected:
      /**
-       * The method is called every time and updateData is called. In this way extension class can implement it own calculation to provide the signal data.
+       * The method is called every time an updateData is called. In this way extension class can implement it own calculation to provide the signal data.
        * The inerithed class implement this method with its own code to generate signal data but eventually different time data (TIME DATA MODIFICATION NEVER TESTED BEFORE!!)
        */
      virtual void recalc() {} //Reimplement this method to update data with the want function, rembert to delete and regenearte m_data and m_curve.
@@ -209,7 +237,10 @@ protected:
          Q_ASSERT(retval <=this->sampleNumber());
          return retval;
      }
+
      TimeDataControlUI *m_timeDataUI;
+     bool m_enableRecalc;
+     GenericTimeDataUI *m_genericTimeDataUI;
 
 protected slots:
      void regenerateDomDocument();
@@ -229,7 +260,8 @@ private:
      bool m_curveEnabled;
      DataEnvelope *m_envelope;
      bool m_enableEnvelope;
-     GenericTimeDataUI *m_genericTimeDataUI;
+
+
 };
 
 #endif // GENERICTIMEDATA_H

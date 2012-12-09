@@ -10,7 +10,7 @@ TimeDataControlUI::TimeDataControlUI(QWidget *parent) :
 void TimeDataControlUI::addControlFrame(CustomCurveUI *controlFrame,const QString name) {
     if (controlFrame==NULL) return;
     controlFrame->setParent(this);
-    qDebug() << "TimeDataControlUI::addControlFrame "<< this <<"adding " << controlFrame << " " << name << " to container ";
+    //qDebug() << "TimeDataControlUI::addControlFrame "<< this <<"adding " << controlFrame << " " << name << " to container ";
     s_frameListElement  _t;
     _t.frame=controlFrame;
     _t.name=name;
@@ -30,11 +30,13 @@ void TimeDataControlUI::addControlFrame(CustomCurveUI *controlFrame,const QStrin
 }
 
 void TimeDataControlUI::updateUI() {
-    qDebug() << "TimeDataControlUI::updateUI this is  "<<this<<" m_controlFrameList size=" <<  m_controlFrameList.size();
+    //qDebug() << "TimeDataControlUI::updateUI this is  "<<this<<" m_controlFrameList size=" <<  m_controlFrameList.size();
 
     foreach(const s_frameListElement f, m_controlFrameList ) {
-        qDebug() << "Calling update for " << f.frame << " name is " << f.name;
-        f.frame->updateControlUI();
-        f.frame->forceUpdateXML();
+        if (f.frame->enableUpdateUI()) {
+            qDebug() << "TimeDataControlUI::updateControlUI & forceUpdateXML update for " << f.frame << " name is " << f.name;
+            f.frame->updateControlUI();
+            f.frame->forceUpdateXML();
+        }
     }
 }

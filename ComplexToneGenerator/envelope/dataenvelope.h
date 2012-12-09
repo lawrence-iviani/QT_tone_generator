@@ -9,6 +9,7 @@
 #include "dataenvelopeui.h"
 #include "timedata/generictimedata.h"
 
+
 class GenericTimeData;
 
 /**
@@ -55,7 +56,10 @@ public:
         return (const QDomDocument *) m_envelopeParams->getDomDocument();
     }
 
-    void forceRegenarateDomDocument() {
+    /**
+     * @brief forceRegenarateDomDocument
+     */
+    void forceRegenerateDomDocument() {
         m_envelopeParams->regenerateDomDocument();
     }
 
@@ -88,6 +92,13 @@ public slots:
       * Set the params of the whole envelope
       */
     void setEnvelopeParams(DataEnvelopeParameters * params);
+
+    /**
+     * @brief setEnvelopeParams using a well formed DOM node
+     * @param node
+     * @return
+     */
+    bool setEnvelopeParams(QDomNode& node);
 
     /**
       * Set the params and length of the envelope

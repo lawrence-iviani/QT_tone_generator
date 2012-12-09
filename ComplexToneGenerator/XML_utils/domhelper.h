@@ -11,9 +11,9 @@
 #include <QFile>
 #include "CTG_constants.h"
 
-static const QString DOMHELPER_OBJECTTYPE_TAG="objectType";
-static const QString DOMHELPER_VERSION_TAG="version";
-static const QString DOMHELPER_DEFAULT_ROOT_TAG="rootTag";
+static const QString DOMHELPER_OBJECTTYPE_TAG="ObjectType";
+static const QString DOMHELPER_VERSION_ATTRIBUTE="version";
+static const QString DOMHELPER_DEFAULT_ROOT_TAG="RootTag";
 
 /**
  * @brief The DomHelper class is an helper class that provides functionalities in order to manage an XML data format rappresenting the class.
@@ -29,31 +29,51 @@ public:
      */
     explicit DomHelper(QObject *hostObj);
     explicit DomHelper();
+    virtual ~DomHelper();
     
     const QDomDocument* getDomDocument() { return (const QDomDocument*) m_doc; }
     //const QDomDocumentFragment getDomDocumentFragment() { return (const QDomDocumentFragment) m_doc->createDocumentFragment();}
 
     bool setClassByDomData(const QDomDocument & doc);
+    bool setClassByDomData(const QDomDocument * doc);
+    bool setClassByDomData(QDomNode& doc);
+
+
     //bool setClassByDomData(const QDomDocumentFragment & docfrag);
     bool isSameObjectType(const QString objectType) { return (QString::compare(objectType,m_obj->metaObject()->className())==0);}
     QString objectType() {return m_obj->metaObject()->className();}
+
+    /**
+     * @brief DomHelper::selfObjectData extract the classname and the object properties from itself obj and stores it in DOM doc
+     * @param doc
+     * @param rootTag
+     * @return
+     */
+    bool selfObjectData(QDomDocument * doc, const QString& rootTag);
+    void initDomDocument(const QString &rootTag);
 
     static bool isSameObjectType(const QDomDocument *doc, QObject *obj);
     static QString getObjectType(const QDomDocument & doc);
     static QString getObjectType(const QDomDocument *doc);
     static bool parseDOMToQTreeWidget(const QDomDocument *doc, QTreeWidget * treeWidget);
     static bool parseDOMToQTreeWidget(DomHelper *dh, QTreeWidget * treeWidget);
-    static void parseEntry(const QDomElement &element, QTreeWidgetItem *parent, int parentLevel);
-    static void parseAttribute(const QDomNamedNodeMap &element, QTreeWidgetItem *parent, int parentLevel);
+    static void parseEntryToQTreeWidget(const QDomElement &element, QTreeWidgetItem *parent, int parentLevel);
+    static void parseAttributeToQTreeWidget(const QDomNamedNodeMap &element, QTreeWidgetItem *parent, int parentLevel);
     static bool save(const QString namefile, const QDomDocument * doc);
     static bool save(const QString namefile, const QDomDocument& doc);
     static bool load(const QString namefile,  QDomDocument *doc);
+
+
+
+
+
     static const int defaultIndentation = 4;
 public slots:
      //void appendDomDocument(const QDomDocumentFragment & docfrag);
      bool appendDomDocument(const QDomDocument *doc);
-     void generateDomDocument(const QString &rootTag);
-     void generateDomDocument();
+     bool appendDomDocument(const QDomDocument& doc);
+    // void generateDomDocument(const QString &rootTag);
+    // void generateDomDocument();
 
 protected:
     /**
@@ -86,6 +106,12 @@ protected:
     bool parseAndVerifyAttributeVersion(const QDomNamedNodeMap &element);
 
     /**
+     * @brief selfAppendObjectData call this when you want append the object data (ie qproperties) to the internal DOM rappresentation.
+     * Used tipically when the DOM data are regenerated
+     */
+   // void selfAppendObjectData();
+
+    /**
      * @brief m_doc The DOM document of this host object
      */
     QDomDocument * m_doc;
@@ -95,7 +121,7 @@ protected:
     QObject * m_obj;
 
 private:
-    void initDomDocument(const QString &rootTag);
+
 
 };
 

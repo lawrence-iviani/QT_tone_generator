@@ -10,6 +10,11 @@
 #include <QGroupBox>
 
 
+typedef struct  {
+        qreal SR;
+        qreal duration;
+        qreal t0;
+} s_projectDetails;
 
 /**
   * This class specializes the PlotWidget with a data digest class a sum of all the init timedata in the prject.
@@ -25,11 +30,12 @@ public:
     explicit TimePlotWidget(QWidget *widget = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
     ~TimePlotWidget();
     virtual QWidget * getControlWidget() {return m_allControl;}
-    qreal sampleRate() {return m_SR;}
-    qreal duration() {return m_duration;}
-    qreal minTime() {return m_t0;}
+    qreal sampleRate() {return m_projectDetails.SR;}
+    qreal duration() {return m_projectDetails.duration;}
+    qreal minTime() {return m_projectDetails.t0;}
     DigestTimeData * getDigestCurve() {return m_digestCurve;} //return the digest curve
     virtual void setRubberBandPosition(qreal position);
+
 signals:
     
 public slots:
@@ -40,10 +46,12 @@ public slots:
     /**
       * this function override base class function and before replot update the data in the digest curve.
       */
-    virtual void updatePlot() { qDebug() << "TimePlotWidget::dataUpdated() CALLED";
-                                m_digestCurve->updateData();
-                                this->replot();}
-   // void curveListHasChanged();
+    virtual void updatePlot() {
+        qDebug() << "TimePlotWidget::dataUpdated() CALLED";
+        m_digestCurve->updateData();
+        this->replot();
+    }
+
 protected:
     DigestTimeData * m_digestCurve;
 
@@ -51,9 +59,7 @@ private:
     void createControlWidget();//Create the the base control
     void initBaseControlWidget();
 
-    qreal m_SR;
-    qreal m_duration;
-    qreal m_t0;
+    s_projectDetails m_projectDetails;
     struct {
       QFrame * baseControlWidget;
       ZMP_Handler * m_zmp;//Handle zoom, panel etc

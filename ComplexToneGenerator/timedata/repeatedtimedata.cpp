@@ -74,7 +74,7 @@ bool RepeatedTimeData::insertSignalValue(qint64 index, qreal value) {
         _tVal=(isEnvelopeEnabled() ? value*envelopData[index-lowestIndex] : value);
         qint64 i;
         for (unsigned int _rep=0; _rep < m_repetitions; _rep++) {
-            i=/*lowestIndex*/+_rep*_sampleShotDuration+index;
+            i=_rep*_sampleShotDuration+index;
             Q_ASSERT(i<=sampleNumber());
             _s[i]=_tVal;
         }

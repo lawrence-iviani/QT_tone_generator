@@ -14,6 +14,8 @@ GenericSinusData::GenericSinusData(qreal duration, qreal SRGen, QWidget *widget)
     this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "GenericSinusData control");
 }
 
+
+
 GenericSinusData::GenericSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
     GenericTimeData (duration,SRGen)
 {
@@ -30,6 +32,7 @@ GenericSinusData::GenericSinusData(qreal duration, qreal SRGen, qreal amplitude,
 GenericSinusData::~GenericSinusData() {
 
 }
+
 
 void GenericSinusData::recalc() {
     qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - GenericSinusData::recalc() ---------------- " << this->name();

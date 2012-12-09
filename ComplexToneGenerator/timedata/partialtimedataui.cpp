@@ -19,7 +19,7 @@ void PartialTimeDataUI::updateControlUI() {
     m_partialDataControl.widget_t0->setValue(m_partiaTimeData->startTime());
     m_partialDataControl.widget_t0->blockSignals(sigStatus);
 
-    emit
+    emit (controlUIUpdated());
 
 }
 

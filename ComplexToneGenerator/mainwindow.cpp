@@ -349,12 +349,12 @@ QDomDocument MainWindow::createDomDocument() {
     QDomElement _rootNode = _doc.createElement("ProjectRoot");
     QDomElement _curvesNode = _doc.createElement("Curves");
     _doc.appendChild(_rootNode);
-    _rootNode.setAttribute(DOMHELPER_VERSION_TAG,DOMHELPER_VERSION);
+    _rootNode.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,DOMHELPER_VERSION);
 
     //Generate the document to handle the main window data
     DomHelper _docMainWindow=DomHelper(this);
-    _docMainWindow.generateDomDocument("MainWindow");
-
+  //  _docMainWindow.generateDomDocument("MainWindow");
+    _docMainWindow.initDomDocument("MainWindow");
     //Append the window details document
     _rootNode.appendChild(_docMainWindow.getDomDocument()->firstChild());
     _rootNode.appendChild(_curvesNode);

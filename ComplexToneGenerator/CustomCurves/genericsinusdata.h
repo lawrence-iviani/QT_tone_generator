@@ -35,7 +35,7 @@ signals:
 public slots:
     void setAmplitude(qreal amplitude) {m_sinusDataParams->setAmplitude(amplitude);}
     void setFrequency(qreal frequency) {m_sinusDataParams->setFrequency(frequency);}
-    void setInitPhase(qreal initphase) {m_sinusDataParams->setInitPhase(initphase);}
+    void setInitPhase(qreal initphase) { m_sinusDataParams->setInitPhase(initphase);}
 
 protected:
     virtual void recalc();

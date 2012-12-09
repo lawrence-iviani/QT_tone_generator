@@ -65,17 +65,12 @@ void PartialTimeData::setStartTime(qreal t0) {
     emit(startTimeChanged(t0));
 
     //Call set duration to verify if the duration must be clipped and to recalc  the curve
-    if ( (m_t0+m_duration)> maxtime ) {
+    if ( (m_t0+m_duration) > maxtime ) {
            privateSetDuration(m_duration);
     }
     resetAllData();
     updateData();
-
-
-
-
 }
-
 
 void PartialTimeData::maxDurationChange(qreal maxDuration) {
     if ( (this->startTime()+this->duration())>maxDuration ) {

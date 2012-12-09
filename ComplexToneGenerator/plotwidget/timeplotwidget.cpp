@@ -5,10 +5,11 @@
 TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     PlotWidget(parent,  xScaleType,  yScaleType)
 {
-    m_SR=TIMEDATA_DEFAULT_SR;
-    m_t0=TIMEDATA_DEFAULT_MIN_TIME;
-    m_duration=TIMEDATA_DEFAULT_MAX_TIME;
-    m_digestCurve=new DigestTimeData(&m_curveList,m_duration,m_SR);
+    m_projectDetails.SR=TIMEDATA_DEFAULT_SR;
+    m_projectDetails.t0=TIMEDATA_DEFAULT_MIN_TIME;
+    m_projectDetails.duration=TIMEDATA_DEFAULT_MAX_TIME;
+
+    m_digestCurve=new DigestTimeData(&m_curveList,m_projectDetails.duration,m_projectDetails.SR);
     m_digestCurve->getCurve()->attach(this);
     this->createControlWidget();
 
@@ -20,7 +21,7 @@ TimePlotWidget::~TimePlotWidget() {
 }
 
 void TimePlotWidget::setSampleRate(qreal SR) {
-    m_SR=SR;
+    m_projectDetails.SR=SR;
 
     int n=0;
     GenericTimeData * gtd=this->getTimeDataList(n);
@@ -51,7 +52,7 @@ void TimePlotWidget::setSampleRate(qreal SR) {
 }
 
 void TimePlotWidget::setDuration(qreal duration) {
-    m_duration=duration;
+    m_projectDetails.duration=duration;
 
     int n=0;
     GenericTimeData * gtd=this->getTimeDataList(n);
@@ -66,12 +67,12 @@ void TimePlotWidget::setDuration(qreal duration) {
 
     //update the digest curve
     m_digestCurve->setInhibitRecalc(sigStatus);
-    m_digestCurve->setMaxDuration(m_duration);
+    m_digestCurve->setMaxDuration(m_projectDetails.duration);
 
 
     //Update UI
     sigStatus=m_baseControl.sliderDuration->blockSignals(true);
-    m_baseControl.sliderDuration->setValue(m_duration);
+    m_baseControl.sliderDuration->setValue(m_projectDetails.duration);
     m_baseControl.sliderDuration->blockSignals(sigStatus);
     this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*duration);
     //Replot and recalc digest
@@ -127,7 +128,7 @@ void TimePlotWidget::initBaseControlWidget() {
     //set Sample rate
     m_baseControl.sliderSR = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_baseControl.sliderSR->setScale(TIMEDATA_DEFAULT_MIN_SR,TIMEDATA_DEFAULT_MAX_SR,TIMEDATA_DEFAULT_STEP_SR);
-    m_baseControl.sliderSR->setValue(m_SR);
+    m_baseControl.sliderSR->setValue(m_projectDetails.SR);
     m_baseControl.sliderSR->setName("SR Generation");
     m_baseControl.sliderSR->setMeasureUnit("Hz");
     m_baseControl.sliderSR->setFont(f);
@@ -137,7 +138,7 @@ void TimePlotWidget::initBaseControlWidget() {
     //set duration
     m_baseControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_baseControl.sliderDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);
-    m_baseControl.sliderDuration->setValue(m_duration);
+    m_baseControl.sliderDuration->setValue(m_projectDetails.duration);
     m_baseControl.sliderDuration->setName("Duration Generated file");
     m_baseControl.sliderDuration->setMeasureUnit("Sec.");
     m_baseControl.sliderDuration->setFont(f);

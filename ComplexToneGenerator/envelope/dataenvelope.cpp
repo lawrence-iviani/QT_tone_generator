@@ -61,6 +61,15 @@ void DataEnvelope::setEnvelopeParams(DataEnvelopeParameters * params) {
     }
 }
 
+bool DataEnvelope::setEnvelopeParams(QDomNode &node) {
+    bool _prevStatus=m_envelopeParams->blockSignals(true);
+    bool retval=m_envelopeParams->setClassByDomData(node);
+    m_envelopeParams->blockSignals(_prevStatus);
+    recalculateEnvelope();
+    forceRegenerateDomDocument();
+    return retval;
+}
+
 void DataEnvelope::setEnvelopeParamsAndLength(DataEnvelopeParameters *params,qint64 length) {
     //qDebug() << "DataEnvelope::setEnvelopeParamsAndLength() called with len=" << length;
     bool _needRecalculate=false;

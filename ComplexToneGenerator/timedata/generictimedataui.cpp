@@ -24,7 +24,6 @@ void GenericTimeDataUI::updateXML() {
 
     Q_ASSERT(DomHelper::parseDOMToQTreeWidget((DomHelper*)m_genericTimeData,m_TreeWidgetshowXML));
 
-
     //expand all the tree if was visible before update
     if (!m_TreeWidgetshowXML->isHidden()) m_TreeWidgetshowXML->expandAll();
 }
@@ -66,9 +65,6 @@ void GenericTimeDataUI::updateControlUI() {
     m_baseControl.checkBoxShowCurve->blockSignals(prevSig);
 
     emit (controlUIUpdated());
-//    if (m_TreeWidgetshowXML) {
-//        updateXML();
-//    }
 }
 
 void GenericTimeDataUI::nameUpdated() {
@@ -116,13 +112,27 @@ void GenericTimeDataUI::initControlWidget() {
     m_baseControl.comboColor->setFont(f);
     connect(m_baseControl.comboColor, SIGNAL(colorChanged(QColor)),m_genericTimeData,SLOT(setColor(QColor)) );
 
+
+    //XML Button
     m_baseControl.exportXML=new QPushButton("Export XML");
     m_baseControl.exportXML->setFont(f);
     connect(m_baseControl.exportXML ,SIGNAL(clicked()),m_genericTimeData,SLOT(exportXML()));
 
+    m_baseControl.importXML=new QPushButton("Import XML");
+    m_baseControl.importXML->setFont(f);
+    connect(m_baseControl.importXML ,SIGNAL(clicked()),m_genericTimeData,SLOT(importXML()));
+
     m_baseControl.showXML=new QPushButton("Show XML");
     m_baseControl.showXML->setFont(f);
     connect(m_baseControl.showXML ,SIGNAL(clicked()),this,SLOT(showXML()));
+
+    //Layouting XML button
+    QHBoxLayout * lh=new QHBoxLayout();
+    lh->addWidget(m_baseControl.exportXML,1,Qt::AlignLeft);
+    lh->addWidget(m_baseControl.importXML,1,Qt::AlignLeft);
+    lh->addWidget(m_baseControl.showXML,1,Qt::AlignLeft);
+    QWidget *buttonWidget=new QWidget(this);
+    buttonWidget->setLayout((QLayout*)lh);
 
     //Lay out all the controls
     l->addWidget(_nameLabel,1,Qt::AlignLeft);
@@ -130,13 +140,6 @@ void GenericTimeDataUI::initControlWidget() {
     l->addWidget(m_baseControl.checkBoxEnableCurve,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.checkBoxShowCurve,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.comboColor,1,Qt::AlignLeft);
-
-    //Adding XML button
-    QHBoxLayout * lh=new QHBoxLayout();
-    lh->addWidget(m_baseControl.exportXML,1,Qt::AlignLeft);
-    lh->addWidget(m_baseControl.showXML,1,Qt::AlignLeft);
-    QWidget *buttonWidget=new QWidget(this);
-    buttonWidget->setLayout((QLayout*)lh);
     l->addWidget(buttonWidget,1,Qt::AlignLeft);
 
     //update UI

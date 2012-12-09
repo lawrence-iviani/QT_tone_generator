@@ -14,6 +14,10 @@ qreal static const TIMEDATA_DEFAULT_STEP_SR=4000.0;
 //The version of the generated XML data structure
 uint static const DOMHELPER_VERSION=1;
 
+//TAG for XML data
+const static QString ENEVELOPEPARAMETERS_TAG="EnvelopeParams";
+const static QString GENERICTIMEDATA_TAG="TimeData";
+const static QString GENERICTIMEDATAPARAMETERS_TAG="TimeDataParams";
 
 //Some constant regarding the draw
 static const int PLOTWIDGET_DEFAULT_PLOT_DIMENSION=10;//The default font size in px, every widget has its own poliicy scaling starting from this value

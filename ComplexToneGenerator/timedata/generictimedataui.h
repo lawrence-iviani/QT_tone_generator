@@ -56,6 +56,7 @@ private:
       QCheckBox *checkBoxEnableCurve;
       QCheckBox *checkBoxShowCurve;
       QPushButton *exportXML;
+      QPushButton *importXML;
       QPushButton *showXML;
     } m_baseControl; //This class control.
     QTreeWidget * m_TreeWidgetshowXML;

@@ -124,3 +124,12 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
     }
     return retval;
 }
+
+void DataEnvelopeParameters::regenerateDomDocument()
+{
+    //Get DOM document of this object QPROPERTY
+    if (m_doc==NULL) m_doc=new QDomDocument();
+    this->selfObjectData(m_doc,ENEVELOPEPARAMETERS_TAG);
+    Q_ASSERT(!m_doc->isNull());
+    Q_ASSERT(m_doc->isDocument());
+}

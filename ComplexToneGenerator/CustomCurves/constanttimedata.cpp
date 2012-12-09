@@ -98,6 +98,7 @@ void ConstantTimeData::setAmplitude(qreal amplitude) {
     bool sigStatus=m_dataControl.sliderAmplitude->blockSignals(true);
     m_dataControl.sliderAmplitude->setValue(m_amplitude);
     m_dataControl.sliderAmplitude->blockSignals(sigStatus);
+
     this->updateData();
 }
 
