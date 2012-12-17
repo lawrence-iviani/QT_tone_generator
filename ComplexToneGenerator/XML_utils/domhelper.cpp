@@ -37,17 +37,17 @@ bool DomHelper::selfObjectData(QDomDocument * doc,const QString& rootTag) {
         QMetaProperty _prop=metaObject->property(i);
         QString _propName=_prop.name();
         QVariant _propValueVariant=_prop.read(m_obj);
-
+        qDebug() << "DomHelper::generateDomDocument class "<< metaObject->className()<< " prop is " << _propName;
         //Save parameters that can be converted in string, others are rejected
         if (_propValueVariant.canConvert(QVariant::String)) {
             QString _propValue=_propValueVariant.toString();
-   //         qDebug() << "DomHelper::generateDomDocument " << _propName << " is " << _propValue;
+            qDebug() << "DomHelper::generateDomDocument " << _propName << " is " << _propValue;
             //appending
             QDomElement _element = doc->createElement(_propName);
             QDomText _elementValue=doc->createTextNode(_propValue);
             _rootElement.appendChild(_element);
             _element.appendChild(_elementValue);
-    //        qDebug() << "DomHelper::selfObjectData start  | "<< doc->toText().data()<< " |end";
+         //   qDebug() << "DomHelper::selfObjectData start  | "<< doc->toText().data()<< " |end";
         } else {
             qWarning() << "DomHelper::selfObjectData can convert property" << _propName ;
         }
@@ -110,7 +110,11 @@ bool DomHelper::setClassByDomData(QDomNode& node) {
         QMessageBox::warning(0, "DomHelper::setClassByDomData","Node is null");
         return false;
     }
-
+    if (!isImportableByDomData(node)) {
+        qWarning() << "DomHelper::setClassByDomData document is not importable";
+        //QMessageBox::warning(0, "DomHelper::setClassByDomData",new QString("Document is not importable"));
+        return false;
+    }
    // while (!node.isNull()) {
     //    qDebug() << "DomHelper::setClassByDomData looking into node  " << node.nodeName();
         parseEntry(node.toElement());
@@ -118,13 +122,14 @@ bool DomHelper::setClassByDomData(QDomNode& node) {
     //}
     return true;
 }
+
 void DomHelper::parseEntry(const QDomElement &element)
 {
     QDomNode node = element.firstChild();
     while (!node.isNull()) {
-        //qDebug() << "DomParser::parseEntry  node " << node.toElement().tagName();
-        //qDebug() << "DomParser::parseEntry  node " << node.toElement().toText().data();
-        //qDebug() << "DomHelper::parseEntry  parsing node " << node.nodeName();
+         qDebug() << "DomParser::parseEntry  node " << node.toElement().tagName();
+         qDebug() << "DomParser::parseEntry  value= " << DomHelper::getNodeValue(node);
+         qDebug() << "DomHelper::parseEntry  parsing node " << node.nodeName();
          if (node.isElement()) {
          //   qDebug() << "DomParser::parseEntry "<< node.nodeName()<< " is element ";
 
@@ -194,7 +199,7 @@ bool DomHelper::isSameObjectType(const QDomElement &element) {
     QDomNode node = element.firstChild();
     if (!node.isNull() && node.isText()) {
         QString _value=node.toText().data();
-      //  qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << " is elaborating property  with value " << _value;
+        qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << " is elaborating property  with value " << _value;
         retval=QString::compare(_value,m_obj->metaObject()->className())==0 ? true : false;
       //  qDebug() << "DomHelper::isSameObjectType compare  " << _value << " and "  << m_obj->metaObject()->className() ;
     } else {
@@ -214,7 +219,6 @@ bool DomHelper::parseAndSetProperty(const QDomElement &element, QMetaProperty &m
         QString _value=node.toText().data();
         qDebug() << "DomHelper::parseAndSetProperty find node  " << node.nodeName();
         qDebug() << "DomHelper::parseAndSetProperty class " << m_obj->metaObject()->className() <<" is elaborating property " << _propName << " with value " << _value;
-
         retval=metaProperties.write(m_obj,_value);
     } else {
         qWarning() << "DomHelper::parseAndSetProperty  can't elaborate property " << _propName << " with value " <<
@@ -410,5 +414,18 @@ void DomHelper::parseAttributeToQTreeWidget(const QDomNamedNodeMap &element, QTr
         Q_ASSERT(node.isAttr());
         QTreeWidgetItem *childitem=new QTreeWidgetItem(parent, QStringList(QString("Attribute %1=%2").arg(node.nodeName()).arg(node.toAttr().nodeValue())));
         DomHelper::parseEntryToQTreeWidget(node.toElement(), childitem,++parentLevel);
+    }
+}
+
+QString DomHelper::getNodeValue(const QDomNode &node) {
+    if (node.isNull() ) return "";
+    QDomNode nodeText = node.firstChild();
+    if (!nodeText.isNull() && nodeText.isText()) {
+        QString _value=nodeText.toText().data();
+        qDebug() << "DomHelper::getNodeValue find node  " << node.nodeName() << " with properties=" <<_value;
+        return _value;
+    } else {
+        qWarning() << "DomHelper::getNodeValue " << node.nodeName() << " doesn't look a valid node ";
+        return "";
     }
 }

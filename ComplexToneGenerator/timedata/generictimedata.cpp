@@ -6,9 +6,7 @@ GenericTimeData::GenericTimeData(QWidget *widget) :
     m_enableRecalc(true),
     m_data(NULL),
     m_name(QString("no name")),
-    m_MaxDuration(TIMEDATA_DEFAULT_MAX_TIME),
-    m_Min_t0(TIMEDATA_DEFAULT_MIN_TIME),
-    m_SR(TIMEDATA_DEFAULT_SR),
+    m_TimePlotParams(NULL),
     m_t(NULL),
     m_s(NULL),
     m_sample(0),
@@ -18,15 +16,13 @@ GenericTimeData::GenericTimeData(QWidget *widget) :
     init(widget);
 }
 
-GenericTimeData::GenericTimeData(qreal maxDuration, qreal SRGen, QWidget *widget) :
+GenericTimeData::GenericTimeData(TimePlotParams * timePlotParams,QWidget *widget) :
     QObject((QObject*)widget),
     DomHelper(this),
     m_enableRecalc(true),
     m_data(NULL),
     m_name(QString("no name")),
-    m_MaxDuration(maxDuration),
-    m_Min_t0(TIMEDATA_DEFAULT_MIN_TIME),
-    m_SR(SRGen),
+    m_TimePlotParams(timePlotParams),
     m_t(NULL),
     m_s(NULL),
     m_sample(0),
@@ -37,6 +33,15 @@ GenericTimeData::GenericTimeData(qreal maxDuration, qreal SRGen, QWidget *widget
 }
 
 void GenericTimeData::init(QWidget * widget) {
+    if (m_TimePlotParams!=NULL) {
+        m_MaxDuration=m_TimePlotParams->duration();
+        m_Min_t0=m_TimePlotParams->minTime();
+        m_SR=m_TimePlotParams->sampleRate();
+    } else {
+        m_MaxDuration=TIMEDATA_DEFAULT_MAX_TIME;
+        m_Min_t0=TIMEDATA_DEFAULT_MIN_TIME;
+        m_SR=TIMEDATA_DEFAULT_SR;
+    }
     m_curve=new QwtPlotCurve(m_name);
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
@@ -66,10 +71,11 @@ void GenericTimeData::connectSignal() {
     connect(m_genericTimeDataUI,SIGNAL(controlUIUpdated()),this,SLOT(regenerateDomDocument()));
 }
 
-
-
 void GenericTimeData::updateData() {
     if (m_enableRecalc) {
+        Q_ASSERT(m_SR==m_TimePlotParams->sampleRate());
+        Q_ASSERT(m_Min_t0==m_TimePlotParams->minTime());
+        Q_ASSERT(m_MaxDuration==m_TimePlotParams->duration());
         recalc();
         emit dataUpdated();
     }
@@ -77,6 +83,15 @@ void GenericTimeData::updateData() {
 
 void GenericTimeData::createData() {
     if (m_enableRecalc) {
+        if (m_SR!= m_TimePlotParams->sampleRate()) {
+            this->setSampleRate( m_TimePlotParams->sampleRate());
+            return;
+        }
+        if (m_MaxDuration!=m_TimePlotParams->duration()) {
+            this->setMaxDuration(m_TimePlotParams->duration());
+            return;
+        }
+        Q_ASSERT(m_Min_t0==m_TimePlotParams->minTime());
         this->resetAllData();
         recalc();
         this->createDataCurve();
@@ -115,7 +130,8 @@ void GenericTimeData::resetAllData() {
         m_s[n]=0;
     }
 
-    if (m_enableEnvelope) m_envelope->setLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
+    if (m_enableEnvelope)
+        m_envelope->setLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
 }
 
 void GenericTimeData::createDataCurve() {
@@ -135,7 +151,13 @@ void GenericTimeData::deleteAllData() {
     }
 }
 
-void GenericTimeData::setMaxDuration(qreal  maxDuration) {
+bool GenericTimeData::setMaxDuration(qreal  maxDuration) {
+    if (!isValidMaxDuration(maxDuration)) {
+        qWarning() << "GenericTimeData::setMaxDuration try to set an incompatible maxDuration="<< maxDuration<< ", project has been set with duration= " << m_TimePlotParams->duration();
+        QMessageBox::warning(0, QObject::tr("GenericTimeData::setMaxDuration"),
+                             QObject::tr("try to set an incompatible maxDuration=%1, project has been set with duration=%2").arg(maxDuration).arg(m_TimePlotParams->duration()));
+        return false;
+    }
     if (maxDuration!=m_MaxDuration) {
         if (maxDuration < 0) {
             m_MaxDuration=0;
@@ -147,10 +169,16 @@ void GenericTimeData::setMaxDuration(qreal  maxDuration) {
         recalc();
         createDataCurve();
     }
-
+    return true;
 }
 
-void GenericTimeData::setSampleRate(qreal SR) {
+bool GenericTimeData::setSampleRate(qreal SR) {
+    if (!isValidSampleRate(SR)) {
+        qWarning() << "GenericTimeData::setSampleRate try to set an incompatible SR="<< SR<< ", project has been set with SR= " << m_TimePlotParams->sampleRate();
+        QMessageBox::warning(0, QObject::tr("GenericTimeData::setSampleRate"),
+                             QObject::tr("try to set an incompatible SR=%1, project has been set with SR=%2").arg(SR).arg(m_TimePlotParams->sampleRate()));
+        return false;
+    }
     if ( (SR!=m_SR) && (SR >0) ) {
         m_SR=SR;
         m_envelope->setSampleRate(SR);
@@ -159,6 +187,7 @@ void GenericTimeData::setSampleRate(qreal SR) {
         recalc();
         createDataCurve();
     }
+    return true;
 }
 
 void GenericTimeData::setTimeData(qreal *t, qint64 len){
@@ -212,6 +241,23 @@ void GenericTimeData::setEnableEnvelope(bool enable) {
         }
         updateData();
     }
+}
+
+void GenericTimeData::inihbitUpdate() {
+    this->setEnableRecalc(false);
+    this->blockSignals(true);
+    m_genericTimeDataUI->setEnableUpdateUI(false);
+}
+
+void GenericTimeData::enableUpdate() {
+    m_genericTimeDataUI->updateControlUI();
+    regenerateDomDocument();
+    m_envelope->getEnvelopeUI()->updateControlUI();
+    m_envelope->forceRegenerateDomDocument();
+
+    this->setEnableRecalc(true);
+    this->blockSignals(false);
+    m_genericTimeDataUI->setEnableUpdateUI(true);
 }
 
 void GenericTimeData::setColor(QColor color) {
@@ -269,8 +315,59 @@ void GenericTimeData::regenerateDomDocument()
     } else qDebug() << "GenericTimeData::regenerateDomDocument don't need regenarate";
  }
 
+bool GenericTimeData::isImportableByDomData(const QDomDocument & doc) {
+    const QDomDocument * pDoc=&doc;
+    return this->isImportableByDomData(pDoc);
+}
+
+bool GenericTimeData::isImportableByDomData(const QDomDocument * doc) {
+    if (doc->isNull() ) {
+        qWarning() << "GenericTimeData::isImportableByDomData document is null";
+        QMessageBox::warning(0, "GenericTimeData::isImportableByDomData","Document is null");
+        return false;
+    }
+    if (!doc->isDocument()) {
+        qWarning() << "GenericTimeData::isImportableByDomData document is not a document, is " << doc->nodeType();
+        QMessageBox::warning(0, "GenericTimeData::isImportableByDomData",(new QString("Document is not a document is %1"))->arg(doc->nodeType()));
+        return false;
+    }
+    QDomNode node = doc->firstChild();
+    return this->isImportableByDomData(node);
+}
+
+bool GenericTimeData::isImportableByDomData(QDomNode& node) {
+
+    //Test if the object is compatible
+    QDomNodeList _nodeListObjType=node.toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
+    Q_ASSERT(_nodeListObjType.length()==1);
+    QString _objTypeString=this->getNodeValue(_nodeListObjType.at(0));
+    if (!QString::compare(_objTypeString,this->metaObject()->className())==0) {
+        QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Incompatible object |%1| and |%2|.").arg(_objTypeString).arg(this->metaObject()->className()));
+        return false;
+    }
+
+    //Test if the curve is importable, duration
+    QDomNodeList _nodeListDuration=node.toElement().elementsByTagName("maxduration");
+    Q_ASSERT(_nodeListDuration.length()==1);
+    QString _durationString=this->getNodeValue(_nodeListDuration.at(0));
+    if (!isValidMaxDuration(_durationString.toDouble())) {
+        QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Document  contains invalid maxduration  |%1|, project has been set for |%2|.").arg(_durationString).arg(m_MaxDuration));
+        return false;
+    }
+
+    //And Sample Rate
+    QDomNodeList _nodeListSR=node.toElement().elementsByTagName("samplerate");
+    Q_ASSERT(_nodeListSR.length()==1);
+    QString _SRstring=this->getNodeValue(_nodeListSR.at(0));
+    if (!isValidSampleRate(_SRstring.toDouble())) {
+        QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Document  contains invalid samplerate  |%1|, project has been set for |%2|.").arg(_SRstring).arg(m_SR));
+        return false;
+    }
+    return true;
+}
+
 bool GenericTimeData::importXML() {
-    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Save File"),
+    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open File"),
                                ".",
                                tr("XML file (*.xml *.XML)"));
     return this->importXML(fileName);
@@ -290,13 +387,26 @@ bool GenericTimeData::importXML(const QDomDocument *doc) {
         QMessageBox::warning(0, "GenericTimeData::importXML","DATA NOT SET! Document is NULL");
         return false;
     }
-
     if (!doc->isDocument() ) {
         QMessageBox::warning(0,"GenericTimeData::importXML","DATA NOT SET! Document is not a valid DomDocument");
         return false;
     }
+    QDomNode _firstChild=doc->firstChild();
+    return importXML(&_firstChild);
+}
 
-    QString _firstchild= doc->firstChild().nodeName();
+bool GenericTimeData::importXML(const QDomNode &node) {
+    return importXML(&node);
+}
+
+bool GenericTimeData::importXML(const QDomNode *node) {
+
+    if (node==NULL || node->isNull()) {
+        QMessageBox::warning(0,"GenericTimeData::importXML","DATA NOT SET! Trying to import a NULL node");
+        return false;
+    }
+
+    QString _firstchild=node->nodeName();
     if (QString::compare(_firstchild,GENERICTIMEDATA_TAG)!=0)  {
         QMessageBox::warning(0, "GenericTimeData::importXML",QString("DATA NOT SET! Document  contains as first child  |%1| instead  of |%2|.").arg(_firstchild).arg(GENERICTIMEDATA_TAG));
         return false;
@@ -304,27 +414,33 @@ bool GenericTimeData::importXML(const QDomDocument *doc) {
 
     //Disable signal propagation, ui update
     bool _prevValueRecalc=this->setEnableRecalc(false);
-    bool _prevValueSignals=this->blockSignals(false);
+    bool _prevValueSignals=this->blockSignals(true);
     bool _prevValueUpdateUI=m_genericTimeDataUI->setEnableUpdateUI(false);
 
+
+
     //Importing data curve
-    QDomNodeList _nodeList=doc->elementsByTagName(GENERICTIMEDATAPARAMETERS_TAG);
+    QDomNodeList _nodeList=node->toElement().elementsByTagName(GENERICTIMEDATAPARAMETERS_TAG);
     qDebug() << "GenericTimeData::importXML getting element "<< GENERICTIMEDATAPARAMETERS_TAG <<" nodeList.length=" << _nodeList.length();
     Q_ASSERT(_nodeList.length()==1);
-    QDomNode node=_nodeList.at(0);
+    QDomNode _node=_nodeList.at(0);
+
+    //test if it's importable
+    if (!isImportableByDomData(_node))
+        return false;
 
     //Setting data curve
-    if (!this->setClassByDomData(node)) {
+    if (!this->setClassByDomData(_node)) {
         QMessageBox::warning(0, "GenericTimeData::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
         return false;
     }
 
     //Importing envelope data
-    _nodeList=doc->elementsByTagName(ENEVELOPEPARAMETERS_TAG);
+    _nodeList=node->toElement().elementsByTagName(ENEVELOPEPARAMETERS_TAG);
     qDebug() << "GenericTimeData::importXML getting element "<<  ENEVELOPEPARAMETERS_TAG <<" nodeList.length=" << _nodeList.length();
     Q_ASSERT(_nodeList.length()==1);
-    node=_nodeList.at(0);
-    if (!m_envelope->setEnvelopeParams(node)) {
+    _node=_nodeList.at(0);
+    if (!m_envelope->setEnvelopeParams(_node)) {
         QMessageBox::warning(0, "GenericTimeData::importXML",QString("ENVELOPE DATA NOT SET! setEnvelopeParams failed."));
         return false;
     }

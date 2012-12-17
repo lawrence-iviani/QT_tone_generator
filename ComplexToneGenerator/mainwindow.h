@@ -45,11 +45,14 @@ public slots:
     void removeCurve();
     void exportDigestCurve();
     bool exportXML();
+    bool importXML();
     void showXML();
     void updateCurvesName();
     void timeDataUpdated();
     void digestCurveChanged();
     void streamPositionUpdate(qreal position);
+    void removeAllCurves();
+    void removeAllCurvesWithDialog();
 
 private:
     void setupUI();
@@ -92,8 +95,10 @@ private:
     struct {
         QPushButton *addCurve;
         QPushButton *removeCurve;
+        QPushButton *removeAllCurves;
         QPushButton *exportDigest;
         QPushButton *exportXML;
+        QPushButton *importXML;
         QPushButton *showXML;
     } s_button;
 

@@ -34,10 +34,13 @@ public:
     const QDomDocument* getDomDocument() { return (const QDomDocument*) m_doc; }
     //const QDomDocumentFragment getDomDocumentFragment() { return (const QDomDocumentFragment) m_doc->createDocumentFragment();}
 
-    bool setClassByDomData(const QDomDocument & doc);
-    bool setClassByDomData(const QDomDocument * doc);
-    bool setClassByDomData(QDomNode& doc);
+    virtual bool setClassByDomData(const QDomDocument & doc);
+    virtual bool setClassByDomData(const QDomDocument * doc);
+    virtual bool setClassByDomData(QDomNode& doc);
 
+    virtual bool isImportableByDomData(const QDomDocument & doc) {Q_UNUSED(doc);return true;}
+    virtual bool isImportableByDomData(const QDomDocument * doc) {Q_UNUSED(doc);return true;}
+    virtual bool isImportableByDomData(QDomNode& node) {Q_UNUSED(node); return true;}
 
     //bool setClassByDomData(const QDomDocumentFragment & docfrag);
     bool isSameObjectType(const QString objectType) { return (QString::compare(objectType,m_obj->metaObject()->className())==0);}
@@ -62,18 +65,19 @@ public:
     static bool save(const QString namefile, const QDomDocument * doc);
     static bool save(const QString namefile, const QDomDocument& doc);
     static bool load(const QString namefile,  QDomDocument *doc);
-
-
-
-
-
     static const int defaultIndentation = 4;
+
+    /**
+     * @brief getNodeValue return the value store in node element.
+     * @param element
+     * @return the string value of the stored value
+     */
+    static QString getNodeValue(const QDomNode &node);
+
+
 public slots:
-     //void appendDomDocument(const QDomDocumentFragment & docfrag);
      bool appendDomDocument(const QDomDocument *doc);
      bool appendDomDocument(const QDomDocument& doc);
-    // void generateDomDocument(const QString &rootTag);
-    // void generateDomDocument();
 
 protected:
     /**
@@ -105,11 +109,6 @@ protected:
      */
     bool parseAndVerifyAttributeVersion(const QDomNamedNodeMap &element);
 
-    /**
-     * @brief selfAppendObjectData call this when you want append the object data (ie qproperties) to the internal DOM rappresentation.
-     * Used tipically when the DOM data are regenerated
-     */
-   // void selfAppendObjectData();
 
     /**
      * @brief m_doc The DOM document of this host object

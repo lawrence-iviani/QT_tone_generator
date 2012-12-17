@@ -3,6 +3,7 @@
 
 
 #include <timedata/generictimedata.h>
+#include "plotwidget/timeplotwidgetparams.h"
 #include <CTG_constants.h>
 
 /**
@@ -14,7 +15,7 @@ class DigestTimeData : public GenericTimeData
     Q_OBJECT
 public:
     DigestTimeData(QList<GenericTimeData*> * curveList);
-    DigestTimeData(QList<GenericTimeData*> * curveList, double maxDuration, double SRGen);
+    DigestTimeData(QList<GenericTimeData*> * curveList, TimePlotParams * timePlotParams);//double maxDuration, double SRGen);
     virtual ~DigestTimeData();
 
     bool inhibitRecalc() {return m_inhibitRecalc;}

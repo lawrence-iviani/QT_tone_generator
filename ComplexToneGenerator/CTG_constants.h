@@ -18,7 +18,12 @@ uint static const DOMHELPER_VERSION=1;
 const static QString ENEVELOPEPARAMETERS_TAG="EnvelopeParams";
 const static QString GENERICTIMEDATA_TAG="TimeData";
 const static QString GENERICTIMEDATAPARAMETERS_TAG="TimeDataParams";
+const static QString PROJECTPARAMETERS_TAG="ProjectParams";
+const static QString PROJECTROOT_TAG="ProjectRoot";
+const static QString WINDOW_TAG="MainWindow";//Not really used, for future development
 
+//DOCTYPE
+const static QString PROJECT_DOCTYPE="CTG_project";
 //Some constant regarding the draw
 static const int PLOTWIDGET_DEFAULT_PLOT_DIMENSION=10;//The default font size in px, every widget has its own poliicy scaling starting from this value
 

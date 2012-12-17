@@ -1,9 +1,10 @@
 #ifndef PARTIALTIMEDATA_H
 #define PARTIALTIMEDATA_H
 
-#include <timedata/generictimedata.h>
-#include <timedata/partialtimedataui.h>
-#include <CustomCurves/customcurveui.h>
+#include "timedata/generictimedata.h"
+#include "timedata/partialtimedataui.h"
+#include "CustomCurves/customcurveui.h"
+#include "plotwidget/timeplotwidgetparams.h"
 
 class PartialTimeDataUI;
 
@@ -20,7 +21,7 @@ class PartialTimeData : public GenericTimeData
 
 public:
     PartialTimeData(QWidget * widget=0);
-    PartialTimeData(qreal maxDuration, qreal SRGen, QWidget *widget=0);
+    PartialTimeData(TimePlotParams * timePlotParams, QWidget *widget=0);
     
     qreal startTime() {return m_t0;}
     qreal duration() {return m_duration;}

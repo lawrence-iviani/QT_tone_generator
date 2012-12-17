@@ -3,8 +3,8 @@
 
 
 
-PartialSinusData::PartialSinusData(qreal duration, qreal SRGen, QWidget *widget) :
-    PartialTimeData (duration,SRGen)
+PartialSinusData::PartialSinusData(TimePlotParams *timePlotParams, QWidget *widget) :
+    PartialTimeData (timePlotParams)
 {
     //Create the storage class
     m_sinusDataParams=new SinusDataParams((QObject*)widget);
@@ -20,8 +20,8 @@ PartialSinusData::~PartialSinusData() {
 
 }
 
-PartialSinusData::PartialSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
-    PartialTimeData (duration,SRGen)
+PartialSinusData::PartialSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
+    PartialTimeData (timePlotParams)
 {
     //Create the storage class
     m_sinusDataParams=new SinusDataParams(amplitude,frequency,initPhase, (QObject*)widget);

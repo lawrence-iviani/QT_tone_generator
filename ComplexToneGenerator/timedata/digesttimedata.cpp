@@ -13,8 +13,8 @@ DigestTimeData::DigestTimeData(QList<GenericTimeData *> *curveList) :
     this->updateData();
 }
 
-DigestTimeData::DigestTimeData(QList<GenericTimeData*> *curveList,qreal duration, qreal SRGen) :
-    GenericTimeData(duration,SRGen),
+DigestTimeData::DigestTimeData(QList<GenericTimeData*> * curveList, TimePlotParams * timePlotParams ) :
+    GenericTimeData(timePlotParams),
     m_inhibitRecalc(false)
 {
     m_curveList=curveList;
@@ -27,16 +27,6 @@ DigestTimeData::DigestTimeData(QList<GenericTimeData*> *curveList,qreal duration
 }
 
 DigestTimeData::~DigestTimeData() {}
-
-//Due to the fact the digest list is updated when all the curves are updated, this means that
-// for example, SR o duration change this will updated twice
-//void DigestTimeData::setMaxDuration(qreal maxDuration) {
-//    this->setMaxDurationAndUpdate(maxDuration,false);
-//}
-
-//void DigestTimeData::setSampleRate(qreal SR) {
-//    this->setSampleRateAndUpdate(SR,false);
-//}
 
 void DigestTimeData::setTimeDataList(QList<GenericTimeData *> *curveList) {
     m_curveList=curveList;

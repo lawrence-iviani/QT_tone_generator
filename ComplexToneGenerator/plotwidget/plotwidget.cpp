@@ -1,7 +1,8 @@
 #include "plotwidget.h"
 
 PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
-    QwtPlot(parent)
+    QwtPlot(parent),
+    m_enableUpdate(true)
 {
     m_dimension=PLOTWIDGET_DEFAULT_PLOT_DIMENSION;
     this->plotSetup();
@@ -103,6 +104,7 @@ int PlotWidget::addTimeData(GenericTimeData * gtd) {
     gtd->getCurve()->attach(this);
     connect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
     connect(gtd,SIGNAL(curveAttributeUpdated()),this,SLOT(updatePlot()));
+    //TODO: verifica se serve if m_enableUpdate ???
     this->updatePlot();
     emit curveListChanged();
     return (m_curveList.length()-1);
@@ -111,7 +113,7 @@ int PlotWidget::addTimeData(GenericTimeData * gtd) {
 bool PlotWidget::removeTimeData(int index) {
     bool retval=false;
     if (  (0 <= index) && (index < m_curveList.length()) ) {
-        GenericTimeData *  gtd=this->getTimeDataList(index);
+        GenericTimeData *  gtd=this->getTimeData(index);
         gtd->getCurve()->detach();
         disconnect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
         disconnect(gtd,SIGNAL(curveUpdated()),this,SLOT(updatePlot()));
@@ -119,21 +121,51 @@ bool PlotWidget::removeTimeData(int index) {
         delete gtd;
         m_curveList.removeAt(index);
         retval=true;
+        //TODO: verifica se serve if m_enableUpdate ???
         this->updatePlot();
         emit curveListChanged();
+    } else {
+        qWarning() << "PlotWidget::removeTimeData trying remove curve index "<< index <<", is out of range " << " lenCurveList=" << m_curveList.length();
     }
     return retval;
 }
 
-GenericTimeData *PlotWidget::getTimeDataList(int index) {
+GenericTimeData *PlotWidget::getTimeData(int index) {
     GenericTimeData * retval=NULL;
     if (  (0 <= index) && (index < m_curveList.length()) ) {
         retval=m_curveList.at(index);
     }
     return retval;
-
 }
 
+void PlotWidget::forceRecreateAll() {
+    if (!m_enableUpdate) return;
+    foreach(GenericTimeData* p, m_curveList) {
+        p->createData();
+        p->getControlWidget()->updateUI();
+        //p->regenerateDomDocument();
+    }
+}
+
+void PlotWidget::forceUpdateAll() {
+    if (!m_enableUpdate) return;
+    foreach(GenericTimeData* p, m_curveList) {
+        p->updateData();
+        p->getControlWidget()->updateUI();
+        //p->regenerateDomDocument();
+    }
+}
+
+bool PlotWidget::setEnableUpdate(bool enable) {
+    bool retval=m_enableUpdate;
+    if (enable!=m_enableUpdate) {
+        m_enableUpdate=enable;
+        foreach(GenericTimeData* p, m_curveList) {
+            enable ? p->enableUpdate() : p->inihbitUpdate();
+        }
+    }
+    return retval;
+}
 
 QStringList  PlotWidget::getTimeDataStringList() {
     QStringList retval;

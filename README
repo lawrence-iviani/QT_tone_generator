@@ -2,11 +2,10 @@ This project want realize a custom signal generator in QT with some function imp
 This sw in the very early stage and it's more a test than a useful app.
 
 TODO:
-- Saving project and re-open project
+- Saving project and re-open project, ON THE WAY
 - FFT representation of the digest signal in real time
-- Envelope function for any signal
-- Add splitter on the main window 
-- Improve zoom and pointer information (QWT)
+- Improve zoom and pointer information (QWT) 
+- ReDefine style UI
 - Multiplatform test
 - FIX for mac framework/library install 
 
@@ -17,12 +16,21 @@ DOCS:
 
 WISHES:
 - Calculation of the crest factor
+- Save window options at quit
+- differentiate curve file and project file, with suffix and with discrimination in the document type
+- add menu
+- add curves copy&paste
 - Keyboard tool selection for zoom,panner and streaming position
 - Import .wav signal (and may be flac?)
 - Resample of .wav signal
 
+
 BUG:
 
-- Add Curve selection dialog is bugged
+_ DomHelper::selfObjectData design should be improved
+- save project has some problem in export.
+- some graph waste in the first part of the graph. It's not reproduced looks waste of the qwt curve
+- Name doesn't change in the toolbox widget when importing curve
+- Remove curves, works only with one curves at time but the window allos to remove multiple cruves.
 - Moving the stream position during play produce audio artefacts
-- Changing project samplerate doesn't affect reproduction
+- Changing project samplerate doesn't affect reproduction, there's an ASSERT and crash if SR!=48k, only 48 kHz are allowed

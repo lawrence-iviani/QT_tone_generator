@@ -1,9 +1,12 @@
 #ifndef REPEATEDSINUSDATA_H
 #define REPEATEDSINUSDATA_H
 
-#include <timedata/repeatedtimedata.h>
-#include <CustomCurves/sinusdata.h>
-#include <CustomCurves/sinusdataui.h>
+
+
+#include "timedata/repeatedtimedata.h"
+#include "plotwidget/timeplotwidgetparams.h"
+#include "CustomCurves/sinusdata.h"
+#include "CustomCurves/sinusdataui.h"
 #include <math.h>
 
 class SinusDataUI;
@@ -19,8 +22,8 @@ class RepeatedSinusData :  public RepeatedTimeData
 
 public:
 
-    RepeatedSinusData(qreal duration, qreal SRGen, QWidget *widget=0);
-    RepeatedSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
+    RepeatedSinusData(TimePlotParams * timePlotParams, QWidget *widget=0);
+    RepeatedSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
     virtual ~RepeatedSinusData();
 
     void setAmplitudeFrequencyAndPhase(qreal amplitude,qreal frequency,qreal initPhase)

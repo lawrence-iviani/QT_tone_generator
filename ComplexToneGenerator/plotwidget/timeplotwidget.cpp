@@ -3,16 +3,12 @@
 
 
 TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
-    PlotWidget(parent,  xScaleType,  yScaleType)
+    PlotWidget(parent,  xScaleType,  yScaleType),
+    m_params(TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_SR)
 {
-    m_projectDetails.SR=TIMEDATA_DEFAULT_SR;
-    m_projectDetails.t0=TIMEDATA_DEFAULT_MIN_TIME;
-    m_projectDetails.duration=TIMEDATA_DEFAULT_MAX_TIME;
-
-    m_digestCurve=new DigestTimeData(&m_curveList,m_projectDetails.duration,m_projectDetails.SR);
+    m_digestCurve=new DigestTimeData(&m_curveList,&m_params);
     m_digestCurve->getCurve()->attach(this);
     this->createControlWidget();
-
     this->setRubberBandPosition(0);
 }
 
@@ -20,20 +16,38 @@ TimePlotWidget::~TimePlotWidget() {
 
 }
 
+void TimePlotWidget::forceRecreateAll() {
+    if (m_enableUpdate) {
+        PlotWidget::forceRecreateAll();
+        m_digestCurve->createData();
+    }
+}
+
+void TimePlotWidget::forceUpdateAll() {
+    if (m_enableUpdate) {
+        PlotWidget::forceUpdateAll();
+        m_digestCurve->createData();
+    }
+}
+
 void TimePlotWidget::setSampleRate(qreal SR) {
-    m_projectDetails.SR=SR;
-
+    if (!m_params.setSampleRate(SR)) {
+        bool prevValue=m_baseControl.sliderSR->blockSignals(true);
+        m_baseControl.sliderSR->setValue(m_params.sampleRate());
+        m_baseControl.sliderSR->blockSignals(prevValue);
+        return; //Exit if SR is not set for some reason
+    }
+    qreal _SR=m_params.sampleRate();
     int n=0;
-    GenericTimeData * gtd=this->getTimeDataList(n);
-
+    GenericTimeData * gtd=this->getTimeData(n);
 
     //Block digest, i don't want recalc digest before all the curves was updated
     bool sigStatus=m_digestCurve->setInhibitRecalc(true);
     while (gtd!=NULL) {
        // sigStatus=gtd->blockSignals(true);
-        gtd->setSampleRate(SR);
+        gtd->setSampleRate(_SR);
        // gtd->blockSignals(sigStatus);
-        gtd=this->getTimeDataList(++n);
+        gtd=this->getTimeData(++n);
     }
     //update the digest curve
     m_digestCurve->setInhibitRecalc(sigStatus);
@@ -43,7 +57,7 @@ void TimePlotWidget::setSampleRate(qreal SR) {
 
     //Update UI
     sigStatus=m_baseControl.sliderSR->blockSignals(true);
-    m_baseControl.sliderSR->setValue(SR);
+    m_baseControl.sliderSR->setValue(_SR);
     this->updatePlot();
     m_baseControl.sliderSR->blockSignals(sigStatus);
 
@@ -51,30 +65,45 @@ void TimePlotWidget::setSampleRate(qreal SR) {
     //this->updatePlot();
 }
 
+void TimePlotWidget::updateUI() {
+    bool sigStatus=m_baseControl.sliderSR->blockSignals(true);
+    m_baseControl.sliderSR->setValue(m_params.sampleRate());
+    m_baseControl.sliderSR->blockSignals(sigStatus);
+
+    sigStatus=m_baseControl.sliderDuration->blockSignals(true);
+    m_baseControl.sliderDuration->setValue(m_params.duration());
+    m_baseControl.sliderDuration->blockSignals(sigStatus);
+
+}
+
 void TimePlotWidget::setDuration(qreal duration) {
-    m_projectDetails.duration=duration;
+    if (!m_params.setDuration(duration)) {
+        bool prevValue=m_baseControl.sliderDuration->blockSignals(true);
+        m_baseControl.sliderDuration->setValue(m_params.duration());
+        m_baseControl.sliderDuration->blockSignals(prevValue);
+        return; //Exit if duration is not set for some reason
+    }
+    qreal _duration=m_params.duration();
 
     int n=0;
-    GenericTimeData * gtd=this->getTimeDataList(n);
+    GenericTimeData * gtd=this->getTimeData(n);
 
     //Block digest, i don't want recalc digest before all the curves was updated
     bool sigStatus=m_digestCurve->setInhibitRecalc(true);
-
     while (gtd!=NULL) {
-        gtd->setMaxDuration(duration);
-        gtd=this->getTimeDataList(++n);
+        gtd->setMaxDuration(_duration);
+        gtd=this->getTimeData(++n);
     }
+    m_digestCurve->setInhibitRecalc(sigStatus);
 
     //update the digest curve
-    m_digestCurve->setInhibitRecalc(sigStatus);
-    m_digestCurve->setMaxDuration(m_projectDetails.duration);
-
+    m_digestCurve->setMaxDuration(_duration);
 
     //Update UI
     sigStatus=m_baseControl.sliderDuration->blockSignals(true);
-    m_baseControl.sliderDuration->setValue(m_projectDetails.duration);
+    m_baseControl.sliderDuration->setValue(_duration);
     m_baseControl.sliderDuration->blockSignals(sigStatus);
-    this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*duration);
+    this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*_duration);
     //Replot and recalc digest
     this->updatePlot();
 
@@ -128,7 +157,7 @@ void TimePlotWidget::initBaseControlWidget() {
     //set Sample rate
     m_baseControl.sliderSR = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_baseControl.sliderSR->setScale(TIMEDATA_DEFAULT_MIN_SR,TIMEDATA_DEFAULT_MAX_SR,TIMEDATA_DEFAULT_STEP_SR);
-    m_baseControl.sliderSR->setValue(m_projectDetails.SR);
+    m_baseControl.sliderSR->setValue(m_params.sampleRate());
     m_baseControl.sliderSR->setName("SR Generation");
     m_baseControl.sliderSR->setMeasureUnit("Hz");
     m_baseControl.sliderSR->setFont(f);
@@ -138,7 +167,7 @@ void TimePlotWidget::initBaseControlWidget() {
     //set duration
     m_baseControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
     m_baseControl.sliderDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);
-    m_baseControl.sliderDuration->setValue(m_projectDetails.duration);
+    m_baseControl.sliderDuration->setValue(m_params.duration());
     m_baseControl.sliderDuration->setName("Duration Generated file");
     m_baseControl.sliderDuration->setMeasureUnit("Sec.");
     m_baseControl.sliderDuration->setFont(f);
@@ -147,7 +176,6 @@ void TimePlotWidget::initBaseControlWidget() {
 
     m_baseControl.baseControlWidget->show();
 }
-
 
 void TimePlotWidget::ZMP_statusChanged() {
     if (m_baseControl.ZMP_RadioButton.PICKER->isChecked()) {
@@ -164,4 +192,5 @@ void TimePlotWidget::ZMP_statusChanged() {
 void TimePlotWidget::setRubberBandPosition(qreal position) {
     m_scrollRubberBand->setValue(position);
 }
+
 

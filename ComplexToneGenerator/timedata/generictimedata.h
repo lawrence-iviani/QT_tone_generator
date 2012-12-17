@@ -8,10 +8,11 @@
 #include <math.h>
 #include <QTime>
 #include <QFileDialog>
-#include <envelope/dataenvelope.h>
-#include <envelope/dataenvelopeparameters.h>
+#include "envelope/dataenvelope.h"
+#include "envelope/dataenvelopeparameters.h"
 #include "timedata/generictimedataui.h"
 #include "timedata/timedatacontrolui.h"
+#include "plotwidget/timeplotwidgetparams.h"
 #include "XML_utils/domhelper.h"
 
 class GenericTimeDataUI;
@@ -34,7 +35,7 @@ class GenericTimeData : public QObject, public DomHelper
 
 public:
     explicit GenericTimeData(QWidget *widget=0);
-    explicit GenericTimeData(qreal maxDuration, qreal SRGen,QWidget *widget=0);
+    explicit GenericTimeData(TimePlotParams * timePlotParams,QWidget *widget=0);
     virtual ~GenericTimeData();
     QwtPlotCurve * getCurve() {return m_curve;}
     QwtCPointerData * getData() {return m_data;}
@@ -61,6 +62,12 @@ public:
     const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
     const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
     DataEnvelope * getEnvelopeData() {return m_envelope;}
+
+    void forceRegenerateDomDocument() {this->regenerateDomDocument();}
+
+    virtual bool isImportableByDomData(const QDomDocument & doc);
+    virtual bool isImportableByDomData(const QDomDocument * doc);
+    virtual bool isImportableByDomData(QDomNode& node);
 
 signals:
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
@@ -99,13 +106,13 @@ public slots:
        * Set the max duration of this signal and update for data, redefine in the inerithed class if you want change beaviour. (ie don't call an update)
        * you have to change the singal length. Tipically you should override this method.
        */
-     virtual void setMaxDuration(qreal maxDuration);
+     virtual bool setMaxDuration(qreal maxDuration);
 
      /**
        * Set the max duration of this signal and update for data, redefine in the inerithed class if you want change beaviour. (ie don't call an update).
        * Normally you shouldn't override this method
        */
-     virtual void setSampleRate(qreal SR);//Set the SR of this signal
+     virtual bool setSampleRate(qreal SR);//Set the SR of this signal
 
      void setName(QString name);
      void setColor(QColor color);
@@ -165,9 +172,18 @@ public slots:
      /**
       * @brief importXML import a QDomDocument
       * @param doc the DOM document to be imported
-      * @return true if succesfull
+      * @return true if succesful
       */
      bool importXML(const QDomDocument * doc);
+
+     /**
+      * @brief importXML import a QDomDocument by node
+      * @param node the node you want to import
+      * @return true if succesful
+      */
+     bool importXML(const QDomNode *node);
+
+     bool importXML(const QDomNode &node);
 
      /**
       * @brief enableRecalc enable/disable recalculation for this curve.
@@ -180,12 +196,17 @@ public slots:
          return retval;
      }
 
+     void inihbitUpdate();
+
+     void enableUpdate();
+
+
 protected:
      /**
        * The method is called every time an updateData is called. In this way extension class can implement it own calculation to provide the signal data.
        * The inerithed class implement this method with its own code to generate signal data but eventually different time data (TIME DATA MODIFICATION NEVER TESTED BEFORE!!)
        */
-     virtual void recalc() {} //Reimplement this method to update data with the want function, rembert to delete and regenearte m_data and m_curve.
+     virtual void recalc() {} //Reimplement this method to update data with the want function, remeber to delete and regenearte m_data and m_curve.
 
      /**
        * The function delete all the following internal reference data:
@@ -238,6 +259,10 @@ protected:
          return retval;
      }
 
+     bool isValidMaxDuration(qreal  maxDuration) {return (m_TimePlotParams->duration()==maxDuration ?  true :  false);}
+
+     bool isValidSampleRate(qreal  SR) {return (m_TimePlotParams->sampleRate()==SR ?  true :  false); }
+
      TimeDataControlUI *m_timeDataUI;
      bool m_enableRecalc;
      GenericTimeDataUI *m_genericTimeDataUI;
@@ -251,6 +276,7 @@ private:
      QwtPlotCurve *m_curve;
      QwtCPointerData *m_data;
      QString m_name;
+     TimePlotParams * m_TimePlotParams;
      qreal m_MaxDuration;//Duration, it's possible modify any of the parameter duration,t0,t1 to make modification to the length of the signal
      qreal m_Min_t0;//Start time to make calculation, The min value of time allowable constrained externally. This is NOT YET USED!! MAY BE BUGGED, it's always used as 0.0
      qreal m_SR;//The SR

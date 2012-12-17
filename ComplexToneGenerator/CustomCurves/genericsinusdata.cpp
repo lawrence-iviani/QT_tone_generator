@@ -1,8 +1,8 @@
 #include "genericsinusdata.h"
 
 
-GenericSinusData::GenericSinusData(qreal duration, qreal SRGen, QWidget *widget) :
-    GenericTimeData (duration,SRGen)
+GenericSinusData::GenericSinusData(TimePlotParams * timePlotParams, QWidget *widget) :
+    GenericTimeData (timePlotParams)
 {
     //Create the storage class
     m_sinusDataParams=new SinusDataParams((QObject*)widget);
@@ -16,8 +16,8 @@ GenericSinusData::GenericSinusData(qreal duration, qreal SRGen, QWidget *widget)
 
 
 
-GenericSinusData::GenericSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
-    GenericTimeData (duration,SRGen)
+GenericSinusData::GenericSinusData(TimePlotParams *timePlotParams, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
+    GenericTimeData (timePlotParams)
 {
     //Create the storage class
     m_sinusDataParams=new SinusDataParams(amplitude,frequency,initPhase, (QObject*)widget);

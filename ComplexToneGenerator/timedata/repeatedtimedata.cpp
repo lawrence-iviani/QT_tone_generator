@@ -10,8 +10,8 @@ RepeatedTimeData::RepeatedTimeData(QWidget *widget) :
     m_repeatedTimeDataUI=new RepeatedTimeDataUI(this,widget);
 }
 
-RepeatedTimeData::RepeatedTimeData(qreal duration, qreal SRGen,QWidget *widget) :
-    PartialTimeData(duration,SRGen,widget),
+RepeatedTimeData::RepeatedTimeData(TimePlotParams * timePlotParams ,QWidget *widget) :
+    PartialTimeData(timePlotParams),
     m_blankTime(TIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();

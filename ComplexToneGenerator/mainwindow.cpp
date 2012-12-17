@@ -16,8 +16,6 @@ MainWindow::MainWindow(QWidget *parent) :
     setupUI();
     initAudio();
     connectSignals();
-
-
 }
 
 void MainWindow::initAudio() {
@@ -29,9 +27,11 @@ void MainWindow::initAudio() {
 void MainWindow::connectSignals() {
     //connect command buttons
     connect(s_button.addCurve,SIGNAL(clicked()),SLOT(newCurve()));
+    connect(s_button.removeAllCurves,SIGNAL(clicked()),SLOT(removeAllCurvesWithDialog()));
     connect(s_button.removeCurve,SIGNAL(clicked()),SLOT(removeCurve()));
     connect(s_button.exportDigest,SIGNAL(clicked()),SLOT(exportDigestCurve()));
     connect(s_button.exportXML ,SIGNAL(clicked()),SLOT(exportXML()));
+    connect(s_button.importXML,SIGNAL(clicked()),SLOT(importXML()));
     connect(s_button.showXML ,SIGNAL(clicked()),SLOT(showXML()));
 
     //connect digest curve to handle update in the plots
@@ -92,19 +92,23 @@ QFrame *MainWindow::createButtonsFrame()  {
     //Init buttons
     s_button.addCurve=new QPushButton("Add curve");
     s_button.removeCurve=new QPushButton("Remove curve");
+    s_button.removeAllCurves=new QPushButton("Remove all curves");
     s_button.exportDigest=new QPushButton("Export digest");
     s_button.exportXML=new QPushButton("Export XML");
+    s_button.importXML=new QPushButton("Import XML");
     s_button.showXML=new QPushButton("Show XML");
 
     //Adding XML button
     QHBoxLayout * lh=new QHBoxLayout();
     lh->addWidget(s_button.exportXML,1,Qt::AlignLeft);
+    lh->addWidget(s_button.importXML,1,Qt::AlignLeft);
     lh->addWidget(s_button.showXML,1,Qt::AlignLeft);
     QWidget *_buttonWidget=new QWidget(this);
     _buttonWidget->setLayout((QLayout*)lh);
 
     //Layout the button panel
     _l->addWidget(s_button.addCurve);
+    _l->addWidget(s_button.removeAllCurves);
     _l->addWidget(s_button.removeCurve);
     _l->addWidget(s_button.exportDigest);
     _l->addWidget(_buttonWidget);
@@ -171,9 +175,8 @@ void MainWindow::newCurve() {
     m_plotTime->addTimeData(s);
 
     //adding controls to plot
-    QWidget *temp=(QWidget*)s->getControlWidget();
-
-    s_widgetUI.toolboxOption->addItem(temp,s->name());
+    QWidget *_widget=(QWidget*)s->getControlWidget();
+    s_widgetUI.toolboxOption->addItem(_widget,s->name());
 
     delete selectCurveHelper;
     delete selectDialog;
@@ -212,17 +215,18 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
     if (curveName==NULL) return NULL;
     qDebug() << "MainWindow::decodeSelectedCurve curve selected is " << curveName;
 
+
     if (QString::compare(curveName,"Limited duration Tone generator")==0 ) {
-        PartialSinusData * s=new PartialSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),s_widgetUI.toolboxOption);
+        PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
         s->setStartTime(1.414);
        // s->setDuration(5.1);
-       // s->setAmplitudeFrequencyAndPhase(0.5,1000,90);
+        s->setAmplitudeFrequencyAndPhase(0.5,125,90);
         retval=(GenericTimeData*) s;
         return retval;
     }
 
     if (QString::compare(curveName,"Repeated duration Tone generator")==0 ) {
-        RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),s_widgetUI.toolboxOption);
+        RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
         s->setStartTime(0.2);
         s->setDuration(0.5);
         s->setBlankTime(0.25);
@@ -232,20 +236,20 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
     }
 
     if (QString::compare(curveName,"Tone generator")==0 ) {
-        GenericSinusData * s=new GenericSinusData(m_plotTime->duration() , m_plotTime->sampleRate(),s_widgetUI.toolboxOption);
-        s->setAmplitudeFrequencyAndPhase(0.333,250,0);
+        GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
+        s->setAmplitudeFrequencyAndPhase(0.125,250,0);
         retval=(GenericTimeData*) s;
         return retval;
     }
     if (QString::compare(curveName,"Limited Const Data")==0 ) {
-        PartialConstantTimeData * s=new PartialConstantTimeData(m_plotTime->duration() , m_plotTime->sampleRate());
+        PartialConstantTimeData * s=new PartialConstantTimeData(m_plotTime->getTimePlotParams());
         s->setAmplitude(0.3);
         s->setDuration(5.1);
         retval=(GenericTimeData*) s;
         return retval;
     }
     if (QString::compare(curveName,"Const Data")==0 ) {
-        ConstantTimeData * s=new ConstantTimeData(m_plotTime->duration() , m_plotTime->sampleRate());
+        ConstantTimeData * s=new ConstantTimeData(m_plotTime->getTimePlotParams());
         s->setAmplitude(-0.15);
         retval=(GenericTimeData*) s;
         return retval;
@@ -273,6 +277,21 @@ void MainWindow::removeCurve(){
      delete removeDialog;
 }
 
+void MainWindow::removeAllCurvesWithDialog() {
+    if( QMessageBox::question(this,"Confirm remove curves","Do you want to remove all the curves?",QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return;
+    removeAllCurves();
+}
+
+void MainWindow::removeAllCurves() {
+    //const QList<GenericTimeData*> & getTimeDataList()
+    //const QList<GenericTimeData*> _gtdList= m_plotTime->getTimeDataList();
+    while (m_plotTime->removeTimeData(0))  {
+        s_widgetUI.toolboxOption->removeItem(m_toolBoxFixedItem);
+  //      if (!m_plotTime->removeTimeData(0))
+  //          qWarning() << "MainWindow::removeAllCurves can't remove GenericTimeData " << " @ index=0,  null pointer?";
+    }
+}
+
 void MainWindow::digestCurveChanged() {
     m_digestCurveStream->setAudioData((qreal*)m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
 }
@@ -288,10 +307,10 @@ void MainWindow::streamPositionUpdate(qreal position) {
 void MainWindow::updateCurvesName() {
     GenericTimeData * s;
     int i=0;
-    s=m_plotTime->getTimeDataList(i);
+    s=m_plotTime->getTimeData(i);
     while(s) {
         s_widgetUI.toolboxOption->setItemText(m_toolBoxFixedItem+i, s->name());
-        s=m_plotTime->getTimeDataList(++i);
+        s=m_plotTime->getTimeData(++i);
     }
 }
 
@@ -345,19 +364,25 @@ void MainWindow::exportDigestCurve() {
 
 QDomDocument MainWindow::createDomDocument() {
     //Set up the main document
-    QDomDocument _doc("CTG_project");
-    QDomElement _rootNode = _doc.createElement("ProjectRoot");
-    QDomElement _curvesNode = _doc.createElement("Curves");
+    QDomDocument _doc(PROJECT_DOCTYPE);
+    QDomElement _rootNode = _doc.createElement(PROJECTROOT_TAG);
     _doc.appendChild(_rootNode);
     _rootNode.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,DOMHELPER_VERSION);
 
     //Generate the document to handle the main window data
     DomHelper _docMainWindow=DomHelper(this);
-  //  _docMainWindow.generateDomDocument("MainWindow");
-    _docMainWindow.initDomDocument("MainWindow");
-    //Append the window details document
+    _docMainWindow.initDomDocument(WINDOW_TAG);
+
+    //Append the window details to the document
     _rootNode.appendChild(_docMainWindow.getDomDocument()->firstChild());
-    _rootNode.appendChild(_curvesNode);
+
+    //Append the Time plot parameters to the document (SR and maxDuration for now 20121217)
+    _rootNode.appendChild(m_plotTime->getTimePlotParametersDomDocument()->firstChild());
+
+    //Debug
+    qDebug() << "QDomDocument MainWindow::createDomDocument time plot params section\n" << m_plotTime->getTimePlotParametersDomDocument()->toDocument().toString();
+
+    //Append all the data curves
     foreach(GenericTimeData* _gtd, m_plotTime->getTimeDataList()) {
         const QDomDocument * _d=_gtd->getDomDocument();
         if (_d==NULL) {
@@ -366,10 +391,9 @@ QDomDocument MainWindow::createDomDocument() {
         }
         qDebug() << "MainWindow::appendDomDocument  processing node " << _d->nodeName();
         if (!_d->isNull()) {
-            _curvesNode.appendChild(_d->firstChild());
+            _rootNode.appendChild(_d->firstChild());
         } else {
             qDebug() << "MainWindow::exportXML "<< _gtd->name() << " DOM has first node " << _d->nodeName() ;
-
         }
     }
     return _doc;
@@ -403,4 +427,102 @@ void MainWindow::showXML() {
     QDomDocument _doc=createDomDocument();
     DomHelper::parseDOMToQTreeWidget(&_doc,m_TreeWidgetshowXML);
     m_TreeWidgetshowXML->expandAll();
+}
+
+bool MainWindow::importXML() {
+    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open File"),
+                               ".",
+                               tr("XML file (*.xml *.XML)"));
+    QDomDocument _doc;
+    if (!DomHelper::load(fileName,&_doc)) {
+        QMessageBox::warning(0,"MainWindow::importXML","Can't load XML file.");
+        return false;
+    }
+
+    if (!_doc.isDocument() || _doc.firstChild().isNull()  ) {
+        QMessageBox::warning(0,"MainWindow::importXML","DATA NOT SET! Document is not a valid DomDocument");
+        return false;
+    }
+
+    QString _firstchild= _doc.firstChild().nodeName();
+    if (QString::compare(_firstchild,PROJECTROOT_TAG)!=0)  {
+        QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! Document  contains as first child  |%1| instead  of |%2|.").arg(_firstchild).arg(PROJECTROOT_TAG));
+        return false;
+    }
+    QDomNode _root=_doc.firstChild();
+    //clear all curves
+    if( QMessageBox::question(this,"Confirm remove curves","Do you want to remove all the curves?",QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return true;
+    //Store old curve data, in order to go back if something goes wrong and then removes all curves.
+    QDomDocument prevProject=createDomDocument();
+    removeAllCurves();
+
+    //Disable update
+    m_plotTime->setEnableUpdate(false);
+
+    //set project properties
+    QDomNodeList _nodeListProject=_root.toElement().elementsByTagName(PROJECTPARAMETERS_TAG);
+    qDebug() << "MainWindow::importXML()  _nodeListProject.length=" << _nodeListProject.length();
+    Q_ASSERT(_nodeListProject.length()==1);
+    QDomNode _nodeProjParam=_nodeListProject.at(0);
+    m_plotTime->getTimePlotParams()->setClassByDomData(_nodeProjParam);
+    m_plotTime->updateUI();//need to manual recal, all the update are disabled!
+
+    QDomNodeList _nodeListCurves=_root.toElement().elementsByTagName(GENERICTIMEDATA_TAG);
+    qDebug() << "MainWindow::importXML() find "  <<  _nodeListCurves.length() << " curves";
+    for (unsigned int n=0; n < _nodeListCurves.length(); n++) {
+        QDomNode _node=_nodeListCurves.at(n);
+        qDebug() << "MainWindow::importXML() curve "<< n  << " tag="<<  _node.nodeName();
+
+        //get class type
+        QDomNodeList _nodeObjTypeList=_node.toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
+      //  Q_ASSERT(_nodeObjTypeList.length()==1);
+        QDomNode _nodeObjTypeName=_nodeObjTypeList.at(0);
+        QString _objTypeName=DomHelper::getNodeValue(_nodeObjTypeName);
+        qDebug() << "MainWindow::importXML() _nodeObjTypeList.length "<< _nodeObjTypeList.length()
+                 << " tag="<<  _nodeObjTypeName.nodeName()
+                 << " objname=" << _objTypeName;
+        //allocate curve
+        GenericTimeData* _curve=NULL;
+        if (QString::compare(_objTypeName,"PartialSinusData")==0 ) {
+            qDebug() << "MainWindow::importXML() init  PartialSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
+            PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
+            _curve=(GenericTimeData*) s;
+        }
+        if (QString::compare(_objTypeName,"RepeatedSinusData")==0 ) {
+            qDebug() << "MainWindow::importXML() init  RepeatedSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
+            RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
+            _curve=(GenericTimeData*) s;
+        }
+        if (QString::compare(_objTypeName,"GenericSinusData")==0 ) {
+            qDebug() << "MainWindow::importXML() init  GenericSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
+            GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
+            _curve=(GenericTimeData*) s;
+        }
+        //set class with DomObject
+        if (_curve!=NULL) {
+            _curve->inihbitUpdate();
+            if (!_curve->importXML(_node)) {
+                QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
+                return false;
+            }
+            m_plotTime->addTimeData(_curve);
+            //adding controls to plot
+            QWidget *_widget=(QWidget*)_curve->getControlWidget();
+            s_widgetUI.toolboxOption->addItem(_widget,_curve->name());
+        } else {
+            qWarning() << "MainWindow::importXML() invalid curve "<< n;
+            QMessageBox::warning(0,"MainWindow::importXML", QString("Invalid curve %1").arg(n));
+            return false;
+        }
+    }
+
+    //enable again and force recalc
+     m_plotTime->setEnableUpdate(true);
+     m_plotTime->forceRecreateAll();//TODO: all the data curve are created during init.. this should not be needed.
+     m_plotTime->updatePlot();
+
+
+
+    return  true;
+
 }

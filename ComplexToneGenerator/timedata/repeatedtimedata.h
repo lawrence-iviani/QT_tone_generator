@@ -13,7 +13,7 @@ class RepeatedTimeData : public PartialTimeData
     Q_PROPERTY(qreal blanktime READ blankTime WRITE setBlankTime)
 public:
     explicit RepeatedTimeData(QWidget * widget=0);
-    explicit RepeatedTimeData(qreal maxDuration, qreal SRGen, QWidget *widget=0);
+    explicit RepeatedTimeData(TimePlotParams * timePlotParams, QWidget *widget=0);
     
 
     /**

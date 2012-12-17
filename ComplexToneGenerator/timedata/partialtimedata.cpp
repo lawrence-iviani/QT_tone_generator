@@ -9,12 +9,12 @@ PartialTimeData::PartialTimeData(QWidget *widget) :
     m_partialTimeDataUI=new PartialTimeDataUI(this,widget);
 }
 
-PartialTimeData::PartialTimeData(qreal duration, qreal SRGen, QWidget *widget) :
-    GenericTimeData(duration,SRGen,widget)
+PartialTimeData::PartialTimeData(TimePlotParams *timePlotParams, QWidget *widget) :
+    GenericTimeData(timePlotParams,widget)
 {
     m_t0=TIMEDATA_DEFAULT_INITTIME;
     this->connectSignal();
-    this->setDuration(duration);
+    this->setDuration(timePlotParams->duration());
     m_partialTimeDataUI=new PartialTimeDataUI(this,widget);
 }
 

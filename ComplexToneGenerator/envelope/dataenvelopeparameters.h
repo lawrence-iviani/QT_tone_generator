@@ -71,6 +71,9 @@ public:
      */
     bool isEnableEnvelope() {return m_enable;}
 
+    virtual bool setClassByDomData(const QDomDocument & doc) {setTimeParameters(0,0,0,0,0); return DomHelper::setClassByDomData(doc);}
+    virtual bool setClassByDomData(const QDomDocument * doc) {setTimeParameters(0,0,0,0,0); return DomHelper::setClassByDomData(doc);}
+    virtual bool setClassByDomData(QDomNode& doc) {setTimeParameters(0,0,0,0,0); return DomHelper::setClassByDomData(doc);}
 
 signals:
 

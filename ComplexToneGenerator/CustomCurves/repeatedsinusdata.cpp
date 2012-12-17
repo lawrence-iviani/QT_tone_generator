@@ -2,8 +2,8 @@
 
 
 
-RepeatedSinusData::RepeatedSinusData(qreal duration, qreal SRGen, QWidget *widget) :
-    RepeatedTimeData (duration,SRGen)
+RepeatedSinusData::RepeatedSinusData(TimePlotParams *timePlotParams, QWidget *widget) :
+    RepeatedTimeData (timePlotParams)
 {
     //Create the storage class
     m_sinusDataParams=new SinusDataParams((QObject*)widget);
@@ -19,8 +19,8 @@ RepeatedSinusData::~RepeatedSinusData() {
 
 }
 
-RepeatedSinusData::RepeatedSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
-    RepeatedTimeData (duration,SRGen)
+RepeatedSinusData::RepeatedSinusData(TimePlotParams * timePlotParams,qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
+    RepeatedTimeData (timePlotParams)
 {
     //Create the storage class
     m_sinusDataParams=new SinusDataParams(amplitude,frequency,initPhase, (QObject*)widget);

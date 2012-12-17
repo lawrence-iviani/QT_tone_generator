@@ -1,10 +1,10 @@
 #ifndef PARTIALSINUSDATA_H
 #define PARTIALSINUSDATA_H
 
-#include <timedata/partialtimedata.h>
-#include <CustomCurves/sinusdata.h>
-#include <CustomCurves/sinusdataui.h>
-#include <CTG_constants.h>
+#include "timedata/partialtimedata.h"
+#include "plotwidget/timeplotwidgetparams.h"
+#include "CustomCurves/sinusdata.h"
+#include "CustomCurves/sinusdataui.h"
 #include <math.h>
 
 class SinusDataUI;
@@ -19,8 +19,8 @@ class PartialSinusData :  public PartialTimeData
     Q_PROPERTY(qreal initphase READ initPhase WRITE setInitPhase)
 public:
 
-    PartialSinusData(qreal duration, qreal SRGen, QWidget *widget=0);
-    PartialSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
+    PartialSinusData(TimePlotParams * timePlotParams, QWidget *widget=0);
+    PartialSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
     virtual ~PartialSinusData();
 
     void setAmplitudeFrequencyAndPhase(qreal amplitude,qreal frequency,qreal initPhase)

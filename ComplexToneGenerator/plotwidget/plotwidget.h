@@ -56,7 +56,7 @@ public:
     /**
       * Get back the time data at index.
       */
-    GenericTimeData * getTimeDataList(int index);//return the curve at index
+    GenericTimeData * getTimeData(int index);//return the curve at index
 
     /**
       * Get back the whole list of curve stored in this instance.
@@ -83,18 +83,41 @@ public slots:
     * Extended class should re-implent the curves correctly in order to obtain the correct results.
     * All the stuff of init, object handling etc. are delegated to the inheriting class.
     */
-    virtual void updatePlot() { qDebug() << "PlotWidget::dataUpdated() CALLED";this->replot();} //
+    virtual void updatePlot() {
+        if (m_enableUpdate) {
+            qDebug() << "PlotWidget::updatePlot() CALLED";
+            this->replot();
+        }
+    }
+
+    /**
+     * @brief setEnableUpdate enable/disble of update the widget, this is propagate to all curves
+     * @param enable
+     * @return the previous value
+     */
+    bool setEnableUpdate(bool enable);
+
+    /**
+     * @brief forceRecalcAll force to recalc all the data curve. All the curves are recalculated by calling recalc
+     */
+    virtual void forceRecreateAll();
+
+    /**
+     * @brief forceUpdateAll force to update all the data curve. All the curves are recalculated by calling update
+     */
+    virtual void forceUpdateAll() ;
+
+
 protected:
     QList<GenericTimeData*> m_curveList;
 
     int m_xScaleType;
     int m_yScaleType;
+    bool m_enableUpdate;
     ScrollRubberBand * m_scrollRubberBand;//Object to scroll a vertical or horizontal line in order to display where the signal is analyzed.
 private:
     void plotSetup();
     int m_dimension;
-
-protected:
 
 };
 

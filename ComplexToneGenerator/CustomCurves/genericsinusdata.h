@@ -1,10 +1,11 @@
 #ifndef GENERICSINUSDATA_H
 #define GENERICSINUSDATA_H
 
-#include <timedata/generictimedata.h>
-#include <CustomCurves/sinusdata.h>
-#include <CustomCurves/sinusdataui.h>
-#include <CTG_constants.h>
+#include "timedata/generictimedata.h"
+#include "plotwidget/timeplotwidgetparams.h"
+#include "CustomCurves/sinusdata.h"
+#include "CustomCurves/sinusdataui.h"
+#include "CTG_constants.h"
 #include <math.h>
 
 class SinusDataUI;
@@ -20,8 +21,8 @@ class GenericSinusData :  public GenericTimeData
 
 public:
 
-    GenericSinusData(qreal duration, qreal SRGen, QWidget *widget=0);
-    GenericSinusData(qreal duration, qreal SRGen, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
+    GenericSinusData(TimePlotParams *timePlotParams, QWidget *widget=0);
+    GenericSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
     virtual ~GenericSinusData();
 
     void setAmplitudeFrequencyAndPhase(qreal amplitude,qreal frequency,qreal initPhase)

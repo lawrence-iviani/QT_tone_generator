@@ -3,18 +3,13 @@
 
 #include "plotwidget/plotwidget.h"
 #include "timedata/digesttimedata.h"
+#include "plotwidget/timeplotwidgetparams.h"
 #include  <qwt_plot_marker.h>
 #include  <qwt_symbol.h>
 #include <CTG_constants.h>
 #include <QRadioButton>
 #include <QGroupBox>
 
-
-typedef struct  {
-        qreal SR;
-        qreal duration;
-        qreal t0;
-} s_projectDetails;
 
 /**
   * This class specializes the PlotWidget with a data digest class a sum of all the init timedata in the prject.
@@ -30,14 +25,18 @@ public:
     explicit TimePlotWidget(QWidget *widget = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
     ~TimePlotWidget();
     virtual QWidget * getControlWidget() {return m_allControl;}
-    qreal sampleRate() {return m_projectDetails.SR;}
-    qreal duration() {return m_projectDetails.duration;}
-    qreal minTime() {return m_projectDetails.t0;}
+    qreal sampleRate() {return m_params.sampleRate();}
+    qreal duration() {return m_params.duration();}
+    qreal minTime() {return m_params.minTime();}
     DigestTimeData * getDigestCurve() {return m_digestCurve;} //return the digest curve
     virtual void setRubberBandPosition(qreal position);
+    TimePlotParams * getTimePlotParams() {return &m_params;}
 
+    const  QDomDocument* getTimePlotParametersDomDocument() {
+        return (const QDomDocument *) m_params.getDomDocument();
+    }
 signals:
-    
+
 public slots:
     void setSampleRate(qreal SR);
     void setDuration(qreal duration);
@@ -47,10 +46,27 @@ public slots:
       * this function override base class function and before replot update the data in the digest curve.
       */
     virtual void updatePlot() {
-        qDebug() << "TimePlotWidget::dataUpdated() CALLED";
-        m_digestCurve->updateData();
-        this->replot();
+        if (m_enableUpdate) {
+            qDebug() << "TimePlotWidget::dataUpdated() CALLED";
+            m_digestCurve->updateData();
+            this->replot();
+        }
     }
+
+    /**
+     * @brief forceRecalcAll force to recalc all the data curve and the digest curve. All the curves are recalculated by calling recalc
+     */
+    virtual void forceRecreateAll();
+
+    /**
+     * @brief forceUpdateAll force to update all the data curve and the digest curve. All the curves are recalculated by calling update
+     */
+    virtual void forceUpdateAll() ;
+
+    /**
+     * @brief updateUI update the UI to the actual stored parameters (sample rate and duration).
+     */
+    void updateUI();
 
 protected:
     DigestTimeData * m_digestCurve;
@@ -59,7 +75,7 @@ private:
     void createControlWidget();//Create the the base control
     void initBaseControlWidget();
 
-    s_projectDetails m_projectDetails;
+    TimePlotParams m_params;
     struct {
       QFrame * baseControlWidget;
       ZMP_Handler * m_zmp;//Handle zoom, panel etc

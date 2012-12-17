@@ -3,13 +3,14 @@
 
 #include "timedata/partialtimedata.h"
 #include "timedata/generictimedata.h"
+#include "plotwidget/timeplotwidgetparams.h"
 
 class PartialConstantTimeData : public PartialTimeData
 {
     Q_OBJECT
 public:
 
-    PartialConstantTimeData(qreal duration, qreal SRGen);
+    PartialConstantTimeData(TimePlotParams *timePlotParams);
     qreal amplitude() {return m_amplitude;}
 
 signals:
@@ -44,7 +45,7 @@ class ConstantTimeData : public GenericTimeData
 {
     Q_OBJECT
 public:
-    ConstantTimeData(qreal duration, qreal SRGen);
+    ConstantTimeData(TimePlotParams *timePlotParams);
     qreal amplitude() {return m_amplitude;}
 
 signals:

@@ -1,7 +1,7 @@
 #include "constanttimedata.h"
 
-PartialConstantTimeData::PartialConstantTimeData(qreal duration, qreal SRGen) :
-    PartialTimeData(duration,SRGen)
+PartialConstantTimeData::PartialConstantTimeData(TimePlotParams * timePlotParams) :
+    PartialTimeData(timePlotParams)
 {
     m_amplitude=CONSTDATA_DEFAULT_AMPLITUDE;
     //Init a figure with the same duration of the base class
@@ -71,8 +71,8 @@ void PartialConstantTimeData::initControl() {
 //-----------------------------
 //Here Start ConstantTimeDate
 
-ConstantTimeData::ConstantTimeData(qreal duration, qreal SRGen) :
-    GenericTimeData(duration,SRGen)
+ConstantTimeData::ConstantTimeData(TimePlotParams * timePlotParams) :
+    GenericTimeData(timePlotParams)
 {
     m_amplitude=CONSTDATA_DEFAULT_AMPLITUDE;
     //Init a figure with the same duration of the base class
