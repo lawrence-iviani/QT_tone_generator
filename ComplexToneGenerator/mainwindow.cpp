@@ -380,20 +380,21 @@ QDomDocument MainWindow::createDomDocument() {
     _rootNode.appendChild(m_plotTime->getTimePlotParametersDomDocument()->firstChild());
 
     //Debug
-    qDebug() << "QDomDocument MainWindow::createDomDocument time plot params section\n" << m_plotTime->getTimePlotParametersDomDocument()->toDocument().toString();
+   // qDebug() << "MainWindow::createDomDocument time plot params section\n" << m_plotTime->getTimePlotParametersDomDocument()->toString();
 
     //Append all the data curves
     foreach(GenericTimeData* _gtd, m_plotTime->getTimeDataList()) {
         const QDomDocument * _d=_gtd->getDomDocument();
         if (_d==NULL) {
-            qDebug() << "MainWindow::exportXML DOM data point to NULL, " << _gtd->name() <<" can't save document";
+            qDebug() << "MainWindow::createDomDocument DOM data point to NULL, " << _gtd->name() <<" can't save document";
             continue;
         }
-        qDebug() << "MainWindow::appendDomDocument  processing node " << _d->nodeName();
         if (!_d->isNull()) {
+            qDebug() << "MainWindow::createDomDocument  " << _gtd->name() << " appending " << _d->nodeName();
+           // qDebug() << "MainWindow::createDomDocument " << _d->toString();
             _rootNode.appendChild(_d->firstChild());
         } else {
-            qDebug() << "MainWindow::exportXML "<< _gtd->name() << " DOM has first node " << _d->nodeName() ;
+            qDebug() << "MainWindow::createDomDocument "<< _gtd->name() << " has node " << _d->nodeName() << "null";
         }
     }
     return _doc;

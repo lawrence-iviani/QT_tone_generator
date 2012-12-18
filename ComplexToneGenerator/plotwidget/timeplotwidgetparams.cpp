@@ -46,6 +46,6 @@ void TimePlotParams::regenerateDomDocument()
     Q_ASSERT(this->selfObjectData(m_doc,PROJECTPARAMETERS_TAG));
     Q_ASSERT(!m_doc->isNull());
     Q_ASSERT(m_doc->isDocument());
-    qDebug() << "TimePlotParams::regenerateDomDocument \n" << m_doc->toString(2);
+   // qDebug() << "TimePlotParams::regenerateDomDocument \n" << m_doc->toString(2);
 }
 
