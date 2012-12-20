@@ -63,7 +63,8 @@ SOURCES += envelope/dataenvelope.cpp \
     timedata/repeatedtimedataui.cpp \
     mainwindow.cpp \
     main.cpp \
-    plotwidget/timeplotwidgetparams.cpp
+    plotwidget/timeplotwidgetparams.cpp \
+    ctg_app.cpp
 
 
 
@@ -96,7 +97,8 @@ HEADERS  += CTG_constants.h \
     CustomCurves/sinusdataui.h \
     CustomCurves/partialsinusdata.h \
     mainwindow.h \
-    plotwidget/timeplotwidgetparams.h
+    plotwidget/timeplotwidgetparams.h \
+    ctg_app.h
 
 
 FORMS    += mainwindow.ui \

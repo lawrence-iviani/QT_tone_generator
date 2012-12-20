@@ -68,6 +68,16 @@ public slots:
      */
     void updateUI();
 
+    /**
+     * @brief showAllCurves show all curves stored in the widget
+     */
+    void showAllCurves();
+
+    /**
+     * @brief hideAllCurves stored in the widget
+     */
+    void hideAllCurves();
+
 protected:
     DigestTimeData * m_digestCurve;
 
@@ -87,6 +97,8 @@ private:
       } ZMP_RadioButton;//Zoom Move Pan Pick enable radio button
       ScaledSliderWidget * sliderSR;//Allows to change the sample rate of the whole generated signal
       ScaledSliderWidget * sliderDuration;//Allows to change the max duration of ALL the signals. The reference is ALWAYS t0
+      QPushButton * showAllCurves;
+      QPushButton * hideAllCurves;
     } m_baseControl;
     QFrame * m_allControl;//The widget with all control (base and eventually extended
 };

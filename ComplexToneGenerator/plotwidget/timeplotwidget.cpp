@@ -65,6 +65,36 @@ void TimePlotWidget::setSampleRate(qreal SR) {
     //this->updatePlot();
 }
 
+void TimePlotWidget::showAllCurves() {
+    bool sigStatus=m_digestCurve->setInhibitRecalc(true);
+    int n=0;
+    GenericTimeData * gtd=this->getTimeData(n);
+    while (gtd!=NULL) {
+       // sigStatus=gtd->blockSignals(true);
+        gtd->setShowCurve(true);
+       // gtd->blockSignals(sigStatus);
+        gtd=this->getTimeData(++n);
+    }
+    m_digestCurve->setInhibitRecalc(sigStatus);
+    m_digestCurve->updateData();
+  //  this->update();
+}
+
+void TimePlotWidget::hideAllCurves() {
+    bool sigStatus=m_digestCurve->setInhibitRecalc(true);
+    int n=0;
+    GenericTimeData * gtd=this->getTimeData(n);
+    while (gtd!=NULL) {
+       // sigStatus=gtd->blockSignals(true);
+        gtd->setShowCurve(false);
+       // gtd->blockSignals(sigStatus);
+        gtd=this->getTimeData(++n);
+    }
+    m_digestCurve->setInhibitRecalc(sigStatus);
+    m_digestCurve->updateData();
+   // this->update();
+}
+
 void TimePlotWidget::updateUI() {
     bool sigStatus=m_baseControl.sliderSR->blockSignals(true);
     m_baseControl.sliderSR->setValue(m_params.sampleRate());
@@ -173,6 +203,18 @@ void TimePlotWidget::initBaseControlWidget() {
     m_baseControl.sliderDuration->setFont(f);
     lBase->addWidget( m_baseControl.sliderDuration,1, Qt::AlignLeft|Qt::AlignTop);
     connect(m_baseControl.sliderDuration,SIGNAL(valueChanged(qreal)),this,SLOT(setDuration(qreal)));
+
+    //add button show/hide all
+    m_baseControl.showAllCurves=new QPushButton("Show all curves");
+    m_baseControl.hideAllCurves=new QPushButton("Hide all curves");
+    QHBoxLayout * _lh=new QHBoxLayout();
+    _lh->addWidget(m_baseControl.showAllCurves,1,Qt::AlignLeft);
+    _lh->addWidget(m_baseControl.hideAllCurves,1,Qt::AlignLeft);
+    QWidget *_showHideWidget=new QWidget(this);
+    _showHideWidget->setLayout((QLayout*)_lh);
+    lBase->addWidget( _showHideWidget,1, Qt::AlignLeft|Qt::AlignTop);
+    connect(m_baseControl.showAllCurves,SIGNAL(clicked()),this,SLOT(showAllCurves()));
+    connect(m_baseControl.hideAllCurves,SIGNAL(clicked()),this,SLOT(hideAllCurves()));
 
     m_baseControl.baseControlWidget->show();
 }

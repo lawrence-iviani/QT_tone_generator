@@ -1,5 +1,6 @@
 #include "generictimedata.h"
 
+
 GenericTimeData::GenericTimeData(QWidget *widget) :
     QObject((QObject*) widget),
     DomHelper(this),
@@ -52,7 +53,6 @@ void GenericTimeData::init(QWidget * widget) {
     this->connectSignal();
     this->regenerateDomDocument();
 }
-
 
 GenericTimeData::~GenericTimeData() {
     this->deleteAllData();
@@ -274,8 +274,7 @@ void GenericTimeData::regenerateDomDocument()
     if (m_enableRecalc) {
         //Generate the DomDocument of this class
         qDebug() << "GenericTimeData::regenerateDomDocument  with tag |"<<GENERICTIMEDATA_TAG<<"|";
-      //  generateDomDocument(GENERICTIMEDATA_TAG);
-        initDomDocument(GENERICTIMEDATA_TAG);
+        initDomDocument(PROJECT_CURVETYPE,GENERICTIMEDATA_TAG);// initDomDocument(GENERICTIMEDATA_TAG);
 
         //Get DOM document of this object QPROPERTY
         QDomDocument _doc;
@@ -285,7 +284,7 @@ void GenericTimeData::regenerateDomDocument()
         if (!_doc.firstChild().isNull() && appendDomDocument(_doc)) {
             qDebug() << "GenericTimeData::regenerateDomDocument append self properties was fine";
         } else {
-            qDebug() << "GenericTimeData::regenerateDomDocument append self properties WAS  NOT FINE!!!!!";
+            qWarning() << "GenericTimeData::regenerateDomDocument append self properties WAS  NOT FINE!!!!!";
         }
 
         //Getting the envelop, it will be appended to
@@ -303,16 +302,16 @@ void GenericTimeData::regenerateDomDocument()
          Q_ASSERT(!_d->isNull());
          Q_ASSERT(_d->isDocument());
          Q_ASSERT(!_d->firstChild().isNull());
-         qDebug() << "GenericTimeData::regenerateDomDocument  start parsing " << _d->nodeName() ;
-         qDebug() << "GenericTimeData::regenerateDomDocument  first child node is " << _d->firstChild().nodeName();
+         //qDebug() << "GenericTimeData::regenerateDomDocument  start parsing " << _d->nodeName() ;
+         //qDebug() << "GenericTimeData::regenerateDomDocument  first child node is " << _d->firstChild().nodeName();
 
          //Append the envelope to the document
          if (!_d->firstChild().isNull() && appendDomDocument(_d)) {
              qDebug() << "GenericTimeData::regenerateDomDocument append envelope was fine";
          } else {
-             qDebug() << "GenericTimeData::regenerateDomDocument append envelope WAS NOT FINE!!!!!";
+             qWarning() << "GenericTimeData::regenerateDomDocument append envelope WAS NOT FINE!!!!!";
          }
-    } else qDebug() << "GenericTimeData::regenerateDomDocument don't need regenarate";
+    } else qDebug() << "GenericTimeData::regenerateDomDocument don't need regenarate, flag regenerate set to FALSE";
  }
 
 bool GenericTimeData::isImportableByDomData(const QDomDocument & doc) {
@@ -342,6 +341,7 @@ bool GenericTimeData::isImportableByDomData(QDomNode& node) {
     Q_ASSERT(_nodeListObjType.length()==1);
     QString _objTypeString=this->getNodeValue(_nodeListObjType.at(0));
     if (!QString::compare(_objTypeString,this->metaObject()->className())==0) {
+        qWarning() << "GenericTimeData::importXML " << QString("Object not importable! Incompatible object |%1| and |%2|.").arg(_objTypeString).arg(this->metaObject()->className());
         QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Incompatible object |%1| and |%2|.").arg(_objTypeString).arg(this->metaObject()->className()));
         return false;
     }
@@ -351,6 +351,7 @@ bool GenericTimeData::isImportableByDomData(QDomNode& node) {
     Q_ASSERT(_nodeListDuration.length()==1);
     QString _durationString=this->getNodeValue(_nodeListDuration.at(0));
     if (!isValidMaxDuration(_durationString.toDouble())) {
+        qWarning() <<  "GenericTimeData::importXML " << QString("Object not importable! Document  contains invalid maxduration  |%1|, project has been set for |%2|.").arg(_durationString).arg(m_MaxDuration);
         QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Document  contains invalid maxduration  |%1|, project has been set for |%2|.").arg(_durationString).arg(m_MaxDuration));
         return false;
     }
@@ -360,6 +361,7 @@ bool GenericTimeData::isImportableByDomData(QDomNode& node) {
     Q_ASSERT(_nodeListSR.length()==1);
     QString _SRstring=this->getNodeValue(_nodeListSR.at(0));
     if (!isValidSampleRate(_SRstring.toDouble())) {
+        qWarning() << "GenericTimeData::importXML "<< QString("Object not importable! Document  contains invalid samplerate  |%1|, project has been set for |%2|.").arg(_SRstring).arg(m_SR);
         QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Document  contains invalid samplerate  |%1|, project has been set for |%2|.").arg(_SRstring).arg(m_SR));
         return false;
     }
@@ -367,9 +369,15 @@ bool GenericTimeData::isImportableByDomData(QDomNode& node) {
 }
 
 bool GenericTimeData::importXML() {
-    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open File"),
-                               ".",
-                               tr("XML file (*.xml *.XML)"));
+    CTG_app * _app=(CTG_app*) qApp;
+    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open CTG curve"),
+                               _app->curvesSavePath(),
+                               tr("CTG curve file (*.CCF *.ccf)"));
+    //saving path
+    QFileInfo _fi(fileName);
+    QString _path=_fi.absolutePath();
+    if (_path!="")
+        _app->setCurvesSavePath(_path);
     return this->importXML(fileName);
 }
 
@@ -384,10 +392,12 @@ bool GenericTimeData::importXML(QString fileName) {
 
 bool GenericTimeData::importXML(const QDomDocument *doc) {
     if (doc==NULL) {
+        qWarning() << "GenericTimeData::importXML DATA NOT SET! Document is NULL";
         QMessageBox::warning(0, "GenericTimeData::importXML","DATA NOT SET! Document is NULL");
         return false;
     }
     if (!doc->isDocument() ) {
+        qWarning() << "GenericTimeData::importXML DATA NOT SET! Document is not a valid DomDocument";
         QMessageBox::warning(0,"GenericTimeData::importXML","DATA NOT SET! Document is not a valid DomDocument");
         return false;
     }
@@ -402,26 +412,28 @@ bool GenericTimeData::importXML(const QDomNode &node) {
 bool GenericTimeData::importXML(const QDomNode *node) {
 
     if (node==NULL || node->isNull()) {
+        qWarning() << "GenericTimeData::importXML DATA NOT SET! Trying to import a NULL node";
         QMessageBox::warning(0,"GenericTimeData::importXML","DATA NOT SET! Trying to import a NULL node");
         return false;
     }
 
     QString _firstchild=node->nodeName();
     if (QString::compare(_firstchild,GENERICTIMEDATA_TAG)!=0)  {
+        qWarning() << "GenericTimeData::importXML" << QString("DATA NOT SET! Document  contains as first child  |%1| instead  of |%2|.").arg(_firstchild).arg(GENERICTIMEDATA_TAG);
         QMessageBox::warning(0, "GenericTimeData::importXML",QString("DATA NOT SET! Document  contains as first child  |%1| instead  of |%2|.").arg(_firstchild).arg(GENERICTIMEDATA_TAG));
         return false;
     }
+
+    qDebug() << "GenericTimeData::importXML importing node " << node->nodeName();
 
     //Disable signal propagation, ui update
     bool _prevValueRecalc=this->setEnableRecalc(false);
     bool _prevValueSignals=this->blockSignals(true);
     bool _prevValueUpdateUI=m_genericTimeDataUI->setEnableUpdateUI(false);
 
-
-
     //Importing data curve
     QDomNodeList _nodeList=node->toElement().elementsByTagName(GENERICTIMEDATAPARAMETERS_TAG);
-    qDebug() << "GenericTimeData::importXML getting element "<< GENERICTIMEDATAPARAMETERS_TAG <<" nodeList.length=" << _nodeList.length();
+  //  qDebug() << "GenericTimeData::importXML getting element "<< GENERICTIMEDATAPARAMETERS_TAG <<" nodeList.length=" << _nodeList.length();
     Q_ASSERT(_nodeList.length()==1);
     QDomNode _node=_nodeList.at(0);
 
@@ -437,7 +449,7 @@ bool GenericTimeData::importXML(const QDomNode *node) {
 
     //Importing envelope data
     _nodeList=node->toElement().elementsByTagName(ENEVELOPEPARAMETERS_TAG);
-    qDebug() << "GenericTimeData::importXML getting element "<<  ENEVELOPEPARAMETERS_TAG <<" nodeList.length=" << _nodeList.length();
+   // qDebug() << "GenericTimeData::importXML getting element "<<  ENEVELOPEPARAMETERS_TAG <<" nodeList.length=" << _nodeList.length();
     Q_ASSERT(_nodeList.length()==1);
     _node=_nodeList.at(0);
     if (!m_envelope->setEnvelopeParams(_node)) {
@@ -456,10 +468,16 @@ bool GenericTimeData::importXML(const QDomNode *node) {
 }
 
 void GenericTimeData::exportXML() {
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"),
-                               ".",
-                               tr("XML file (*.xml *.XML)"));
+    CTG_app * _app=(CTG_app*) qApp;
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save CTG curve"),
+                               _app->curvesSavePath(),
+                               tr("CTG curve file (*.CCF *.ccf)"));
     this->exportXML(fileName);
+    //saving path
+    QFileInfo _fi(fileName);
+    QString _path=_fi.absolutePath();
+    if (_path!="")
+        _app->setCurvesSavePath(_path);
 }
 
 void GenericTimeData::exportXML(QString fileName) {

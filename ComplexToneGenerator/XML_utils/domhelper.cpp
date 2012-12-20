@@ -29,7 +29,7 @@ bool DomHelper::selfObjectData(QDomDocument * doc,const QString& rootTag) {
     QDomText _classnameText = doc->createTextNode(m_obj->metaObject()->className());
     _rootElement.appendChild(_classname);
     _classname.appendChild(_classnameText);
-
+    qDebug() << "DomHelper::selfObjectData generate self data with TAG "<< rootTag;
  //   qDebug() << "DomHelper::selfObjectData start with tag |" << rootTag <<"|";
  //   qDebug() << "DomHelper::selfObjectData start  | "<< doc->toText().data()<< " |end";
     const QMetaObject* metaObject = m_obj->metaObject();
@@ -37,11 +37,11 @@ bool DomHelper::selfObjectData(QDomDocument * doc,const QString& rootTag) {
         QMetaProperty _prop=metaObject->property(i);
         QString _propName=_prop.name();
         QVariant _propValueVariant=_prop.read(m_obj);
-        qDebug() << "DomHelper::generateDomDocument class "<< metaObject->className()<< " prop is " << _propName;
+        //qDebug() << "DomHelper::generateDomDocument class "<< metaObject->className()<< " prop is " << _propName;
         //Save parameters that can be converted in string, others are rejected
         if (_propValueVariant.canConvert(QVariant::String)) {
             QString _propValue=_propValueVariant.toString();
-            qDebug() << "DomHelper::generateDomDocument " << _propName << " is " << _propValue;
+            qDebug() << "DomHelper::selfObjectData appending " << _propName << " with value " << _propValue;
             //appending
             QDomElement _element = doc->createElement(_propName);
             QDomText _elementValue=doc->createTextNode(_propValue);
@@ -54,6 +54,15 @@ bool DomHelper::selfObjectData(QDomDocument * doc,const QString& rootTag) {
     }
     return true;
 }
+
+void DomHelper::initDomDocument(const QString &docTypeTag, const QString &rootTag) {
+    //Set up document
+    if (m_doc!=NULL) delete m_doc;
+    m_doc=new QDomDocument(docTypeTag);//(new QString(rootTag))->append("_").append(m_obj->metaObject()->className()));
+    QDomElement _root=m_doc->createElement(rootTag);
+    m_doc->appendChild(_root);
+}
+
 
 void DomHelper::initDomDocument(const QString &rootTag) {
     //Set up document
@@ -112,14 +121,10 @@ bool DomHelper::setClassByDomData(QDomNode& node) {
     }
     if (!isImportableByDomData(node)) {
         qWarning() << "DomHelper::setClassByDomData document is not importable";
-        //QMessageBox::warning(0, "DomHelper::setClassByDomData",new QString("Document is not importable"));
+        QMessageBox::warning(0, "DomHelper::setClassByDomData","Document is not importable");
         return false;
     }
-   // while (!node.isNull()) {
-    //    qDebug() << "DomHelper::setClassByDomData looking into node  " << node.nodeName();
-        parseEntry(node.toElement());
-     //   node = node.nextSibling();
-    //}
+    parseEntry(node.toElement());
     return true;
 }
 
@@ -217,9 +222,11 @@ bool DomHelper::parseAndSetProperty(const QDomElement &element, QMetaProperty &m
     QDomNode node = element.firstChild();
     if (!node.isNull() && node.isText()) {
         QString _value=node.toText().data();
-        qDebug() << "DomHelper::parseAndSetProperty find node  " << node.nodeName();
-        qDebug() << "DomHelper::parseAndSetProperty class " << m_obj->metaObject()->className() <<" is elaborating property " << _propName << " with value " << _value;
+       // qDebug() << "DomHelper::parseAndSetProperty find node  " << node.nodeName();
         retval=metaProperties.write(m_obj,_value);
+        qDebug() << "DomHelper::parseAndSetProperty class " << m_obj->metaObject()->className() <<" write property " << _propName << " with value " << _value <<
+                    "property was " << (retval ? "set OK": " NOT SET");
+
     } else {
         qWarning() << "DomHelper::parseAndSetProperty  can't elaborate property " << _propName << " with value " <<
                     " invalid node, null=" << node.isNull() <<
@@ -295,11 +302,10 @@ bool DomHelper::parseDOMToQTreeWidget(const QDomDocument *doc, QTreeWidget * tre
     qDebug() << "DomHelper::parseXMLToQTreeWidget  start parsing " << doc->nodeName() ;
 
     QDomNode node = doc->firstChild();
-    qDebug() << "DomHelper::parseXMLToQTreeWidget  first child is " << node.nodeName() ;
+    //qDebug() << "DomHelper::parseXMLToQTreeWidget  first child is " << node.nodeName() ;
     QTreeWidgetItem *item = new QTreeWidgetItem(treeWidget,QStringList(QString("Type: %1").arg(node.nodeName())));
     treeWidget->addTopLevelItem(item);
     treeWidget->setColumnCount(1);
-
 
     while (!node.isNull()) {
         DomHelper::parseEntryToQTreeWidget(node.toElement(), item,1);
@@ -422,7 +428,7 @@ QString DomHelper::getNodeValue(const QDomNode &node) {
     QDomNode nodeText = node.firstChild();
     if (!nodeText.isNull() && nodeText.isText()) {
         QString _value=nodeText.toText().data();
-        qDebug() << "DomHelper::getNodeValue find node  " << node.nodeName() << " with properties=" <<_value;
+    //    qDebug() << "DomHelper::getNodeValue find node  " << node.nodeName() << " with properties=" <<_value;
         return _value;
     } else {
         qWarning() << "DomHelper::getNodeValue " << node.nodeName() << " doesn't look a valid node ";

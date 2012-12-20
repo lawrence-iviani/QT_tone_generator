@@ -54,6 +54,7 @@ public:
      */
     bool selfObjectData(QDomDocument * doc, const QString& rootTag);
     void initDomDocument(const QString &rootTag);
+    void initDomDocument(const QString &docTypeTag, const QString &rootTag);
 
     static bool isSameObjectType(const QDomDocument *doc, QObject *obj);
     static QString getObjectType(const QDomDocument & doc);
@@ -76,7 +77,7 @@ public:
 
 
 public slots:
-     bool appendDomDocument(const QDomDocument *doc);
+     bool appendDomDocument(const QDomDocument* doc);
      bool appendDomDocument(const QDomDocument& doc);
 
 protected:

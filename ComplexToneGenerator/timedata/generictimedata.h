@@ -8,6 +8,7 @@
 #include <math.h>
 #include <QTime>
 #include <QFileDialog>
+#include "ctg_app.h"
 #include "envelope/dataenvelope.h"
 #include "envelope/dataenvelopeparameters.h"
 #include "timedata/generictimedataui.h"

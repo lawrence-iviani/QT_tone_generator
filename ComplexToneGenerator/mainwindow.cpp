@@ -18,6 +18,11 @@ MainWindow::MainWindow(QWidget *parent) :
     connectSignals();
 }
 
+MainWindow::~MainWindow()
+{
+    delete ui;
+}
+
 void MainWindow::initAudio() {
     m_digestCurveStream=new InternalStreamDevice(AudioUtils::getStandardFormat(AudioUtils::DAT));
     m_digestCurveStream->setAudioData((qreal*) m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
@@ -55,7 +60,6 @@ void MainWindow::setupUI() {
 
     //Layout all the windows
     ui->centralwidget->layout()->addWidget(s_widgetUI.globalSplitter);
-
 }
 
 void MainWindow::setupSplitters() {
@@ -148,11 +152,6 @@ QFrame *MainWindow::setupOptionsFrame() {
 void MainWindow::setupPlots() {
     m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_MAX_TIME,-1.0,1.0);
     m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
-}
-
-MainWindow::~MainWindow()
-{
-    delete ui;
 }
 
 //SLOTS----------
@@ -401,11 +400,19 @@ QDomDocument MainWindow::createDomDocument() {
 }
 
 bool MainWindow::exportXML() {
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save File"),
-                               ".",
-                               tr("XML file (*.xml *.XML)"));
+    CTG_app * _app=(CTG_app*) qApp;
+    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save CTG project"),
+                                                    _app->projectSavePath(),
+                               tr("CTG project file (*.cpf *.CPF)"));
     QDomDocument _doc=createDomDocument();
     bool retval= DomHelper::save(fileName, _doc);
+
+    //saving path
+    QFileInfo _fi(fileName);
+    QString _path=_fi.absolutePath();
+    if (_path!="")
+        _app->setProjectSavePath(_path);
+
     return retval;
 }
 
@@ -431,9 +438,15 @@ void MainWindow::showXML() {
 }
 
 bool MainWindow::importXML() {
-    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open File"),
-                               ".",
-                               tr("XML file (*.xml *.XML)"));
+    CTG_app * _app=(CTG_app*) qApp;
+    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open CTG project"),
+                                                    _app->projectSavePath(),
+                               tr("CTG project file (*.cpf *.CPF)"));
+    //saving path
+    QFileInfo _fi(fileName);
+    QString _path=_fi.absolutePath();
+    if (_path!="")
+        _app->setProjectSavePath(_path);
     QDomDocument _doc;
     if (!DomHelper::load(fileName,&_doc)) {
         QMessageBox::warning(0,"MainWindow::importXML","Can't load XML file.");
