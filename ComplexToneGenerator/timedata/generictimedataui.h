@@ -58,6 +58,8 @@ private:
       QPushButton *exportXML;
       QPushButton *importXML;
       QPushButton *showXML;
+      QPushButton *copy;
+      QPushButton *paste;
     } m_baseControl; //This class control.
     QTreeWidget * m_TreeWidgetshowXML;
 private slots:

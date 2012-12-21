@@ -114,25 +114,39 @@ void GenericTimeDataUI::initControlWidget() {
 
 
     //XML Button
-    m_baseControl.exportXML=new QPushButton("Export XML");
+    m_baseControl.exportXML=new QPushButton("Export ...");
     m_baseControl.exportXML->setFont(f);
     connect(m_baseControl.exportXML ,SIGNAL(clicked()),m_genericTimeData,SLOT(exportXML()));
 
-    m_baseControl.importXML=new QPushButton("Import XML");
+    m_baseControl.importXML=new QPushButton("Import");
     m_baseControl.importXML->setFont(f);
     connect(m_baseControl.importXML ,SIGNAL(clicked()),m_genericTimeData,SLOT(importXML()));
 
-    m_baseControl.showXML=new QPushButton("Show XML");
+    m_baseControl.showXML=new QPushButton("Show data");
     m_baseControl.showXML->setFont(f);
     connect(m_baseControl.showXML ,SIGNAL(clicked()),this,SLOT(showXML()));
 
-    //Layouting XML button
-    QHBoxLayout * lh=new QHBoxLayout();
-    lh->addWidget(m_baseControl.exportXML,1,Qt::AlignLeft);
-    lh->addWidget(m_baseControl.importXML,1,Qt::AlignLeft);
-    lh->addWidget(m_baseControl.showXML,1,Qt::AlignLeft);
-    QWidget *buttonWidget=new QWidget(this);
-    buttonWidget->setLayout((QLayout*)lh);
+    //C&P Button
+    m_baseControl.copy=new QPushButton("Copy");
+    m_baseControl.copy->setFont(f);
+    connect(m_baseControl.copy ,SIGNAL(clicked()),m_genericTimeData,SLOT(copy()));
+
+    m_baseControl.paste=new QPushButton("Paste");
+    m_baseControl.paste->setFont(f);
+    connect(m_baseControl.paste ,SIGNAL(clicked()),m_genericTimeData,SLOT(paste()));
+
+
+    //Layouting XML button & C&P button
+    QGridLayout * _lButton=new QGridLayout();
+    _lButton->addWidget(m_baseControl.exportXML,0,0,1,1,Qt::AlignLeft);
+    _lButton->addWidget(m_baseControl.importXML,0,1,1,1,Qt::AlignLeft);
+    _lButton->addWidget(m_baseControl.showXML,0,2,1,1,Qt::AlignLeft);
+    _lButton->addWidget(m_baseControl.copy,1,0,1,1,Qt::AlignLeft);
+    _lButton->addWidget(m_baseControl.paste,1,1,1,1,Qt::AlignLeft);
+    _lButton->setSizeConstraint(QLayout::SetMaximumSize);
+    QWidget *_buttonWidget=new QWidget(this);
+    _buttonWidget->setLayout((QLayout*)_lButton);
+
 
     //Lay out all the controls
     l->addWidget(_nameLabel,1,Qt::AlignLeft);
@@ -140,7 +154,7 @@ void GenericTimeDataUI::initControlWidget() {
     l->addWidget(m_baseControl.checkBoxEnableCurve,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.checkBoxShowCurve,1,Qt::AlignLeft);
     l->addWidget(m_baseControl.comboColor,1,Qt::AlignLeft);
-    l->addWidget(buttonWidget,1,Qt::AlignLeft);
+    l->addWidget(_buttonWidget,1,Qt::AlignLeft);
 
     //update UI
     m_baseControl.lineName->setText(m_genericTimeData->name());

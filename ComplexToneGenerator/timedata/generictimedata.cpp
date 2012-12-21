@@ -484,3 +484,30 @@ void GenericTimeData::exportXML(QString fileName) {
     DomHelper::save(fileName,this->getDomDocument());
 }
 
+void GenericTimeData::copy() {
+    CTG_app * _app=(CTG_app*) qApp;
+    const QDomDocument*  _d=this->getDomDocument();
+    _app->setClipboard(*_d);
+}
+
+bool GenericTimeData::paste() {
+    if( QMessageBox::question(NULL,"Confirm paste curve",
+                              QString("Do you want to overwrte curve %1 ?").arg(name()),
+                              QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return true;
+
+
+    QString _name=name();
+    QColor _color=color();
+    CTG_app * _app=(CTG_app*) qApp;
+
+    QDomDocument& _d=_app->clipboard();
+    if (! importXML(&_d) ) {
+        return false;
+    }
+    inihbitUpdate();
+    setName(_name);
+    enableUpdate();
+    setColor(_color);
+
+    return true;
+}

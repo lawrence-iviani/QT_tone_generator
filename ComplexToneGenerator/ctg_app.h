@@ -3,10 +3,13 @@
 
 #include <QApplication>
 #include <QSettings>
-#include "timedata/generictimedata.h"
+#include <QDomDocument>
+#include <QDir>
+#include "CTG_constants.h"
 
 
-class GenericTimeData;
+
+class QDomDocument;
 
 
 static const QString CTGKEY_SAVE_PROJ_PATH="ProjectSavePath";
@@ -26,6 +29,8 @@ public:
     void setProjectSavePath(QString path) {m_projectSavePath=path;m_settings.setValue(CTGKEY_SAVE_PROJ_PATH,QVariant(path));}
     void setCurvesSavePath(QString path) {m_curvesSavePath=path;m_settings.setValue(CTGKEY_SAVE_CURVE_PATH,QVariant(path));}
 
+    bool setClipboard(QDomDocument doc);
+    QDomDocument& clipboard() {return m_clipboardDomDocTimeData;}
 signals:
     
 public slots:
@@ -33,7 +38,7 @@ public slots:
 private:
     QString m_projectSavePath;
     QString m_curvesSavePath;
-    GenericTimeData * m_clipboardTimeData;
+    QDomDocument m_clipboardDomDocTimeData;
     QSettings m_settings;
 };
 

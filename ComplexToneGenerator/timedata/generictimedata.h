@@ -8,6 +8,7 @@
 #include <math.h>
 #include <QTime>
 #include <QFileDialog>
+#include <QMessageBox>
 #include "ctg_app.h"
 #include "envelope/dataenvelope.h"
 #include "envelope/dataenvelopeparameters.h"
@@ -115,7 +116,16 @@ public slots:
        */
      virtual bool setSampleRate(qreal SR);//Set the SR of this signal
 
+     /**
+      * @brief setName
+      * @param name
+      */
      void setName(QString name);
+
+     /**
+      * @brief setColor
+      * @param color
+      */
      void setColor(QColor color);
 
      /**
@@ -197,10 +207,19 @@ public slots:
          return retval;
      }
 
+     /**
+      * @brief inihbitUpdate Calling this function the curve becomes insensible to all the external call and function call
+      */
      void inihbitUpdate();
 
+     /**
+      * @brief enableUpdate By calling this function the curve can be updated by an external signal or function call
+      */
      void enableUpdate();
 
+     void copy();
+
+     bool paste();
 
 protected:
      /**
