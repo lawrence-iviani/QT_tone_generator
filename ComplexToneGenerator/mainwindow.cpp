@@ -219,7 +219,7 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
 
  //       PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
 
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("PartialSinusData",m_plotTime);
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("PartialSinusData");//,m_plotTime);
      //   s->setParent(m_plotTime);
         s->setTimePlotParams(m_plotTime->getTimePlotParams() );
         //s->setStartTime(1.414);
@@ -236,7 +236,7 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
      //   s->setBlankTime(0.25);
      //   s->setAmplitudeFrequencyAndPhase(0.250,500,45);
 
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("RepeatedSinusData",m_plotTime);
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("RepeatedSinusData");//,m_plotTime);
        // s->setParent(m_plotTime);
         s->setTimePlotParams(m_plotTime->getTimePlotParams() );
         retval=(GenericTimeData*) s;
@@ -244,7 +244,7 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
     }
 
     if (QString::compare(curveName,"Tone generator")==0 ) {
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData",m_plotTime);
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData");//,m_plotTime);
        // s->setParent(m_plotTime);
         s->setTimePlotParams(m_plotTime->getTimePlotParams() );
      //   GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);

@@ -7,7 +7,7 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
     m_params(TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_SR)
 {
     m_digestCurve=new DigestTimeData(&m_curveList,&m_params);
-    m_digestCurve->getCurve()->attach(this);
+    m_digestCurve->getCurve().attach(this);
     this->createControlWidget();
     this->setRubberBandPosition(0);
 }

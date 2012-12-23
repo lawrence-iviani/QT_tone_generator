@@ -35,9 +35,10 @@ GenericTimeData::GenericTimeData(TimePlotParams * timePlotParams,QWidget *widget
 
 void GenericTimeData::init(QWidget * widget) {
     setTimePlotParams();
-    m_curve=new QwtPlotCurve(m_name);
-    m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
-    m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
+   // m_curve=new QwtPlotCurve(m_name);
+    m_curve.setTitle(m_name);
+    m_curve.setRenderHint(QwtPlotItem::RenderAntialiased);
+    m_curve.setPaintAttribute(QwtPlotCurve::ClipPolygons);
     m_timeDataUI=new TimeDataControlUI(widget);
     m_genericTimeDataUI=new GenericTimeDataUI(this,widget);
     m_envelope=new DataEnvelope(m_SR,this);
@@ -67,10 +68,10 @@ void GenericTimeData::setTimePlotParams(TimePlotParams * timePlotParams) {
 
 GenericTimeData::~GenericTimeData() {
     this->deleteAllData();
-    if (m_curve!=NULL) {
-        free(m_curve);
-        m_curve=NULL;
-    }
+//    if (m_curve!=NULL) {
+//        free(m_curve);
+//        m_curve=NULL;
+//    }
     free(m_data);
     m_data=NULL;
 }
@@ -148,9 +149,9 @@ void GenericTimeData::resetAllData() {
 }
 
 void GenericTimeData::createDataCurve() {
-    Q_ASSERT(m_curve!=NULL);
+    //Q_ASSERT(m_curve!=NULL);
     m_data=new QwtCPointerData(m_t,m_s,m_sample);
-    m_curve->setData(m_data);//m_data is freed in the setData, see QWT documentation regarding QwtPlotCurve class beahvior
+    m_curve.setData(m_data);//m_data is freed in the setData, see QWT documentation regarding QwtPlotCurve class beahvior
 }
 
 void GenericTimeData::deleteAllData() {
@@ -224,7 +225,7 @@ void GenericTimeData::setSignalData(qreal *s, qint64 len){
 void GenericTimeData::setName(QString name) {
     if (m_name!=name) {
         m_name=name;
-        m_curve->setTitle(m_name);
+        m_curve.setTitle(m_name);
         emit(nameChanged());
     }
 }
@@ -236,9 +237,9 @@ void GenericTimeData::setEnableCurve(bool enable) {
 
 void GenericTimeData::setShowCurve(bool enable) {
     if (enable) {
-        m_curve->show();
+        m_curve.show();
     } else {
-        m_curve->hide();
+        m_curve.hide();
     }
     if (m_enableRecalc) emit(curveAttributeUpdated());
 }
@@ -275,9 +276,9 @@ void GenericTimeData::enableUpdate() {
 
 void GenericTimeData::setColor(QColor color) {
     if (ComboBoxWidgetColor::isSupportedColorName(color)) {
-        QPen  p=m_curve->pen();
+        QPen  p=m_curve.pen();
         p.setColor(color);
-        m_curve->setPen(p);
+        m_curve.setPen(p);
     }
     if (m_enableRecalc) emit(curveAttributeUpdated());
 }
