@@ -101,7 +101,7 @@ void PlotWidget::setDimension(int pointDimension) {
 
 int PlotWidget::addTimeData(GenericTimeData * gtd) {
     m_curveList.append(gtd);
-    gtd->getCurve().attach(this);
+    gtd->getCurve()->attach(this);
     connect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
     connect(gtd,SIGNAL(curveAttributeUpdated()),this,SLOT(updatePlot()));
     //TODO: verifica se serve if m_enableUpdate ???
@@ -114,7 +114,7 @@ bool PlotWidget::removeTimeData(int index) {
     bool retval=false;
     if (  (0 <= index) && (index < m_curveList.length()) ) {
         GenericTimeData *  gtd=this->getTimeData(index);
-        gtd->getCurve().detach();
+        gtd->getCurve()->detach();
         disconnect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
         disconnect(gtd,SIGNAL(curveUpdated()),this,SLOT(updatePlot()));
         Q_ASSERT(gtd!=NULL);

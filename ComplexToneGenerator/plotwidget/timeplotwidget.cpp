@@ -7,7 +7,7 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
     m_params(TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_SR)
 {
     m_digestCurve=new DigestTimeData(&m_curveList,&m_params);
-    m_digestCurve->getCurve().attach(this);
+    m_digestCurve->getCurve()->attach(this);
     this->createControlWidget();
     this->setRubberBandPosition(0);
 }
@@ -235,4 +235,11 @@ void TimePlotWidget::setRubberBandPosition(qreal position) {
     m_scrollRubberBand->setValue(position);
 }
 
-
+const  QDomDocument* TimePlotWidget::getTimePlotParametersDomDocument() {
+    if ( m_params.getDomDocument()->isNull() || m_params.getDomDocument()->firstChild().isNull()  ) {
+        qWarning() << "TimePlotWidget::getTimePlotParametersDomDocument  FORCE REGENERATE!!!";
+        m_params.regenerateDomDocument();
+    }
+   // qDebug() << "TimePlotWidget::getTimePlotParametersDomDocument \n" << m_params.getDomDocument()->toString(2);
+    return (const QDomDocument *) m_params.getDomDocument();
+}

@@ -23,6 +23,7 @@ WISHES:
 - Keyboard tool selection for zoom,panner and streaming position
 - Import .wav signal (and may be flac?)
 - Resample of .wav signal
+- Revert to previous project if the  import project fail
 
 
 BUG:

@@ -32,9 +32,7 @@ public:
     virtual void setRubberBandPosition(qreal position);
     TimePlotParams * getTimePlotParams() {return &m_params;}
 
-    const  QDomDocument* getTimePlotParametersDomDocument() {
-        return (const QDomDocument *) m_params.getDomDocument();
-    }
+    const  QDomDocument* getTimePlotParametersDomDocument();
 signals:
 
 public slots:

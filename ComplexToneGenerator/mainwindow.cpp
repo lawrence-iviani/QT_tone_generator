@@ -388,10 +388,11 @@ QDomDocument MainWindow::createDomDocument() {
     _rootNode.appendChild(_docMainWindow.getDomDocument()->firstChild());
 
     //Append the Time plot parameters to the document (SR and maxDuration for now 20121217)
-    _rootNode.appendChild(m_plotTime->getTimePlotParametersDomDocument()->firstChild());
+    const QDomDocument * _docTimeParams=m_plotTime->getTimePlotParametersDomDocument();
+    _rootNode.appendChild(_docTimeParams->firstChild());
 
     //Debug
-   // qDebug() << "MainWindow::createDomDocument time plot params section\n" << m_plotTime->getTimePlotParametersDomDocument()->toString();
+//    qDebug() << "MainWindow::createDomDocument time plot params section\n" << _docTimeParams->toString();
 
     //Append all the data curves
     foreach(GenericTimeData* _gtd, m_plotTime->getTimeDataList()) {
@@ -475,7 +476,6 @@ bool MainWindow::importXML() {
         QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! Document  contains as first child  |%1| instead  of |%2|.").arg(_firstchild).arg(PROJECTROOT_TAG));
         return false;
     }
-    QDomNode _root=_doc.firstChild();
     //clear all curves
     if( QMessageBox::question(this,"Confirm remove curves","Do you want to remove all the curves?",QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return true;
     //Store old curve data, in order to go back if something goes wrong and then removes all curves.
@@ -486,14 +486,22 @@ bool MainWindow::importXML() {
     m_plotTime->setEnableUpdate(false);
 
     //set project properties
-    QDomNodeList _nodeListProject=_root.toElement().elementsByTagName(PROJECTPARAMETERS_TAG);
+
+    QDomNodeList _nodeListProject=_doc.elementsByTagName(PROJECTPARAMETERS_TAG);
     qDebug() << "MainWindow::importXML()  _nodeListProject.length=" << _nodeListProject.length();
-    Q_ASSERT(_nodeListProject.length()==1);
+
+    if (_nodeListProject.length()!=1){
+        QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! Document  contains an invalid number (%1) of root element.").arg(_nodeListProject.length()));
+        qWarning() << "MainWindow::importXML() Document  contains an invalid number ("<< _nodeListProject.length() << ") of root element";
+        qDebug() << "MainWindow::importXML() " << _doc.toDocument().toString();
+        return false;
+    }
+
     QDomNode _nodeProjParam=_nodeListProject.at(0);
     m_plotTime->getTimePlotParams()->setClassByDomData(_nodeProjParam);
     m_plotTime->updateUI();//need to manual recal, all the update are disabled!
 
-    QDomNodeList _nodeListCurves=_root.toElement().elementsByTagName(GENERICTIMEDATA_TAG);
+    QDomNodeList _nodeListCurves=_doc.toElement().elementsByTagName(GENERICTIMEDATA_TAG);
     qDebug() << "MainWindow::importXML() find "  <<  _nodeListCurves.length() << " curves";
     for (unsigned int n=0; n < _nodeListCurves.length(); n++) {
         QDomNode _node=_nodeListCurves.at(n);
@@ -509,21 +517,23 @@ bool MainWindow::importXML() {
                  << " objname=" << _objTypeName;
         //allocate curve
         GenericTimeData* _curve=NULL;
-        if (QString::compare(_objTypeName,"PartialSinusData")==0 ) {
-            qDebug() << "MainWindow::importXML() init  PartialSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
-            PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
-            _curve=(GenericTimeData*) s;
-        }
-        if (QString::compare(_objTypeName,"RepeatedSinusData")==0 ) {
-            qDebug() << "MainWindow::importXML() init  RepeatedSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
-            RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
-            _curve=(GenericTimeData*) s;
-        }
-        if (QString::compare(_objTypeName,"GenericSinusData")==0 ) {
-            qDebug() << "MainWindow::importXML() init  GenericSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
-            GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
-            _curve=(GenericTimeData*) s;
-        }
+        _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName);
+
+//        if (QString::compare(_objTypeName,"PartialSinusData")==0 ) {
+//            qDebug() << "MainWindow::importXML() init  PartialSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
+//            PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
+//            _curve=(GenericTimeData*) s;
+//        }
+//        if (QString::compare(_objTypeName,"RepeatedSinusData")==0 ) {
+//            qDebug() << "MainWindow::importXML() init  RepeatedSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
+//            RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
+//            _curve=(GenericTimeData*) s;
+//        }
+//        if (QString::compare(_objTypeName,"GenericSinusData")==0 ) {
+//            qDebug() << "MainWindow::importXML() init  GenericSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
+//            GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
+//            _curve=(GenericTimeData*) s;
+//        }
         //set class with DomObject
         if (_curve!=NULL) {
             _curve->inihbitUpdate();

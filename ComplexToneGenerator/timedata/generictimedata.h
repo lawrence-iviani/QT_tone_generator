@@ -39,8 +39,8 @@ public:
     explicit GenericTimeData(QWidget *widget=0);
     explicit GenericTimeData(TimePlotParams * timePlotParams,QWidget *widget=0);
     virtual ~GenericTimeData();
-    QwtPlotCurve& getCurve() {return m_curve;}
-   //
+    QwtPlotCurve * getCurve() {return m_curve;}
+    QwtCPointerData * getData() {return m_data;}
     TimeDataControlUI * getControlWidget() {return m_timeDataUI; }// Give back a QWidget that can be used to control this class.
 
     qreal duration() {return m_MaxDuration;}
@@ -49,10 +49,10 @@ public:
     qreal minStartTime() {return m_Min_t0;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
     qint64 sampleNumber() {return m_sample;}
     bool isEnabled() { return m_curveEnabled;}
-    bool isShowEnabled() { return m_curve.isVisible();}
+    bool isShowEnabled() { return m_curve->isVisible();}
     bool isEnvelopeEnabled() { return m_enableEnvelope;}
     const QString& name() {return  m_name;}
-    const QColor color() {return m_curve.pen().color(); }
+    const QColor color() {return m_curve->pen().color(); }
     void setParent(QWidget* widget) {QObject::setParent((QObject*)widget);}
 
     /**
@@ -231,9 +231,6 @@ public slots:
      bool paste();
 
 protected:
-
-     QwtCPointerData* getData() {return m_data;}
-
      /**
        * The method is called every time an updateData is called. In this way extension class can implement it own calculation to provide the signal data.
        * The inerithed class implement this method with its own code to generate signal data but eventually different time data (TIME DATA MODIFICATION NEVER TESTED BEFORE!!)
@@ -306,13 +303,10 @@ private:
      void init(QWidget *widget);
      void connectSignal();
      void setTimePlotParams();
-     //QwtPlotCurve *m_curve;
-     //QwtCPointerData *m_data;
-     //Change design, not more pointer to the external world 20121223
-     QwtPlotCurve m_curve;
-     QwtCPointerData* m_data;
+     QwtPlotCurve *m_curve;
+     QwtCPointerData *m_data;
      QString m_name;
-     TimePlotParams* m_TimePlotParams;
+     TimePlotParams * m_TimePlotParams;
      qreal m_MaxDuration;//Duration, it's possible modify any of the parameter duration,t0,t1 to make modification to the length of the signal
      qreal m_Min_t0;//Start time to make calculation, The min value of time allowable constrained externally. This is NOT YET USED!! MAY BE BUGGED, it's always used as 0.0
      qreal m_SR;//The SR
@@ -322,6 +316,8 @@ private:
      bool m_curveEnabled;
      DataEnvelope *m_envelope;
      bool m_enableEnvelope;
+
+
 };
 
 #endif // GENERICTIMEDATA_H
