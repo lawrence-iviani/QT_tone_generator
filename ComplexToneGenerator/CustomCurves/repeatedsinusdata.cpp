@@ -1,6 +1,18 @@
 #include "repeatedsinusdata.h"
 
 
+RepeatedSinusData::RepeatedSinusData(QWidget *widget) :
+    RepeatedTimeData (widget)
+{
+    //Create the storage class
+    m_sinusDataParams=new SinusDataParams((QObject*)widget);
+    //Connect a signal to call an update if the parameters are changed
+    connect(m_sinusDataParams,SIGNAL(dataUpdated()),this,SLOT(updateData()));
+    //Create a sinusdata UI, connecting the parameters
+    m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
+    //Register the UI for call general update when something change.
+    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "RepeatedSinusData control");
+}
 
 RepeatedSinusData::RepeatedSinusData(TimePlotParams *timePlotParams, QWidget *widget) :
     RepeatedTimeData (timePlotParams)

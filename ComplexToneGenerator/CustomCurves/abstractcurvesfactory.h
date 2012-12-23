@@ -5,7 +5,7 @@
 
 class AbstractCurveFactory {
 public:
-    virtual GenericTimeData * newCurve (QString className) {Q_UNUSED(className); return NULL;}
+    virtual GenericTimeData * newCurve (QString className,QObject *parent=0) {Q_UNUSED(className); Q_UNUSED(parent);return NULL;}
     virtual ~AbstractCurveFactory() {}
 };
 

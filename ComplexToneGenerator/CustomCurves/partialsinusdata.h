@@ -19,6 +19,7 @@ class PartialSinusData :  public PartialTimeData
     Q_PROPERTY(qreal initphase READ initPhase WRITE setInitPhase)
 public:
 
+    PartialSinusData(QWidget *widget=0);
     PartialSinusData(TimePlotParams * timePlotParams, QWidget *widget=0);
     PartialSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
     virtual ~PartialSinusData();

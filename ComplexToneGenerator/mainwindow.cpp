@@ -216,27 +216,39 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
 
 
     if (QString::compare(curveName,"Limited duration Tone generator")==0 ) {
-        PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
-        s->setStartTime(1.414);
+
+ //       PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
+
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("PartialSinusData",m_plotTime);
+     //   s->setParent(m_plotTime);
+        s->setTimePlotParams(m_plotTime->getTimePlotParams() );
+        //s->setStartTime(1.414);
        // s->setDuration(5.1);
-        s->setAmplitudeFrequencyAndPhase(0.5,125,90);
+       // s->setAmplitudeFrequencyAndPhase(0.5,125,90);
         retval=(GenericTimeData*) s;
         return retval;
     }
 
     if (QString::compare(curveName,"Repeated duration Tone generator")==0 ) {
-        RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
-        s->setStartTime(0.2);
-        s->setDuration(0.5);
-        s->setBlankTime(0.25);
-        s->setAmplitudeFrequencyAndPhase(0.250,500,45);
+     //   RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
+     //   s->setStartTime(0.2);
+     //   s->setDuration(0.5);
+     //   s->setBlankTime(0.25);
+     //   s->setAmplitudeFrequencyAndPhase(0.250,500,45);
+
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("RepeatedSinusData",m_plotTime);
+       // s->setParent(m_plotTime);
+        s->setTimePlotParams(m_plotTime->getTimePlotParams() );
         retval=(GenericTimeData*) s;
         return retval;
     }
 
     if (QString::compare(curveName,"Tone generator")==0 ) {
-        GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
-        s->setAmplitudeFrequencyAndPhase(0.125,250,0);
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData",m_plotTime);
+       // s->setParent(m_plotTime);
+        s->setTimePlotParams(m_plotTime->getTimePlotParams() );
+     //   GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
+     //   s->setAmplitudeFrequencyAndPhase(0.125,250,0);
         retval=(GenericTimeData*) s;
         return retval;
     }

@@ -4,7 +4,7 @@
 GenericTimeData::GenericTimeData(QWidget *widget) :
     QObject((QObject*) widget),
     DomHelper(this),
-    m_enableRecalc(true),
+    m_enableRecalc(false),
     m_data(NULL),
     m_name(QString("no name")),
     m_TimePlotParams(NULL),
@@ -34,15 +34,7 @@ GenericTimeData::GenericTimeData(TimePlotParams * timePlotParams,QWidget *widget
 }
 
 void GenericTimeData::init(QWidget * widget) {
-    if (m_TimePlotParams!=NULL) {
-        m_MaxDuration=m_TimePlotParams->duration();
-        m_Min_t0=m_TimePlotParams->minTime();
-        m_SR=m_TimePlotParams->sampleRate();
-    } else {
-        m_MaxDuration=TIMEDATA_DEFAULT_MAX_TIME;
-        m_Min_t0=TIMEDATA_DEFAULT_MIN_TIME;
-        m_SR=TIMEDATA_DEFAULT_SR;
-    }
+    setTimePlotParams();
     m_curve=new QwtPlotCurve(m_name);
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
@@ -54,12 +46,33 @@ void GenericTimeData::init(QWidget * widget) {
     this->regenerateDomDocument();
 }
 
+void GenericTimeData::setTimePlotParams() {
+    if (m_TimePlotParams!=NULL) {
+        m_MaxDuration=m_TimePlotParams->duration();
+        m_Min_t0=m_TimePlotParams->minTime();
+        m_SR=m_TimePlotParams->sampleRate();
+        m_enableRecalc=true;
+    } else {
+        m_MaxDuration=TIMEDATA_DEFAULT_MAX_TIME;
+        m_Min_t0=TIMEDATA_DEFAULT_MIN_TIME;
+        m_SR=TIMEDATA_DEFAULT_SR;
+    }
+}
+
+void GenericTimeData::setTimePlotParams(TimePlotParams * timePlotParams) {
+    m_TimePlotParams=timePlotParams;
+    setTimePlotParams();
+    this->createData();
+}
+
 GenericTimeData::~GenericTimeData() {
     this->deleteAllData();
     if (m_curve!=NULL) {
         free(m_curve);
+        m_curve=NULL;
     }
     free(m_data);
+    m_data=NULL;
 }
 
 void GenericTimeData::connectSignal() {
@@ -494,7 +507,6 @@ bool GenericTimeData::paste() {
     if( QMessageBox::question(NULL,"Confirm paste curve",
                               QString("Do you want to overwrte curve %1 ?").arg(name()),
                               QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return true;
-
 
     QString _name=name();
     QColor _color=color();

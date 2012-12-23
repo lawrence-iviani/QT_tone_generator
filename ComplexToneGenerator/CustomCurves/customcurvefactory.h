@@ -10,7 +10,7 @@ class CustomCurveFactory : public QObject, public AbstractCurveFactory {
     Q_OBJECT
 public:
     static CustomCurveFactory* instance();
-    virtual GenericTimeData * newObject (QString className);
+    virtual GenericTimeData * newCurve (QString className, QWidget *parent=0);
 
 protected:
     CustomCurveFactory() {}

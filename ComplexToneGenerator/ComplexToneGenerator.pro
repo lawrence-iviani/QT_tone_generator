@@ -98,7 +98,8 @@ HEADERS  += CTG_constants.h \
     CustomCurves/partialsinusdata.h \
     mainwindow.h \
     plotwidget/timeplotwidgetparams.h \
-    ctg_app.h
+    ctg_app.h \
+    CustomCurves/customcurvesheader.h
 
 
 FORMS    += mainwindow.ui \

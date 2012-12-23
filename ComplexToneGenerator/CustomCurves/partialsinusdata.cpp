@@ -1,7 +1,17 @@
 #include "partialsinusdata.h"
 
-
-
+PartialSinusData::PartialSinusData(QWidget *widget) :
+    PartialTimeData (widget)
+{
+    //Create the storage class
+    m_sinusDataParams=new SinusDataParams((QObject*)widget);
+    //Connect a signal to call an update if the parameters are changed
+    connect(m_sinusDataParams,SIGNAL(dataUpdated()),this,SLOT(updateData()));
+    //Create a sinusdata UI, connecting the parameters
+    m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
+    //Register the UI for call general update when something change.
+    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "PartialSinusData control");
+}
 
 PartialSinusData::PartialSinusData(TimePlotParams *timePlotParams, QWidget *widget) :
     PartialTimeData (timePlotParams)
@@ -32,7 +42,6 @@ PartialSinusData::PartialSinusData(TimePlotParams * timePlotParams, qreal amplit
     //Register the UI for call general update when something change.
     this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "PartialSinusData control");
 }
-
 
 void PartialSinusData::recalc() {
     qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - PartialSinusData::recalc() ---------------- " << this->name();

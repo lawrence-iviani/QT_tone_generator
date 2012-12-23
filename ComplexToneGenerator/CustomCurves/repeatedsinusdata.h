@@ -22,6 +22,7 @@ class RepeatedSinusData :  public RepeatedTimeData
 
 public:
 
+    RepeatedSinusData(QWidget *widget=0);
     RepeatedSinusData(TimePlotParams * timePlotParams, QWidget *widget=0);
     RepeatedSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
     virtual ~RepeatedSinusData();

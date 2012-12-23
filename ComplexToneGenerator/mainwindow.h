@@ -26,7 +26,7 @@
 #include "selectcurvewindowdialog.h"
 #include "selectremovecurvewindowdialog.h"
 #include "exportaudiofiledialog.h"
-
+#include "CustomCurves/customcurvefactory.h"
 
 namespace Ui {
 class MainWindow;

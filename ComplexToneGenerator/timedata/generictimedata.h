@@ -53,6 +53,7 @@ public:
     bool isEnvelopeEnabled() { return m_enableEnvelope;}
     const QString& name() {return  m_name;}
     const QColor color() {return m_curve->pen().color(); }
+    void setParent(QWidget* widget) {QObject::setParent((QObject*)widget);}
 
     /**
      * @brief insertSignalValue This function insert a qreal value in the sample position index and return true if the insertion is succesful, if return false the index is out of range
@@ -217,6 +218,14 @@ public slots:
       */
      void enableUpdate();
 
+     /**
+      * @brief setTimePlotParams
+      * @param timePlotParams
+      */
+     void setTimePlotParams(TimePlotParams * timePlotParams);
+
+
+
      void copy();
 
      bool paste();
@@ -293,6 +302,7 @@ protected slots:
 private:
      void init(QWidget *widget);
      void connectSignal();
+     void setTimePlotParams();
      QwtPlotCurve *m_curve;
      QwtCPointerData *m_data;
      QString m_name;

@@ -20,7 +20,7 @@ class GenericSinusData :  public GenericTimeData
     Q_PROPERTY(qreal initphase READ initPhase WRITE setInitPhase)
 
 public:
-
+    GenericSinusData(QWidget *widget=0);
     GenericSinusData(TimePlotParams *timePlotParams, QWidget *widget=0);
     GenericSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QWidget *widget=0);
     virtual ~GenericSinusData();
