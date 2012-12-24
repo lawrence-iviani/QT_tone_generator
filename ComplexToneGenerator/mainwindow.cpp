@@ -32,13 +32,15 @@ void MainWindow::initAudio() {
 void MainWindow::connectSignals() {
     //connect command buttons
     connect(s_button.addCurve,SIGNAL(clicked()),SLOT(newCurve()));
-    connect(s_button.removeAllCurves,SIGNAL(clicked()),SLOT(removeAllCurvesWithDialog()));
     connect(s_button.removeCurve,SIGNAL(clicked()),SLOT(removeCurve()));
+
+#ifdef COMPLETE_FAST_SELECTION
+    connect(s_button.removeAllCurves,SIGNAL(clicked()),SLOT(removeAllCurvesWithDialog()));
     connect(s_button.exportDigest,SIGNAL(clicked()),SLOT(exportDigestCurve()));
     connect(s_button.exportXML ,SIGNAL(clicked()),SLOT(exportXML()));
     connect(s_button.importXML,SIGNAL(clicked()),SLOT(importXML()));
     connect(s_button.showXML ,SIGNAL(clicked()),SLOT(showXML()));
-
+#endif
     //connect digest curve to handle update in the plots
     connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
 
@@ -47,6 +49,7 @@ void MainWindow::connectSignals() {
 }
 
 void MainWindow::setupUI() {
+    connectMenusAndShortcut();
     setupSplitters();
     s_widgetUI.buttonsFrame=createButtonsFrame();
     s_widgetUI.toolboxOptionFrame=setupOptionsFrame();
@@ -60,6 +63,44 @@ void MainWindow::setupUI() {
 
     //Layout all the windows
     ui->centralwidget->layout()->addWidget(s_widgetUI.globalSplitter);
+}
+
+void MainWindow::connectMenusAndShortcut() {
+       // connect(ui-> ,SIGNAL(triggered()),this,SLOT );
+    //---------File menu
+    {
+        //NEW
+        connect(ui->actionNew_Project,SIGNAL(triggered()),this,SLOT(removeAllCurvesWithDialog()));//new
+        //LOAD
+        connect(ui->actionLoad_Project ,SIGNAL(triggered()),this,SLOT(importXML()));
+        //SAVE
+      //  connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT());
+        //SAVE AS
+        connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT(exportXML()));
+        //Import curve
+        //connect(ui->actionImport_curve,SIGNAL(triggered()),this,SLOT( ) );//NOT IMPLEMENTED YET
+        //EXPORT AUDIO FILE
+        connect(ui->actionExport_audio_file,SIGNAL(triggered()),this,SLOT(exportDigestCurve()));
+    }
+
+    //---------Curves menu
+    {
+        //NEW CURVE
+        connect(ui->actionAdd_curve,SIGNAL(triggered()),this,SLOT(newCurve()));
+        //DUPLICATE
+        //connect(ui-> ,SIGNAL(triggered()),this,SLOT );
+        //REMOVE ALL
+        connect(ui->actionRemove_all_curves,SIGNAL(triggered()),this,SLOT(removeAllCurvesWithDialog()) );
+        //REMOVE ONE
+        connect(ui->actionRemove_curve ,SIGNAL(triggered()),this,SLOT(removeCurve()) );
+    }
+
+    //---------Show menu
+    connect(ui->actionShow_Proj_struct,SIGNAL(triggered()),this,SLOT(showXML()));
+
+    //---------About menu
+
+
 }
 
 void MainWindow::setupSplitters() {
@@ -93,9 +134,13 @@ void MainWindow::setupSplitters() {
 QFrame *MainWindow::createButtonsFrame()  {
     QVBoxLayout *_l=new QVBoxLayout();
 
+    //20121224 Added menu support, so buttons controls now are intended only for fast operations. Reactvate define COMPLETE_FAST_SELECTION in compile
+
     //Init buttons
     s_button.addCurve=new QPushButton("Add curve");
     s_button.removeCurve=new QPushButton("Remove curve");
+
+#ifdef COMPLETE_FAST_SELECTION
     s_button.removeAllCurves=new QPushButton("Remove all curves");
     s_button.exportDigest=new QPushButton("Export digest");
     s_button.exportXML=new QPushButton("Export XML");
@@ -109,13 +154,16 @@ QFrame *MainWindow::createButtonsFrame()  {
     lh->addWidget(s_button.showXML,1,Qt::AlignLeft);
     QWidget *_buttonWidget=new QWidget(this);
     _buttonWidget->setLayout((QLayout*)lh);
-
+#endif
     //Layout the button panel
     _l->addWidget(s_button.addCurve);
-    _l->addWidget(s_button.removeAllCurves);
     _l->addWidget(s_button.removeCurve);
+
+#ifdef COMPLETE_FAST_SELECTION
+    _l->addWidget(s_button.removeAllCurves);
     _l->addWidget(s_button.exportDigest);
     _l->addWidget(_buttonWidget);
+#endif
 
     QFrame *_w=new QFrame();
     _w->setFrameStyle(QFrame::QFrame::Raised);
@@ -277,12 +325,15 @@ void MainWindow::removeCurve(){
      QStringList  sl=m_plotTime->getTimeDataStringList();
      SelectRemoveCurveWindowDialog * removeDialog=new SelectRemoveCurveWindowDialog(&sl,this);//(sl,this);
      removeDialog->exec();
+     bool _firstTime=true;
      foreach (int i, removeDialog->getRemoveCurvesIndex()) {
+            int _index;
+            _index=(_firstTime ? i : i-1);
             s_widgetUI.toolboxOption->removeItem(i+m_toolBoxFixedItem);
-            if (!m_plotTime->removeTimeData(i)) {
-                qWarning() << "MainWindow::removeCurve: can't remove GenericTimeData@index=" <<i;
+            if (!m_plotTime->removeTimeData(_index)) {
+                qWarning() << "MainWindow::removeCurve: can't remove GenericTimeData@index=" <<_index;
             } else {
-                qDebug() << "MainWindow::removeCurve: removed GenericTimeData@index=" <<i;
+                qDebug() << "MainWindow::removeCurve: removed GenericTimeData@index=" <<_index;
             }
      }
      delete removeDialog;
@@ -294,12 +345,10 @@ void MainWindow::removeAllCurvesWithDialog() {
 }
 
 void MainWindow::removeAllCurves() {
-    //const QList<GenericTimeData*> & getTimeDataList()
-    //const QList<GenericTimeData*> _gtdList= m_plotTime->getTimeDataList();
-    while (m_plotTime->removeTimeData(0))  {
+     while (m_plotTime->removeTimeData(0))  {
         s_widgetUI.toolboxOption->removeItem(m_toolBoxFixedItem);
-  //      if (!m_plotTime->removeTimeData(0))
-  //          qWarning() << "MainWindow::removeAllCurves can't remove GenericTimeData " << " @ index=0,  null pointer?";
+        if (!m_plotTime->removeTimeData(0))
+            qWarning() << "MainWindow::removeAllCurves can't remove GenericTimeData " << " @ index=0,  null pointer?";
     }
 }
 
@@ -483,7 +532,8 @@ bool MainWindow::importXML() {
     removeAllCurves();
 
     //Disable update
-    m_plotTime->setEnableUpdate(false);
+    bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
+ //   bool _prevValueEnableDigestRecalc=m_plotTime->set
 
     //set project properties
 
@@ -501,7 +551,7 @@ bool MainWindow::importXML() {
     m_plotTime->getTimePlotParams()->setClassByDomData(_nodeProjParam);
     m_plotTime->updateUI();//need to manual recal, all the update are disabled!
 
-    QDomNodeList _nodeListCurves=_doc.toElement().elementsByTagName(GENERICTIMEDATA_TAG);
+    QDomNodeList _nodeListCurves=_doc.elementsByTagName(GENERICTIMEDATA_TAG);
     qDebug() << "MainWindow::importXML() find "  <<  _nodeListCurves.length() << " curves";
     for (unsigned int n=0; n < _nodeListCurves.length(); n++) {
         QDomNode _node=_nodeListCurves.at(n);
@@ -519,24 +569,10 @@ bool MainWindow::importXML() {
         GenericTimeData* _curve=NULL;
         _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName);
 
-//        if (QString::compare(_objTypeName,"PartialSinusData")==0 ) {
-//            qDebug() << "MainWindow::importXML() init  PartialSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
-//            PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
-//            _curve=(GenericTimeData*) s;
-//        }
-//        if (QString::compare(_objTypeName,"RepeatedSinusData")==0 ) {
-//            qDebug() << "MainWindow::importXML() init  RepeatedSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
-//            RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
-//            _curve=(GenericTimeData*) s;
-//        }
-//        if (QString::compare(_objTypeName,"GenericSinusData")==0 ) {
-//            qDebug() << "MainWindow::importXML() init  GenericSinusData with SR=" << m_plotTime->getTimePlotParams()->sampleRate() << " duration=" << m_plotTime->getTimePlotParams()->duration();
-//            GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
-//            _curve=(GenericTimeData*) s;
-//        }
         //set class with DomObject
         if (_curve!=NULL) {
             _curve->inihbitUpdate();
+            _curve->setTimePlotParams(m_plotTime->getTimePlotParams() );
             if (!_curve->importXML(_node)) {
                 QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
                 return false;
@@ -553,12 +589,11 @@ bool MainWindow::importXML() {
     }
 
     //enable again and force recalc
-     m_plotTime->setEnableUpdate(true);
-     m_plotTime->forceRecreateAll();//TODO: all the data curve are created during init.. this should not be needed.
+     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
+    // m_plotTime->forceRecreateAll();//TODO: all the data curve are created during init.. this should not be needed.
+     m_plotTime->forceUpdateUI();
      m_plotTime->updatePlot();
 
-
-
     return  true;
-
 }
+

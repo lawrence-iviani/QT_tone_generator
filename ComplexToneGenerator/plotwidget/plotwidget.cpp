@@ -147,6 +147,15 @@ void PlotWidget::forceRecreateAll() {
     }
 }
 
+void PlotWidget::forceUpdateUI() {
+    if (!m_enableUpdate) return;
+    foreach(GenericTimeData* p, m_curveList) {
+        p->getControlWidget()->updateUI();
+        //p->regenerateDomDocument();
+    }
+}
+
+
 void PlotWidget::forceUpdateAll() {
     if (!m_enableUpdate) return;
     foreach(GenericTimeData* p, m_curveList) {

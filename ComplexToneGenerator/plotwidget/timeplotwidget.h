@@ -52,6 +52,13 @@ public slots:
     }
 
     /**
+     * @brief setEnableUpdate enable/disble of update the widget, this is propagate to all curves
+     * @param enable
+     * @return the previous value
+     */
+    virtual bool setEnableUpdate(bool enable);
+
+    /**
      * @brief forceRecalcAll force to recalc all the data curve and the digest curve. All the curves are recalculated by calling recalc
      */
     virtual void forceRecreateAll();

@@ -39,10 +39,38 @@
     <property name="title">
      <string>File</string>
     </property>
-    <addaction name="actionSave_project"/>
+    <addaction name="actionNew_Project"/>
     <addaction name="actionLoad_Project"/>
+    <addaction name="actionSave_project"/>
+    <addaction name="actionSave_as"/>
+    <addaction name="actionImport_curve"/>
+    <addaction name="actionExport_audio_file"/>
+   </widget>
+   <widget class="QMenu" name="menuCurves">
+    <property name="title">
+     <string>Curves</string>
+    </property>
+    <addaction name="actionAdd_curve"/>
+    <addaction name="actionDuplicate_curves"/>
+    <addaction name="actionRemove_all_curves"/>
+    <addaction name="actionRemove_curve"/>
+   </widget>
+   <widget class="QMenu" name="menuAbout">
+    <property name="title">
+     <string>About</string>
+    </property>
+    <addaction name="actionAbout_CTG"/>
+   </widget>
+   <widget class="QMenu" name="menuShow">
+    <property name="title">
+     <string>Show</string>
+    </property>
+    <addaction name="actionShow_Proj_struct"/>
    </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuCurves"/>
+   <addaction name="menuShow"/>
+   <addaction name="menuAbout"/>
   </widget>
   <action name="actionSave_project">
    <property name="text">
@@ -52,6 +80,59 @@
   <action name="actionLoad_Project">
    <property name="text">
     <string>Load Project</string>
+   </property>
+  </action>
+  <action name="actionImport_curve">
+   <property name="text">
+    <string>Import curve</string>
+   </property>
+  </action>
+  <action name="actionExport_audio_file">
+   <property name="text">
+    <string>Export audio file...</string>
+   </property>
+  </action>
+  <action name="actionRemove_all_curves">
+   <property name="text">
+    <string>Remove all curves</string>
+   </property>
+  </action>
+  <action name="actionRemove_curve">
+   <property name="text">
+    <string>Remove curve</string>
+   </property>
+  </action>
+  <action name="actionAdd_curve">
+   <property name="text">
+    <string>Add curve</string>
+   </property>
+  </action>
+  <action name="actionDuplicate_curves">
+   <property name="text">
+    <string>Duplicate curves</string>
+   </property>
+  </action>
+  <action name="actionAbout_CTG">
+   <property name="text">
+    <string>About CTG</string>
+   </property>
+  </action>
+  <action name="actionNew_Project">
+   <property name="text">
+    <string>New Project</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new Project</string>
+   </property>
+  </action>
+  <action name="actionShow_Proj_struct">
+   <property name="text">
+    <string>Show Proj struct</string>
+   </property>
+  </action>
+  <action name="actionSave_as">
+   <property name="text">
+    <string>Save as...</string>
    </property>
   </action>
  </widget>

@@ -54,6 +54,9 @@ public slots:
     void removeAllCurves();
     void removeAllCurvesWithDialog();
 
+
+
+
 private:
     void setupUI();
     void setupSplitters();
@@ -63,6 +66,7 @@ private:
     void initAudio();
     void connectSignals();
     QDomDocument createDomDocument();
+    void connectMenusAndShortcut();
 
     //THESE FUNCTION MUST BE INSERTED IN SOME KIND OF EXTERNAL UTILITY
     void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window

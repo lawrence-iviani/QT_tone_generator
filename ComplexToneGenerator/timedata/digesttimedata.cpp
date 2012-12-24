@@ -1,8 +1,7 @@
 #include "digesttimedata.h"
 
 DigestTimeData::DigestTimeData(QList<GenericTimeData *> *curveList) :
-    GenericTimeData(),
-    m_inhibitRecalc(false)
+    GenericTimeData()
 {
     m_curveList=curveList;
     setName(QString("Digest"));
@@ -14,8 +13,7 @@ DigestTimeData::DigestTimeData(QList<GenericTimeData *> *curveList) :
 }
 
 DigestTimeData::DigestTimeData(QList<GenericTimeData*> * curveList, TimePlotParams * timePlotParams ) :
-    GenericTimeData(timePlotParams),
-    m_inhibitRecalc(false)
+    GenericTimeData(timePlotParams)
 {
     m_curveList=curveList;
     setName(QString("Digest"));
@@ -36,15 +34,15 @@ void DigestTimeData::setTimeDataList(QList<GenericTimeData *> *curveList) {
 void DigestTimeData::updateData() {
     //Need to force a reset, because the digest list is updated when all the curves are updated, this means that
     // for example, SR o duration change this will updated twice. In this case force a reset before go on.
-    DigestTimeData::createData();
+    if (m_enableRecalc) DigestTimeData::createData();
 }
 
 void DigestTimeData::recalc() {
-    if (m_inhibitRecalc) {
-        qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() DISABLED!! " << this->name();
+    if (!m_enableRecalc) {
+        qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() was  DISABLED!! " << this->name();
         return;
     }
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() ---------------- " << this->name();
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() is enabled---------------- " << this->name();
 
     Q_ASSERT(m_curveList!=NULL);
     const qreal * digestData=this->getSignalData();

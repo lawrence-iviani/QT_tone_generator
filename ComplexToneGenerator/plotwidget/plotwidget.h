@@ -95,7 +95,7 @@ public slots:
      * @param enable
      * @return the previous value
      */
-    bool setEnableUpdate(bool enable);
+    virtual bool setEnableUpdate(bool enable);
 
     /**
      * @brief forceRecalcAll force to recalc all the data curve. All the curves are recalculated by calling recalc
@@ -107,6 +107,10 @@ public slots:
      */
     virtual void forceUpdateAll() ;
 
+    /**
+     * @brief forceUpdateUI force to update only the UI and the DOM data to be aligned.
+     */
+    virtual void forceUpdateUI();
 
 protected:
     QList<GenericTimeData*> m_curveList;

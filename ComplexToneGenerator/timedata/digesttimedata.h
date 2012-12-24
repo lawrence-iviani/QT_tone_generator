@@ -18,12 +18,13 @@ public:
     DigestTimeData(QList<GenericTimeData*> * curveList, TimePlotParams * timePlotParams);//double maxDuration, double SRGen);
     virtual ~DigestTimeData();
 
-    bool inhibitRecalc() {return m_inhibitRecalc;}
-    bool setInhibitRecalc(bool inhibit) {
-        bool retval=m_inhibitRecalc;
-        m_inhibitRecalc=inhibit;
-        return retval;
-    }
+    //This was a duplicated function conflicting with an equivalent in super class generictimedata, removed 20121224
+//    bool inhibitRecalc() {return m_inhibitRecalc;}
+//    bool setInhibitRecalc(bool inhibit) {
+//        bool retval=m_inhibitRecalc;
+//        m_inhibitRecalc=inhibit;
+//        return retval;
+//    }
     
 signals:
 public slots:
@@ -34,7 +35,7 @@ public slots:
 protected:
 
 private:
-    bool m_inhibitRecalc;
+    //bool m_inhibitRecalc;
     virtual void recalc();
     QList<GenericTimeData*> * m_curveList;
 };
