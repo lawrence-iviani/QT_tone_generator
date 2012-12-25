@@ -16,7 +16,7 @@ SUBDIRS += ScaledSliderWidget \
            ComboBoxWidgetColor \
            QwtHelpers \
            SelectCurveWindowDialog \
-           SelectRemoveCurveWindowDialog \
+           SelectMultipleCurvesWindowDialog \
            ExportAudioFileWidget \
            WidgetLib
            

@@ -1,23 +1,23 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2012-10-15T20:05:45
+# Project created by QtCreator 2012-12-24T23:14:22
 #
 #-------------------------------------------------
 
 QT       += core gui
 
-TARGET = SelectRemoveCurveWindowDialog
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
+TARGET = SelectMultipleCurvesWindowDialog
 TEMPLATE = lib
 
+QMAKE_CLEAN += *.o  *.app *.exe *.dll *.a *.so *.dylib
 
-SOURCES += main.cpp\
-        selectremovecurvewindowdialog.cpp
+SOURCES += selectmultiplecurveswindowdialog.cpp
 
-HEADERS  += selectremovecurvewindowdialog.h
+HEADERS  += selectmultiplecurveswindowdialog.h
 
-FORMS    += selectremovecurvewindowdialog.ui
-
-QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
+FORMS    += selectmultiplecurveswindowdialog.ui
 
 symbian {
     MMP_RULES += EXPORTUNFROZEN

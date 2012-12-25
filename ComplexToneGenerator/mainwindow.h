@@ -24,7 +24,7 @@
 #include "CustomCurves/constanttimedata.h"
 #include "CustomCurves/repeatedsinusdata.h"
 #include "selectcurvewindowdialog.h"
-#include "selectremovecurvewindowdialog.h"
+#include "selectmultiplecurveswindowdialog.h"
 #include "exportaudiofiledialog.h"
 #include "CustomCurves/customcurvefactory.h"
 

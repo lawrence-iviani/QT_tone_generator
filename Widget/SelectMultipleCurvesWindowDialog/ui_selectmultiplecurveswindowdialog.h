@@ -1,14 +1,14 @@
 /********************************************************************************
-** Form generated from reading UI file 'selectremovecurvewindowdialog.ui'
+** Form generated from reading UI file 'selectmultiplecurveswindowdialog.ui'
 **
-** Created: Mon Oct 15 22:40:06 2012
+** Created: Tue Dec 25 00:10:38 2012
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef UI_SELECTREMOVECURVEWINDOWDIALOG_H
-#define UI_SELECTREMOVECURVEWINDOWDIALOG_H
+#ifndef UI_SELECTMULTIPLECURVESWINDOWDIALOG_H
+#define UI_SELECTMULTIPLECURVESWINDOWDIALOG_H
 
 #include <QtCore/QVariant>
 #include <QtGui/QAction>
@@ -26,24 +26,25 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_SelectRemoveCurveWindowDialog
+class Ui_SelectMultipleCurvesWindowDialog
 {
 public:
     QWidget *verticalLayoutWidget;
     QVBoxLayout *verticalLayout;
-    QLabel *label;
+    QLabel *titleLabel;
     QListView *listViewCurves;
     QHBoxLayout *horizontalLayout;
-    QPushButton *pushButtonRemove;
+    QPushButton *pushButtonOK;
     QSpacerItem *horizontalSpacer;
     QPushButton *pushButtonBack;
 
-    void setupUi(QDialog *SelectRemoveCurveWindowDialog)
+    void setupUi(QDialog *SelectMultipleCurvesWindowDialog)
     {
-        if (SelectRemoveCurveWindowDialog->objectName().isEmpty())
-            SelectRemoveCurveWindowDialog->setObjectName(QString::fromUtf8("SelectRemoveCurveWindowDialog"));
-        SelectRemoveCurveWindowDialog->resize(401, 340);
-        verticalLayoutWidget = new QWidget(SelectRemoveCurveWindowDialog);
+        if (SelectMultipleCurvesWindowDialog->objectName().isEmpty())
+            SelectMultipleCurvesWindowDialog->setObjectName(QString::fromUtf8("SelectMultipleCurvesWindowDialog"));
+        SelectMultipleCurvesWindowDialog->setWindowModality(Qt::WindowModal);
+        SelectMultipleCurvesWindowDialog->resize(401, 340);
+        verticalLayoutWidget = new QWidget(SelectMultipleCurvesWindowDialog);
         verticalLayoutWidget->setObjectName(QString::fromUtf8("verticalLayoutWidget"));
         verticalLayoutWidget->setGeometry(QRect(0, -1, 401, 331));
         verticalLayout = new QVBoxLayout(verticalLayoutWidget);
@@ -51,11 +52,11 @@ public:
         verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         verticalLayout->setContentsMargins(5, 3, 5, 3);
-        label = new QLabel(verticalLayoutWidget);
-        label->setObjectName(QString::fromUtf8("label"));
-        label->setAlignment(Qt::AlignCenter);
+        titleLabel = new QLabel(verticalLayoutWidget);
+        titleLabel->setObjectName(QString::fromUtf8("titleLabel"));
+        titleLabel->setAlignment(Qt::AlignCenter);
 
-        verticalLayout->addWidget(label);
+        verticalLayout->addWidget(titleLabel);
 
         listViewCurves = new QListView(verticalLayoutWidget);
         listViewCurves->setObjectName(QString::fromUtf8("listViewCurves"));
@@ -65,10 +66,10 @@ public:
         horizontalLayout = new QHBoxLayout();
         horizontalLayout->setSpacing(6);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        pushButtonRemove = new QPushButton(verticalLayoutWidget);
-        pushButtonRemove->setObjectName(QString::fromUtf8("pushButtonRemove"));
+        pushButtonOK = new QPushButton(verticalLayoutWidget);
+        pushButtonOK->setObjectName(QString::fromUtf8("pushButtonOK"));
 
-        horizontalLayout->addWidget(pushButtonRemove);
+        horizontalLayout->addWidget(pushButtonOK);
 
         horizontalSpacer = new QSpacerItem(20, 20, QSizePolicy::Preferred, QSizePolicy::Minimum);
 
@@ -83,27 +84,25 @@ public:
         verticalLayout->addLayout(horizontalLayout);
 
 
-        retranslateUi(SelectRemoveCurveWindowDialog);
-        QObject::connect(pushButtonRemove, SIGNAL(clicked()), SelectRemoveCurveWindowDialog, SLOT(removeButtonPressed()));
-        QObject::connect(pushButtonBack, SIGNAL(clicked()), SelectRemoveCurveWindowDialog, SLOT(removeButtonPressed()));
+        retranslateUi(SelectMultipleCurvesWindowDialog);
 
-        QMetaObject::connectSlotsByName(SelectRemoveCurveWindowDialog);
+        QMetaObject::connectSlotsByName(SelectMultipleCurvesWindowDialog);
     } // setupUi
 
-    void retranslateUi(QDialog *SelectRemoveCurveWindowDialog)
+    void retranslateUi(QDialog *SelectMultipleCurvesWindowDialog)
     {
-        SelectRemoveCurveWindowDialog->setWindowTitle(QApplication::translate("SelectRemoveCurveWindowDialog", "SelectRemoveCurveWindowDialog", 0, QApplication::UnicodeUTF8));
-        label->setText(QApplication::translate("SelectRemoveCurveWindowDialog", "Select curves to remove", 0, QApplication::UnicodeUTF8));
-        pushButtonRemove->setText(QApplication::translate("SelectRemoveCurveWindowDialog", "Remove", 0, QApplication::UnicodeUTF8));
-        pushButtonBack->setText(QApplication::translate("SelectRemoveCurveWindowDialog", "Go Back", 0, QApplication::UnicodeUTF8));
+        SelectMultipleCurvesWindowDialog->setWindowTitle(QApplication::translate("SelectMultipleCurvesWindowDialog", "Select curves dialog", 0, QApplication::UnicodeUTF8));
+        titleLabel->setText(QApplication::translate("SelectMultipleCurvesWindowDialog", "Select curves ........", 0, QApplication::UnicodeUTF8));
+        pushButtonOK->setText(QApplication::translate("SelectMultipleCurvesWindowDialog", "Ok", 0, QApplication::UnicodeUTF8));
+        pushButtonBack->setText(QApplication::translate("SelectMultipleCurvesWindowDialog", "Go Back", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 
 };
 
 namespace Ui {
-    class SelectRemoveCurveWindowDialog: public Ui_SelectRemoveCurveWindowDialog {};
+    class SelectMultipleCurvesWindowDialog: public Ui_SelectMultipleCurvesWindowDialog {};
 } // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_SELECTREMOVECURVEWINDOWDIALOG_H
+#endif // UI_SELECTMULTIPLECURVESWINDOWDIALOG_H

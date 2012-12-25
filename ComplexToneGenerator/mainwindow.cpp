@@ -323,10 +323,11 @@ void MainWindow::timeDataUpdated() {
 
 void MainWindow::removeCurve(){
      QStringList  sl=m_plotTime->getTimeDataStringList();
-     SelectRemoveCurveWindowDialog * removeDialog=new SelectRemoveCurveWindowDialog(&sl,this);//(sl,this);
+     SelectMultipleCurvesWindowDialog * removeDialog=new SelectMultipleCurvesWindowDialog(&sl,this);
+     removeDialog->setActionDialog("remove");
      removeDialog->exec();
      bool _firstTime=true;
-     foreach (int i, removeDialog->getRemoveCurvesIndex()) {
+     foreach (int i, removeDialog->getSelectedCurvesIndex()) {
             int _index;
             _index=(_firstTime ? i : i-1);
             s_widgetUI.toolboxOption->removeItem(i+m_toolBoxFixedItem);

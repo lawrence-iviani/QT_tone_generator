@@ -1,6 +1,5 @@
-#include <QtGui/QApplication>
-#include "selectremovecurvewindowdialog.h"
-
+#include <QApplication>
+#include "selectmultiplecurveswindowdialog.h"
 #include <QDebug>
 
 int main(int argc, char *argv[])
@@ -8,7 +7,7 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     QStringList list;
     list << "a" << "b" << "c";
-    SelectRemoveCurveWindowDialog * w=new SelectRemoveCurveWindowDialog(&list);
+    SelectMultipleCurvesWindowDialog * w=new SelectMultipleCurvesWindowDialog(&list);
     w->show();
 
     a.exec();
