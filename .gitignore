@@ -61,3 +61,7 @@ ComplexToneGenerator/Makefile
 ComplexToneGenerator/ComplexToneGenerator.pro.user.1.3
 
 *.autosave
+
+*.user
+
+Widget/ScaledSliderWidget/ScaledSliderWidget.pro.user

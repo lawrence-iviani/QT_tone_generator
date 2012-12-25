@@ -143,7 +143,7 @@ void PlotWidget::forceRecreateAll() {
     foreach(GenericTimeData* p, m_curveList) {
         p->createData();
         p->getControlWidget()->updateUI();
-        //p->regenerateDomDocument();
+        p->forceRegenerateDomDocument();
     }
 }
 
@@ -151,7 +151,7 @@ void PlotWidget::forceUpdateUI() {
     if (!m_enableUpdate) return;
     foreach(GenericTimeData* p, m_curveList) {
         p->getControlWidget()->updateUI();
-        //p->regenerateDomDocument();
+        p->forceRegenerateDomDocument();
     }
 }
 
@@ -161,7 +161,7 @@ void PlotWidget::forceUpdateAll() {
     foreach(GenericTimeData* p, m_curveList) {
         p->updateData();
         p->getControlWidget()->updateUI();
-        //p->regenerateDomDocument();
+        p->forceRegenerateDomDocument();
     }
 }
 
