@@ -15,7 +15,7 @@ ScaledSlider::ScaledSlider( QWidget *parent,
             setScaleEngine(new QwtLinearScaleEngine() );
             break;
     }
-    connect(this, SIGNAL(valueChanged(double )) ,this,SLOT (convertSliderValue(double)));
+    connect(this, SIGNAL(valueChanged(double)) ,this,SLOT (convertSliderValueD(double)));
 }
 
 ScaledSlider::ScaledSlider( QWidget *parent,
@@ -25,11 +25,11 @@ ScaledSlider::ScaledSlider( QWidget *parent,
 {
     m_scale=ScaledSlider::Linear;
 
-    connect(this, SIGNAL(valueChanged(double )) ,this,SLOT (convertSliderValue(double)));
+    connect(this, SIGNAL(valueChanged(double )) ,this,SLOT (convertSliderValueD(double)));
 }
 
 
-void ScaledSlider::setScale(double vmin, double vmax, double step) {
+void ScaledSlider::setScale(qreal vmin, qreal vmax, qreal step) {
     switch (m_scale) {
         case ScaledSlider::Logarithmic:
             QwtSlider::setRange(this->value2logslider(vmin),this->value2logslider(vmax),step);
@@ -41,7 +41,11 @@ void ScaledSlider::setScale(double vmin, double vmax, double step) {
     QwtSlider::setScale(vmin,vmax);
 }
 
-void  ScaledSlider::convertSliderValue(double value) {
+void  ScaledSlider::convertSliderValueD(double value) {
+    convertSliderValueR((qreal)value);
+}
+
+void  ScaledSlider::convertSliderValueR(qreal value) {
     switch (m_scale) {
         case ScaledSlider::Logarithmic:
             emit(convertedValueChanged(this->logslider2value(value)));
@@ -53,7 +57,7 @@ void  ScaledSlider::convertSliderValue(double value) {
 
 }
 
-void ScaledSlider::setNotConvertedValue(double val) {
+void ScaledSlider::setNotConvertedValue(qreal val) {
     switch (m_scale) {
         case ScaledSlider::Logarithmic:
             this->setValue(this->value2logslider(val));
@@ -64,8 +68,8 @@ void ScaledSlider::setNotConvertedValue(double val) {
     }
 }
 
-double ScaledSlider::convertedValue() {
-    double retval;
+qreal ScaledSlider::convertedValue() {
+    qreal retval;
     switch (m_scale) {
         case ScaledSlider::Logarithmic:
             retval=this->logslider2value(this->value());
@@ -75,6 +79,31 @@ double ScaledSlider::convertedValue() {
             break;
     }
     return retval;
-
 }
 
+
+qreal ScaledSlider::getMinimumScaleValue() {
+    qreal retval;
+    switch (m_scale) {
+        case ScaledSlider::Logarithmic:
+            retval=this->logslider2value(this->minValue());
+            break;
+        default:
+            retval=this->minValue();
+            break;
+    }
+    return retval;
+}
+
+qreal ScaledSlider::getMaximumScaleValue(){
+    qreal retval;
+    switch (m_scale) {
+        case ScaledSlider::Logarithmic:
+            retval=this->logslider2value(this->maxValue());
+            break;
+        default:
+            retval=this->maxValue();
+            break;
+    }
+    return retval;
+}

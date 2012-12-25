@@ -5,6 +5,7 @@
 #-------------------------------------------------
 
 QT       += core gui
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 TARGET = ScaledSliderWidgetTest
 TEMPLATE = app
@@ -23,4 +24,4 @@ HEADERS  += scaledslider.h \
 
 FORMS    += mainwindow.ui
 
-QMAKE_CLEAN += *.o  *.app *.exe 
+QMAKE_CLEAN += *.o  *.app *.exe *.dylib

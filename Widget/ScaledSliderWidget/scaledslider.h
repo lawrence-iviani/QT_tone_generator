@@ -17,23 +17,27 @@ public:
     ScaledSlider( QWidget *parent, Qt::Orientation orientation, ScalePos scalePos, BackgroundStyles bgStyle, ScaledSlider::Scale type);
     ScaledSlider( QWidget *parent, Qt::Orientation orientation, ScalePos scalePos, BackgroundStyles bgStyle);
 
-    virtual void setScale(double vmin, double vmax, double step);
-    double convertedValue();
+    virtual void setScale(qreal vmin, qreal vmax, qreal step);
+    qreal convertedValue();
+
+    qreal getMinimumScaleValue();
+    qreal getMaximumScaleValue();
 signals:
-    void convertedValueChanged(double);
+    void convertedValueChanged(qreal);
 public slots:
-    void setNotConvertedValue(double val);
+    void setNotConvertedValue(qreal val);
 protected:
   //  virtual void valueChange();
     int m_scale;
 
     QwtScaleEngine * m_scaleEngine;
 private:
-    double logslider2value(double v) { return pow(10.0,v); }
-    double value2logslider(double v) { return log10(v); }
+    qreal logslider2value(qreal v) { return pow(10.0,v); }
+    qreal value2logslider(qreal v) { return log10(v); }
 
 private slots:
-    void convertSliderValue(double value);
+    void convertSliderValueR(qreal value);
+    void convertSliderValueD(double value);
 };
 
 #endif // SCALESLIDER_H

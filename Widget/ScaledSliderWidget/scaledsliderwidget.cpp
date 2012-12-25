@@ -2,7 +2,7 @@
 
 
 ScaledSliderWidget::ScaledSliderWidget( QWidget *parent, Qt::Orientation orientation,  ScaledSlider::Scale type) {
-
+    m_digitAccuracy=SCALED_SLIDER_DEFAULT_DIGIT_ACCURACY;
     if (orientation==Qt::Horizontal) {
         m_slider=new ScaledSlider(parent, orientation, QwtSlider::BottomScale, QwtSlider::Trough | QwtSlider::Groove,type);
         this->horizontalLayout(parent);
@@ -12,11 +12,13 @@ ScaledSliderWidget::ScaledSliderWidget( QWidget *parent, Qt::Orientation orienta
     }    
     connect(m_slider,SIGNAL(sliderPressed()),this,SLOT(sliderStartMoving()));
     connect(m_slider,SIGNAL(sliderReleased()) ,this,SLOT(sliderStopMoving()));
+    connect(m_magnitudeValue,SIGNAL(editingFinished()), this,SLOT(textValueEdited()));
     m_sliderIsMoving=false;
-    connect(m_slider,SIGNAL(convertedValueChanged(double)), this ,SLOT(updateValue(double)));
+    connect(m_slider,SIGNAL(convertedValueChanged(qreal)), this ,SLOT(updateValue(qreal)));
 }
 
 ScaledSliderWidget::ScaledSliderWidget( QWidget *parent, Qt::Orientation orientation) {
+    m_digitAccuracy=SCALED_SLIDER_DEFAULT_DIGIT_ACCURACY;
     if (orientation==Qt::Horizontal) {
         m_slider=new ScaledSlider(parent, orientation, QwtSlider::BottomScale, QwtSlider::Trough | QwtSlider::Groove); 
         this->horizontalLayout(parent);
@@ -26,11 +28,12 @@ ScaledSliderWidget::ScaledSliderWidget( QWidget *parent, Qt::Orientation orienta
     }
     connect(m_slider,SIGNAL(sliderPressed()),this,SLOT(sliderStartMoving()));
     connect(m_slider,SIGNAL(sliderReleased()) ,this,SLOT(sliderStopMoving()));
+    connect(m_magnitudeValue,SIGNAL(editingFinished()), this, SLOT(textValueEdited()));
     m_sliderIsMoving=false;
-    connect(m_slider,SIGNAL(convertedValueChanged(double)), this ,SLOT(updateValue(double)));
+    connect(m_slider,SIGNAL(convertedValueChanged(qreal)), this ,SLOT(updateValue(qreal)));
 }
 
-void ScaledSliderWidget::setScale(double vmin, double vmax, double step) {
+void ScaledSliderWidget::setScale(qreal vmin, qreal vmax, qreal step) {
     m_slider->setScale(vmin,vmax,step);
 }
 
@@ -61,7 +64,7 @@ void ScaledSliderWidget::verticalLayout(QWidget *parent) {
 
     m_magnitudeValue=new QLineEdit(parent);
     m_magnitudeValue->setAlignment(Qt::AlignVCenter|Qt::AlignLeft);
-    m_magnitudeValue->setDisabled(true);
+    //m_magnitudeValue->setDisabled(true);
     m_magnitudeValue->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Minimum);
     m_magnitudeValue->setMinimumWidth((1.0/2.0)*verticalOrientation_minWidth);
     m_magnitudeValue->setMaximumHeight((1.0/7.0)*verticalOrientation_minHeight);
@@ -88,7 +91,6 @@ void ScaledSliderWidget::horizontalLayout(QWidget *parent)
     m_slider->setMinimumWidth((2.0/3.0)*horizontalOrientation_minWidth);
     l->addWidget(m_slider,1,0,1,2,Qt::AlignCenter);
 
-
     m_sliderName=new QLabel("Name, a very long name",parent);
     m_sliderName->setAlignment(Qt::AlignCenter);
     m_sliderName->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
@@ -103,7 +105,7 @@ void ScaledSliderWidget::horizontalLayout(QWidget *parent)
 
     m_magnitudeValue=new QLineEdit(parent);
     m_magnitudeValue->setAlignment(Qt::AlignCenter);
-    m_magnitudeValue->setDisabled(true);
+//    m_magnitudeValue->setDisabled(true);
     m_magnitudeValue->setSizePolicy(QSizePolicy::Maximum,QSizePolicy::Minimum);
     m_magnitudeValue->setMinimumWidth((1.0/20.0)*horizontalOrientation_minWidth);
     m_magnitudeValue->setMaximumHeight((1.0/4.0)*horizontalOrientation_minHeight);
@@ -115,8 +117,32 @@ void ScaledSliderWidget::horizontalLayout(QWidget *parent)
     this->setLayout(l);
 }
 
-void ScaledSliderWidget::updateValue(double val) {
-    m_magnitudeValue->setText(QString::number ( val, 'f', 2 ) );
+void ScaledSliderWidget::textValueEdited() {
+    bool _isCorrectConverted=false;
+    qreal _val=m_magnitudeValue->text().toDouble(&_isCorrectConverted);
+
+    //verify conversion
+    if (!_isCorrectConverted) {
+        //qDebug() << "ScaledSliderWidget::textValueEdited conversion fail";
+        m_magnitudeValue->setText(QString::number ( m_previousValue, 'f', m_digitAccuracy ) );
+        return;
+    }
+    //verify limit
+    if ( (_val < m_slider->getMinimumScaleValue()) || _val > m_slider->getMaximumScaleValue() ) {
+        //qDebug() << "ScaledSliderWidget::textValueEdited "<< _val <<" out of range ("<< m_slider->minValue() << ":" << m_slider->maxValue() << ")";
+        m_magnitudeValue->setText(QString::number ( m_previousValue, 'f', m_digitAccuracy ) );
+        return;
+    }
+    if (_val==m_previousValue) {
+        //qDebug() << "ScaledSliderWidget::textValueEdited same previous value, do nothing ";
+        return;
+    }
+    //qDebug() << "ScaledSliderWidget::textValueEdited setting "<< _val;
+    m_slider->setNotConvertedValue(_val);
+}
+
+void ScaledSliderWidget::updateValue(qreal val) {
+    m_magnitudeValue->setText(QString::number ( val, 'f', m_digitAccuracy ) );
     if ((!m_sliderIsMoving) && (m_previousValue!=val)) {
         //qDebug() << "ScaledSliderWidget::updateValue emiting valueChanged("<< val <<")";
         emit(valueChanged(val));
@@ -144,8 +170,8 @@ void ScaledSliderWidget::setMeasureUnit(QString name) {
 QString ScaledSliderWidget::name() {return m_sliderName->text();}
 QString ScaledSliderWidget::measureUnit(){return m_sliderName->text();}
 
-void ScaledSliderWidget::setValue(double val) { m_slider->setNotConvertedValue(val);}
-double ScaledSliderWidget::value() { return m_slider->value();}
+void ScaledSliderWidget::setValue(qreal val) { m_slider->setNotConvertedValue(val);}
+qreal ScaledSliderWidget::value() { return m_slider->value();}
 
 void ScaledSliderWidget::setFont(QFont  f) {
     QWidget::setFont(f);

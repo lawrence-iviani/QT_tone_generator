@@ -16,9 +16,11 @@ int main(int argc, char *argv[])
     m_slider_H->setScale(1,100000,0.1);
     m_slider_H->setName("Log Horizontal Slider");
     m_slider_H->setMeasureUnit("Log measure");
+    m_slider_H->setDigitAccuracy(4);
     m_slider_V->setScale(1,1000,1);
     m_slider_V->setName("Lin Ver Slider");
     m_slider_V->setMeasureUnit("Lin measure");
+    m_slider_V->setDigitAccuracy(3);
     layout->addWidget(m_slider_H);
     layout->addWidget(m_slider_V);
     m_slider_H->setValue(610.2);
