@@ -53,7 +53,7 @@ public slots:
     void streamPositionUpdate(qreal position);
     void removeAllCurves();
     void removeAllCurvesWithDialog();
-
+    void duplicateCurves();
 
 
 
@@ -67,6 +67,8 @@ private:
     void connectSignals();
     QDomDocument createDomDocument();
     void connectMenusAndShortcut();
+    bool importXMLCurve(const QDomDocument& doc);
+    bool importXMLCurve(const QDomDocument* doc);
 
     //THESE FUNCTION MUST BE INSERTED IN SOME KIND OF EXTERNAL UTILITY
     void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window
@@ -99,11 +101,14 @@ private:
     struct {
         QPushButton *addCurve;
         QPushButton *removeCurve;
+        QPushButton *duplicateCurves;
+#ifdef COMPLETE_FAST_SELECTION
         QPushButton *removeAllCurves;
         QPushButton *exportDigest;
         QPushButton *exportXML;
         QPushButton *importXML;
         QPushButton *showXML;
+#endif
     } s_button;
 
     QTreeWidget * m_TreeWidgetshowXML;

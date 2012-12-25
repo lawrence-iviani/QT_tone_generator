@@ -33,6 +33,7 @@ void MainWindow::connectSignals() {
     //connect command buttons
     connect(s_button.addCurve,SIGNAL(clicked()),SLOT(newCurve()));
     connect(s_button.removeCurve,SIGNAL(clicked()),SLOT(removeCurve()));
+    connect(s_button.duplicateCurves,SIGNAL(clicked()),SLOT(duplicateCurves()));
 
 #ifdef COMPLETE_FAST_SELECTION
     connect(s_button.removeAllCurves,SIGNAL(clicked()),SLOT(removeAllCurvesWithDialog()));
@@ -88,7 +89,7 @@ void MainWindow::connectMenusAndShortcut() {
         //NEW CURVE
         connect(ui->actionAdd_curve,SIGNAL(triggered()),this,SLOT(newCurve()));
         //DUPLICATE
-        //connect(ui-> ,SIGNAL(triggered()),this,SLOT );
+        connect(ui->actionDuplicate_curves,SIGNAL(triggered()),this,SLOT(duplicateCurves()));
         //REMOVE ALL
         connect(ui->actionRemove_all_curves,SIGNAL(triggered()),this,SLOT(removeAllCurvesWithDialog()) );
         //REMOVE ONE
@@ -139,7 +140,7 @@ QFrame *MainWindow::createButtonsFrame()  {
     //Init buttons
     s_button.addCurve=new QPushButton("Add curve");
     s_button.removeCurve=new QPushButton("Remove curve");
-
+    s_button.duplicateCurves=new QPushButton("Duplicate curves");
 #ifdef COMPLETE_FAST_SELECTION
     s_button.removeAllCurves=new QPushButton("Remove all curves");
     s_button.exportDigest=new QPushButton("Export digest");
@@ -158,6 +159,7 @@ QFrame *MainWindow::createButtonsFrame()  {
     //Layout the button panel
     _l->addWidget(s_button.addCurve);
     _l->addWidget(s_button.removeCurve);
+    _l->addWidget(s_button.duplicateCurves);
 
 #ifdef COMPLETE_FAST_SELECTION
     _l->addWidget(s_button.removeAllCurves);
@@ -423,6 +425,28 @@ void MainWindow::exportDigestCurve() {
     QMessageBox::information(this,"Save ok!",msg);
 }
 
+void MainWindow::duplicateCurves() {
+     QStringList  sl=m_plotTime->getTimeDataStringList();
+     SelectMultipleCurvesWindowDialog * duplicateDialog=new SelectMultipleCurvesWindowDialog(&sl,this);
+     duplicateDialog->setActionDialog("duplicate");
+     duplicateDialog->exec();
+     bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
+     foreach (int i, duplicateDialog->getSelectedCurvesIndex()) {
+         GenericTimeData * gtd=m_plotTime->getTimeData(i);
+         if (gtd==NULL) {
+             qWarning() << "MainWindow::duplicateCurves() can't import GenericTimeData @ index "<< i << ", return a NULL pointer. Going ahead";
+             continue;
+         }
+         importXMLCurve(gtd->getDomDocument());
+         gtd->setName(QString("%1_%2").arg(gtd->name()).arg("copy"));
+     }
+     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
+     m_plotTime->forceUpdateUI();
+     m_plotTime->updatePlot();
+     updateCurvesName();//This need a FIX,  should be made automatically with the set function
+     delete duplicateDialog;
+}
+
 QDomDocument MainWindow::createDomDocument() {
     //Set up the main document
     QDomDocument _doc(PROJECT_DOCTYPE);
@@ -552,7 +576,35 @@ bool MainWindow::importXML() {
     m_plotTime->getTimePlotParams()->setClassByDomData(_nodeProjParam);
     m_plotTime->updateUI();//need to manual recal, all the update are disabled!
 
-    QDomNodeList _nodeListCurves=_doc.elementsByTagName(GENERICTIMEDATA_TAG);
+    if (!importXMLCurve(_doc)) {
+        qWarning() << "MainWindow::importXML() DATA NOT SET! can't import the XML curve part.";
+        QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! can't import the XML curve part.").arg(_nodeListProject.length()));
+        return false;
+    }
+
+    //enable again and force recalc
+     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
+     m_plotTime->forceUpdateUI();
+     m_plotTime->updatePlot();
+
+    return  true;
+}
+
+bool MainWindow::importXMLCurve(const QDomDocument* doc) {
+    return importXMLCurve(*doc);
+}
+
+bool MainWindow::importXMLCurve(const QDomDocument& doc) {
+    if (!doc.isDocument() || doc.isNull() ) {
+        qWarning() << "MainWindow::importXMLCurve() import not a valid document or null document";
+        return false;
+    }
+     if( doc.firstChild().isNull()  ) {
+         qWarning() << "MainWindow::importXMLCurve() document "<< doc.nodeName() << " has a null first child";
+         return false;
+     }
+
+    QDomNodeList _nodeListCurves=doc.elementsByTagName(GENERICTIMEDATA_TAG);
     qDebug() << "MainWindow::importXML() find "  <<  _nodeListCurves.length() << " curves";
     for (unsigned int n=0; n < _nodeListCurves.length(); n++) {
         QDomNode _node=_nodeListCurves.at(n);
@@ -563,7 +615,7 @@ bool MainWindow::importXML() {
       //  Q_ASSERT(_nodeObjTypeList.length()==1);
         QDomNode _nodeObjTypeName=_nodeObjTypeList.at(0);
         QString _objTypeName=DomHelper::getNodeValue(_nodeObjTypeName);
-        qDebug() << "MainWindow::importXML() _nodeObjTypeList.length "<< _nodeObjTypeList.length()
+        qDebug() << "MainWindow::importXMLCurve() _nodeObjTypeList.length "<< _nodeObjTypeList.length()
                  << " tag="<<  _nodeObjTypeName.nodeName()
                  << " objname=" << _objTypeName;
         //allocate curve
@@ -575,7 +627,8 @@ bool MainWindow::importXML() {
             _curve->inihbitUpdate();
             _curve->setTimePlotParams(m_plotTime->getTimePlotParams() );
             if (!_curve->importXML(_node)) {
-                QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
+                qWarning() << "MainWindow::importXMLCurve() invalid curve  curve->importXML(node) failed"<< n;
+                //QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
                 return false;
             }
             m_plotTime->addTimeData(_curve);
@@ -583,18 +636,10 @@ bool MainWindow::importXML() {
             QWidget *_widget=(QWidget*)_curve->getControlWidget();
             s_widgetUI.toolboxOption->addItem(_widget,_curve->name());
         } else {
-            qWarning() << "MainWindow::importXML() invalid curve "<< n;
-            QMessageBox::warning(0,"MainWindow::importXML", QString("Invalid curve %1").arg(n));
+            qWarning() << "MainWindow::importXMLCurve() invalid curve "<< n;
+            //QMessageBox::warning(0,"MainWindow::importXML", QString("Invalid curve %1").arg(n));
             return false;
         }
     }
-
-    //enable again and force recalc
-     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
-    // m_plotTime->forceRecreateAll();//TODO: all the data curve are created during init.. this should not be needed.
-     m_plotTime->forceUpdateUI();
-     m_plotTime->updatePlot();
-
-    return  true;
+    return true;
 }
-
