@@ -64,6 +64,7 @@ void MainWindow::setupUI() {
 
     //Layout all the windows
     ui->centralwidget->layout()->addWidget(s_widgetUI.globalSplitter);
+    this->setWindowTitle("New Complex Generator project");
 }
 
 void MainWindow::connectMenusAndShortcut() {
@@ -71,15 +72,15 @@ void MainWindow::connectMenusAndShortcut() {
     //---------File menu
     {
         //NEW
-        connect(ui->actionNew_Project,SIGNAL(triggered()),this,SLOT(removeAllCurvesWithDialog()));//new
+        connect(ui->actionNew_Project,SIGNAL(triggered()),this,SLOT(newProject()));//new
         //LOAD
-        connect(ui->actionLoad_Project ,SIGNAL(triggered()),this,SLOT(importXML()));
+        connect(ui->actionLoad_Project ,SIGNAL(triggered()),this,SLOT(load()));
         //SAVE
-      //  connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT());
+        connect(ui->actionSave_project,SIGNAL(triggered()),this,SLOT(save()));
         //SAVE AS
-        connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT(exportXML()));
+        connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT(saveAs()));
         //Import curve
-        //connect(ui->actionImport_curve,SIGNAL(triggered()),this,SLOT( ) );//NOT IMPLEMENTED YET
+        connect(ui->actionImport_curve,SIGNAL(triggered()),this,SLOT( importCurve()) );
         //EXPORT AUDIO FILE
         connect(ui->actionExport_audio_file,SIGNAL(triggered()),this,SLOT(exportDigestCurve()));
     }
@@ -342,17 +343,113 @@ void MainWindow::removeCurve(){
      delete removeDialog;
 }
 
-void MainWindow::removeAllCurvesWithDialog() {
-    if( QMessageBox::question(this,"Confirm remove curves","Do you want to remove all the curves?",QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return;
-    removeAllCurves();
-}
-
 void MainWindow::removeAllCurves() {
      while (m_plotTime->removeTimeData(0))  {
         s_widgetUI.toolboxOption->removeItem(m_toolBoxFixedItem);
-        if (!m_plotTime->removeTimeData(0))
-            qWarning() << "MainWindow::removeAllCurves can't remove GenericTimeData " << " @ index=0,  null pointer?";
+     }
+}
+
+void MainWindow::newProject() {
+    if( QMessageBox::question(this,"Confirm New Porject","Do you want create a new project?\nAll Data will be lost",QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return;
+    CTG_app * _app=(CTG_app*) qApp;
+    _app->setProjectName("");
+    _app->setAudioDigestSaveName("");
+    removeAllCurves();
+    this->setWindowTitle("New Complex Generator project");
+}
+
+void MainWindow::load() {
+    CTG_app * _app=(CTG_app*) qApp;
+    QString _fileName = QFileDialog::getOpenFileName(this, tr("Open CTG project"),
+                                             _app->projectSavePath(),
+                                             tr("CTG project file (*.cpf *.CPF)"));
+    if (_fileName=="") return;
+
+    if (!importXML(_fileName)) {
+        QMessageBox::warning(this,"Project not loaded","Project can't be loaded");
+        return;
     }
+
+    //saving path,name & title
+    QFileInfo _fi(_fileName);
+    QString _path=_fi.absolutePath();
+    QString _name=_fi.baseName();
+    if (_path!="")
+        _app->setProjectSavePath(_path);
+    if (_name!="") {
+        _app->setProjectName(_name);
+        this->setWindowTitle(_name);
+    }
+}
+
+void MainWindow::save() {
+    CTG_app * _app=(CTG_app*) qApp;
+
+    //if the project wasn't already saved...
+    if (_app->projectName()=="") {
+        saveAs();
+        return;
+    }
+
+    QString _fileName=QString("%1/%2.cpf").arg(_app->projectSavePath()).arg(_app->projectName());
+    if (!exportXML(_fileName))
+        QMessageBox::warning(this,"Error saving project","Project NOT saved");
+}
+
+void MainWindow::saveAs() {
+    CTG_app * _app=(CTG_app*) qApp;
+
+    QString _fileName=QString("%1/%2.cpf").arg(_app->projectSavePath()).arg(_app->projectName());
+    _fileName = QFileDialog::getSaveFileName(this, tr("Save CTG project"),
+                                                    _app->projectSavePath(),
+                               tr("CTG project file (*.cpf *.CPF)"));
+    if(_fileName=="") return;
+
+    if (!exportXML(_fileName)) {
+        QMessageBox::warning(this,"Error saving project","Project NOT saved");
+        return;
+    }
+
+    //saving path,name & title
+    QFileInfo _fi(_fileName);
+    QString _path=_fi.absolutePath();
+    QString _name=_fi.baseName();
+    if (_path!="")
+        _app->setProjectSavePath(_path);
+    if (_name!="") {
+        _app->setProjectName(_name);
+        this->setWindowTitle(_name);
+    }
+}
+
+void MainWindow::importCurve() {
+    CTG_app * _app=(CTG_app*) qApp;
+    QString _fileName = QFileDialog::getOpenFileName(this, tr("Import CTG curve"),
+                                                     _app->curveSavePath(),
+                                                     tr("CTG curve file (*.CCF *.ccf)"));
+    if (_fileName=="") return;
+
+    QDomDocument _doc;
+    if (!DomHelper::load(_fileName,&_doc)) {
+        QMessageBox::warning(0,"Curve not loaded","File can not be loaded.");
+        return;
+    }
+
+    if (!importXMLCurve(_doc)) {
+        QMessageBox::warning(this,"Curve not loaded","Invalid data structure.");
+        return;
+    }
+
+    QFileInfo _fi(_fileName);
+    QString _path=_fi.absolutePath();
+    if (_path!="")
+        _app->setCurveSavePath(_path);
+
+}
+
+void MainWindow::removeAllCurvesWithDialog() {
+    if( QMessageBox::question(this,"Confirm remove curves","Do you want to remove all the curves?",QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return;
+    removeAllCurves();
 }
 
 void MainWindow::digestCurveChanged() {
@@ -486,21 +583,9 @@ QDomDocument MainWindow::createDomDocument() {
     return _doc;
 }
 
-bool MainWindow::exportXML() {
-    CTG_app * _app=(CTG_app*) qApp;
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save CTG project"),
-                                                    _app->projectSavePath(),
-                               tr("CTG project file (*.cpf *.CPF)"));
+bool MainWindow::exportXML(const QString& filename) {
     QDomDocument _doc=createDomDocument();
-    bool retval= DomHelper::save(fileName, _doc);
-
-    //saving path
-    QFileInfo _fi(fileName);
-    QString _path=_fi.absolutePath();
-    if (_path!="")
-        _app->setProjectSavePath(_path);
-
-    return retval;
+    return DomHelper::save(filename, _doc);
 }
 
 void MainWindow::showXML() {
@@ -524,28 +609,22 @@ void MainWindow::showXML() {
     m_TreeWidgetshowXML->expandAll();
 }
 
-bool MainWindow::importXML() {
-    CTG_app * _app=(CTG_app*) qApp;
-    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open CTG project"),
-                                                    _app->projectSavePath(),
-                               tr("CTG project file (*.cpf *.CPF)"));
-    //saving path
-    QFileInfo _fi(fileName);
-    QString _path=_fi.absolutePath();
-    if (_path!="")
-        _app->setProjectSavePath(_path);
+bool MainWindow::importXML(const QString& fileName) {
     QDomDocument _doc;
     if (!DomHelper::load(fileName,&_doc)) {
         QMessageBox::warning(0,"MainWindow::importXML","Can't load XML file.");
         return false;
     }
+    return importXML(_doc);
+}
 
-    if (!_doc.isDocument() || _doc.firstChild().isNull()  ) {
+bool MainWindow::importXML(const QDomDocument& doc) {
+    if (!doc.isDocument() || doc.firstChild().isNull()  ) {
         QMessageBox::warning(0,"MainWindow::importXML","DATA NOT SET! Document is not a valid DomDocument");
         return false;
     }
 
-    QString _firstchild= _doc.firstChild().nodeName();
+    QString _firstchild= doc.firstChild().nodeName();
     if (QString::compare(_firstchild,PROJECTROOT_TAG)!=0)  {
         QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! Document  contains as first child  |%1| instead  of |%2|.").arg(_firstchild).arg(PROJECTROOT_TAG));
         return false;
@@ -553,22 +632,20 @@ bool MainWindow::importXML() {
     //clear all curves
     if( QMessageBox::question(this,"Confirm remove curves","Do you want to remove all the curves?",QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return true;
     //Store old curve data, in order to go back if something goes wrong and then removes all curves.
-    QDomDocument prevProject=createDomDocument();
+    QDomDocument prevProject=createDomDocument();//TODO, revert curve!
     removeAllCurves();
 
     //Disable update
     bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
- //   bool _prevValueEnableDigestRecalc=m_plotTime->set
 
     //set project properties
-
-    QDomNodeList _nodeListProject=_doc.elementsByTagName(PROJECTPARAMETERS_TAG);
+    QDomNodeList _nodeListProject=doc.elementsByTagName(PROJECTPARAMETERS_TAG);
     qDebug() << "MainWindow::importXML()  _nodeListProject.length=" << _nodeListProject.length();
 
     if (_nodeListProject.length()!=1){
         QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! Document  contains an invalid number (%1) of root element.").arg(_nodeListProject.length()));
         qWarning() << "MainWindow::importXML() Document  contains an invalid number ("<< _nodeListProject.length() << ") of root element";
-        qDebug() << "MainWindow::importXML() " << _doc.toDocument().toString();
+        qDebug() << "MainWindow::importXML() " << doc.toDocument().toString();
         return false;
     }
 
@@ -576,7 +653,7 @@ bool MainWindow::importXML() {
     m_plotTime->getTimePlotParams()->setClassByDomData(_nodeProjParam);
     m_plotTime->updateUI();//need to manual recal, all the update are disabled!
 
-    if (!importXMLCurve(_doc)) {
+    if (!importXMLCurve(doc)) {
         qWarning() << "MainWindow::importXML() DATA NOT SET! can't import the XML curve part.";
         QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! can't import the XML curve part.").arg(_nodeListProject.length()));
         return false;

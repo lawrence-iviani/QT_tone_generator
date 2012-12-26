@@ -384,13 +384,13 @@ bool GenericTimeData::isImportableByDomData(QDomNode& node) {
 bool GenericTimeData::importXML() {
     CTG_app * _app=(CTG_app*) qApp;
     QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open CTG curve"),
-                               _app->curvesSavePath(),
+                               _app->curveSavePath(),
                                tr("CTG curve file (*.CCF *.ccf)"));
     //saving path
     QFileInfo _fi(fileName);
     QString _path=_fi.absolutePath();
     if (_path!="")
-        _app->setCurvesSavePath(_path);
+        _app->setCurveSavePath(_path);
     return this->importXML(fileName);
 }
 
@@ -483,14 +483,14 @@ bool GenericTimeData::importXML(const QDomNode *node) {
 void GenericTimeData::exportXML() {
     CTG_app * _app=(CTG_app*) qApp;
     QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save CTG curve"),
-                               _app->curvesSavePath(),
+                               _app->curveSavePath(),
                                tr("CTG curve file (*.CCF *.ccf)"));
     this->exportXML(fileName);
     //saving path
     QFileInfo _fi(fileName);
     QString _path=_fi.absolutePath();
     if (_path!="")
-        _app->setCurvesSavePath(_path);
+        _app->setCurveSavePath(_path);
 }
 
 void GenericTimeData::exportXML(QString fileName) {

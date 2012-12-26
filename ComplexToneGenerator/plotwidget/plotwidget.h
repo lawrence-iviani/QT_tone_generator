@@ -54,9 +54,6 @@ public:
     bool removeTimeData(int index);//True, curve removed, false curve not found
 
     /**
-      *
-      */
-    /**
      * @brief getTimeData Get back the time data at index.
      * @param index
      * @return

@@ -9,6 +9,11 @@ CTG_app::CTG_app(int argc,char** argv ):
     else m_projectSavePath=QDir::homePath();
     if (m_settings.contains(CTGKEY_SAVE_CURVE_PATH)) m_curvesSavePath=m_settings.value(CTGKEY_SAVE_CURVE_PATH).toString();
     else m_curvesSavePath=QDir::homePath();
+    if (m_settings.contains(CTGKEY_SAVE_AUDIO_DIGEST_PATH)) m_audioDigestSavePath=m_settings.value(CTGKEY_SAVE_AUDIO_DIGEST_PATH).toString();
+    else m_audioDigestSavePath=QDir::homePath();
+
+    m_projectName="";
+    m_audioDigestName="";
 }
 
 bool CTG_app::setClipboard(QDomDocument doc) {

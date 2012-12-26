@@ -29,7 +29,7 @@
 #include "CustomCurves/customcurvefactory.h"
 
 namespace Ui {
-class MainWindow;
+    class MainWindow;
 }
 
 class MainWindow : public QMainWindow
@@ -44,8 +44,9 @@ public slots:
     void newCurve();
     void removeCurve();
     void exportDigestCurve();
-    bool exportXML();
-    bool importXML();
+    bool exportXML(const QString& filename);
+    bool importXML(const QDomDocument& doc);
+    bool importXML(const QString& fileName);
     void showXML();
     void updateCurvesName();
     void timeDataUpdated();
@@ -54,8 +55,11 @@ public slots:
     void removeAllCurves();
     void removeAllCurvesWithDialog();
     void duplicateCurves();
-
-
+    void newProject();
+    void load();
+    void save();
+    void saveAs();
+    void importCurve();
 
 private:
     void setupUI();

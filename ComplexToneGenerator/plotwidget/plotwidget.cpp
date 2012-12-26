@@ -116,7 +116,7 @@ bool PlotWidget::removeTimeData(int index) {
         GenericTimeData *  gtd=this->getTimeData(index);
         gtd->getCurve()->detach();
         disconnect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
-        disconnect(gtd,SIGNAL(curveUpdated()),this,SLOT(updatePlot()));
+        disconnect(gtd,SIGNAL(curveAttributeUpdated()),this,SLOT(updatePlot()));
         Q_ASSERT(gtd!=NULL);
         delete gtd;
         m_curveList.removeAt(index);
