@@ -584,6 +584,7 @@ bool MainWindow::importXML() {
 
     //enable again and force recalc
      m_plotTime->setEnableUpdate(_prevValueEnablePlot);
+     m_plotTime->forceRecreateAll();
      m_plotTime->forceUpdateUI();
      m_plotTime->updatePlot();
 
@@ -635,6 +636,7 @@ bool MainWindow::importXMLCurve(const QDomDocument& doc) {
             //adding controls to plot
             QWidget *_widget=(QWidget*)_curve->getControlWidget();
             s_widgetUI.toolboxOption->addItem(_widget,_curve->name());
+            connect(_curve,SIGNAL(nameChanged()),this,SLOT(updateCurvesName()));
         } else {
             qWarning() << "MainWindow::importXMLCurve() invalid curve "<< n;
             //QMessageBox::warning(0,"MainWindow::importXML", QString("Invalid curve %1").arg(n));
