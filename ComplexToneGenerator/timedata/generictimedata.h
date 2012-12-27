@@ -316,6 +316,7 @@ private:
      bool m_curveEnabled;
      DataEnvelope *m_envelope;
      bool m_enableEnvelope;
+     QString m_fileName;
 
 
 };

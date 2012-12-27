@@ -440,6 +440,9 @@ void MainWindow::importCurve() {
         return;
     }
 
+    m_plotTime->forceUpdateUI();
+
+
     QFileInfo _fi(_fileName);
     QString _path=_fi.absolutePath();
     if (_path!="")
@@ -714,6 +717,7 @@ bool MainWindow::importXMLCurve(const QDomDocument& doc) {
             QWidget *_widget=(QWidget*)_curve->getControlWidget();
             s_widgetUI.toolboxOption->addItem(_widget,_curve->name());
             connect(_curve,SIGNAL(nameChanged()),this,SLOT(updateCurvesName()));
+            _curve->enableUpdate();
         } else {
             qWarning() << "MainWindow::importXMLCurve() invalid curve "<< n;
             //QMessageBox::warning(0,"MainWindow::importXML", QString("Invalid curve %1").arg(n));

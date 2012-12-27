@@ -41,7 +41,7 @@ bool DomHelper::selfObjectData(QDomDocument * doc,const QString& rootTag) {
         //Save parameters that can be converted in string, others are rejected
         if (_propValueVariant.canConvert(QVariant::String)) {
             QString _propValue=_propValueVariant.toString();
-            qDebug() << "DomHelper::selfObjectData appending " << _propName << " with value " << _propValue;
+       //     qDebug() << "DomHelper::selfObjectData appending " << _propName << " with value " << _propValue;
             //appending
             QDomElement _element = doc->createElement(_propName);
             QDomText _elementValue=doc->createTextNode(_propValue);
@@ -58,7 +58,7 @@ bool DomHelper::selfObjectData(QDomDocument * doc,const QString& rootTag) {
 void DomHelper::initDomDocument(const QString &docTypeTag, const QString &rootTag) {
     //Set up document
     if (m_doc!=NULL) delete m_doc;
-    m_doc=new QDomDocument(docTypeTag);//(new QString(rootTag))->append("_").append(m_obj->metaObject()->className()));
+    m_doc=new QDomDocument(docTypeTag);
     QDomElement _root=m_doc->createElement(rootTag);
     m_doc->appendChild(_root);
 }
@@ -132,15 +132,15 @@ void DomHelper::parseEntry(const QDomElement &element)
 {
     QDomNode node = element.firstChild();
     while (!node.isNull()) {
-         qDebug() << "DomParser::parseEntry  node " << node.toElement().tagName();
-         qDebug() << "DomParser::parseEntry  value= " << DomHelper::getNodeValue(node);
-         qDebug() << "DomHelper::parseEntry  parsing node " << node.nodeName();
+         //qDebug() << "DomParser::parseEntry  node " << node.toElement().tagName();
+         //qDebug() << "DomParser::parseEntry  value= " << DomHelper::getNodeValue(node);
+         //qDebug() << "DomHelper::parseEntry  parsing node " << node.nodeName();
          if (node.isElement()) {
          //   qDebug() << "DomParser::parseEntry "<< node.nodeName()<< " is element ";
 
             //Verifiy is this node has attribute. TODO verify parent child is DOMHELPER_OBJECTTYPE_TAG
             if (node.hasAttributes()) {
-                Q_ASSERT(parseAndVerifyAttributeVersion(node.attributes()));
+             //   Q_ASSERT(parseAndVerifyAttributeVersion(node.attributes()));
      //           qDebug () << "DomHelper::parseEntry node "<< node.nodeName()<< "  has attributes";
             }
 
@@ -149,7 +149,7 @@ void DomHelper::parseEntry(const QDomElement &element)
 
             //Verifying the class is correct
             if (node.nodeName()==DOMHELPER_OBJECTTYPE_TAG) {
-                qDebug() << "DomHelper::parseEntry this class "<< m_obj->metaObject()->className() <<" is elaborating the  node "<< node.nodeName()<< " with the class property " << DOMHELPER_OBJECTTYPE_TAG;
+               // qDebug() << "DomHelper::parseEntry this class "<< m_obj->metaObject()->className() <<" is elaborating the  node "<< node.nodeName()<< " with the class property " << DOMHELPER_OBJECTTYPE_TAG;
                 Q_ASSERT(isSameObjectType(node.toElement()));
             }
 
@@ -204,7 +204,7 @@ bool DomHelper::isSameObjectType(const QDomElement &element) {
     QDomNode node = element.firstChild();
     if (!node.isNull() && node.isText()) {
         QString _value=node.toText().data();
-        qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << " is elaborating property  with value " << _value;
+       // qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << " is elaborating property  with value " << _value;
         retval=QString::compare(_value,m_obj->metaObject()->className())==0 ? true : false;
       //  qDebug() << "DomHelper::isSameObjectType compare  " << _value << " and "  << m_obj->metaObject()->className() ;
     } else {
@@ -224,8 +224,8 @@ bool DomHelper::parseAndSetProperty(const QDomElement &element, QMetaProperty &m
         QString _value=node.toText().data();
        // qDebug() << "DomHelper::parseAndSetProperty find node  " << node.nodeName();
         retval=metaProperties.write(m_obj,_value);
-        qDebug() << "DomHelper::parseAndSetProperty class " << m_obj->metaObject()->className() <<" write property " << _propName << " with value " << _value <<
-                    "property was " << (retval ? "set OK": " NOT SET");
+       // qDebug() << "DomHelper::parseAndSetProperty class " << m_obj->metaObject()->className() <<" write property " << _propName << " with value " << _value <<
+       //             "property was " << (retval ? "set OK": " NOT SET");
 
     } else {
         qWarning() << "DomHelper::parseAndSetProperty  can't elaborate property " << _propName << " with value " <<
@@ -327,6 +327,8 @@ bool DomHelper::save(const QString namefile, const QDomDocument * doc) {
         doc->save(_out, DomHelper::defaultIndentation);
         _file.close();
         retval=true;
+    } else {
+        qWarning() << "DomHelper::load can't open file " << namefile << " for saving, " << _file.errorString();
     }
     return retval;
 }
@@ -344,6 +346,8 @@ bool DomHelper::load(const QString namefile,  QDomDocument *doc) {
                                  QObject::tr("Parse error at line %1, " "column %2:\n%3").arg(errorLine).arg(errorColumn).arg(errorStr));
         } else retval=true;
         if (_file.isOpen()) _file.close();
+    } else {
+        qWarning() << "DomHelper::load can't open file " << namefile << " for loading, " << _file.errorString();
     }
     return retval;
 }

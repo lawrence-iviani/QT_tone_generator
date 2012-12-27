@@ -383,15 +383,20 @@ bool GenericTimeData::isImportableByDomData(QDomNode& node) {
 
 bool GenericTimeData::importXML() {
     CTG_app * _app=(CTG_app*) qApp;
-    QString fileName = QFileDialog::getOpenFileName(NULL, tr("Open CTG curve"),
+    QString _fileName = QFileDialog::getOpenFileName(NULL, tr("Open CTG curve"),
                                _app->curveSavePath(),
                                tr("CTG curve file (*.CCF *.ccf)"));
+    if (_fileName=="") return true;
     //saving path
-    QFileInfo _fi(fileName);
+    QFileInfo _fi(_fileName);
     QString _path=_fi.absolutePath();
+    QString _name=_fi.baseName();
     if (_path!="")
         _app->setCurveSavePath(_path);
-    return this->importXML(fileName);
+    if (_name!="")
+        m_fileName=QString("%1.ccf").arg(_name);
+
+    return this->importXML(_fileName);
 }
 
 bool GenericTimeData::importXML(QString fileName) {
@@ -482,12 +487,23 @@ bool GenericTimeData::importXML(const QDomNode *node) {
 
 void GenericTimeData::exportXML() {
     CTG_app * _app=(CTG_app*) qApp;
-    QString fileName = QFileDialog::getSaveFileName(NULL, tr("Save CTG curve"),
-                               _app->curveSavePath(),
+
+    QString _fileName="";
+    if (m_fileName=="")
+        _fileName=QString("%1/%2_SR%3_%4s.ccf")
+                .arg(_app->curveSavePath())
+                .arg(m_name)
+                .arg(m_SR)
+                .arg(m_MaxDuration);
+    else
+        _fileName=m_fileName;
+
+     _fileName = QFileDialog::getSaveFileName(NULL, tr("Save CTG curve"),
+                               _fileName,
                                tr("CTG curve file (*.CCF *.ccf)"));
-    this->exportXML(fileName);
+    this->exportXML(_fileName);
     //saving path
-    QFileInfo _fi(fileName);
+    QFileInfo _fi(_fileName);
     QString _path=_fi.absolutePath();
     if (_path!="")
         _app->setCurveSavePath(_path);
