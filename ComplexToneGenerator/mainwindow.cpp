@@ -440,7 +440,8 @@ void MainWindow::importCurve() {
         return;
     }
 
-    m_plotTime->forceUpdateUI();
+    //FIX, this should be in the import function
+   // m_plotTime->forceUpdateUI();
 
 
     QFileInfo _fi(_fileName);
@@ -531,15 +532,23 @@ void MainWindow::duplicateCurves() {
      duplicateDialog->setActionDialog("duplicate");
      duplicateDialog->exec();
      bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
+     QList<GenericTimeData*> _tempListPointer;
+     GenericTimeData * _pGtd;
      foreach (int i, duplicateDialog->getSelectedCurvesIndex()) {
-         GenericTimeData * gtd=m_plotTime->getTimeData(i);
-         if (gtd==NULL) {
+         _pGtd=m_plotTime->getTimeData(i);
+         if (_pGtd==NULL) {
              qWarning() << "MainWindow::duplicateCurves() can't import GenericTimeData @ index "<< i << ", return a NULL pointer. Going ahead";
              continue;
          }
-         importXMLCurve(gtd->getDomDocument());
-         gtd->setName(QString("%1_%2").arg(gtd->name()).arg("copy"));
+         _tempListPointer.append(_pGtd);
      }
+
+     foreach (_pGtd, _tempListPointer) {
+         Q_ASSERT(_pGtd!=NULL);
+         Q_ASSERT(importXMLCurve(_pGtd->getDomDocument()));
+         _pGtd->setName(QString("%1_%2").arg(_pGtd->name()).arg("copy"));
+     }
+     //this should be in the import functiom
      m_plotTime->setEnableUpdate(_prevValueEnablePlot);
      m_plotTime->forceUpdateUI();
      m_plotTime->updatePlot();
@@ -575,12 +584,19 @@ QDomDocument MainWindow::createDomDocument() {
             qDebug() << "MainWindow::createDomDocument DOM data point to NULL, " << _gtd->name() <<" can't save document";
             continue;
         }
-        if (!_d->isNull()) {
+        //There something going wrong EVERY time i call twice the getDomDocument in every class.
+        //This is always managed as a force recreate. This is not good but is working
+        if (_d->isNull() ||  _d->firstChild().isNull()) {
+            qWarning() << "MainWindow::createDomDocument "<< _gtd->name() << " has node " << _d->nodeName() << "null FORCE REGENERATE";
+            _gtd->forceRegenerateDomDocument();
+            _d=_gtd->getDomDocument();
+        }
+        if (!_d->isNull() && !_d->firstChild().isNull()) {
             qDebug() << "MainWindow::createDomDocument  " << _gtd->name() << " appending " << _d->nodeName();
-           // qDebug() << "MainWindow::createDomDocument " << _d->toString();
+          //  qDebug() << "MainWindow::createDomDocument " << _d->toString();
             _rootNode.appendChild(_d->firstChild());
         } else {
-            qDebug() << "MainWindow::createDomDocument "<< _gtd->name() << " has node " << _d->nodeName() << "null";
+            qWarning() << "MainWindow::createDomDocument "<< _gtd->name() << " has node " << _d->nodeName() << "null";
         }
     }
     return _doc;
