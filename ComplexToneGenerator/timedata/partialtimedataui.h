@@ -13,7 +13,7 @@ class PartialTimeDataUI : public CustomCurveUI
     Q_OBJECT
 public:
     explicit PartialTimeDataUI(PartialTimeData *ptd, QWidget *widget = 0);
-    
+    virtual ~PartialTimeDataUI();
 signals:
     
 public slots:

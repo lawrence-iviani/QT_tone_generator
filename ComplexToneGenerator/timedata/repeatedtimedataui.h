@@ -11,6 +11,7 @@ class RepeatedTimeDataUI : public CustomCurveUI
     Q_OBJECT
 public:
     explicit RepeatedTimeDataUI(RepeatedTimeData *rtd, QWidget *widget = 0);
+    virtual ~RepeatedTimeDataUI();
 
 signals:
 

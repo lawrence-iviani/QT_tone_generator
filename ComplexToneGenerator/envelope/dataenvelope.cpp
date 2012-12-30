@@ -43,6 +43,7 @@ void DataEnvelope::init(QWidget *widget) {
 
 DataEnvelope::~DataEnvelope() {
     if (m_envelope) free(m_envelope);
+    if (m_envelopeParams) delete m_envelopeParams;
 }
 
 void DataEnvelope::setLength(qint64 length) {

@@ -8,6 +8,10 @@ PartialTimeDataUI::PartialTimeDataUI(PartialTimeData *ptd, QWidget *widget ) :
     m_partiaTimeData->getControlWidget()->addControlFrame(this,"PTD control");
 }
 
+PartialTimeDataUI::~PartialTimeDataUI() {
+
+}
+
 void PartialTimeDataUI::updateControlUI() {
     qDebug() << "PartialTimeDataUI::updateControlUI called";
 

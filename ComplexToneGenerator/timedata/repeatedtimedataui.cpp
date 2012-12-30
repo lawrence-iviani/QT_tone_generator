@@ -8,6 +8,10 @@ RepeatedTimeDataUI::RepeatedTimeDataUI(RepeatedTimeData *rtd, QWidget *widget ) 
     m_repeatedTimeData->getControlWidget()->addControlFrame(this,"RTD control");
 }
 
+RepeatedTimeDataUI::~RepeatedTimeDataUI() {
+
+}
+
 void RepeatedTimeDataUI::updateControlUI() {
     qDebug() << "RepeatedTimeDataUI::updateControlUI called";
 
