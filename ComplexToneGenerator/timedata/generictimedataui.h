@@ -17,7 +17,7 @@ class GenericTimeDataUI : public CustomCurveUI
     Q_OBJECT
 public:
     explicit GenericTimeDataUI( GenericTimeData * gtd, QWidget *widget = 0);
-
+    virtual ~GenericTimeDataUI();
     /**
      * @brief isShowXML tell if the showXML widget is showed
      * @return  true if is showed

@@ -9,6 +9,10 @@ GenericTimeDataUI::GenericTimeDataUI(GenericTimeData *gtd, QWidget *widget) :
     m_genericTimeData->getControlWidget()->addControlFrame(this,"GTD control");
 }
 
+GenericTimeDataUI::~GenericTimeDataUI() {
+
+}
+
 void GenericTimeDataUI::updateXML() {
     const QDomDocument *_d=m_genericTimeData->getDomDocument();
     Q_ASSERT(_d!=NULL);

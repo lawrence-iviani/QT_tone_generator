@@ -73,6 +73,9 @@ GenericTimeData::~GenericTimeData() {
     }
     free(m_data);
     m_data=NULL;
+    TimeDataControlUI * _widget=getControlWidget();
+    if (_widget) delete _widget;
+
 }
 
 void GenericTimeData::connectSignal() {
