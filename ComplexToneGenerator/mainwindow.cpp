@@ -329,14 +329,22 @@ void MainWindow::removeCurve(){
      SelectMultipleCurvesWindowDialog * removeDialog=new SelectMultipleCurvesWindowDialog(&sl,this);
      removeDialog->setActionDialog("remove");
      removeDialog->exec();
-     bool _firstTime=true;
-     foreach (int i, removeDialog->getSelectedCurvesIndex()) {
-            int _index;
-            _index=(_firstTime ? i : i-1);
-            s_widgetUI.toolboxOption->removeItem(i+m_toolBoxFixedItem);
-            if (!m_plotTime->removeTimeData(_index)) {
+     QList<int> _selctedCurvesList=removeDialog->getSelectedCurvesIndex();
+     qSort(_selctedCurvesList);
+     int _extracted=0;
+     foreach (int i, _selctedCurvesList) {
+            int _index=i-_extracted;
+            int _indexui=_index+m_toolBoxFixedItem;
+            _extracted++;
+            qDebug() << "MainWindow::removeCurve: extraction n. " << _extracted
+                     << " absolute ID " << i
+                     << "going to extract GenericTimeData@index=" <<_index
+                     << " UIindex="<< _indexui;
+            if (!m_plotTime->removeTimeData(_index)) {               
                 qWarning() << "MainWindow::removeCurve: can't remove GenericTimeData@index=" <<_index;
             } else {
+               // s_widgetUI.toolboxOption->removeItem(_indexui);
+                //delete s_widgetUI.toolboxOption->widget(_indexui);
                 qDebug() << "MainWindow::removeCurve: removed GenericTimeData@index=" <<_index;
             }
      }
@@ -345,7 +353,8 @@ void MainWindow::removeCurve(){
 
 void MainWindow::removeAllCurves() {
      while (m_plotTime->removeTimeData(0))  {
-        s_widgetUI.toolboxOption->removeItem(m_toolBoxFixedItem);
+        //s_widgetUI.toolboxOption->removeItem(m_toolBoxFixedItem);
+        //delete s_widgetUI.toolboxOption->widget(m_toolBoxFixedItem);
      }
 }
 
