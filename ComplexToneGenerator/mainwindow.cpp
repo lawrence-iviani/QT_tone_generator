@@ -3,7 +3,6 @@
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    m_audioPlayer(new AudioPlayer),
     m_plotTime(new TimePlotWidget),
     m_plotFreq(new FreqPlotWidget),
     m_indexGenerator(1),
@@ -11,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow),
     m_TreeWidgetshowXML(0)
 {
+    m_audioPlayer=new AudioPlayer(this);
     ui->setupUi(this);
     ui->centralwidget->setLayout(ui->globalGridLayout);
     setupUI();
@@ -26,6 +26,7 @@ MainWindow::~MainWindow()
 void MainWindow::initAudio() {
     m_digestCurveStream=new InternalStreamDevice(AudioUtils::getStandardFormat(AudioUtils::DAT));
     m_digestCurveStream->setAudioData((qreal*) m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
+    //m_audioPlayer->
     m_audioPlayer->setStream(m_digestCurveStream);
 }
 

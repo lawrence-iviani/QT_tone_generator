@@ -13,6 +13,7 @@
 #include <QAudioOutput>
 #include <QFile>
 #include <QSizePolicy>
+#include <QTime>
 #include "qvumeter.h"
 
 #include "internalstreamdevice.h"
@@ -26,10 +27,10 @@
 //5. Seeking on start is not working
 
 const int AUDIOPLAYER_DEFAULT_DURATION_SEC = 5; //in seconds
-const int AUDIOPLAYER_DEFAULT_TONE_FREQ = 1000;
+const int AUDIOPLAYER_DEFAULT_TONE_FREQ= 1000;
 const int AUDIOPLAYER_DEFAULT_BUFFER_LEN= 32768;
 const int AUDIOPLAYER_NOTIFY_INTERVAL= 50;//ms
-const int AUDIOPLAYER_PULL_INTERVAL=10; //ms
+const int AUDIOPLAYER_DEFAULT_PULL_INTERVAL=10; //ms
 const qint64 AUDIOPLAYER_HEADER_WAV_SAMPLES=48; //number of sample of the WAV header.
 
 /**
@@ -209,6 +210,8 @@ private:
     int convertStreamSampleToSliderPosition(qint64 samplePosition);
 
     int m_bufferLength;
+
+    int m_pullInterval;
 
     QTimer*          m_pullTimer;
 

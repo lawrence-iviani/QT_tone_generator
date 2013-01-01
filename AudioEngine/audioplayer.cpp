@@ -4,6 +4,7 @@
 AudioPlayer::AudioPlayer(QObject *parent)
     :   QObject(parent)
     ,   m_bufferLength(AUDIOPLAYER_DEFAULT_BUFFER_LEN)
+    ,   m_pullInterval(AUDIOPLAYER_DEFAULT_PULL_INTERVAL)
     ,   m_pullTimer(new QTimer(this))
     ,   m_modeButton(0)
     ,   m_suspendResumeButton(0)
@@ -19,6 +20,7 @@ AudioPlayer::AudioPlayer(QObject *parent)
 AudioPlayer::AudioPlayer(QWidget *parentWidget, QObject *parent )
     :   QObject(parent)
     ,   m_bufferLength(AUDIOPLAYER_DEFAULT_BUFFER_LEN)
+    ,   m_pullInterval(AUDIOPLAYER_DEFAULT_PULL_INTERVAL)
     ,   m_pullTimer(new QTimer(this))
     ,   m_modeButton(0)
     ,   m_suspendResumeButton(0)
@@ -132,12 +134,15 @@ void AudioPlayer::initializeAudio(QAudioFormat format)
         disconnect(m_audioOutput, SIGNAL(stateChanged(QAudio::State)), this, SLOT(stateChanged(QAudio::State)));
         delete m_audioOutput;
     }
-    m_audioOutput = 0;
+    m_audioOutput = NULL;
     m_audioOutput = new QAudioOutput(m_device, format, this);
     connect(m_audioOutput, SIGNAL(notify()), SLOT(notified()));
     connect(m_audioOutput, SIGNAL(stateChanged(QAudio::State)), SLOT(stateChanged(QAudio::State)));
     m_audioOutput->reset();
     m_audioOutput->setNotifyInterval(AUDIOPLAYER_NOTIFY_INTERVAL);
+    m_audioOutput->setBufferSize(AUDIOPLAYER_DEFAULT_BUFFER_LEN);
+    m_pullInterval=(1000*m_audioOutput->bufferSize())/(m_audioOutput->format().sampleSize()*m_audioOutput->format().sampleRate());
+    if (m_pullInterval<=0) m_pullInterval=AUDIOPLAYER_DEFAULT_PULL_INTERVAL;
 }
 
 void AudioPlayer::setPlayMode(AudioPlayer::PlayMode playMode) {
@@ -169,7 +174,7 @@ void AudioPlayer::setStream(InternalStreamDevice * stream){
 void AudioPlayer::setAudioFormat(QAudioFormat format) {
     if (format!=m_audioOutput->format()) {
         qDebug() << "AudioPlayer::setAudioFormat changing format format";
-        m_audioOutput->format()=format;
+        //m_audioOutput->format()=format; //20121231 this call is meaningless!!
         initializeAudio(format);
     }
 }
@@ -211,7 +216,6 @@ void AudioPlayer::startPlayPush(qint64 samplePosition) {
                 samplePosition=samplePosition<AUDIOPLAYER_HEADER_WAV_SAMPLES+4 ? AUDIOPLAYER_HEADER_WAV_SAMPLES+4 : samplePosition;
                 if (!this->setStreamSamplePosition(samplePosition))
                     qWarning() << "AudioPlayer::startPlayPull CAN'T' SET FILE@samplePosition=" <<samplePosition;
-                //m_inputFile.seek(AUDIOPLAYER_HEADER_WAV_SAMPLES+ (samplePosition<4 ? 4:samplePosition)) ;
                 qDebug() << "AudioPlayer::startPlayPush started  with SR=" << m_audioOutput->format().sampleRate() <<
                             " @samplePos=" << samplePosition;
             } else {
@@ -228,12 +232,14 @@ void AudioPlayer::startPlayPull(qint64 samplePosition) {
             if (m_inputStream && m_inputStream->open(QIODevice::ReadOnly)) {
                 this->setAudioFormat(m_inputStream->getAudioFormat());//Change format only if needed
                // qDebug() << "AudioPlayer::startPlayPull starting  with STREAM@position " << samplePosition;
+
+                qDebug() << "AudioPlayer::startPlayPull pullInterval=" << m_pullInterval << " ms";
                 m_output_IODev = m_audioOutput->start();
                 if (!this->setStreamSamplePosition(samplePosition))
                     qWarning() << "AudioPlayer::startPlayPull CAN'T' SET STREAM@samplePosition=" <<samplePosition;
                 //m_output_IODev->seek(samplePosition);
 
-                m_pullTimer->start(AUDIOPLAYER_PULL_INTERVAL);
+                m_pullTimer->start(m_pullInterval);
                 //qDebug() << "AudioPlayer::startPlayPush started  with SR=" << m_audioOutput->format().sampleRate() <<
                 //            " @samplePos=" << samplePosition;
             } else {
@@ -245,12 +251,12 @@ void AudioPlayer::startPlayPull(qint64 samplePosition) {
             //qDebug() << "AudioPlayer::startPlayPull starting  with FILE@samplePosition " << samplePosition;
             if (m_inputFile.open(QIODevice::ReadOnly)){
                 this->setAudioFormat(AudioUtils::readFileHeader(m_inputFile.fileName()));
+                qDebug() << "AudioPlayer::startPlayPull pullInterval=" << m_pullInterval << " ms";
                 m_output_IODev = m_audioOutput->start();
                 samplePosition=samplePosition<AUDIOPLAYER_HEADER_WAV_SAMPLES+4 ? AUDIOPLAYER_HEADER_WAV_SAMPLES+4 : samplePosition;
                 if (!this->setStreamSamplePosition(samplePosition))
                     qWarning() << "AudioPlayer::startPlayPull CAN'T' SET FILE@samplePosition=" <<samplePosition;
-                //m_inputFile.seek(AUDIOPLAYER_HEADER_WAV_SAMPLES+ (position<4 ? 4:samplePosition;
-                m_pullTimer->start(AUDIOPLAYER_PULL_INTERVAL);
+                m_pullTimer->start(m_pullInterval);
                 //qDebug() << "AudioPlayer::startPlayPush started  with SR=" << m_audioOutput->format().sampleRate() <<
                 //            " @samplePos=" << samplePosition;
             } else {
@@ -274,7 +280,6 @@ void AudioPlayer::startPlay(qint64 samplePosition) {
         startPlayPush(samplePosition);
     }
 }
-
 
 void AudioPlayer::stopPlay() {
     m_pullTimer->stop();
@@ -479,28 +484,42 @@ void AudioPlayer::notified()
 {    
     qint64 _actualPos;
     qint64 _bufLen;
-    Q_ASSERT(_bufLen>=0);
+
     AudioUtils_structMeter _meter;
 
-    if (m_source== AudioPlayer::STREAM) {
-        _actualPos=m_inputStream->pos();
-        _bufLen=_actualPos-m_previousPosition;
-        Q_ASSERT(_bufLen>=0);
-        QByteArray& _buffer= m_inputStream->buffer();
-        //qDebug() << "AudioPlayer::notified: buffer@  "<< &_buffer << " len=" << m_buffer.length()<< " pos=" <<;
-        const char * _data=_buffer.constData();
-        _meter=AudioUtils::getAudioPeak(&_data[m_inputStream->pos()],_bufLen,m_audioOutput->format());
-        //qDebug() << "AudioPlayer::notified: buffer@  "<< &_data << " len=" << m_buffer.length();
+    switch (m_source) {
+        case AudioPlayer::STREAM:
+            _actualPos=m_inputStream->pos();
+            _bufLen=_actualPos-m_previousPosition;
+            Q_ASSERT(_bufLen>=0);
+            if (_bufLen==0) {
+                qDebug() << "AudioPlayer::notified: actual position = previous pos " << _actualPos;
+                stopPlay();
+                stopUI();
+            } else {
+                QByteArray& _buffer= m_inputStream->buffer();
+                const char * _data=_buffer.constData();
+                _meter=AudioUtils::getAudioPeak(&_data[m_inputStream->pos()],_bufLen,m_audioOutput->format());
+            }
+            break;
+        case AudioPlayer::FILE:
+            _actualPos=m_inputFile.pos();
+            _bufLen=_actualPos-m_previousPosition;
+            Q_ASSERT(_bufLen>=0);
+            if (_bufLen==0) {
+                qDebug() << "AudioPlayer::notified: actual position = previous pos " << _actualPos;
+                stopPlay();
+                stopUI();
+            } else {
+                QByteArray _buffer= m_inputFile.peek(m_buffer.length());
+                const char * _data=_buffer.constData();
+                _meter=AudioUtils::getAudioPeak(_data,_bufLen,m_audioOutput->format());
+            }
+            break;
+        default:
+            qWarning() << "AudioPlayer::notified: not a valid player";
     }
-    else if (m_source== AudioPlayer::FILE) {
-        _actualPos=m_inputFile.pos();
-        _bufLen=_actualPos-m_previousPosition;
-        Q_ASSERT(_bufLen>=0);
-        QByteArray _buffer= m_inputFile.peek(m_buffer.length());
-        //qDebug() << "AudioPlayer::notified: buffer@  "<< &_buffer << " len=" << m_buffer.length()<< " pos=" <<m_inputFile.pos();
-        const char * _data=_buffer.constData();
-        _meter=AudioUtils::getAudioPeak(_data,_bufLen,m_audioOutput->format());
-    }
+
     m_qvumeter->setLeftValue(_meter.peak);
     m_qvumeter->setRightValue(_meter.rms);
 
@@ -512,11 +531,20 @@ void AudioPlayer::notified()
 void AudioPlayer::pullTimerExpired()
 {
     if (m_audioOutput && m_audioOutput->state() != QAudio::StoppedState) {
+        //How many chincks i can write? I can write N chunks of a length dependent on the device (m_audioOutput->periodSize())
+        //Also the dimension of the buffer
         int chunks = m_audioOutput->bytesFree()/m_audioOutput->periodSize();
         if (chunks <=0 &&  m_audioOutput->state()!=QAudio::SuspendedState) {
-            qWarning() << "AudioPlayer::pullTimerExpired: data not ready, device has bytesFree=" << m_audioOutput->bytesFree() << " and a periodSize=" << m_audioOutput->periodSize();
-        }
-
+            qWarning() << QTime::currentTime().toString("hh:mm:ss.zzz") <<
+                          "AudioPlayer::pullTimerExpired: data NOT ready, device has bytesFree=" << m_audioOutput->bytesFree() <<
+                          " and a periodSize=" << m_audioOutput->periodSize();
+         //   qWarning() << "AudioPlayer::pullTimerExpired: data NOT ready, performed a read of "<< len << ", now device has bytesFree=" << m_audioOutput->bytesFree() << " and a periodSize=" << m_audioOutput->periodSize();
+        } /*else {
+            qDebug() << QTime::currentTime().toString("hh:mm:ss.zzz") <<
+                          "AudioPlayer::pullTimerExpired: data ready, device has bytesFree=" << m_audioOutput->bytesFree() <<
+                          "chunks=" << chunks <<
+                          " and a periodSize=" << m_audioOutput->periodSize();
+        }*/
         while (chunks) {
             qint64 len=0;
             switch (m_source) {
@@ -529,10 +557,14 @@ void AudioPlayer::pullTimerExpired()
                         len = m_inputFile.read(m_buffer.data(), m_audioOutput->periodSize());
                     break;
            }
-
+           qint64 lenWrite=0;
            if (len) {
-               m_output_IODev->write(m_buffer.data(), len);
+               lenWrite=m_output_IODev->write(m_buffer.data(), len);
            }
+         //  qWarning() << "AudioPlayer::pullTimerExpired: performed a  read of "<< len <<
+         //                " a write of " << lenWrite <<
+         //                ", now device has bytesFree=" << m_audioOutput->bytesFree() << " and a periodSize=" << m_audioOutput->periodSize();
+
            if (len != m_audioOutput->periodSize()) //If the last read is shorter of the period size stream is finished and then exit.
                break;
            --chunks;
