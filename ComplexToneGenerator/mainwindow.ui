@@ -82,10 +82,10 @@
   </action>
   <action name="actionLoad_Project">
    <property name="text">
-    <string>Load Project</string>
+    <string>Open Project</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+L</string>
+    <string>Ctrl+O</string>
    </property>
   </action>
   <action name="actionImport_curve">
