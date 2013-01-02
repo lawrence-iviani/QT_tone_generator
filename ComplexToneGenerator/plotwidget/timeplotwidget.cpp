@@ -4,7 +4,7 @@
 
 TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     PlotWidget(parent,  xScaleType,  yScaleType),
-    m_params(TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_SR)
+    m_params(TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_SR)
 {
     m_digestCurve=new DigestTimeData(&m_curveList,&m_params);
     m_digestCurve->getCurve()->attach(this);
@@ -67,7 +67,8 @@ void TimePlotWidget::setSampleRate(qreal SR) {
     m_baseControl.sliderSR->blockSignals(sigStatus);
 
     //Replot and recalc digest
-    //this->updatePlot();
+    this->updatePlot();
+    emit (sampleRateChanged(_SR));
 }
 
 void TimePlotWidget::showAllCurves() {
@@ -136,6 +137,7 @@ void TimePlotWidget::setDuration(qreal duration) {
     this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*_duration);
     //Replot and recalc digest
     this->updatePlot();
+    emit (duartionChanged(_duration));
 
 }
 

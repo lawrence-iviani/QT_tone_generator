@@ -16,6 +16,13 @@ public:
 signals:
 
 public slots:
+
+    /**
+     * @brief durationChange tell to this class to update the duration when is changed, this class update the number of repetitions
+     * @param duration
+     */
+    virtual void durationChange(qreal duration);
+
     /**
       * Force the UI to be update re-reading information from the referenced GenericTimeData class.
       * This slot doesn't propagate the signal/slot related to the UI, is intended to be called just to refresh the UI if something changes in the data class
@@ -23,10 +30,6 @@ public slots:
     virtual void updateControlUI();
 
 protected:
-    /**
-      * This method is called when the extended class set itself widget to add more control
-      */
-   // void setExtendedControl(CustomCurveUI * customCurveControl);
 
 private:
     void initControlWidget();
@@ -41,7 +44,9 @@ private:
     } m_repeatedDataControl;
 
     RepeatedTimeData *m_repeatedTimeData;
-    
+
+private slots:
+
 };
 
 #endif // REPEATEDTIMEDATAUI_H

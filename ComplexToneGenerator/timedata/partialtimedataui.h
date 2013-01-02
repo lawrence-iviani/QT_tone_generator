@@ -23,11 +23,12 @@ public slots:
       */
     virtual void updateControlUI();
 
-protected:
     /**
-      * This method is called when the extended class set itself widget to add more control
-      */
-   // void setExtendedControl(CustomCurveUI * customCurveControl);
+     * @brief durationChange tell to this class to update the duration when is changed, this class update the duration widget and the start time
+     * @param duration
+     */
+    virtual void durationChange(qreal duration);
+protected:
 
 private:
     void initControlWidget();
@@ -43,6 +44,9 @@ private:
     } m_partialDataControl;
 
     PartialTimeData *m_partiaTimeData;
+
+private slots:
+
 };
 
 #endif // PARTIALTIMEDATAUI_H

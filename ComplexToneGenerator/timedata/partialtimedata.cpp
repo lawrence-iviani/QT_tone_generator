@@ -19,12 +19,10 @@ PartialTimeData::PartialTimeData(TimePlotParams *timePlotParams, QWidget *widget
 }
 
 void PartialTimeData::connectSignal() {
-
     //Connect the slot to change the max duration
     connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(maxDurationChange(qreal)));
     //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
     //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
-
 }
 
 void PartialTimeData::setDuration(qreal duration) {
@@ -76,6 +74,7 @@ void PartialTimeData::maxDurationChange(qreal maxDuration) {
     if ( (this->startTime()+this->duration())>maxDuration ) {
         this->setDuration(maxDuration-this->startTime());
     }
+    m_partialTimeDataUI->durationChange(maxDuration);
 }
 
 

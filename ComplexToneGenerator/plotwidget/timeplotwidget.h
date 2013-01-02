@@ -35,6 +35,18 @@ public:
     const  QDomDocument* getTimePlotParametersDomDocument();
 signals:
 
+    /**
+     * @brief duartionChanged This signal is emitted whenever the duration change for some reason
+     * @param duration The new duration
+     */
+    void duartionChanged(qreal duration);
+
+    /**
+     * @brief sampleRateChanged This signal is emitted whenever the duration change for some reason
+     * @param SR The new sample rate
+     */
+    void sampleRateChanged(qreal SR);
+
 public slots:
     void setSampleRate(qreal SR);
     void setDuration(qreal duration);

@@ -3,7 +3,7 @@
 TimePlotParams::TimePlotParams(QObject *parent) :
     QObject(parent),
     DomHelper(this),
-    m_duration(TIMEDATA_DEFAULT_MAX_TIME),
+    m_duration(TIMEDATA_DEFAULT_PROJECT_TIME),
     m_sampleRate(TIMEDATA_DEFAULT_SR),
     m_t0(TIMEDATA_DEFAULT_MIN_TIME)
 {
@@ -13,7 +13,7 @@ TimePlotParams::TimePlotParams(QObject *parent) :
 TimePlotParams::TimePlotParams(qreal duration, qreal sampleRate, QObject *parent) :
     QObject(parent),
     DomHelper(this),
-    m_duration(TIMEDATA_DEFAULT_MAX_TIME),
+    m_duration(TIMEDATA_DEFAULT_PROJECT_TIME),
     m_sampleRate(TIMEDATA_DEFAULT_SR),
     m_t0(TIMEDATA_DEFAULT_MIN_TIME)
 {
@@ -23,7 +23,7 @@ TimePlotParams::TimePlotParams(qreal duration, qreal sampleRate, QObject *parent
 }
 
 bool TimePlotParams::setDuration(qreal duration) {
-    if (duration < 0.0 || duration > TIMEDATA_DEFAULT_MAX_TIME) return false;
+    if (TIMEDATA_DEFAULT_MIN_TIME < 0.0 || duration > TIMEDATA_DEFAULT_MAX_TIME) return false;
     if (duration==m_duration) return false;
     m_duration=duration;
     regenerateDomDocument();

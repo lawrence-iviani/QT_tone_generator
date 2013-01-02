@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'selectcurvewindowdialog.ui'
 **
-** Created: Mon Oct 15 22:40:03 2012
+** Created: Wed Jan 2 12:00:19 2013
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!

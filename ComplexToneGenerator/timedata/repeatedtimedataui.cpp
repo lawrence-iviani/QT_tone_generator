@@ -8,6 +8,13 @@ RepeatedTimeDataUI::RepeatedTimeDataUI(RepeatedTimeData *rtd, QWidget *widget ) 
     m_repeatedTimeData->getControlWidget()->addControlFrame(this,"RTD control");
 }
 
+void RepeatedTimeDataUI::durationChange(qreal duration) {
+    bool _prevValue=m_repeatedDataControl.widgetBlankTime->blockSignals(true);
+    m_repeatedDataControl.widgetBlankTime->setMaxScaleValue(duration);
+    m_repeatedDataControl.widgetBlankTime->blockSignals(_prevValue);
+
+}
+
 RepeatedTimeDataUI::~RepeatedTimeDataUI() {
 
 }
@@ -35,11 +42,12 @@ void RepeatedTimeDataUI::initControlWidget() {
 
 //    //set duration
     m_repeatedDataControl.widgetBlankTime = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_repeatedDataControl.widgetBlankTime->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
+    m_repeatedDataControl.widgetBlankTime->setScale(0,TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
     m_repeatedDataControl.widgetBlankTime->setName("Blank Time");
     m_repeatedDataControl.widgetBlankTime->setMeasureUnit("Sec.");
     m_repeatedDataControl.widgetBlankTime->setFont(f);
     connect(m_repeatedDataControl.widgetBlankTime,SIGNAL(valueChanged(qreal)),m_repeatedTimeData,SLOT(setBlankTime(qreal)));
+    connect(this,SLOT(durationChange(qreal)),m_repeatedDataControl.widgetBlankTime,SLOT(setMaxScaleValue(qreal)));
 
     //layouting
     l->addWidget(m_repeatedDataControl.widgetBlankTime,1,Qt::AlignLeft);

@@ -91,15 +91,15 @@ signals:
      void curveAttributeUpdated();
 
      /**
-      * @brief maxDurationChanged emit a signal for the inerithed subclass to signal the length is changed. Inerithed class should not call createData
-      * beause it's called by this function before exit
+      * @brief maxDurationChanged emit a signal for the inerithed subclass to signal the length is changed. The Inerithed class should not call createData
+      * because it's called by this function before exit, otherwise data will be created two times
       * @param maxduration
       */
      void maxDurationChanged(qreal maxduration);
 
      /**
-      * @brief sampleRateChanged emit a signal for the inerithed subclass to signal the SR is changed. Inerithed class should not call createData
-      * beause it's called by this function before exit
+      * @brief sampleRateChanged emit a signal for the inerithed subclass to signal the SR is changed. The Inerithed class should not call createData
+      * because it's called by this function before exit, otherwise data will be created two times
       * @param samplerate
       */
      void sampleRateChanged(qreal samplerate);

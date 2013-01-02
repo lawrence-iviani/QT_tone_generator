@@ -27,6 +27,16 @@ void PartialTimeDataUI::updateControlUI() {
 
 }
 
+void PartialTimeDataUI::durationChange(qreal duration) {
+    bool _prevValue=m_partialDataControl.widgetDuration->blockSignals(true);
+    m_partialDataControl.widgetDuration->setMaxScaleValue(duration);
+    m_partialDataControl.widgetDuration->blockSignals(_prevValue);
+
+    _prevValue=m_partialDataControl.widget_t0->blockSignals(true);
+    m_partialDataControl.widget_t0->setMaxScaleValue(duration);
+    m_partialDataControl.widget_t0->blockSignals(_prevValue);
+}
+
 void PartialTimeDataUI::initControlWidget() {
 
     //setting font base dimension
@@ -41,7 +51,7 @@ void PartialTimeDataUI::initControlWidget() {
 
     //set duration
     m_partialDataControl.widgetDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_partialDataControl.widgetDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
+    m_partialDataControl.widgetDuration->setScale(0,TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
     m_partialDataControl.widgetDuration->setName("Duration");
     m_partialDataControl.widgetDuration->setMeasureUnit("Sec.");
     m_partialDataControl.widgetDuration->setFont(f);
@@ -49,8 +59,7 @@ void PartialTimeDataUI::initControlWidget() {
 
     //set t0
     m_partialDataControl.widget_t0 = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_partialDataControl.widget_t0->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);
-
+    m_partialDataControl.widget_t0->setScale(0,TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_TIMESTEP);
     m_partialDataControl.widget_t0->setName("Start Time");
     m_partialDataControl.widget_t0->setMeasureUnit("Sec.");
     m_partialDataControl.widget_t0->setFont(f);

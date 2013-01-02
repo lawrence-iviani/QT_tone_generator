@@ -33,6 +33,7 @@ signals:
     void valueChanged(qreal);
 public slots:
     void setDigitAccuracy(unsigned short int accuracy) {m_digitAccuracy=accuracy;}
+    void setMaxScaleValue(qreal vmax);
     void updateValue(qreal val);
     void sliderStartMoving();
     void sliderStopMoving();

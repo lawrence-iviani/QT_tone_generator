@@ -53,7 +53,7 @@ void GenericTimeData::setTimePlotParams() {
         m_SR=m_TimePlotParams->sampleRate();
         m_enableRecalc=true;
     } else {
-        m_MaxDuration=TIMEDATA_DEFAULT_MAX_TIME;
+        m_MaxDuration=TIMEDATA_DEFAULT_PROJECT_TIME;
         m_Min_t0=TIMEDATA_DEFAULT_MIN_TIME;
         m_SR=TIMEDATA_DEFAULT_SR;
     }

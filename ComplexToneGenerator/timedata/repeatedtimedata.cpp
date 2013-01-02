@@ -25,6 +25,7 @@ void RepeatedTimeData::connectSignal() {
     connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions()));
     connect(this ,SIGNAL(startTimeChanged(qreal)),this,SLOT(updateRepetitions()));
     connect(this ,SIGNAL(durationChanged(qreal)),this,SLOT(updateRepetitions()));
+    connect(this ,SIGNAL(maxDurationChanged(qreal)),m_repeatedTimeDataUI,SLOT(durationChange(qreal)));
     //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
     //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
 

@@ -181,3 +181,7 @@ void ScaledSliderWidget::setFont(QFont  f) {
     f.setPointSize(f.pointSize()-2);
     m_slider->setFont(f);
 }
+
+void ScaledSliderWidget::setMaxScaleValue(qreal vmax) {
+    m_slider->setScale(m_slider->minValue(),vmax,m_slider->step());
+}

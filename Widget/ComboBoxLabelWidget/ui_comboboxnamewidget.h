@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'comboboxnamewidget.ui'
 **
-** Created: Mon Oct 15 22:39:55 2012
+** Created: Wed Jan 2 12:00:11 2013
 **      by: Qt User Interface Compiler version 4.8.0
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
