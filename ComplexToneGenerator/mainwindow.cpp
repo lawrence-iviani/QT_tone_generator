@@ -26,7 +26,6 @@ MainWindow::~MainWindow()
 void MainWindow::initAudio() {
     m_digestCurveStream=new InternalStreamDevice(AudioUtils::getStandardFormat(AudioUtils::DAT));
     m_digestCurveStream->setAudioData((qreal*) m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
-    //m_audioPlayer->
     m_audioPlayer->setStream(m_digestCurveStream);
 }
 
@@ -271,7 +270,7 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
 
  //       PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
 
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("PartialSinusData");//,m_plotTime);
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("PartialSinusData",m_plotTime->getTimePlotParams());//,m_plotTime);
      //   s->setParent(m_plotTime);
         s->setTimePlotParams(m_plotTime->getTimePlotParams() );
         //s->setStartTime(1.414);
@@ -288,7 +287,7 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
      //   s->setBlankTime(0.25);
      //   s->setAmplitudeFrequencyAndPhase(0.250,500,45);
 
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("RepeatedSinusData");//,m_plotTime);
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("RepeatedSinusData",m_plotTime->getTimePlotParams());//,m_plotTime);
        // s->setParent(m_plotTime);
         s->setTimePlotParams(m_plotTime->getTimePlotParams() );
         retval=(GenericTimeData*) s;
@@ -296,7 +295,7 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
     }
 
     if (QString::compare(curveName,"Tone generator")==0 ) {
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData");//,m_plotTime);
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData",m_plotTime->getTimePlotParams());//,m_plotTime);
        // s->setParent(m_plotTime);
         s->setTimePlotParams(m_plotTime->getTimePlotParams() );
      //   GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
@@ -727,7 +726,7 @@ bool MainWindow::importXMLCurve(const QDomDocument& doc) {
                  << " objname=" << _objTypeName;
         //allocate curve
         GenericTimeData* _curve=NULL;
-        _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName);
+        _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName,m_plotTime->getTimePlotParams());
 
         //set class with DomObject
         if (_curve!=NULL) {

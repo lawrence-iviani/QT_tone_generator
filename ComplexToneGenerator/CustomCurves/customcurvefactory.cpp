@@ -10,17 +10,17 @@ CustomCurveFactory* CustomCurveFactory::instance() {
     return singleton;
 }
 
-GenericTimeData* CustomCurveFactory::newCurve(QString className,QWidget *parent) {
+GenericTimeData* CustomCurveFactory::newCurve(QString className, TimePlotParams* timeParams, QWidget *parent) {
    // GenericTimeData* retval = NULL;
 
     if (className=="GenericSinusData")
-        return (GenericTimeData*) new GenericSinusData(parent); //m_plotTime->getTimePlotParams() , m_plotTime);
+        return (GenericTimeData*) new GenericSinusData(timeParams,parent); //m_plotTime->getTimePlotParams() , m_plotTime);
 
     if (className=="PartialSinusData")
-        return (GenericTimeData*) new PartialSinusData(parent);
+        return (GenericTimeData*) new PartialSinusData(timeParams,parent);
 
     if (className=="RepeatedSinusData")
-        return (GenericTimeData*) new RepeatedSinusData(parent);
+        return (GenericTimeData*) new RepeatedSinusData(timeParams,parent);
 
     return NULL;
 //    if (className == "InerithedClass") {

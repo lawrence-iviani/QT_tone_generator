@@ -54,9 +54,7 @@ void RepeatedTimeData::setBlankTime(qreal blanktime) {
     //Clip to the max blanktime available
     m_blankTime=(blanktime < _maxBlankTime ? blanktime : _maxBlankTime);
     updateRepetitions();
-
-    resetAllData();
-    updateData();
+    createData();
 }
 
 bool RepeatedTimeData::insertSignalValue(qint64 index, qreal value) {

@@ -43,11 +43,8 @@ void PartialTimeData::privateSetDuration(qreal duration) {
     if (this->startTime() > this->maxDuration()) this->setStartTime(this->maxDuration());
 
     qreal maxtime=this->minStartTime()+this->maxDuration();//The max time allowed by the base class
-    if ((this->startTime()+duration) > maxtime) {
-        m_duration=maxtime-this->startTime();
-    } else {
-        m_duration=duration;
-    }
+    m_duration=( ((this->startTime()+duration) > maxtime) ? maxtime-this->startTime() : duration );
+
 }
 
 void PartialTimeData::setStartTime(qreal t0) {
@@ -66,8 +63,7 @@ void PartialTimeData::setStartTime(qreal t0) {
     if ( (m_t0+m_duration) > maxtime ) {
            privateSetDuration(m_duration);
     }
-    resetAllData();
-    updateData();
+    createData();
 }
 
 void PartialTimeData::maxDurationChange(qreal maxDuration) {
