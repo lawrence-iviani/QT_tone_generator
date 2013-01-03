@@ -29,6 +29,11 @@ InternalStreamDevice::~InternalStreamDevice()
 
 }
 
+bool InternalStreamDevice::setAudioData(qreal * data, qint64 len, QAudioFormat format) {
+    this->setAudioFormat(format);
+    return this->setAudioData(data,len);
+}
+
 bool InternalStreamDevice::setAudioData(qreal * data, qint64 len) {
 
     //Verify if data are present
@@ -59,7 +64,7 @@ bool InternalStreamDevice::setAudioData(qreal * data, qint64 len) {
     qint64 length = ( m_format.channels() * (m_format.sampleSize() / 8)) * len;
     Q_ASSERT(length % sampleBytes == 0);
     Q_UNUSED(sampleBytes) // suppress warning in release builds
-    qDebug() << "InternalStreamDevice::setData channels="<< m_format.channels() << " channelBytes=" << channelBytes << " sampleBytes="<<sampleBytes << " length=" << length;
+    qDebug() << "InternalStreamDevice::setData setting channels="<< m_format.channels() << " @"<<m_format.sampleRate() <<"Hz channelBytes=" << channelBytes << " sampleBytes="<<sampleBytes << " totalBytes=" << length;
     //m_buffer->resize(length); //TODO: resize  in one step! Usando insert (con indice la cosa sembra esplodere!!)
     int sampleIndex = 0;
 
@@ -96,9 +101,14 @@ bool InternalStreamDevice::setAudioData(qreal * data, qint64 len) {
             length -= channelBytes;
         }
         ++sampleIndex;
-    }
+    }  
+    qDebug() << "InternalStreamDevice::setData create m_buffer m_buffer.size="<<m_buffer->size();// << " m_buffer.length="<<  m_buffer->length() <<" this size=" << this->size();
     emit(dataChanged());
-    qDebug() << "InternalStreamDevice::setData create m_buffer m_buffer.size="<<m_buffer->size() << " m_buffer.length="<<  m_buffer->length() <<" this size=" << this->size();
-
     return true;
+}
+
+void InternalStreamDevice::setAudioFormat(QAudioFormat format) {
+    if (m_format==format) return;
+    qDebug() << "InternalStreamDevice::setAudioFormat audio format changed";
+    m_format=QAudioFormat(format);
 }

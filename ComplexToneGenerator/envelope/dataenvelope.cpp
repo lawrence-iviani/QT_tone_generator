@@ -111,14 +111,14 @@ void DataEnvelope::connectingSignals() {
 }
 
 void DataEnvelope::recalculateEnvelope() {
-    qDebug() << "DataEnvelope::recalculateEnvelope() RECALCULATE ENVELOPE -------------";
+    qDebug() << "DataEnvelope::recalculateEnvelope() for "<< parent()->metaObject()->className() <<" RECALCULATE ENVELOPE ------------- " ;
     //delete old envelope
     if (m_envelope) free(m_envelope);
 
     //init new envelope
     m_envelope=new qreal[m_length];
     memset(m_envelope,0,sizeof(qreal)*m_length);
-    qDebug() << "DataEnvelope::recalculateEnvelope() length=" << m_length << " m_envelopeParams->total()=" << m_envelopeParams->total() <<" (m_envelopeParams->total()*m_SR )=" <<(m_envelopeParams->total()*m_SR);
+    qDebug() << "DataEnvelope::recalculateEnvelope() length=" << m_length << " m_envelopeParams->total()=" << m_envelopeParams->total() <<" SR="<< m_SR << "(m_envelopeParams->total()*m_SR )=" <<(m_envelopeParams->total()*m_SR);
     //calculate envelope time
     qint64 _attack=(qint64)(m_envelopeParams->attackPercentile()*m_length);
     qint64 _hold=(qint64)(m_envelopeParams->holdPercentile()*m_length);
@@ -126,7 +126,7 @@ void DataEnvelope::recalculateEnvelope() {
     qint64 _sustain=(qint64)(m_envelopeParams->sustainPercentile()*m_length);
     qint64 _release=(qint64)(m_envelopeParams->releasePercentile()*m_length);
 
-    Q_ASSERT( qRound64( m_length)== qRound64(m_envelopeParams->total()*m_SR) );
+    Q_ASSERT( qRound64( m_length)==qRound64(m_envelopeParams->total()*m_SR) );
     Q_ASSERT( (_attack+_hold+_decay+_sustain+_release)<=m_length);//Better if Should be equal or is enough assure is minor? (condiser aproximation).
 
     qint64 _index=0;

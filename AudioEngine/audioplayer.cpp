@@ -128,7 +128,7 @@ void AudioPlayer::initializeAudio(QAudioFormat format)
         qWarning() << "Default format not supported - trying to use nearest";
         format = info.nearestFormat(format);
     }
-
+    qDebug() << "AudioPlayer::initializeAudio, setting audio format\n" << AudioUtils::audioFormatToString(&format); ;
     if (m_audioOutput) {
         disconnect(m_audioOutput, SIGNAL(notify()), this,SLOT(notified()));
         disconnect(m_audioOutput, SIGNAL(stateChanged(QAudio::State)), this, SLOT(stateChanged(QAudio::State)));
@@ -149,12 +149,12 @@ void AudioPlayer::setPlayMode(AudioPlayer::PlayMode playMode) {
     stopPlay();
     switch (playMode) {
         case AudioPlayer::PULL:
-            qDebug() << "Setting push mode";
+            //Debug() << "Setting push mode";
             m_modeButton->setText("Enable pull mode");
             m_pullMode = false;
             break;
         case AudioPlayer::PUSH:
-            qDebug() << "Setting pull mode";
+            //qDebug() << "Setting pull mode";
             m_modeButton->setText("Enable push mode");
             m_pullMode = true;
             break;
@@ -163,8 +163,8 @@ void AudioPlayer::setPlayMode(AudioPlayer::PlayMode playMode) {
     m_suspendResumeButton->setText("Suspend playback");
 }
 
-void AudioPlayer::setStream(InternalStreamDevice * stream){
-        this->setPause(true);
+void AudioPlayer::setStream(InternalStreamDevice * stream) {
+    this->setPause(true);
     if (m_inputStream && m_inputStream->isOpen()) {
         m_inputStream->close();
     }
@@ -173,7 +173,7 @@ void AudioPlayer::setStream(InternalStreamDevice * stream){
 
 void AudioPlayer::setAudioFormat(QAudioFormat format) {
     if (format!=m_audioOutput->format()) {
-        qDebug() << "AudioPlayer::setAudioFormat changing format format";
+        qDebug() << "AudioPlayer::setAudioFormat changing format";
         //m_audioOutput->format()=format; //20121231 this call is meaningless!!
         initializeAudio(format);
     }
@@ -655,7 +655,7 @@ void AudioPlayer::setStart(bool start, int samplePosition) {
             stopPlay();
         }
     } else {
-        qWarning() << "AudioPlayer::setStart do nothing";
+        qWarning() << "AudioPlayer::setStart do nothing, NULL m_audioOutput";
     }
 }
 

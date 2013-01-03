@@ -29,7 +29,7 @@ bool DomHelper::selfObjectData(QDomDocument * doc,const QString& rootTag) {
     QDomText _classnameText = doc->createTextNode(m_obj->metaObject()->className());
     _rootElement.appendChild(_classname);
     _classname.appendChild(_classnameText);
-    qDebug() << "DomHelper::selfObjectData generate self data with TAG "<< rootTag;
+  //  qDebug() << "DomHelper::selfObjectData generate self data with TAG "<< rootTag;
  //   qDebug() << "DomHelper::selfObjectData start with tag |" << rootTag <<"|";
  //   qDebug() << "DomHelper::selfObjectData start  | "<< doc->toText().data()<< " |end";
     const QMetaObject* metaObject = m_obj->metaObject();

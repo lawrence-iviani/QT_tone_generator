@@ -40,7 +40,8 @@ protected:
       * Reimplemented from GenericTimeData.
       */
     virtual qint64 lowestSampleIndexForModification()  {
-        qint64 retval=(this->startTime()-this->minStartTime())*this->sampleRate();
+        qreal _maxDuration=qMin(this->maxDuration(),this->startTime()-this->minStartTime());
+        qint64 retval=_maxDuration*this->sampleRate();
         Q_ASSERT(retval >=0);
         Q_ASSERT(retval <=this->sampleNumber());
         return retval;
@@ -51,7 +52,8 @@ protected:
       * Reimplemented from GenericTimeData.
       */
     virtual qint64 highestSampleIndexForModification() {
-        qint64 retval=(this->startTime()+this->duration())*this->sampleRate();
+        qreal _maxDuration=qMin(this->maxDuration(),this->startTime()+this->duration());
+        qint64 retval=_maxDuration*this->sampleRate();
         Q_ASSERT(retval >=0);
         Q_ASSERT(retval <=this->sampleNumber());
         return retval;

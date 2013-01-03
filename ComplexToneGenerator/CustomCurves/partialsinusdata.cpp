@@ -44,7 +44,10 @@ PartialSinusData::PartialSinusData(TimePlotParams * timePlotParams, qreal amplit
 }
 
 void PartialSinusData::recalc() {
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - PartialSinusData::recalc() ---------------- " << this->name();
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - PartialSinusData::recalc() is enabled---------------- " << this->name();
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - PartialSinusData::recalc() SR=" << this->sampleRate()
+            << " nsamples="<< this->sampleNumber();
+
     const qreal *t=this->getTimeData();
     qreal phase=SinusDataParams::deg2rad(m_sinusDataParams->initPhase());
 

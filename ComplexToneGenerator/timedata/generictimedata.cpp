@@ -197,8 +197,8 @@ bool GenericTimeData::setSampleRate(qreal SR) {
     }
     if ( (SR!=m_SR) && (SR >0) ) {
         m_SR=SR;
-        m_envelope->setSampleRate(SR);
         resetAllData();
+        m_envelope->setSampleRate(SR);       
         emit (sampleRateChanged(SR));
         recalc();
         createDataCurve();
@@ -289,7 +289,7 @@ void GenericTimeData::regenerateDomDocument()
 {
     if (m_enableRecalc) {
         //Generate the DomDocument of this class
-        qDebug() << "GenericTimeData::regenerateDomDocument  with tag |"<<GENERICTIMEDATA_TAG<<"|";
+        //qDebug() << "GenericTimeData::regenerateDomDocument  with tag |"<<GENERICTIMEDATA_TAG<<"|";
         initDomDocument(PROJECT_CURVETYPE,GENERICTIMEDATA_TAG);// initDomDocument(GENERICTIMEDATA_TAG);
 
         //Get DOM document of this object QPROPERTY
@@ -298,7 +298,7 @@ void GenericTimeData::regenerateDomDocument()
         Q_ASSERT(!_doc.isNull());
         Q_ASSERT(_doc.isDocument());
         if (!_doc.firstChild().isNull() && appendDomDocument(_doc)) {
-            qDebug() << "GenericTimeData::regenerateDomDocument append self properties was fine";
+         //   qDebug() << "GenericTimeData::regenerateDomDocument append self properties was fine";
         } else {
             qWarning() << "GenericTimeData::regenerateDomDocument append self properties WAS  NOT FINE!!!!!";
         }
@@ -310,10 +310,10 @@ void GenericTimeData::regenerateDomDocument()
 
          //This is a fix, it should not work this ways but for some reason it's necessary regenerate the Dom
          if (_d->firstChild().isNull()) {
-            qDebug() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE DomDocument @"<< _d << "first node null, FORCE REGENERATE!!!!! " << _d->nodeName();
+            qWarning() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE DomDocument @"<< _d << "first node null, FORCE REGENERATE!!!!! " << _d->nodeName();
             m_envelope->forceRegenerateDomDocument();
             _d=m_envelope->getEnvelopeParametersDomDocument();
-            qDebug() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE now  DomDocument @"<< _d << " first node is " << _d->nodeName();
+      //      qDebug() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE now  DomDocument @"<< _d << " first node is " << _d->nodeName();
          }
          Q_ASSERT(!_d->isNull());
          Q_ASSERT(_d->isDocument());
@@ -323,7 +323,7 @@ void GenericTimeData::regenerateDomDocument()
 
          //Append the envelope to the document
          if (!_d->firstChild().isNull() && appendDomDocument(_d)) {
-             qDebug() << "GenericTimeData::regenerateDomDocument append envelope was fine";
+      //       qDebug() << "GenericTimeData::regenerateDomDocument append envelope was fine";
          } else {
              qWarning() << "GenericTimeData::regenerateDomDocument append envelope WAS NOT FINE!!!!!";
          }

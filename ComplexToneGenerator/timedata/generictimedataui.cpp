@@ -49,7 +49,7 @@ void GenericTimeDataUI::showXML() {
 }
 
 void GenericTimeDataUI::updateControlUI() {
-    qDebug() << "GenericTimeDataUI::updateControlUI called";
+    //qDebug() << "GenericTimeDataUI::updateControlUI called";
 
     bool prevSig=m_baseControl.lineName->blockSignals(true);
     m_baseControl.lineName->setText(m_genericTimeData->name());

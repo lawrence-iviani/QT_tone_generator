@@ -317,8 +317,6 @@ private:
      DataEnvelope *m_envelope;
      bool m_enableEnvelope;
      QString m_fileName;
-
-
 };
 
 #endif // GENERICTIMEDATA_H

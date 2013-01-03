@@ -121,6 +121,7 @@ public slots:
     void setPause(bool pause);
     void setStart(bool start,int samplePosition=0);
     void setStream(InternalStreamDevice *stream);
+    void setAudioFormat(QAudioFormat format);
 
     /**
       * This function is an abstarction to set a generic sample stream in the correct bytes position of the stream
@@ -250,7 +251,6 @@ private slots:
     void toggleStartStop();
     void stateChanged(QAudio::State state);
     void deviceChanged(int index);
-    void setAudioFormat(QAudioFormat format);
     void sliderToggled();
     void convertAndSetSliderPositionToStreamSample(int sliderPosition);
     void convertAndSetStreamSampleToSliderPosition(qint64 samplePosition);

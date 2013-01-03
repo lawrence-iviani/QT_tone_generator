@@ -47,7 +47,10 @@ GenericSinusData::~GenericSinusData() {
 
 
 void GenericSinusData::recalc() {
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - GenericSinusData::recalc() ---------------- " << this->name();
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - GenericSinusData::recalc() is enabled---------------- " << this->name();
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - GenericSinusData::recalc() SR=" << this->sampleRate()
+            << " nsamples="<< this->sampleNumber();
+
     const qreal *t=this->getTimeData();
     qreal phase=SinusDataParams::deg2rad(m_sinusDataParams->initPhase());
 

@@ -34,7 +34,7 @@ void TimePlotWidget::forceRecreateAll() {
 void TimePlotWidget::forceUpdateAll() {
     if (m_enableUpdate) {
         PlotWidget::forceUpdateAll();
-        m_digestCurve->createData();
+        m_digestCurve->createData(); 
     }
 }
 

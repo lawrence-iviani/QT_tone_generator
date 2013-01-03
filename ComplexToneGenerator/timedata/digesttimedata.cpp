@@ -43,6 +43,9 @@ void DigestTimeData::recalc() {
         return;
     }
     qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() is enabled---------------- " << this->name();
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() SR=" << this->sampleRate()
+            << " nsamples="<< this->sampleNumber();
+
 
     Q_ASSERT(m_curveList!=NULL);
     const qreal * digestData=this->getSignalData();
@@ -54,7 +57,7 @@ void DigestTimeData::recalc() {
             Q_ASSERT(gtd!=NULL);
             if (m_curveList->at(m)->isEnabled()) {
                 const qreal * gtdData=gtd->getSignalData();
-                //qDebug() << "gtd->sampleNumber()=" << gtd->sampleNumber() << "=this->sampleNumber()" << this->sampleNumber();
+                qDebug() << "("<< m <<") gtd->sampleNumber()=" << gtd->sampleNumber() << "@ "<< gtd->sampleRate() <<"Hz  this->sampleNumber()" << this->sampleNumber()<< "@ "<< this->sampleRate() <<"Hz";
                 Q_ASSERT(gtd->sampleNumber()==this->sampleNumber());
                 for (int n=0; n < gtd->sampleNumber(); n++) {
                     Q_ASSERT(this->insertSignalValue(n,digestData[n]+gtdData[n]));

@@ -24,7 +24,9 @@ MainWindow::~MainWindow()
 }
 
 void MainWindow::initAudio() {
-    m_digestCurveStream=new InternalStreamDevice(AudioUtils::getStandardFormat(AudioUtils::DAT));
+    QAudioFormat _af=AudioUtils::getStandardFormat(AudioUtils::DAT);
+    _af.setSampleRate(m_plotTime->getDigestCurve()->sampleRate());
+    m_digestCurveStream=new InternalStreamDevice(_af);
     m_digestCurveStream->setAudioData((qreal*) m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
     m_audioPlayer->setStream(m_digestCurveStream);
 }
@@ -42,6 +44,10 @@ void MainWindow::connectSignals() {
     connect(s_button.importXML,SIGNAL(clicked()),SLOT(importXML()));
     connect(s_button.showXML ,SIGNAL(clicked()),SLOT(showXML()));
 #endif
+
+    //If the sample rate change i need to reset the audio stream
+    connect(m_plotTime->getDigestCurve(),SIGNAL(sampleRateChanged(qreal)),this,SLOT(sampleRateChange(qreal)));
+
     //connect digest curve to handle update in the plots
     connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
 
@@ -332,6 +338,7 @@ void MainWindow::removeCurve(){
      QList<int> _selctedCurvesList=removeDialog->getSelectedCurvesIndex();
      qSort(_selctedCurvesList);
      int _extracted=0;
+     bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
      foreach (int i, _selctedCurvesList) {
             int _index=i-_extracted;
             int _indexui=_index+m_toolBoxFixedItem;
@@ -348,14 +355,23 @@ void MainWindow::removeCurve(){
                 qDebug() << "MainWindow::removeCurve: removed GenericTimeData@index=" <<_index;
             }
      }
+     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
+     m_plotTime->updatePlot();
+     this->digestCurveChanged();
      delete removeDialog;
 }
 
 void MainWindow::removeAllCurves() {
-     while (m_plotTime->removeTimeData(0))  {
+    //Disable update
+    bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
+    while (m_plotTime->removeTimeData(0))  {
         //s_widgetUI.toolboxOption->removeItem(m_toolBoxFixedItem);
         //delete s_widgetUI.toolboxOption->widget(m_toolBoxFixedItem);
      }
+    //enable again and force recalc
+     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
+     m_plotTime->updatePlot();
+     this->digestCurveChanged();
 }
 
 void MainWindow::newProject() {
@@ -466,12 +482,32 @@ void MainWindow::removeAllCurvesWithDialog() {
 }
 
 void MainWindow::digestCurveChanged() {
-    m_digestCurveStream->setAudioData((qreal*)m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber());
+    if (m_plotTime->getDigestCurve()->sampleRate()!=m_audioPlayer->getAudioFormat().sampleRate()) {
+        qWarning() << "MainWindow::digestCurveChanged incompatible project/audio stream sample rate project has SR="<<m_plotTime->getDigestCurve()->sampleRate() << "Hz" <<
+                      " stream will be reproduced at m_audioPlayer->getAudioFormat()=" <<m_audioPlayer->getAudioFormat().sampleRate();
+    }
+
+    //setting new curve with length and the actual format selected for the output stream
+    m_digestCurveStream->setAudioData((qreal*)m_plotTime->getDigestCurve()->getSignalData(),m_plotTime->getDigestCurve()->sampleNumber(),m_audioPlayer->getAudioFormat());
+    qDebug() << "MainWindow::digestCurveChanged setting digest curve, digest SR="<<m_plotTime->getDigestCurve()->sampleRate()<<
+                "Hz stream SR=" <<m_audioPlayer->getAudioFormat().sampleRate() << "Hz";
+}
+
+void MainWindow::sampleRateChange(qreal SR) {
+    qDebug() << "MainWindow::sampleRateChange changing sample rate to " << SR << " Hz";
+    QAudioFormat _af=m_audioPlayer->getAudioFormat();
+    _af.setSampleRate(SR);
+    m_audioPlayer->setAudioFormat(_af);
+    if (m_plotTime->sampleRate()!=m_audioPlayer->getAudioFormat().sampleRate()) {
+        qWarning() << "MainWindow::sampleRateChange incompatible project/audio stream sample rate project has SR="<<m_plotTime->sampleRate() << "Hz" <<
+                    " stream will be reproduced at m_audioPlayer->getAudioFormat()=" <<m_audioPlayer->getAudioFormat().sampleRate();
+        QMessageBox::warning(0,"MainWindow::sampleRateChange",QString("Incompatible SR between project and stream\nProject is %1 Hz\nStream is %2 Hz ").arg(m_plotTime->sampleRate()).arg(m_audioPlayer->getAudioFormat().sampleRate()));
+    }
 }
 
 void MainWindow::streamPositionUpdate(qreal position) {
-    //TODO, ACTUALLY IF THE SR OF THE PROJECT CHANGES STREAM REMAIN AT DEFAULT SR
-    Q_ASSERT(m_plotTime->sampleRate()==m_digestCurveStream->getAudioFormat().sampleRate());
+
+    //    Q_ASSERT(m_plotTime->sampleRate()==m_digestCurveStream->getAudioFormat().sampleRate());
 
     //qDebug() << "MainWindow::streamPositionUpdate: position=" <<position <<  "/"<< m_audioPlayer->actualStreamTotalTime();
     m_plotTime->setRubberBandPosition( position );
@@ -680,6 +716,7 @@ bool MainWindow::importXML(const QDomDocument& doc) {
     QDomNode _nodeProjParam=_nodeListProject.at(0);
     m_plotTime->getTimePlotParams()->setClassByDomData(_nodeProjParam);
     m_plotTime->updateUI();//need to manual recal, all the update are disabled!
+    m_plotTime->getDigestCurve()->createData();
 
     if (!importXMLCurve(doc)) {
         qWarning() << "MainWindow::importXML() DATA NOT SET! can't import the XML curve part.";
@@ -689,9 +726,10 @@ bool MainWindow::importXML(const QDomDocument& doc) {
 
     //enable again and force recalc
      m_plotTime->setEnableUpdate(_prevValueEnablePlot);
-     m_plotTime->forceRecreateAll();
+   //  m_plotTime->forceRecreateAll();
      m_plotTime->forceUpdateUI();
      m_plotTime->updatePlot();
+     this->digestCurveChanged();
 
     return  true;
 }

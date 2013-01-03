@@ -26,6 +26,8 @@ signals:
 
 public slots:
    bool setAudioData(qreal * data, qint64 len);
+   bool setAudioData(qreal * data, qint64 len, QAudioFormat format);
+   void setAudioFormat(QAudioFormat format);
 
 private:
     void generateData(qint64 durationUs, int frequency);

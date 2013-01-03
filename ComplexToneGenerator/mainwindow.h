@@ -51,6 +51,7 @@ public slots:
     void updateCurvesName();
     void timeDataUpdated();
     void digestCurveChanged();
+    void sampleRateChange(qreal SR);
     void streamPositionUpdate(qreal position);
     void removeAllCurves();
     void removeAllCurvesWithDialog();

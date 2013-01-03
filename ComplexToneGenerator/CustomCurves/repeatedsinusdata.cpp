@@ -45,7 +45,10 @@ RepeatedSinusData::RepeatedSinusData(TimePlotParams * timePlotParams,qreal ampli
 }
 
 void RepeatedSinusData::recalc() {
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz") << " - RepeatedSinusData::recalc() ---------------- " << this->name();
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - RepeatedSinusData::recalc() is enabled---------------- " << this->name();
+    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - RepeatedSinusData::recalc() SR=" << this->sampleRate()
+            << " nsamples="<< this->sampleNumber();
+
     const qreal *t=this->getTimeData();
     qreal phase=SinusDataParams::deg2rad(m_sinusDataParams->initPhase());
 
