@@ -25,7 +25,7 @@ public:
     explicit DataEnvelope(qreal SR, GenericTimeData *parent=0, QWidget *widget=0);
     explicit DataEnvelope(DataEnvelopeParameters *params, qint64 length , qreal SR, GenericTimeData *parent=0, QWidget *widget = 0 );
 
-    enum TransientFunction {Linear, Exponential, Logarithmic};
+    enum TransientFunction {Linear, Exponential, Logarithmic};//NOT IMPLEMENTED!!
     virtual ~DataEnvelope();
 
     /**
@@ -84,9 +84,9 @@ signals:
 public slots:
 
     /**
-      * Set the length in sample of the envelope
+      * Set the total length in sample of the envelope
       */
-    void setLength(qint64 length);
+    void setTotalLength(qint64 length);
 
     /**
       * Set the params of the whole envelope
@@ -130,7 +130,7 @@ private:
     DataEnvelopeParameters * m_envelopeParams;
     DataEnvelopeUI *m_envelopeUI;
     GenericTimeData *m_genericTimeData;
-    qint64 m_length;
+    qint64 m_TotalLength;
     qreal * m_envelope;
     qreal m_SR;
     void init(QWidget *widget);

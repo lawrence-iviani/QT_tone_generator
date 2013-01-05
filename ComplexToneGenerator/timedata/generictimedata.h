@@ -43,14 +43,14 @@ public:
     QwtCPointerData * getData() {return m_data;}
     TimeDataControlUI * getControlWidget() {return m_timeDataUI; }// Give back a QWidget that can be used to control this class.
 
-    qreal duration() {return m_MaxDuration;}
-    qreal maxDuration() {return m_MaxDuration;}
-    qreal sampleRate() {return m_SR;}
-    qreal minStartTime() {return m_Min_t0;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
-    qint64 sampleNumber() {return m_sample;}
-    bool isEnabled() { return m_curveEnabled;}
-    bool isShowEnabled() { return m_curve->isVisible();}
-    bool isEnvelopeEnabled() { return m_enableEnvelope;}
+    inline qreal duration() {return m_MaxDuration;}
+    inline qreal maxDuration() {return m_MaxDuration;}
+    inline qreal sampleRate() {return m_SR;}
+    inline qreal minStartTime() {return m_Min_t0;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
+    inline qint64 sampleNumber() {return m_sample;}
+    inline bool isEnabled() { return m_curveEnabled;}
+    inline bool isShowEnabled() { return m_curve->isVisible();}
+    inline bool isEnvelopeEnabled() { return m_enableEnvelope;}
     const QString& name() {return  m_name;}
     const QColor color() {return m_curve->pen().color(); }
     void setParent(QWidget* widget) {QObject::setParent((QObject*)widget);}
@@ -225,9 +225,15 @@ public slots:
      void setTimePlotParams(TimePlotParams * timePlotParams);
 
 
-
+     /**
+      * @brief copy Copy in an apposite application structure this curve
+      */
      void copy();
 
+     /**
+      * @brief paste Paste from an apposite application structure to this curve
+      * @return
+      */
      bool paste();
 
 protected:
@@ -243,14 +249,14 @@ protected:
        * - Time
        * - Envelope
        */
-     void deleteAllData();
+     inline void deleteAllData();
 
      /**
        * The function init all the following internal data:
        * - Signal
        * - Time
        */
-     void resetAllData();
+     inline void resetAllData();
 
 
      void createDataCurve();//Set
@@ -271,7 +277,7 @@ protected:
      /**
        * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
        */
-     virtual qint64 lowestSampleIndexForModification()  {
+    inline virtual qint64 lowestSampleIndexForModification()  {
          qint64 retval=this->minStartTime()*this->sampleRate();
          Q_ASSERT(retval>=0);
          Q_ASSERT(retval<=this->sampleNumber());
@@ -281,7 +287,7 @@ protected:
      /**
        * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
        */
-     virtual qint64 highestSampleIndexForModification() {
+     inline virtual qint64 highestSampleIndexForModification() {
          qint64 retval=(this->minStartTime()+this->duration())*this->sampleRate();
          Q_ASSERT(retval >=0);
          Q_ASSERT(retval <=this->sampleNumber());
@@ -291,6 +297,12 @@ protected:
      bool isValidMaxDuration(qreal  maxDuration) {return (m_TimePlotParams->duration()==maxDuration ?  true :  false);}
 
      bool isValidSampleRate(qreal  SR) {return (m_TimePlotParams->sampleRate()==SR ?  true :  false); }
+
+     /**
+      * @brief setEnvelopeLength Set effective length of the envelope data, this class
+      * @param length
+      */
+    // virtual void setEnvelopeLength(qreal length);
 
      TimeDataControlUI *m_timeDataUI;
      bool m_enableRecalc;

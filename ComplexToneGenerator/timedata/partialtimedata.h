@@ -39,25 +39,13 @@ protected:
       * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
       * Reimplemented from GenericTimeData.
       */
-    virtual qint64 lowestSampleIndexForModification()  {
-        qreal _maxDuration=qMin(this->maxDuration(),this->startTime()-this->minStartTime());
-        qint64 retval=_maxDuration*this->sampleRate();
-        Q_ASSERT(retval >=0);
-        Q_ASSERT(retval <=this->sampleNumber());
-        return retval;
-    }
+    qint64 lowestSampleIndexForModification();
 
     /**
       * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
       * Reimplemented from GenericTimeData.
       */
-    virtual qint64 highestSampleIndexForModification() {
-        qreal _maxDuration=qMin(this->maxDuration(),this->startTime()+this->duration());
-        qint64 retval=_maxDuration*this->sampleRate();
-        Q_ASSERT(retval >=0);
-        Q_ASSERT(retval <=this->sampleNumber());
-        return retval;
-    }
+    qint64 highestSampleIndexForModification();
 
 private:
     void connectSignal();

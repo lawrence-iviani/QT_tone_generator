@@ -4,7 +4,7 @@ DataEnvelope::DataEnvelope(GenericTimeData *parent, QWidget *widget):
     QObject((QObject*)parent),
     m_envelopeParams(new DataEnvelopeParameters((QObject*)parent)),
     m_genericTimeData(parent),
-    m_length(0),
+    m_TotalLength(0),
     m_envelope(NULL),
     m_SR(TIMEDATA_DEFAULT_SR)
 {
@@ -15,7 +15,7 @@ DataEnvelope::DataEnvelope(qreal SR, GenericTimeData *parent, QWidget *widget) :
     QObject((QObject*)parent),
     m_envelopeParams(new DataEnvelopeParameters((QObject*)parent)),
     m_genericTimeData(parent),
-    m_length(0),
+    m_TotalLength(0),
     m_envelope(NULL),
     m_SR(SR)
 {
@@ -29,12 +29,12 @@ DataEnvelope::DataEnvelope(DataEnvelopeParameters *params, qint64 length, qreal 
     m_envelope(NULL),
     m_SR(SR)
 {   
-    m_length=(length >0 ? length : 0);
+    m_TotalLength=(length >0 ? length : 0);
     init(widget);
 }
 
 void DataEnvelope::init(QWidget *widget) {
-    m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);
+    m_envelopeParams->setTimeLength(((qreal)m_TotalLength)/m_SR);
     m_envelopeUI=new DataEnvelopeUI(m_envelopeParams,widget);
     m_genericTimeData->getControlWidget()->addControlFrame((CustomCurveUI*)m_envelopeUI,"ENVELOPE control");
     this->connectingSignals();
@@ -46,11 +46,11 @@ DataEnvelope::~DataEnvelope() {
     if (m_envelopeParams) delete m_envelopeParams;
 }
 
-void DataEnvelope::setLength(qint64 length) {
+void DataEnvelope::setTotalLength(qint64 length) {
    // qDebug() << "DataEnvelope::setLength() called with len=" << length;
-    if (length >=0 && length!=m_length) {
-        m_length=length;
-        m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);//This function already call recalcuateEnvelope()
+    if (length >=0 && length!=m_TotalLength) {
+        m_TotalLength=length;
+        m_envelopeParams->setTimeLength(((qreal)m_TotalLength)/m_SR);//This function already call recalcuateEnvelope()
     }
 }
 
@@ -78,9 +78,9 @@ void DataEnvelope::setEnvelopeParamsAndLength(DataEnvelopeParameters *params,qin
         m_envelopeParams=params;
         _needRecalculate=true;
     }
-    if (length >=0 && length!=m_length) {
-        m_length=length;
-        m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);
+    if (length >=0 && length!=m_TotalLength) {
+        m_TotalLength=length;
+        m_envelopeParams->setTimeLength(((qreal)m_TotalLength)/m_SR);
         _needRecalculate=false;//The function above has already generated a recalculate envelope
     }
     if (_needRecalculate) recalculateEnvelope();
@@ -96,7 +96,7 @@ void DataEnvelope::timeEnvelopeChanged() {
 
 void DataEnvelope::setSampleRate(qreal SR) {
     m_SR=SR;
-    m_envelopeParams->setTimeLength(((qreal)m_length)/SR);
+    m_envelopeParams->setTimeLength(((qreal)m_TotalLength)/SR);
 }
 
 void DataEnvelope::connectingSignals() {
@@ -115,18 +115,18 @@ void DataEnvelope::recalculateEnvelope() {
     if (m_envelope) free(m_envelope);
 
     //init new envelope
-    m_envelope=new qreal[m_length];
-    memset(m_envelope,0,sizeof(qreal)*m_length);
-    qDebug() << "DataEnvelope::recalculateEnvelope() length=" << m_length << " m_envelopeParams->total()=" << m_envelopeParams->total() <<" SR="<< m_SR << "(m_envelopeParams->total()*m_SR )=" <<(m_envelopeParams->total()*m_SR);
+    m_envelope=new qreal[m_TotalLength];
+    memset(m_envelope,0,sizeof(qreal)*m_TotalLength);
+    qDebug() << "DataEnvelope::recalculateEnvelope() length=" << m_TotalLength << " m_envelopeParams->total()=" << m_envelopeParams->total() <<" SR="<< m_SR << "(m_envelopeParams->total()*m_SR )=" <<(m_envelopeParams->total()*m_SR);
     //calculate envelope time
-    qint64 _attack=(qint64)(m_envelopeParams->attackPercentile()*m_length);
-    qint64 _hold=(qint64)(m_envelopeParams->holdPercentile()*m_length);
-    qint64 _decay=(qint64)(m_envelopeParams->decayPercentile()*m_length);
-    qint64 _sustain=(qint64)(m_envelopeParams->sustainPercentile()*m_length);
-    qint64 _release=(qint64)(m_envelopeParams->releasePercentile()*m_length);
+    qint64 _attack=(qint64)(m_envelopeParams->attackPercentile()*m_TotalLength);
+    qint64 _hold=(qint64)(m_envelopeParams->holdPercentile()*m_TotalLength);
+    qint64 _decay=(qint64)(m_envelopeParams->decayPercentile()*m_TotalLength);
+    qint64 _sustain=(qint64)(m_envelopeParams->sustainPercentile()*m_TotalLength);
+    qint64 _release=(qint64)(m_envelopeParams->releasePercentile()*m_TotalLength);
 
-    Q_ASSERT( qRound64( m_length)==qRound64(m_envelopeParams->total()*m_SR) );
-    Q_ASSERT( (_attack+_hold+_decay+_sustain+_release)<=m_length);//Better if Should be equal or is enough assure is minor? (condiser aproximation).
+    Q_ASSERT( qRound64( m_TotalLength)==qRound64(m_envelopeParams->total()*m_SR) );
+    Q_ASSERT( (_attack+_hold+_decay+_sustain+_release)<=m_TotalLength);//Better if Should be equal or is enough assure is minor? (condiser aproximation).
 
     qint64 _index=0;
     //Attack phase
@@ -170,7 +170,7 @@ void DataEnvelope::recalculateEnvelope() {
         qreal _releaseslope=(0-m_envelopeParams->sustainLevel())/((qreal) _release);
         qint64 _endreleasetime=_index+_release;
         qreal _startreleaseQ=0-_releaseslope*_endreleasetime;
-        Q_ASSERT(_endreleasetime <= m_length);
+        Q_ASSERT(_endreleasetime <= m_TotalLength);
         for (; _index< _endreleasetime ; _index++) {
             m_envelope[_index]=_releaseslope*(qreal)_index+_startreleaseQ;
         }

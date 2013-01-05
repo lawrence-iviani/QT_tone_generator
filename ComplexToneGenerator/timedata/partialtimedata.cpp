@@ -73,4 +73,18 @@ void PartialTimeData::maxDurationChange(qreal maxDuration) {
     m_partialTimeDataUI->durationChange(maxDuration);
 }
 
+qint64 PartialTimeData::lowestSampleIndexForModification()  {
+    qreal _minDuration=qMax(this->minStartTime() ,this->startTime()-this->minStartTime());
+    qint64 retval=_minDuration*this->sampleRate();
+    Q_ASSERT(retval >=0);
+    Q_ASSERT(retval <=this->sampleNumber());
+    return retval;
+}
 
+qint64 PartialTimeData::highestSampleIndexForModification() {
+    qreal _maxDuration=qMin(this->minStartTime()+this->maxDuration(),this->startTime()+this->duration());
+    qint64 retval=_maxDuration*this->sampleRate();
+    Q_ASSERT(retval >=0);
+    Q_ASSERT(retval <=this->sampleNumber());
+    return retval;
+}
