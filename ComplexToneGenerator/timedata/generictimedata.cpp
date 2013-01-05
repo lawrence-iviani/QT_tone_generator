@@ -147,7 +147,7 @@ void GenericTimeData::resetAllData() {
     }
 
     if (m_enableEnvelope)
-        m_envelope->setTotalLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
+        m_envelope->setLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
 }
 
 void GenericTimeData::createDataCurve() {
@@ -253,7 +253,7 @@ void GenericTimeData::setEnableEnvelope(bool enable) {
 //            qDebug() << "GenericTimeData::setEnableEnvelope highind=" <<this->highestSampleIndexForModification()
 //                         << " lowind=" << this->lowestSampleIndexForModification()
 //                         << " len=" <<this->highestSampleIndexForModification()-this->lowestSampleIndexForModification();
-            m_envelope->setTotalLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
+            m_envelope->setLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
         }
         updateData();
     }

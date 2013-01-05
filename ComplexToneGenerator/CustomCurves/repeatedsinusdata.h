@@ -1,8 +1,6 @@
 #ifndef REPEATEDSINUSDATA_H
 #define REPEATEDSINUSDATA_H
 
-
-
 #include "timedata/repeatedtimedata.h"
 #include "plotwidget/timeplotwidgetparams.h"
 #include "CustomCurves/sinusdata.h"

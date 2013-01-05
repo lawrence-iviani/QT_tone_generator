@@ -45,7 +45,6 @@ GenericSinusData::~GenericSinusData() {
 
 }
 
-
 void GenericSinusData::recalc() {
     qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - GenericSinusData::recalc() is enabled---------------- " << this->name();
     qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - GenericSinusData::recalc() SR=" << this->sampleRate()

@@ -31,12 +31,12 @@ public:
     /**
       * Return a const pointer to the envelope data
       */
-    const qreal * getEnvelope() {return (const qreal*) m_envelope;}
+    inline const qreal * getEnvelope() {return (const qreal*) m_envelope;}
 
     /**
       * Return the length in samples of the whole envelope data.
       */
-    qint64 length();
+    inline qint64 length();
 
     /**
       * Return the ui to control this envelope
@@ -46,7 +46,7 @@ public:
     /**
       * Return the data class with envelope parameters
       */
-    const DataEnvelopeParameters * getEnvelopeParameters() {return (const DataEnvelopeParameters *) m_envelopeParams;}
+    inline const DataEnvelopeParameters * getEnvelopeParameters() {return (const DataEnvelopeParameters *) m_envelopeParams;}
 
     /**
      * @brief getEnvelopeParametersDomDocument Return the envelope parameters in a DomDocument format
@@ -67,7 +67,7 @@ public:
      * @brief isEnableEnvelope tell if the envelope is enabled
      * @return true if enabled
      */
-    bool isEnableEnvelope() {return m_envelopeParams->isEnableEnvelope();}
+    inline bool isEnableEnvelope() {return m_envelopeParams->isEnableEnvelope();}
 
 signals:
     /**
@@ -86,7 +86,7 @@ public slots:
     /**
       * Set the total length in sample of the envelope
       */
-    void setTotalLength(qint64 length);
+    void setLength(qint64 length);
 
     /**
       * Set the params of the whole envelope
@@ -130,7 +130,7 @@ private:
     DataEnvelopeParameters * m_envelopeParams;
     DataEnvelopeUI *m_envelopeUI;
     GenericTimeData *m_genericTimeData;
-    qint64 m_TotalLength;
+    qint64 m_length;
     qreal * m_envelope;
     qreal m_SR;
     void init(QWidget *widget);
