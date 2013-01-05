@@ -50,7 +50,8 @@ void PartialTimeDataUI::initControlWidget() {
     this->setFont(f);
 
     //set duration
-    m_partialDataControl.widgetDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_partialDataControl.widgetDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
+    m_partialDataControl.widgetDuration->setDigitAccuracy(3);
     m_partialDataControl.widgetDuration->setScale(0,TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
     m_partialDataControl.widgetDuration->setName("Duration");
     m_partialDataControl.widgetDuration->setMeasureUnit("Sec.");
@@ -58,7 +59,8 @@ void PartialTimeDataUI::initControlWidget() {
     connect(m_partialDataControl.widgetDuration,SIGNAL(valueChanged(qreal)),m_partiaTimeData,SLOT(setDuration(qreal)));
 
     //set t0
-    m_partialDataControl.widget_t0 = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_partialDataControl.widget_t0 = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
+    m_partialDataControl.widget_t0->setDigitAccuracy(3);
     m_partialDataControl.widget_t0->setScale(0,TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_TIMESTEP);
     m_partialDataControl.widget_t0->setName("Start Time");
     m_partialDataControl.widget_t0->setMeasureUnit("Sec.");

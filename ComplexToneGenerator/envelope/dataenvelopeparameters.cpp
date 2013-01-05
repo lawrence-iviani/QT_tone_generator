@@ -39,7 +39,6 @@ void DataEnvelopeParameters::setEnableEnvelope(bool enable) {
 }
 
 void DataEnvelopeParameters::setTimeLength(qreal length) {
-
     qreal _attackPercentile;
     qreal _holdPercentile;
     qreal _decayPercentile;
@@ -106,7 +105,13 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
     sustain=(sustain>=0 ? sustain : 0);
     release=(release>=0 ? release : 0);
     qreal _total=attack+hold+decay+sustain+release;
-   // qDebug() << "DataEnvelopeParameters::setTimeParameters _total=" << _total << " m_total=" << m_total << " comparison (_total <= m_total) is " <<(_total <= m_total);
+
+    qDebug() << "DataEnvelopeParameters::setTimeParameters try to set attack=" << attack <<
+                "hold="<< hold<<
+                "decay="<<decay<<
+                "sustain="<<sustain<<
+                "release="<<release;
+    qDebug() << "DataEnvelopeParameters::setTimeParameters _total=" << _total << " m_total=" << m_total << " comparison (_total <= m_total) is " <<(_total <= m_total);
 
     //To avoid prolem of rounding the total is compared with rounding after a multplication by 1000000
     //Set only if _total is adequate
@@ -117,6 +122,12 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
         m_sustain=sustain;
         m_release=release;
         retval=true;
+        qDebug() << "DataEnvelopeParameters::setTimeParameters set m_attack=" << m_attack <<
+                    "m_hold="<< m_hold<<
+                    "m_decay="<<m_decay<<
+                    "m_sustain="<<m_sustain<<
+                    "m_release="<<m_release<<
+                    "m_total=" <<m_total;
         emit (timeParametersChanged());
     } else {
         qWarning() << "DataEnvelopeParameters::setTimeParameters dataset invalid " << "+" <<attack <<"+" << hold << "+" <<decay << "+" <<sustain << "+" <<release <<"=" <<_total;

@@ -107,7 +107,6 @@ void DataEnvelope::connectingSignals() {
     //Connect this class to the UI
     connect(m_envelopeParams,SIGNAL(enableToggled(bool)), this, SIGNAL(enableToggled(bool)));
     connect(m_envelopeParams,SIGNAL(enableToggled(bool)), m_envelopeUI, SLOT(setEnableEnvelopeUI(bool)));
-
 }
 
 void DataEnvelope::recalculateEnvelope() {

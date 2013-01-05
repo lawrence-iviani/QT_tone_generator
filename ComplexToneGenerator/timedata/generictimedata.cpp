@@ -513,6 +513,7 @@ void GenericTimeData::exportXML() {
 }
 
 void GenericTimeData::exportXML(QString fileName) {
+    this->regenerateDomDocument();
     DomHelper::save(fileName,this->getDomDocument());
 }
 

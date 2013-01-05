@@ -379,6 +379,7 @@ void MainWindow::newProject() {
     CTG_app * _app=(CTG_app*) qApp;
     _app->setProjectName("");
     _app->setAudioDigestSaveName("");
+    m_audioPlayer->setStart(false);
     removeAllCurves();
     this->setWindowTitle("New Complex Generator project");
 }

@@ -6,8 +6,8 @@ RepeatedTimeData::RepeatedTimeData(QWidget *widget) :
     m_blankTime(TIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();
-    connectSignal();
     m_repeatedTimeDataUI=new RepeatedTimeDataUI(this,widget);
+    connectSignal();
 }
 
 RepeatedTimeData::RepeatedTimeData(TimePlotParams * timePlotParams ,QWidget *widget) :
@@ -15,8 +15,8 @@ RepeatedTimeData::RepeatedTimeData(TimePlotParams * timePlotParams ,QWidget *wid
     m_blankTime(TIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();
-    connectSignal();
     m_repeatedTimeDataUI=new RepeatedTimeDataUI(this,widget);
+    connectSignal();   
 }
 
 void RepeatedTimeData::connectSignal() {

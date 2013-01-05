@@ -28,7 +28,7 @@ public:
      */
     bool isEnabledEnvelopeUI();
 
-    static const qreal  DATAENVELOPEUI_TIME_STEP=0.001;
+    static const qreal  DATAENVELOPEUI_TIME_STEP=0.0001;
 signals:
 
 public slots:

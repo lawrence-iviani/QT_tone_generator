@@ -41,7 +41,8 @@ void RepeatedTimeDataUI::initControlWidget() {
     this->setFont(f);
 
 //    //set duration
-    m_repeatedDataControl.widgetBlankTime = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_repeatedDataControl.widgetBlankTime = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
+    m_repeatedDataControl.widgetBlankTime->setDigitAccuracy(3);
     m_repeatedDataControl.widgetBlankTime->setScale(0,TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
     m_repeatedDataControl.widgetBlankTime->setName("Blank Time");
     m_repeatedDataControl.widgetBlankTime->setMeasureUnit("Sec.");

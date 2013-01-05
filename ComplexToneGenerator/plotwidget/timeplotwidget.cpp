@@ -188,6 +188,7 @@ void TimePlotWidget::initBaseControlWidget() {
 
     //set Sample rate
     m_baseControl.sliderSR = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_baseControl.sliderSR->setDigitAccuracy(0);
     m_baseControl.sliderSR->setScale(TIMEDATA_DEFAULT_MIN_SR,TIMEDATA_DEFAULT_MAX_SR,TIMEDATA_DEFAULT_STEP_SR);
     m_baseControl.sliderSR->setValue(m_params.sampleRate());
     m_baseControl.sliderSR->setName("SR Generation");
@@ -197,7 +198,8 @@ void TimePlotWidget::initBaseControlWidget() {
     connect(m_baseControl.sliderSR,SIGNAL(valueChanged(qreal)),this,SLOT(setSampleRate(qreal)));
 
     //set duration
-    m_baseControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_baseControl.sliderDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
+    m_baseControl.sliderDuration->setDigitAccuracy(3);
     m_baseControl.sliderDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);
     m_baseControl.sliderDuration->setValue(m_params.duration());
     m_baseControl.sliderDuration->setName("Duration Generated file");
