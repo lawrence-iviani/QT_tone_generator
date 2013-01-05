@@ -147,7 +147,7 @@ void GenericTimeData::resetAllData() {
     }
 
     if (m_enableEnvelope)
-        m_envelope->setLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
+        m_envelope->setTotalLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
 }
 
 void GenericTimeData::createDataCurve() {
@@ -253,7 +253,7 @@ void GenericTimeData::setEnableEnvelope(bool enable) {
 //            qDebug() << "GenericTimeData::setEnableEnvelope highind=" <<this->highestSampleIndexForModification()
 //                         << " lowind=" << this->lowestSampleIndexForModification()
 //                         << " len=" <<this->highestSampleIndexForModification()-this->lowestSampleIndexForModification();
-            m_envelope->setLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
+            m_envelope->setTotalLength(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
         }
         updateData();
     }
@@ -467,6 +467,10 @@ bool GenericTimeData::importXML(const QDomNode *node) {
         QMessageBox::warning(0, "GenericTimeData::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
         return false;
     }
+    //20130104
+    //In this phase, due to optimization, the data are not updated, this cmd force to set the correct length before going to set envelope.
+    //otherwise the envelope will be  not set correctly in class that inerhits from repeatedTD and partialTD.
+    this->resetAllData();
 
     //Importing envelope data
     _nodeList=node->toElement().elementsByTagName(ENEVELOPEPARAMETERS_TAG);
@@ -483,7 +487,10 @@ bool GenericTimeData::importXML(const QDomNode *node) {
     this->blockSignals(_prevValueSignals);
     this->setEnableRecalc(_prevValueRecalc);
     this->createData();
-    this->regenerateDomDocument();
+
+    //20130114
+    //Rimosso in quanto non sembra servire..
+    //this->regenerateDomDocument();
 
     return  true;
 }
