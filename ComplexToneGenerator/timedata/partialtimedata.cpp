@@ -3,16 +3,16 @@
 PartialTimeData::PartialTimeData(QWidget *widget) :
     GenericTimeData(widget)
 {
-    m_t0=TIMEDATA_DEFAULT_INITTIME;
+    m_t0=PARTIALTIMEDATA_DEFAULT_INITTIME;
     this->connectSignal();
-    this->setDuration(TIMEDATA_DEFAULT_DURATION);
+    this->setDuration(PARTIALTIMEDATA_DEFAULT_DURATION);
     m_partialTimeDataUI=new PartialTimeDataUI(this,widget);
 }
 
 PartialTimeData::PartialTimeData(TimePlotParams *timePlotParams, QWidget *widget) :
     GenericTimeData(timePlotParams,widget)
 {
-    m_t0=TIMEDATA_DEFAULT_INITTIME;
+    m_t0=PARTIALTIMEDATA_DEFAULT_INITTIME;
     this->connectSignal();
     this->setDuration(timePlotParams->duration());
     m_partialTimeDataUI=new PartialTimeDataUI(this,widget);

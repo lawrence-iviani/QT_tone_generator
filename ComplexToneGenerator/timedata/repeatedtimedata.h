@@ -5,6 +5,8 @@
 #include <timedata/repeatedtimedataui.h>
 #include <QDebug>
 
+static qreal const REPEATEDTIMEDATA_DEFAULT_BLANK=1.0;
+
 class RepeatedTimeDataUI;
 
 class RepeatedTimeData : public PartialTimeData
@@ -48,7 +50,6 @@ private:
     void connectSignal();
 
     RepeatedTimeDataUI *m_repeatedTimeDataUI;
-    static qreal const TIMEDATA_DEFAULT_BLANK=1.0;
     qreal  m_blankTime;
     unsigned int m_repetitions;
 };

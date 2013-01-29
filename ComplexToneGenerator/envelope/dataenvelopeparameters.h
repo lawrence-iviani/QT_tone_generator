@@ -5,7 +5,12 @@
 #include <qmath.h>
 #include "XML_utils/domhelper.h"
 
-
+//Some constants
+static const qreal DATAENVELOPE_DEFAULT_HOLDLEVEL=1.0;
+static const qreal DATAENVELOPE_DEFAULT_SUSTAINLEVEL=0.5;
+static const qreal DATAENVELOPE_UPPERBOUND_AMPLITUDE=1.0;
+static const qreal DATAENVELOPE_LOWERBOUND_AMPLITUDE=0.0;
+static const unsigned short DATAENVELOPE_DIGIT_TIME_ACCURACY=4;//four digit should be enough
 
 /**
   * This class is a container for the parameters describing the Envelope, the absolute value should be in sec.
@@ -24,12 +29,6 @@ class DataEnvelopeParameters : public QObject , public DomHelper
     Q_PROPERTY(bool enable READ isEnableEnvelope WRITE setEnableEnvelope)
 
 public:
-
-    static const qreal DATAENVELOPE_DEFAULT_HOLDLEVEL=1.0;
-    static const qreal DATAENVELOPE_DEFAULT_SUSTAINLEVEL=0.5;
-    static const qreal DATAENVELOPE_UPPERBOUND_AMPLITUDE=1.0;
-    static const qreal DATAENVELOPE_LOWERBOUND_AMPLITUDE=0.0;
-    static const unsigned short DATAENVELOPE_DIGIT_TIME_ACCURACY=4;//four digit should be enough
 
     explicit  DataEnvelopeParameters(QObject *widget = 0);
 

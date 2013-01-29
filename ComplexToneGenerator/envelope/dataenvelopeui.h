@@ -13,6 +13,8 @@ namespace Ui {
 class DataEnvelopeUI;
 }
 
+static const qreal  DATAENVELOPEUI_TIME_STEP=0.0001;
+
 class DataEnvelopeUI : public CustomCurveUI
 {
     Q_OBJECT
@@ -28,7 +30,7 @@ public:
      */
     bool isEnabledEnvelopeUI();
 
-    static const qreal  DATAENVELOPEUI_TIME_STEP=0.0001;
+
 signals:
 
 public slots:

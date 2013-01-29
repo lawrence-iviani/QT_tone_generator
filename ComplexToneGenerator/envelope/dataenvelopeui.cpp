@@ -38,9 +38,9 @@ void DataEnvelopeUI::initAmplitudeWidget() {
 
     //Setting up hold control widget
     m_structAmplitude.hold=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
-    m_structAmplitude.hold->setScale(DataEnvelopeParameters::DATAENVELOPE_LOWERBOUND_AMPLITUDE,
-                                     DataEnvelopeParameters::DATAENVELOPE_UPPERBOUND_AMPLITUDE,
-                                     (DataEnvelopeParameters::DATAENVELOPE_LOWERBOUND_AMPLITUDE-DataEnvelopeParameters::DATAENVELOPE_UPPERBOUND_AMPLITUDE)/100.0);
+    m_structAmplitude.hold->setScale(DATAENVELOPE_LOWERBOUND_AMPLITUDE,
+                                     DATAENVELOPE_UPPERBOUND_AMPLITUDE,
+                                     (DATAENVELOPE_LOWERBOUND_AMPLITUDE-DATAENVELOPE_UPPERBOUND_AMPLITUDE)/100.0);
     m_structAmplitude.hold->setName("Hold amplitude");
     m_structAmplitude.hold->setMeasureUnit("");
     m_structAmplitude.hold->setFont(f);
@@ -48,9 +48,9 @@ void DataEnvelopeUI::initAmplitudeWidget() {
 
     //Setting up sustain control widget
     m_structAmplitude.sustain=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
-    m_structAmplitude.sustain->setScale(DataEnvelopeParameters::DATAENVELOPE_LOWERBOUND_AMPLITUDE,
-                                     DataEnvelopeParameters::DATAENVELOPE_UPPERBOUND_AMPLITUDE,
-                                     (DataEnvelopeParameters::DATAENVELOPE_LOWERBOUND_AMPLITUDE-DataEnvelopeParameters::DATAENVELOPE_UPPERBOUND_AMPLITUDE)/100.0);
+    m_structAmplitude.sustain->setScale(DATAENVELOPE_LOWERBOUND_AMPLITUDE,
+                                     DATAENVELOPE_UPPERBOUND_AMPLITUDE,
+                                     (DATAENVELOPE_LOWERBOUND_AMPLITUDE-DATAENVELOPE_UPPERBOUND_AMPLITUDE)/100.0);
     m_structAmplitude.sustain->setName("Sustain amplitude");
     m_structAmplitude.sustain->setMeasureUnit("");
     m_structAmplitude.sustain->setFont(f);
@@ -75,7 +75,7 @@ void DataEnvelopeUI::initTimeWidget() {
 
     //Setting up attack time control widget
     m_structTime.attack=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
-    m_structTime.attack->setDigitAccuracy(DataEnvelopeParameters::DATAENVELOPE_DIGIT_TIME_ACCURACY);
+    m_structTime.attack->setDigitAccuracy(DATAENVELOPE_DIGIT_TIME_ACCURACY);
     m_structTime.attack->setName("Attack time");
     m_structTime.attack->setMeasureUnit("sec.");
     m_structTime.attack->setFont(f);
@@ -84,7 +84,7 @@ void DataEnvelopeUI::initTimeWidget() {
 
     //Setting up attack time control widget
     m_structTime.hold=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
-    m_structTime.hold->setDigitAccuracy(DataEnvelopeParameters::DATAENVELOPE_DIGIT_TIME_ACCURACY);
+    m_structTime.hold->setDigitAccuracy(DATAENVELOPE_DIGIT_TIME_ACCURACY);
     m_structTime.hold->setName("Hold time");
     m_structTime.hold->setMeasureUnit("sec.");
     m_structTime.hold->setFont(f);
@@ -92,7 +92,7 @@ void DataEnvelopeUI::initTimeWidget() {
 
     //Setting up Decay time control widget
     m_structTime.decay=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
-    m_structTime.decay->setDigitAccuracy(DataEnvelopeParameters::DATAENVELOPE_DIGIT_TIME_ACCURACY);
+    m_structTime.decay->setDigitAccuracy(DATAENVELOPE_DIGIT_TIME_ACCURACY);
     m_structTime.decay->setName("Decay time");
     m_structTime.decay->setMeasureUnit("sec.");
     m_structTime.decay->setFont(f);
@@ -100,7 +100,7 @@ void DataEnvelopeUI::initTimeWidget() {
 
     //Setting up Sustain time control widget
     m_structTime.sustain=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
-    m_structTime.sustain->setDigitAccuracy(DataEnvelopeParameters::DATAENVELOPE_DIGIT_TIME_ACCURACY);
+    m_structTime.sustain->setDigitAccuracy(DATAENVELOPE_DIGIT_TIME_ACCURACY);
     m_structTime.sustain->setName("Sustain time");
     m_structTime.sustain->setMeasureUnit("sec.");
     m_structTime.sustain->setFont(f);
@@ -108,7 +108,7 @@ void DataEnvelopeUI::initTimeWidget() {
 
     //Setting up Sustain time control widget
     m_structTime.release=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
-    m_structTime.release->setDigitAccuracy(DataEnvelopeParameters::DATAENVELOPE_DIGIT_TIME_ACCURACY);
+    m_structTime.release->setDigitAccuracy(DATAENVELOPE_DIGIT_TIME_ACCURACY);
     m_structTime.release->setName("Release time");
     m_structTime.release->setMeasureUnit("sec.");
     m_structTime.release->setFont(f);
@@ -142,7 +142,6 @@ void DataEnvelopeUI::initEnvelopeWidget() {
     if (m_parameters!=NULL) {
         this->setEnableEnvelopeUI(m_parameters->isEnableEnvelope());
     }
-
 }
 
 void DataEnvelopeUI::setEnableEnvelopeUI(bool enable) {

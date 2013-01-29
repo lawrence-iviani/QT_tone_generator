@@ -3,7 +3,7 @@
 
 RepeatedTimeData::RepeatedTimeData(QWidget *widget) :
     PartialTimeData(widget),
-    m_blankTime(TIMEDATA_DEFAULT_BLANK)
+    m_blankTime(REPEATEDTIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();
     m_repeatedTimeDataUI=new RepeatedTimeDataUI(this,widget);
@@ -12,7 +12,7 @@ RepeatedTimeData::RepeatedTimeData(QWidget *widget) :
 
 RepeatedTimeData::RepeatedTimeData(TimePlotParams * timePlotParams ,QWidget *widget) :
     PartialTimeData(timePlotParams),
-    m_blankTime(TIMEDATA_DEFAULT_BLANK)
+    m_blankTime(REPEATEDTIMEDATA_DEFAULT_BLANK)
 {
     updateRepetitions();
     m_repeatedTimeDataUI=new RepeatedTimeDataUI(this,widget);

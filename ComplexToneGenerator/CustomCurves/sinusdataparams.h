@@ -4,6 +4,9 @@
 #include <QObject>
 #include <math.h>
 
+static qreal const SINUSDATA_DEFAULT_INITPHASE=0;
+static qreal const SINUSDATA_DEFAULT_FREQUENCY=10;
+static qreal const SINUSDATA_DEFAULT_AMPLITUDE=0.9;
 
 class SinusDataParams : public QObject
 {
@@ -28,11 +31,7 @@ public slots:
 
 protected:
 
- private:
-    static qreal const SINUSDATA_DEFAULT_INITPHASE=0;
-    static qreal const SINUSDATA_DEFAULT_FREQUENCY=10;
-    static qreal const SINUSDATA_DEFAULT_AMPLITUDE=0.9;
-
+private:
     qreal m_amplitude;
     qreal m_frequency;
     qreal m_initPhase;

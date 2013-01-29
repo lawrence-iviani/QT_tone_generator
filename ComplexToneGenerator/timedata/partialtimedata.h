@@ -6,6 +6,9 @@
 #include "CustomCurves/customcurveui.h"
 #include "plotwidget/timeplotwidgetparams.h"
 
+static qreal const PARTIALTIMEDATA_DEFAULT_DURATION=5.0;
+static qreal const PARTIALTIMEDATA_DEFAULT_INITTIME=0.0;
+
 class PartialTimeDataUI;
 
 /**
@@ -51,8 +54,7 @@ private:
     void connectSignal();
     void privateSetDuration(qreal duration);
 
-    static qreal const TIMEDATA_DEFAULT_DURATION=5.0;
-    static qreal const TIMEDATA_DEFAULT_INITTIME=0.0;
+
 
     PartialTimeDataUI *m_partialTimeDataUI;
     qreal m_t0;

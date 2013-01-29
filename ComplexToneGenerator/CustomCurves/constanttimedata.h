@@ -5,6 +5,8 @@
 #include "timedata/generictimedata.h"
 #include "plotwidget/timeplotwidgetparams.h"
 
+static qreal const CONSTDATA_DEFAULT_AMPLITUDE=0.5;
+
 class PartialConstantTimeData : public PartialTimeData
 {
     Q_OBJECT
@@ -23,7 +25,7 @@ protected:
 
  private:
 
-    static qreal const CONSTDATA_DEFAULT_AMPLITUDE=0.5;
+
 
     qreal m_amplitude;
     QFrame * m_widgetControl;
@@ -58,7 +60,6 @@ protected:
 
  private:
 
-    static qreal const CONSTDATA_DEFAULT_AMPLITUDE=0.5;
 
     qreal m_amplitude;
     QFrame * m_widgetControl;
