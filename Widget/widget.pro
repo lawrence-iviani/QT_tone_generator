@@ -11,13 +11,18 @@ include( ../qtg_config.pri )
 TEMPLATE = subdirs
 CONFIG   += ordered
 
-SUBDIRS += ScaledSliderWidget \
+INCLUDEPATH += ./WidgetStyle
+
+
+SUBDIRS += WidgetStyle \
+           ScaledSliderWidget \
            ComboBoxLabelWidget \
            ComboBoxWidgetColor \
            QwtHelpers \
            SelectCurveWindowDialog \
            SelectMultipleCurvesWindowDialog \
            ExportAudioFileWidget \
-           WidgetLib
+           WidgetLib \
+
            
     

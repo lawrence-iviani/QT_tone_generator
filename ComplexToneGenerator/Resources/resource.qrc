@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/"/>
+    <qresource prefix="/stylesheet">
+        <file>darkorange.qss</file>
+        <file>lightorange.qss</file>
+    </qresource>
+    <qresource prefix="/images">
+        <file>checkbox_checked.png</file>
+        <file>splitter_handle_horiz.png</file>
+        <file>splitter_handle_vert.png</file>
+    </qresource>
+</RCC>

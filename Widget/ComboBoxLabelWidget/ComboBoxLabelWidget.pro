@@ -9,7 +9,6 @@ QT       += core gui
 TARGET = ComboBoxLabelWidget
 TEMPLATE = lib
 
-
 SOURCES += main.cpp\
         comboboxnamewidget.cpp
 

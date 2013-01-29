@@ -8,7 +8,9 @@ MainWindow::MainWindow(QWidget *parent) :
     m_indexGenerator(1),
     m_toolBoxFixedItem(0),
     ui(new Ui::MainWindow),
-    m_TreeWidgetshowXML(0)
+    m_TreeWidgetshowXML(0),
+    m_widgetStyleUI("darkorange"),
+    m_widgetStylePlot("lightorange")
 {
     m_audioPlayer=new AudioPlayer(this);
     ui->setupUi(this);
@@ -71,6 +73,44 @@ void MainWindow::setupUI() {
     //Layout all the windows
     ui->centralwidget->layout()->addWidget(s_widgetUI.globalSplitter);
     this->setWindowTitle("New Complex Generator project");
+
+    setupStyle();
+}
+
+void MainWindow::setupStyle() {
+
+
+    //What i want to setup with a different style?
+    m_widgetStyleUI.setStyle(s_widgetUI.toolboxOption);
+    m_widgetStyleUI.setStyle(s_widgetUI.toolboxOptionFrame);
+    m_widgetStyleUI.setStyle(s_widgetUI.buttonsFrame);
+    m_widgetStyleUI.setStyle(s_widgetUI.commandSplitter);
+    m_widgetStylePlot.setStyle(s_widgetUI.globalSplitter);
+    m_widgetStylePlot.setStyle(s_widgetUI.plotSplitter);
+
+
+//    struct {
+//        QSplitter *plotSplitter;
+//        QSplitter *commandSplitter;
+//        QSplitter *globalSplitter;
+//        TimePlotWidget *m_plotTime;
+//        FreqPlotWidget *m_plotFreq;
+//        QToolBox *toolboxOption;
+//        QFrame *toolboxOptionFrame;
+//        QFrame *buttonsFrame;
+//    } s_widgetUI;
+//    struct {
+//        QPushButton *addCurve;
+//        QPushButton *removeCurve;
+//        QPushButton *duplicateCurves;
+//#ifdef COMPLETE_FAST_SELECTION
+//        QPushButton *removeAllCurves;
+//        QPushButton *exportDigest;
+//        QPushButton *exportXML;
+//        QPushButton *importXML;
+//        QPushButton *showXML;
+//#endif
+//    } s_button;
 }
 
 void MainWindow::connectMenusAndShortcut() {

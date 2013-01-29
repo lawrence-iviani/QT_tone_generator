@@ -11,8 +11,6 @@
 
 #include <audioplayer.h>
 #include <sndfile.hh>
-#include "plotwidget/timeplotwidget.h"
-#include "plotwidget/freqplotwidget.h"
 
 //ALL THESE INCLUDES NEED TO BE REVIEWED
 #include "plotwidget/timeplotwidget.h"
@@ -27,6 +25,7 @@
 #include "selectmultiplecurveswindowdialog.h"
 #include "exportaudiofiledialog.h"
 #include "CustomCurves/customcurvefactory.h"
+#include "widgetstyle.h"
 
 namespace Ui {
     class MainWindow;
@@ -74,6 +73,7 @@ private:
     void connectMenusAndShortcut();
     bool importXMLCurve(const QDomDocument& doc);
     bool importXMLCurve(const QDomDocument* doc);
+    void setupStyle();
 
     //THESE FUNCTION MUST BE INSERTED IN SOME KIND OF EXTERNAL UTILITY
     void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window
@@ -117,6 +117,8 @@ private:
     } s_button;
 
     QTreeWidget * m_TreeWidgetshowXML;
+    WidgetStyle m_widgetStyleUI;
+    WidgetStyle m_widgetStylePlot;
 };
 
 #endif // MAINWINDOW_H

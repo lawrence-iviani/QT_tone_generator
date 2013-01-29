@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QDebug>
+
 namespace Ui {
 class ComboBoxNameWidget;
 }

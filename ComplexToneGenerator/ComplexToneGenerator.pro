@@ -32,6 +32,7 @@ INCLUDEPATH += ../Widget/ComboBoxWidgetColor
 INCLUDEPATH += ../Widget/ComboBoxLabelWidget
 INCLUDEPATH += ../Widget/QwtHelpers
 INCLUDEPATH += ../Widget/ExportAudioFileWidget
+INCLUDEPATH += ../Widget/WidgetStyle
 INCLUDEPATH += ../AudioEngine
 
 LIBS += -L../Widget/WidgetLib/ -lwidget -L../AudioEngine -lAudioEngine
@@ -104,3 +105,6 @@ HEADERS  += CTG_constants.h \
 
 FORMS    += mainwindow.ui \
     envelope/dataenvelopeui.ui
+
+RESOURCES += \
+    Resources/resource.qrc

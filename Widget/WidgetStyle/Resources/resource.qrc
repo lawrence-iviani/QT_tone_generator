@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/"/>
+    <qresource prefix="/stylesheet">
+        <file>darkorange.qss</file>
+    </qresource>
+</RCC>
