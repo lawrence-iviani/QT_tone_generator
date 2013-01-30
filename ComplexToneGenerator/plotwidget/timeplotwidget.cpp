@@ -194,7 +194,7 @@ void TimePlotWidget::initBaseControlWidget() {
     m_baseControl.sliderSR->setName("SR Generation");
     m_baseControl.sliderSR->setMeasureUnit("Hz");
     m_baseControl.sliderSR->setFont(f);
-    lBase->addWidget( m_baseControl.sliderSR,1,Qt::AlignLeft|Qt::AlignTop);
+    lBase->addWidget( m_baseControl.sliderSR,1,Qt::AlignCenter|Qt::AlignTop);
     connect(m_baseControl.sliderSR,SIGNAL(valueChanged(qreal)),this,SLOT(setSampleRate(qreal)));
 
     //set duration
@@ -205,18 +205,18 @@ void TimePlotWidget::initBaseControlWidget() {
     m_baseControl.sliderDuration->setName("Duration Generated file");
     m_baseControl.sliderDuration->setMeasureUnit("Sec.");
     m_baseControl.sliderDuration->setFont(f);
-    lBase->addWidget( m_baseControl.sliderDuration,1, Qt::AlignLeft|Qt::AlignTop);
+    lBase->addWidget( m_baseControl.sliderDuration,1, Qt::AlignCenter|Qt::AlignTop);
     connect(m_baseControl.sliderDuration,SIGNAL(valueChanged(qreal)),this,SLOT(setDuration(qreal)));
 
     //add button show/hide all
     m_baseControl.showAllCurves=new QPushButton("Show all curves");
     m_baseControl.hideAllCurves=new QPushButton("Hide all curves");
     QHBoxLayout * _lh=new QHBoxLayout();
-    _lh->addWidget(m_baseControl.showAllCurves,1,Qt::AlignLeft);
-    _lh->addWidget(m_baseControl.hideAllCurves,1,Qt::AlignLeft);
+    _lh->addWidget(m_baseControl.showAllCurves,1,Qt::AlignCenter);
+    _lh->addWidget(m_baseControl.hideAllCurves,1,Qt::AlignCenter);
     QWidget *_showHideWidget=new QWidget(this);
     _showHideWidget->setLayout((QLayout*)_lh);
-    lBase->addWidget( _showHideWidget,1, Qt::AlignLeft|Qt::AlignTop);
+    lBase->addWidget( _showHideWidget,1, Qt::AlignCenter|Qt::AlignTop);
     connect(m_baseControl.showAllCurves,SIGNAL(clicked()),this,SLOT(showAllCurves()));
     connect(m_baseControl.hideAllCurves,SIGNAL(clicked()),this,SLOT(hideAllCurves()));
 

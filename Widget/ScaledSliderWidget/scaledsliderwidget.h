@@ -17,8 +17,8 @@ class ScaledSliderWidget : public QWidget
 {
     Q_OBJECT
 public:
-    ScaledSliderWidget( QWidget *parent, Qt::Orientation orientation,  ScaledSlider::Scale type);
-    ScaledSliderWidget( QWidget *parent, Qt::Orientation orientation);
+    ScaledSliderWidget( QWidget *parent, Qt::Orientation orientation,  ScaledSlider::Scale type=ScaledSlider::Linear);
+   // ScaledSliderWidget( QWidget *parent, Qt::Orientation orientation);
 
     void setScale(qreal vmin, qreal vmax, qreal step);
     void setName(QString name);
@@ -41,6 +41,8 @@ public slots:
 private:
     void horizontalLayout(QWidget *parent);
     void verticalLayout(QWidget *parent);
+    void initWidget();
+    int minLengthLineEdit();
     static const int  spacing=1;
 
     //These contant specify the minimum Geometry in terms of min Height/Width

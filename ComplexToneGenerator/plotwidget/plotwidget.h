@@ -12,6 +12,7 @@
 #include <qwt_plot_curve.h>
 #include <qwt_series_data.h>
 #include <qwt_global.h>
+#include <qwt_scale_widget.h>
 #include <math.h>
 #include <qwt_interval.h>
 #include <qwt_scale_engine.h>
@@ -21,7 +22,7 @@
 #include "plotwidget/scrollrubberband.h"
 
 
-
+class QwtScaleWidget;
 
 /**
   * This class is an extension of the QwtPlot class. This class provide the following feature:

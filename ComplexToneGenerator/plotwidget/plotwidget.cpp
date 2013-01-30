@@ -14,27 +14,37 @@ PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
 void PlotWidget::plotSetup() {
     this->setAutoReplot(false);
     this->setAutoFillBackground( true );
-    this->setPalette( QPalette( QColor( 165, 193, 228 ) ) );
+    this->setPalette( QPalette( QColor(50,50,50)));//( 165, 193, 228 ) ) );
     this->insertLegend(new QwtLegend(), QwtPlot::RightLegend);
     this->setDimension(m_dimension);
     this->setTitle("PlotWidget NO TITLE");
+
 
     if (m_yScaleType==PlotWidget::Logarithmic) {
         this->setAxisScaleEngine(xBottom,new QwtLog10ScaleEngine());
     } else {
         this->setAxisScaleEngine(xBottom,new QwtLinearScaleEngine());
     }
+    QPalette _palette=this->axisWidget(xBottom)->palette();
+    _palette.setColor(QPalette::WindowText, Qt::gray);
+    _palette.setColor(QPalette::Text, Qt::gray);
+    this->axisWidget(xBottom)->setPalette((const QPalette)_palette);
 
     if (m_yScaleType==PlotWidget::Logarithmic) {
         this->setAxisScaleEngine(yLeft,new QwtLog10ScaleEngine());
     } else {
         this->setAxisScaleEngine(yLeft,new QwtLinearScaleEngine());
     }
+    _palette=this->axisWidget(yLeft)->palette();
+    _palette.setColor(QPalette::WindowText, Qt::gray);
+    _palette.setColor(QPalette::Text, Qt::gray);
+    this->axisWidget(yLeft)->setPalette((const QPalette)_palette);
+
 
     //canvas
     //this->canvas()->setLineWidth( 1 );
-    this->canvas()->setFrameStyle( QFrame::Box | QFrame::Plain );
-    this->canvas()->setBorderRadius( 15 );
+    this->canvas()->setFrameStyle( QFrame::Box | QFrame::Raised );
+    this->canvas()->setBorderRadius( 12 );
     QPalette canvasPalette( Qt::lightGray );
     canvasPalette.setColor( QPalette::Foreground, QColor( 133, 190, 232 ) );
     this->canvas()->setPalette( canvasPalette );

@@ -1,7 +1,7 @@
 
 
 QSplitter {
-     background-color: #5a5a5a;
+     background-color: DarkGray;
 }
 
  QSplitter::handle:pressed {

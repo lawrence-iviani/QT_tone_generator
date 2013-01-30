@@ -87,30 +87,6 @@ void MainWindow::setupStyle() {
     m_widgetStyleUI.setStyle(s_widgetUI.commandSplitter);
     m_widgetStylePlot.setStyle(s_widgetUI.globalSplitter);
     m_widgetStylePlot.setStyle(s_widgetUI.plotSplitter);
-
-
-//    struct {
-//        QSplitter *plotSplitter;
-//        QSplitter *commandSplitter;
-//        QSplitter *globalSplitter;
-//        TimePlotWidget *m_plotTime;
-//        FreqPlotWidget *m_plotFreq;
-//        QToolBox *toolboxOption;
-//        QFrame *toolboxOptionFrame;
-//        QFrame *buttonsFrame;
-//    } s_widgetUI;
-//    struct {
-//        QPushButton *addCurve;
-//        QPushButton *removeCurve;
-//        QPushButton *duplicateCurves;
-//#ifdef COMPLETE_FAST_SELECTION
-//        QPushButton *removeAllCurves;
-//        QPushButton *exportDigest;
-//        QPushButton *exportXML;
-//        QPushButton *importXML;
-//        QPushButton *showXML;
-//#endif
-//    } s_button;
 }
 
 void MainWindow::connectMenusAndShortcut() {
@@ -148,11 +124,9 @@ void MainWindow::connectMenusAndShortcut() {
 
     //---------About menu
 
-
 }
 
 void MainWindow::setupSplitters() {
-
     //Setting  plot area
     s_widgetUI.plotSplitter= new QSplitter(Qt::Vertical);
     s_widgetUI.plotSplitter->setFrameStyle(QFrame::QFrame::Raised);
@@ -257,6 +231,7 @@ void MainWindow::newCurve() {
     SelectCurveWindowHelper * selectCurveHelper=SelectCurveWindowDialog::getDialogCurveHelper();
     this->setupCurves(selectCurveHelper);
     SelectCurveWindowDialog * selectDialog=new SelectCurveWindowDialog(selectCurveHelper,this);
+    m_widgetStyleUI.setStyle(selectDialog);
     selectDialog->exec();
     GenericTimeData * s=this->decodeSelectedCurve(selectCurveHelper);
     if (s==NULL) return;
@@ -374,6 +349,7 @@ void MainWindow::removeCurve(){
      QStringList  sl=m_plotTime->getTimeDataStringList();
      SelectMultipleCurvesWindowDialog * removeDialog=new SelectMultipleCurvesWindowDialog(&sl,this);
      removeDialog->setActionDialog("remove");
+     m_widgetStyleUI.setStyle(removeDialog);
      removeDialog->exec();
      QList<int> _selctedCurvesList=removeDialog->getSelectedCurvesIndex();
      qSort(_selctedCurvesList);
@@ -569,7 +545,6 @@ void MainWindow::exportDigestCurve() {
     int format;
     int channels=1;
     int sampleRate=(int) m_plotTime->sampleRate();
-
     dialog.exec();
     QString filename=dialog.getSelectedFileName();
     char* outfilename=filename.toLocal8Bit().data();// see http://qt-project.org/faq/answer/how_can_i_convert_a_qstring_to_char_and_vice_versa
@@ -616,6 +591,7 @@ void MainWindow::duplicateCurves() {
      QStringList  sl=m_plotTime->getTimeDataStringList();
      SelectMultipleCurvesWindowDialog * duplicateDialog=new SelectMultipleCurvesWindowDialog(&sl,this);
      duplicateDialog->setActionDialog("duplicate");
+     m_widgetStyleUI.setStyle(duplicateDialog);
      duplicateDialog->exec();
      bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
      QList<GenericTimeData*> _tempListPointer;

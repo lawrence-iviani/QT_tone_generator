@@ -1,4 +1,5 @@
 
+
 QToolTip
 {
      border: 1px solid black;
@@ -24,6 +25,26 @@ QWidget:item:selected
 {
     background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);
 }
+
+QSplitter {
+     background-color: DarkGray;
+}
+
+ QSplitter::handle:pressed {
+    background-color: #ffa02f;
+ }
+
+QSplitter::handle {
+     image:url(:/images/splitter_handle_horiz.png);
+}
+
+ QSplitter::handle:horizontal {
+     width: 6px;
+ }
+
+ QSplitter::handle:vertical {
+     height: 7px;
+ }
 
 QMenuBar::item
 {
