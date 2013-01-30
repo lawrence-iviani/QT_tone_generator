@@ -31,12 +31,15 @@ LIBS += -L../SelectMultipleCurvesWindowDialog -lselectmultiplecurveswindowdialog
 LIBS += -L../ExportAudioFileWidget -lexportaudiofiledialog.o  -lmoc_exportaudiofiledialog.o
 LIBS += -L../WidgetStyle -lwidgetstyle.o
 
-
-#LIBS += -L../ComboBoxLabelWidget -lComboBoxLabelWidget
-#LIBS += -L../ScaledSliderWidget -lScaledSliderWidget
-#LIBS += -L../ComboBoxWidgetColor -lComboBoxWidgetColor
-#LIBS += -L../QwtHelpers -lQwtHelpers
-#LIBS += -L../SelectCurveWindowDialog -lSelectCurveWindowDialog
+CONFIG(debug, debug|release) {
+    DESTDIR = $$PWD/../../ComplexToneGenerator/debug/ComplexToneGenerator.app/Contents/MacOS/
+    OBJECTS_DIR = debug/obj
+    MOC_DIR = debug/moc
+} else {
+    DESTDIR = $$PWD/../../ComplexToneGenerator/release/ComplexToneGenerator.app/Contents/MacOS/
+    OBJECTS_DIR = release/obj
+    MOC_DIR = release/moc
+}
 
 QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 

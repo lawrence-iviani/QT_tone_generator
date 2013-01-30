@@ -1,0 +1,10 @@
+#ifndef DATAUIHANDLERCOMMON_H
+#define DATAUIHANDLERCOMMON_H
+
+#include <QString>
+
+static QString POSTPEND_UI_CHANGED_SIGNAL="UIChanged";
+static QString PREPEND_UPDATE_PROPERTY_SLOT="set";
+static QString POSTPEND_UPDATE_UI_SLOT="UIUpdate";
+
+#endif // DATAUIHANDLERCOMMON_H

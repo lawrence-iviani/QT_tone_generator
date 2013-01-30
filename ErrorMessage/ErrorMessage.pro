@@ -1,34 +1,20 @@
 #-------------------------------------------------
 #
-# Project created by QtCreator 2012-09-17T06:36:18
+# Project created by QtCreator 2013-01-12T12:15:31
 #
 #-------------------------------------------------
 
-QT       += core gui multimedia
+QT       -= gui
 
-TARGET = AudioEngine
+TARGET = ErrorMessage
 TEMPLATE = lib
 
-INCLUDEPATH += /opt/local/include/
-LIBS += -L/opt/local/lib -lsndfile
+DEFINES += ERRORMESSAGE_LIBRARY
 
-SOURCES += main.cpp\
-    internalstreamdevice.cpp \
-    audioplayer.cpp \
-    generator.cpp \
-    audioutils.cpp \
-    qvumeter.cpp
+SOURCES += errormessage.cpp
 
-HEADERS  += mainwindow.h \
-    internalstreamdevice.h \
-    audioplayer.h \
-    generator.h \
-    audioutils.h \
-    qvumeter.h
-
-FORMS    +=
-
-QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
+HEADERS += errormessage.h\
+        ErrorMessage_global.h
 
 CONFIG(debug, debug|release) {
     DESTDIR = $$PWD/../ComplexToneGenerator/debug/ComplexToneGenerator.app/Contents/MacOS/
@@ -40,12 +26,13 @@ CONFIG(debug, debug|release) {
     MOC_DIR = release/moc
 }
 
+QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 symbian {
     MMP_RULES += EXPORTUNFROZEN
-    TARGET.UID3 = 0xE7379BC8
-    TARGET.CAPABILITY =
+    TARGET.UID3 = 0xE14F28CD
+    TARGET.CAPABILITY = 
     TARGET.EPOCALLOWDLLDATA = 1
-    addFiles.sources = AudioEngine.dll
+    addFiles.sources = ErrorMessage.dll
     addFiles.path = !:/sys/bin
     DEPLOYMENT += addFiles
 }

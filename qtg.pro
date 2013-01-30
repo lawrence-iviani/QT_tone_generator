@@ -12,6 +12,8 @@ TEMPLATE = subdirs
 CONFIG   += ordered
 
 SUBDIRS = \
+        ErrorMessage \
+        DataUiHandler \
 	Widget \
         AudioEngine \
         ComplexToneGenerator

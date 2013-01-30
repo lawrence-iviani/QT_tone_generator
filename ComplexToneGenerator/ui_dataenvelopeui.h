@@ -1,8 +1,8 @@
 /********************************************************************************
 ** Form generated from reading UI file 'dataenvelopeui.ui'
 **
-** Created: Sun Dec 16 12:55:05 2012
-**      by: Qt User Interface Compiler version 4.8.0
+** Created: Wed Jan 30 09:32:39 2013
+**      by: Qt User Interface Compiler version 4.8.4
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
