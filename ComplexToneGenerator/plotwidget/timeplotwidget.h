@@ -41,50 +41,37 @@ public:
     inline DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_timePlotDelegate->getProperty());}
     inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_timePlotDelegate);}
 
+    friend class TimePlotParams;
 signals:
 
-public slots:
+public slots: 
 
     /**
-     * @brief setAllCurvesSampleRate Set to all curves the same sample rate
-     * @param SR
+     * @brief updateAndRecalc Override base method and recall a digest update.
      */
-    void setAllCurvesSampleRate(qreal samplerate);
-
-    /**
-     * @brief setAllCurvesDuration Set to all curves the same duration
-     * @param duration
-     */
-    void setAllCurvesMaxDuration(qreal maxduration);
-    
-
-    /**
-      * this function override base class function and before replot update the data in the digest curve.
-      */
-    virtual void updatePlot() {
+    virtual void recalcAndUpdatePlot() {
         if (m_enableUpdate) {
-            qDebug() << "TimePlotWidget::dataUpdated() CALLED";
             m_digestCurve->updateData();
-            this->replot();
+            updatePlot();
         }
     }
 
-    /**
-     * @brief setEnableUpdate enable/disble of update the widget, this is propagate to all curves
-     * @param enable
-     * @return the previous value
-     */
-    virtual bool setEnableUpdate(bool enable);
+//    /**
+//     * @brief setEnableUpdate enable/disble of update the widget, this is propagate to all curves
+//     * @param enable
+//     * @return the previous value
+//     */
+//    virtual bool setEnableUpdate(bool enable);
 
-    /**
-     * @brief forceRecalcAll force to recalc all the data curve and the digest curve. All the curves are recalculated by calling recalc
-     */
-    virtual void forceRecreateAll();
+//    /**
+//     * @brief forceRecalcAll force to recalc all the data curve and the digest curve. All the curves are recalculated by calling recalc
+//     */
+//    virtual void forceRecreateAll();
 
-    /**
-     * @brief forceUpdateAll force to update all the data curve and the digest curve. All the curves are recalculated by calling update
-     */
-    virtual void forceUpdateAll() ;
+//    /**
+//     * @brief forceUpdateAll force to update all the data curve and the digest curve. All the curves are recalculated by calling update
+//     */
+//    virtual void forceUpdateAll() ;
 
 //    /**
 //     * @brief updateUI update the UI to the actual stored parameters (sample rate and duration).
@@ -115,10 +102,29 @@ public slots:
 protected:
     DigestTimeData * m_digestCurve;
 
+    /**
+     * @brief connectSignals WHen inheriting from this class this method must be called after init to mantains connection, otherwise will be lost.
+     * (This is an issue that must be fixed in the design).
+     */
+    virtual void connectSignals();
+
+
+protected slots:
+    /**
+     * @brief setAllCurvesSampleRate Set to all curves the same sample rate
+     * @param SR
+     */
+    void setAllCurvesSampleRate(qreal samplerate);
+
+    /**
+     * @brief setAllCurvesDuration Set to all curves the same duration
+     * @param duration
+     */
+    void setAllCurvesMaxDuration(qreal maxduration);
+
+
 private:
     void init();
-    void connectSignals();
-
     DataUiHandlerDelegate * m_timePlotDelegate;
 
 };

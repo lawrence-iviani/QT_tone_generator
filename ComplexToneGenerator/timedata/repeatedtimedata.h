@@ -33,6 +33,13 @@ public:
     explicit RepeatedTimeData(QObject * parent=0);
     explicit RepeatedTimeData(TimePlotParams * timePlotParams, QObject * parent=0);
 
+
+signals:
+    
+public slots:
+
+protected:
+
     /**
      * @brief insertSignalValue This function insert a qreal value in the sample position index and return true if the insertion is succesful, if return false the index is out of range.
      *  This overloading allows to insert the one shot curve in multiple (repeated) position.
@@ -41,12 +48,6 @@ public:
      * @return True if the insert was succesful.
      */
     virtual bool insertSignalValue(quint64 index, qreal value);
-signals:
-    
-public slots:
-
-protected:
-
 
 private slots:
     /**

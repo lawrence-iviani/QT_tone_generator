@@ -139,6 +139,7 @@ void GenericSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,Tim
     _gsp->setAmplitude(amplitude);
     _gsp->setFrequency(frequency);
     _gsp->setInitPhase(initPhase);
+    connectSignals();
 }
 
 void GenericSinusData::recalc() {
@@ -147,7 +148,6 @@ void GenericSinusData::recalc() {
 
     //Verify going to recalc with the enable flag true
     Q_ASSERT(isEnableRecalc());
-    Q_ASSERT(_gsp->isCurveEnabled());
 
     PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ RECALC %1 with SR=%2-----")
                         .arg(_gsp->name())

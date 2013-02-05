@@ -150,7 +150,6 @@ void RepeatedSinusData::recalc() {
 
     //Verify going to recalc with the enable flag true
     Q_ASSERT(isEnableRecalc());
-    Q_ASSERT(_rsp->isCurveEnabled());
 
     PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ RECALC %1 with SR=%2-----")
                         .arg(_rsp->name())

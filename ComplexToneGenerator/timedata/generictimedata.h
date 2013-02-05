@@ -42,13 +42,7 @@ public:
     inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_timeDataDelegate);}
     inline quint64 getSampleNumber()  {return m_sample;}
 
-    /**
-     * @brief insertSignalValue This function insert a qreal value in the sample position index and return true if the insertion is succesful, if return false the index is out of range
-     * @param index the sample index where the value must be inserted
-     * @param value the value to insert
-     * @return True if the insert was succesful.
-     */
-    virtual bool insertSignalValue(quint64 index, qreal value);
+
     inline const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
     inline const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
     inline DataEnvelope * getEnvelopeData() {return m_envelope;}
@@ -65,17 +59,17 @@ signals:
     /**
       * This signal is emitted whenever the data, and therefore the curve are updated
       */
-     void dataUpdated();
+     void dataChanged();
 
      /**
        * This signal is emitted when only the name is updated (this avoid curve recalc and data plot)
        */
-     void nameChanged();
+     void nameChanged(QString);
 
      /**
-       * This signal is emitted whenever curve attribute (color, name etc) are updated, and therefore only the curve need to be reploted.
+       * This signal is emitted whenever curve attribute (color, name etc) are updated, and therefore only the curve need to be reploted and not recalculated
        */
-     void curveAttributeUpdated();
+     void curveAttributeChanged();
 
 //     /**
 //      * @brief maxDurationChanged emit a signal for the inerithed subclass to signal the length is changed. The Inerithed class should not call createData
@@ -116,7 +110,8 @@ public slots:
      /**
       * @brief createData (Re)Create the internal data array (filling of zero), recalculating the sample number. Useful in case of length  array change.
       */
-     void createData();
+     virtual void createData();
+
 
      /**
       * @brief enableRecalc enable/disable recalculation for this curve.
@@ -144,6 +139,12 @@ public slots:
       * @param timePlotParams
       */
      void setTimePlotParams(TimePlotParams * timePlotParams);
+
+
+     /**
+      * @brief curveHasChanged Call this slot when some attributes curve changed
+      */
+     void curveHasChanged();
 
 //     /**
 //      * @brief copy Copy in an apposite application structure this curve
@@ -260,16 +261,25 @@ protected:
       */
     // virtual void setEnvelopeLength(qreal length);
 
-     //TimeDataControlUI *m_timeDataUI;
+     /**
+      * @brief connectSignals WHen inheriting from this class this method must be called after init to mantains connection, otherwise will be lost.
+      * (This is an issue that must be fixed in the design).
+      */
+     virtual void connectSignals();
 
+     /**
+      * @brief insertSignalValue This function insert a qreal value in the sample position index and return true if the insertion is succesful, if return false the index is out of range
+      * @param index the sample index where the value must be inserted
+      * @param value the value to insert
+      * @return True if the insert was succesful.
+      */
+     virtual bool insertSignalValue(quint64 index, qreal value);
 
-     //GenericTimeDataUI *m_genericTimeDataUI;
-
+protected slots:
 
 
 private:
-     void init();
-     void connectSignal();
+     void init(TimePlotParams * timePlotParams=0);
      void initTimePlotParams();
      bool m_enableRecalc;
     // TimePlotParams * m_TimePlotParams;

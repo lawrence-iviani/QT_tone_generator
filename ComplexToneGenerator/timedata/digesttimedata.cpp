@@ -24,11 +24,11 @@ void DigestTimeData::setTimeDataList(QList<GenericTimeData *> *curveList) {
     this->updateData();
 }
 
-void DigestTimeData::updateData() {
-    //Need to force a reset, because the digest list is updated when all the curves are updated, this means that
-    // for example, SR o duration change this will updated twice. In this case force a reset before go on.
-    if (isEnableRecalc()) DigestTimeData::createData();
-}
+//void DigestTimeData::updateData() {
+//    //Need to force a reset, because the digest list is updated when all the curves are updated, this means that
+//    // for example, SR o duration change this will updated twice. In this case force a reset before go on.
+//    if (isEnableRecalc()) DigestTimeData::createData();
+//}
 
 void DigestTimeData::recalc() {
     GenericTimeDataParams * _params=dynamic_cast<GenericTimeDataParams*>(this->getDataParameters());
@@ -52,7 +52,9 @@ void DigestTimeData::recalc() {
         for (int m=0; m < m_curveList->size();m++) {
             gtd=m_curveList->at(m);
             Q_ASSERT(gtd!=NULL);
-            if (_params->isEnabled()) {
+            GenericTimeDataParams * _gtdParams=dynamic_cast<GenericTimeDataParams*>(gtd->getDataParameters());
+            Q_ASSERT(_gtdParams!=NULL);
+            if (_gtdParams->isCurveEnabled()) {
                 const qreal * gtdData=gtd->getSignalData();
                 PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Curve(%1) n_sample=%2@ SR %3 Hz, digest curve n_sample=%4@ SR %5 Hz").
                                   arg(m).arg(gtd->getSampleNumber()).

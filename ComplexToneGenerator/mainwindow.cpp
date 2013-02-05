@@ -300,36 +300,20 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
 
 
     if (QString::compare(curveName,"Limited duration Tone generator")==0 ) {
-
- //       PartialSinusData * s=new PartialSinusData(m_plotTime->getTimePlotParams() , m_plotTime);//s_widgetUI.toolboxOption);
-
         TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
         Q_ASSERT(_tParams);
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("PartialSinusData",_tParams);//,m_plotTime);
-
-        //   s->setParent(m_plotTime);
+        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("PartialSinusData",_tParams);
         s->setTimePlotParams(_tParams);
-        //s->setStartTime(1.414);
-       // s->setDuration(5.1);
-       // s->setAmplitudeFrequencyAndPhase(0.5,125,90);
         retval=(GenericTimeData*) s;
-        return retval;
     }
 
     if (QString::compare(curveName,"Repeated duration Tone generator")==0 ) {
-     //   RepeatedSinusData * s=new RepeatedSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
-     //   s->setStartTime(0.2);
-     //   s->setDuration(0.5);
-     //   s->setBlankTime(0.25);
-     //   s->setAmplitudeFrequencyAndPhase(0.250,500,45);
-
         TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
         Q_ASSERT(_tParams);
         GenericTimeData *s=CustomCurveFactory::instance()->newCurve("RepeatedSinusData",_tParams);
        // s->setParent(m_plotTime);
         s->setTimePlotParams(_tParams);
         retval=(GenericTimeData*) s;
-        return retval;
     }
 
     if (QString::compare(curveName,"Tone generator")==0 ) {
@@ -337,10 +321,7 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
         Q_ASSERT(_tParams);
         GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData",_tParams);
         s->setTimePlotParams(_tParams);
-     //   GenericSinusData * s=new GenericSinusData(m_plotTime->getTimePlotParams() , m_plotTime);
-     //   s->setAmplitudeFrequencyAndPhase(0.125,250,0);
         retval=(GenericTimeData*) s;
-        return retval;
     }
 
     return retval;

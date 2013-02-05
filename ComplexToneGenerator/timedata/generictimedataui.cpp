@@ -22,7 +22,6 @@ void GenericTimeDataUI::initControlWidget() {
     _widget->setLayout(l);
     _widget->setFont(f);
 
-
     //Name the curve
     QLabel * _nameLabel=new QLabel("Curve name",this);
     _nameLabel->setFont(f);
@@ -46,7 +45,6 @@ void GenericTimeDataUI::initControlWidget() {
     m_baseControl.comboColor=new ComboBoxWidgetColor();
     m_baseControl.comboColor->setFont(f);
     connect(m_baseControl.comboColor, SIGNAL(colorChanged(QColor)),this,SIGNAL(colorUIChanged(QColor)));
-
 
     //XML Button
     m_baseControl.exportXML=new QPushButton("Export ...");
@@ -90,7 +88,6 @@ void GenericTimeDataUI::initControlWidget() {
     l->addWidget(m_baseControl.comboColor,1,Qt::AlignLeft);
     l->addWidget(_buttonWidget,1,Qt::AlignLeft);
 
-
     //Add the local widget to the framework widget
     this->addWidget(_widget, "Generic time Controls");
 }
@@ -115,8 +112,13 @@ void GenericTimeDataUI::showCurveUIUpdate(bool show){
 }
 
 void GenericTimeDataUI::enableCurveUIUpdate(bool enable) {
-    if (m_baseControl.checkBoxEnableCurve->isChecked()!=enable)
+    if (m_baseControl.checkBoxEnableCurve->isChecked()!=enable) {
         m_baseControl.checkBoxEnableCurve->setChecked(enable);
+        if(!enable)
+            m_baseControl.checkBoxShowCurve->setDisabled(true);
+        else
+            m_baseControl.checkBoxShowCurve->setDisabled(false);
+    }
 }
 
 

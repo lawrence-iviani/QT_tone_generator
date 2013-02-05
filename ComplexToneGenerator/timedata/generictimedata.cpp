@@ -12,10 +12,6 @@ GenericTimeData::GenericTimeData(QObject *parent) :
                 dynamic_cast<DataUiHandlerProperty*>(new GenericTimeDataParams(parent)),
                 dynamic_cast<DataUiHandlerUI*>(new GenericTimeDataUI()),
                 parent);
-//    qDebug() << "m_genericTimeDataDelegate " << m_genericTimeDataDelegate;
-//    qDebug() << "getDelegate() " << getDelegate();
-//    qDebug() << "m_genericTimeDataDelegate->getProperty() " << m_genericTimeDataDelegate->getProperty();
-//    qDebug() << "getDataParameters" << getDataParameters();
     init();
 }
 
@@ -31,46 +27,43 @@ GenericTimeData::GenericTimeData(TimePlotParams * timePlotParams, QObject *paren
                 dynamic_cast<DataUiHandlerProperty*>(new GenericTimeDataParams(parent)),
                 dynamic_cast<DataUiHandlerUI*>(new GenericTimeDataUI()),
                 parent);
-//    qDebug() << "m_genericTimeDataDelegate " << m_genericTimeDataDelegate;
-//    qDebug() << "getDelegate() " << getDelegate();
-//    qDebug() << "m_genericTimeDataDelegate->getProperty() " << m_genericTimeDataDelegate->getProperty();
-//    qDebug() << "getDataParameters" << getDataParameters();
-    init();
-    setTimePlotParams(timePlotParams);
+    init(timePlotParams);
 }
 
-void GenericTimeData::init() {
-    initTimePlotParams();
-    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
+void GenericTimeData::init(TimePlotParams *timePlotParams) {
+    GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
+
+    //set up the curve
     m_curve=new QwtPlotCurve(_gtdp->name());
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
-    m_envelope=new DataEnvelope(_gtdp->sampleRate(),this);
-    this->createData();
-    this->connectSignal();
-}
-
-void GenericTimeData::initTimePlotParams() {
-    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
-    Q_ASSERT(_gtdp!=NULL);
-    _gtdp->setMaxDuration(TIMEDATA_DEFAULT_PROJECT_TIME);
-    _gtdp->setStartTime(TIMEDATA_DEFAULT_MIN_TIME);
-    _gtdp->setSampleRate(TIMEDATA_DEFAULT_SR);
+    //Set property for this curve
+    setTimePlotParams(timePlotParams);
     _gtdp->setShowCurve(true);
     _gtdp->setEnableCurve(true);
+    //set envelope
+    m_envelope=new DataEnvelope(_gtdp->sampleRate(),this);
+    //set recalc enabled
+    m_enableRecalc=true;
+    this->createData();
+    //connect any signal
+    this->connectSignals();
+
 }
 
 void GenericTimeData::setTimePlotParams(TimePlotParams * timePlotParams) {
-    //qDebug() << getDataParameters();
-    qDebug() << getDelegate();
-    qDebug() << getDelegate()->getUI();
-    qDebug() << getDelegate()->getProperty();
     GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
-    _gtdp->setMaxDuration(timePlotParams->maxDuration());
-    _gtdp->setStartTime(timePlotParams->minTime());
-    _gtdp->setSampleRate(timePlotParams->sampleRate());
+    if (timePlotParams) {
+        _gtdp->setMaxDuration(timePlotParams->maxDuration());
+        _gtdp->setStartTime(timePlotParams->minTime());
+        _gtdp->setSampleRate(timePlotParams->sampleRate());
+    } else {
+        _gtdp->setMaxDuration(TIMEDATA_DEFAULT_PROJECT_TIME);
+        _gtdp->setStartTime(TIMEDATA_DEFAULT_MIN_TIME);
+        _gtdp->setSampleRate(TIMEDATA_DEFAULT_SR);
+    }
     this->createData();
 }
 
@@ -85,26 +78,29 @@ GenericTimeData::~GenericTimeData() {
     if (m_timeDataDelegate) delete m_timeDataDelegate;
 }
 
-void GenericTimeData::connectSignal() {
+void GenericTimeData::connectSignals() {
     GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
     //connect sample rate & max duration
     Q_ASSERT(connect(_gtdp,SIGNAL(maxDurationChanged(qreal)),this,SLOT(maxDurationHasChanged(qreal))));
     Q_ASSERT(connect(_gtdp,SIGNAL(sampleRateChanged(qreal)),this,SLOT(sampleRateHasChanged(qreal))));
 
-//    connect(this,SIGNAL(dataUpdated()),m_timeDataUI,SLOT(updateUI()));
-//    connect(this,SIGNAL(nameChanged()),m_timeDataUI,SLOT(updateUI()));
-//    connect(m_envelope,SIGNAL(enableToggled(bool)),this,SLOT(setEnableEnvelope(bool)));
-//    connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData()));
+    //emit check/unckeck show and enable, color, name
+    Q_ASSERT(connect(_gtdp,SIGNAL(showCurveChanged(bool)),this,SLOT(curveHasChanged())));
+    Q_ASSERT(connect(_gtdp,SIGNAL(enableCurveChanged(bool)),this,SLOT(updateData())));
+    Q_ASSERT(connect(_gtdp,SIGNAL(colorChanged(QColor)),this,SLOT(curveHasChanged())));
+    Q_ASSERT(connect(_gtdp,SIGNAL(nameChanged(QString)),this,SLOT(curveHasChanged())));
+
+
+    //emit when the name change
+    Q_ASSERT(connect(_gtdp,SIGNAL(nameChanged(QString)),this,SIGNAL(nameChanged(QString))));
+
 }
 
 void GenericTimeData::updateData() {
     if (m_enableRecalc) {
-        //Q_ASSERT(m_SR==m_TimePlotParams->sampleRate());
-        //Q_ASSERT(m_Min_t0==m_TimePlotParams->minTime());
-        //Q_ASSERT(m_MaxDuration==m_TimePlotParams->duration());
         recalc();
-        emit dataUpdated();
+        emit dataChanged();
     }
 }
 
@@ -113,7 +109,7 @@ void GenericTimeData::createData() {
         this->resetAllData();
         recalc();
         this->createDataCurve();
-        emit dataUpdated();
+        emit dataChanged();
     }
 }
 
@@ -192,13 +188,12 @@ void GenericTimeData::setSignalData(qreal *s, quint64 len){
 
 void GenericTimeData::inihbitUpdate() {
     this->setEnableRecalc(false);
-    this->blockSignals(true);
+    // this->blockSignals(true);
 }
 
 void GenericTimeData::enableUpdate() {
-
     this->setEnableRecalc(true);
-    this->blockSignals(false);
+    //this->blockSignals(false);
 }
 
 void GenericTimeData::maxDurationHasChanged(qreal maxDuration) {
@@ -217,6 +212,42 @@ void GenericTimeData::sampleRateHasChanged(qreal SR) {
     //    createDataCurve();
 }
 
+void GenericTimeData::curveHasChanged() {
+    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
+    Q_ASSERT(_gtdp!=NULL);
+
+    //setting color
+    QPen  p=m_curve->pen();
+    p.setColor(_gtdp->color());
+    m_curve->setPen(p);
+
+    //Set name
+    m_curve->setTitle(_gtdp->name());
+
+    //Show/hide
+    if (_gtdp->isShowEnabled()) {
+        m_curve->show();
+    } else {
+        m_curve->hide();
+    }
+
+    emit (curveAttributeChanged());
+}
+
+
+//void GenericTimeData::setEnableCurve(bool enable) {
+//    this->m_curveEnabled=enable;
+//    this->setShowCurve(enable);
+//}
+
+//void GenericTimeData::setShowCurve(bool enable) {
+//    if (enable) {
+//        m_curve->show();
+//    } else {
+//        m_curve->hide();
+//    }
+//    if (m_enableRecalc) emit(curveAttributeUpdated());
+//}
 
 //void GenericTimeData::regenerateDomDocument()
 //{

@@ -19,11 +19,12 @@ public:
     DigestTimeData(QList<GenericTimeData*> * curveList, TimePlotParams * timePlotParams);//double maxDuration, double SRGen);
     virtual ~DigestTimeData();
     
+    virtual void updateData() {GenericTimeData::createData();}
 signals:
 public slots:
  //   virtual void setMaxDuration(double maxDuration);//Set the max duration of this data set,  in this case i don't want a dataUpdate call
  //   virtual void setSampleRate(double SR);
-    virtual void updateData();
+//    virtual void updateData();
     void setTimeDataList(QList<GenericTimeData*> *m_curveList);
 protected:
 

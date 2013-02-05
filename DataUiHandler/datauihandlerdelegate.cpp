@@ -225,16 +225,16 @@ const QStringList DataUiHandlerDelegate::extractMethodSignatureList(const QMetaO
 }
 
 void DataUiHandlerDelegate::dataChanged() {
-    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT, ErrorMessage::DEBUG(Q_FUNC_INFO,"slot called!"));
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT, ErrorMessage::DEBUG(Q_FUNC_INFO,"slot called!"));
     //updateDOM
     if (m_updateDataEnabled &&  !isImportingDomData()) {
         if (!this->selfObjectData()) {
             PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,"Something was wrong when try to generate the self objcet DOM data"));
         } else  {
-            PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT, ErrorMessage::DEBUG(Q_FUNC_INFO,"doc is \n%1\n").arg(getDomDocument().toString(4)));
+            PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT, ErrorMessage::DEBUG(Q_FUNC_INFO,"doc is \n%1\n").arg(getDomDocument().toString(4)));
         }
     } else {
-        PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT, ErrorMessage::DEBUG(Q_FUNC_INFO,"Do nothing!"));
+        PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT, ErrorMessage::DEBUG(Q_FUNC_INFO,"Do nothing!"));
     }
 }
 

@@ -22,14 +22,7 @@ GenericTimeDataParams::GenericTimeDataParams(DataUiHandlerProperty * basePropert
 
 
 void GenericTimeDataParams::setSampleRate(qreal SR) {
-//    if (!isValidSampleRate(SR)) {
-//        qWarning() << "GenericTimeData::setSampleRate try to set an incompatible SR="<< SR<< ", project has been set with SR= " << m_TimePlotParams->sampleRate();
-//        QMessageBox::warning(0, QObject::tr("GenericTimeData::setSampleRate"),
-//                             QObject::tr("try to set an incompatible SR=%1, project has been set with SR=%2").arg(SR).arg(m_TimePlotParams->sampleRate()));
-//        return false;
-//    }
-    //manca verifica su SR possibile, idem con maxduartion
-    //Q_ASSERT(false);
+    if (SR > TIMEDATA_DEFAULT_MAX_SR ) return;
     if ( (SR!=m_SR) && (SR >0) ) {
         m_SR=SR;
         emit (sampleRateChanged(SR));
@@ -37,13 +30,6 @@ void GenericTimeDataParams::setSampleRate(qreal SR) {
 }
 
 void GenericTimeDataParams::setMaxDuration(qreal  maxDuration) {
-//    if (!isValidMaxDuration(maxDuration)) {
-//        qWarning() << "GenericTimeData::setMaxDuration try to set an incompatible maxDuration="<< maxDuration<< ", project has been set with duration= " << m_TimePlotParams->duration();
-//        QMessageBox::warning(0, QObject::tr("GenericTimeData::setMaxDuration"),
-//                             QObject::tr("try to set an incompatible maxDuration=%1, project has been set with duration=%2").arg(maxDuration).arg(m_TimePlotParams->duration()));
-//        return false;
-//    }
-    //Q_ASSERT(false);
     if ( (maxDuration > TIMEDATA_DEFAULT_MAX_TIME) || (maxDuration < 0) ) return;
     if (maxDuration!=m_maxDuration) {
         if (maxDuration < 0) {
@@ -77,8 +63,13 @@ void GenericTimeDataParams::setColor(QColor color) {
 
 void GenericTimeDataParams::setShowCurve(bool show) {
     if (m_showEnabled!=show) {
-        m_showEnabled=show;
-        emit (showCurveChanged(show));
+        if (m_curveEnabled) {
+            m_showEnabled=show;
+            emit (showCurveChanged(show));
+        } else {
+            m_showEnabled=false;
+            emit (showCurveChanged(false));
+        }
     }
 }
 
@@ -86,5 +77,11 @@ void GenericTimeDataParams::setEnableCurve(bool enable){
     if (m_curveEnabled!=enable) {
         m_curveEnabled=enable;
         emit (enableCurveChanged(enable));
+        if (!enable) {
+            setShowCurve(false);
+        } else {
+            setShowCurve(true);
+        }
     }
+
 }

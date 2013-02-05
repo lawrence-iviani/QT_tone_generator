@@ -22,39 +22,36 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
 TimePlotWidget::~TimePlotWidget() { }
 
 void TimePlotWidget::connectSignals() {
-//    TimePlotParams * tpp=(TimePlotParams*) getTimePlotParams();
-//    TimePlotWidgetUI * tpUI=(TimePlotWidgetUI*) getControlWidget();
-//    //Connect sample rate change
-//    connect(tpp,SIGNAL(sampleRateChanged(qreal)),this,SLOT(setAllCurvesSampleRate(qreal)));
-//    //Connect max duration change
-//    connect(tpp,SIGNAL(maxDurationChanged(qreal)),this,SLOT(setAllCurvesMaxDuration(qreal)));
-//    //Connect show all
-//    connect(tpUI,SIGNAL(showAllCurvesToggled()),this,SLOT(showAllCurves()));
-//    //Connect hide all
-//    connect(tpUI,SIGNAL(hideAllCurvesToggled()),this,SLOT(hideAllCurves()));
+    TimePlotParams *_params=dynamic_cast< TimePlotParams*> (getDataParameters());
+    Q_ASSERT(_params!=NULL);
+
+    //Keep consitent duration and sample rate
+    connect(_params,SIGNAL(maxDurationChanged(qreal)),this,SLOT(setAllCurvesMaxDuration(qreal)));
+    connect(_params,SIGNAL(sampleRateChanged(qreal)),this,SLOT(setAllCurvesSampleRate(qreal)));
+
 }
 
-bool TimePlotWidget::setEnableUpdate(bool enable) {
-    bool retval=PlotWidget::setEnableUpdate(enable);
-    if (enable!=m_enableUpdate) {
-        enable ? m_digestCurve->enableUpdate() : m_digestCurve->inihbitUpdate();
-    }
-    return retval;
-}
+//bool TimePlotWidget::setEnableUpdate(bool enable) {
+//    bool retval=PlotWidget::setEnableUpdate(enable);
+//    if (enable!=m_enableUpdate) {
+//        enable ? m_digestCurve->enableUpdate() : m_digestCurve->inihbitUpdate();
+//    }
+//    return retval;
+//}
 
-void TimePlotWidget::forceRecreateAll() {
-    if (m_enableUpdate) {
-        PlotWidget::forceRecreateAll();
-        m_digestCurve->createData();
-    }
-}
+//void TimePlotWidget::forceRecreateAll() {
+//    if (m_enableUpdate) {
+//        PlotWidget::forceRecreateAll();
+//        m_digestCurve->createData();
+//    }
+//}
 
-void TimePlotWidget::forceUpdateAll() {
-    if (m_enableUpdate) {
-        PlotWidget::forceUpdateAll();
-        m_digestCurve->createData(); 
-    }
-}
+//void TimePlotWidget::forceUpdateAll() {
+//    if (m_enableUpdate) {
+//        PlotWidget::forceUpdateAll();
+//        m_digestCurve->createData();
+//    }
+//}
 
 void TimePlotWidget::setAllCurvesSampleRate(qreal samplerate) {
     int n=0;

@@ -44,7 +44,7 @@ public:
     void setDimension(int pointDimension);
 
     /**
-      * Add a time data series to the class, return the position in the internal list of the last add
+      * Add a time data series to the class, return the index position in the internal list or -1 if the addition failed.
       */
     int addTimeData(GenericTimeData * gtd);
     virtual QWidget * getControlWidget() {return NULL;}// Give back a QWidget that can be used to control this class. The class that inherits implement its controls widget
@@ -81,15 +81,25 @@ public:
 signals:
     void curveListChanged();
 public slots:
+
+    /**
+     * @brief updateAndRecalc This method can be reimplmented. Now it's the same of updatePlot.
+     * The method is connect to the updateData curve signal and is called when data modification happen and any eventual internal recalculation
+     * and not only replota, are needed.
+     */
+    virtual void recalcAndUpdatePlot() {
+        updatePlot();
+    }
+
   /**
     * This method is called when never one of the curve stored in this class, or extended class,is modified.
+    * This method is called when an updateAttribute signal is emitted and it's not necessary to recalculate nothihg but only replot (ie changing the color of a curve).
     * Extended class should re-implent the curves correctly in order to obtain the correct results.
     * All the stuff of init, object handling etc. are delegated to the inheriting class.
     */
     virtual void updatePlot() {
         if (m_enableUpdate) {
-            qDebug() << "PlotWidget::updatePlot() CALLED";
-            this->replot();
+            replot();
         }
     }
 
@@ -100,20 +110,20 @@ public slots:
      */
     virtual bool setEnableUpdate(bool enable);
 
-    /**
-     * @brief forceRecalcAll force to recalc all the data curve. All the curves are recalculated by calling recalc
-     */
-    virtual void forceRecreateAll();
+//    /**
+//     * @brief forceRecalcAll force to recalc all the data curve. All the curves are recalculated by calling recalc
+//     */
+//    virtual void forceRecreateAll();
 
-    /**
-     * @brief forceUpdateAll force to update all the data curve. All the curves are recalculated by calling update
-     */
-    virtual void forceUpdateAll() ;
+//    /**
+//     * @brief forceUpdateAll force to update all the data curve. All the curves are recalculated by calling update
+//     */
+//    virtual void forceUpdateAll() ;
 
-    /**
-     * @brief forceUpdateUI force to update only the UI and the DOM data to be aligned.
-     */
-    virtual void forceUpdateUI();
+//    /**
+//     * @brief forceUpdateUI force to update only the UI and the DOM data to be aligned.
+//     */
+//    virtual void forceUpdateUI();
 
 protected:
     QList<GenericTimeData*> m_curveList;
@@ -123,6 +133,7 @@ protected:
     bool m_enableUpdate;
     ScrollRubberBand * m_scrollRubberBand;//Object to scroll a vertical or horizontal line in order to display where the signal is analyzed.
 private:
+    void connectSignal();
     void plotSetup();
     int m_dimension;
 

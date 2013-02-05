@@ -27,7 +27,6 @@ public:
     inline qreal sampleRate() {return m_SR;}
     inline qreal startTime() {return m_startTime;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
 
-    inline bool isEnabled() { return m_curveEnabled;}
     inline bool isShowEnabled() { return m_showEnabled;}
     inline bool isCurveEnabled() { return m_curveEnabled;}
 

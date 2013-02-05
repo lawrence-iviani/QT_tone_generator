@@ -9,6 +9,11 @@ PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     this->setXScaleType(xScaleType);
     this->setYScaleType(yScaleType);
     this->replot();
+    connectSignal();
+}
+
+void PlotWidget::connectSignal() {
+    Q_ASSERT(connect(this,SIGNAL(curveListChanged()),this,SLOT(recalcAndUpdatePlot())));
 }
 
 void PlotWidget::plotSetup() {
@@ -110,12 +115,11 @@ void PlotWidget::setDimension(int pointDimension) {
 }
 
 int PlotWidget::addTimeData(GenericTimeData * gtd) {
+    if (!gtd) return -1;
     m_curveList.append(gtd);
     gtd->getCurve()->attach(this);
-   //connect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
-   // connect(gtd,SIGNAL(curveAttributeUpdated()),this,SLOT(updatePlot()));
-    //TODO: verifica se serve if m_enableUpdate ???
-    this->updatePlot();
+    Q_ASSERT(connect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot())));
+    Q_ASSERT(connect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot())));
     emit curveListChanged();
     return (m_curveList.length()-1);
 }
@@ -125,14 +129,12 @@ bool PlotWidget::removeTimeData(int index) {
     if (  (0 <= index) && (index < m_curveList.length()) ) {
         GenericTimeData *  gtd=this->getTimeData(index);
         gtd->getCurve()->detach();
-      //  disconnect(gtd,SIGNAL(dataUpdated()),this,SLOT(updatePlot()));
-      //  disconnect(gtd,SIGNAL(curveAttributeUpdated()),this,SLOT(updatePlot()));
+        disconnect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot()));
+        disconnect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot()));
         Q_ASSERT(gtd!=NULL);
         delete gtd;
         m_curveList.removeAt(index);
         retval=true;
-        //TODO: verifica se serve if m_enableUpdate ???
-        this->updatePlot();
         emit curveListChanged();
     } else {
         qWarning() << "PlotWidget::removeTimeData trying remove curve index "<< index <<", is out of range " << " lenCurveList=" << m_curveList.length();
@@ -148,32 +150,32 @@ GenericTimeData *PlotWidget::getTimeData(int index) {
     return retval;
 }
 
-void PlotWidget::forceRecreateAll() {
-    if (!m_enableUpdate) return;
-    foreach(GenericTimeData* p, m_curveList) {
-        p->createData();
-        //p->getControlWidget()->updateUI();
-        //p->forceRegenerateDomDocument();
-    }
-}
+//void PlotWidget::forceRecreateAll() {
+//    if (!m_enableUpdate) return;
+//    foreach(GenericTimeData* p, m_curveList) {
+//       // p->createData();
+//        //p->getControlWidget()->updateUI();
+//        //p->forceRegenerateDomDocument();
+//    }
+//}
 
-void PlotWidget::forceUpdateUI() {
-    if (!m_enableUpdate) return;
-    foreach(GenericTimeData* p, m_curveList) {
-        //p->getControlWidget()->updateUI();
-        //p->forceRegenerateDomDocument();
-    }
-}
+//void PlotWidget::forceUpdateUI() {
+//    if (!m_enableUpdate) return;
+//    foreach(GenericTimeData* p, m_curveList) {
+//        //p->getControlWidget()->updateUI();
+//        //p->forceRegenerateDomDocument();
+//    }
+//}
 
 
-void PlotWidget::forceUpdateAll() {
-    if (!m_enableUpdate) return;
-    foreach(GenericTimeData* p, m_curveList) {
-        p->updateData();
-        //p->getControlWidget()->updateUI();
-        //p->forceRegenerateDomDocument();
-    }
-}
+//void PlotWidget::forceUpdateAll() {
+//    if (!m_enableUpdate) return;
+//    foreach(GenericTimeData* p, m_curveList) {
+//      //  p->updateData();
+//        //p->getControlWidget()->updateUI();
+//        //p->forceRegenerateDomDocument();
+//    }
+//}
 
 bool PlotWidget::setEnableUpdate(bool enable) {
     bool retval=m_enableUpdate;
