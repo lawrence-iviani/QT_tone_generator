@@ -1,0 +1,108 @@
+#include "timeplotwidgetui.h"
+
+TimePlotWidgetUI::TimePlotWidgetUI(QWidget *widget) :
+    DataUiHandlerUI(widget),
+    m_zmp(NULL)
+{
+    this->initControlWidget();
+}
+
+
+TimePlotWidgetUI::TimePlotWidgetUI(ZMP_Handler * zmp, QWidget *widget) :
+    DataUiHandlerUI(widget),
+    m_zmp(zmp)
+{
+    this->initControlWidget();
+}
+
+TimePlotWidgetUI::~TimePlotWidgetUI() { }
+
+void TimePlotWidgetUI::sampleRateUIUpdate(qreal sampleRate) {
+    if (sampleRate!=m_baseControl.sliderSampleRate->value())
+        m_baseControl.sliderSampleRate->setValue(sampleRate);
+}
+
+void TimePlotWidgetUI::maxDurationUIUpdate(qreal maxduration) {
+    if (maxduration!=m_baseControl.sliderMaxDuration->value())
+        m_baseControl.sliderMaxDuration->setValue(maxduration);
+}
+
+void TimePlotWidgetUI::initControlWidget() {
+
+    QWidget * _widget=new QWidget();//Create the widget for these controls
+    //setting font base dimension
+    QFont f=*(new QFont());
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
+
+    //Widget  layout
+    QVBoxLayout * l=new QVBoxLayout();
+    l->setSizeConstraint(QLayout::SetMinimumSize);
+    _widget->setLayout(l);
+    _widget->setFont(f);
+
+    //Adding the ZMP button control
+    m_baseControl.ZMP_RadioButton.groupBox = new QGroupBox("Mouse Selection",NULL);
+    m_baseControl.ZMP_RadioButton.PICKER =  new QRadioButton("Picker",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
+    m_baseControl.ZMP_RadioButton.PAN = new QRadioButton("Pan",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
+    m_baseControl.ZMP_RadioButton.ZOOM = new QRadioButton("Zoom",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
+    QVBoxLayout * radioButtonLayout = new QVBoxLayout();
+    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.PICKER,1);
+    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.PAN,1);
+    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.ZOOM,1);
+    m_baseControl.ZMP_RadioButton.groupBox->setLayout(radioButtonLayout);
+    connect(m_baseControl.ZMP_RadioButton.PICKER,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
+    connect(m_baseControl.ZMP_RadioButton.PAN,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
+    connect(m_baseControl.ZMP_RadioButton.ZOOM,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
+    m_baseControl.ZMP_RadioButton.PICKER->setChecked(true);
+    l->addWidget( m_baseControl.ZMP_RadioButton.groupBox,1,Qt::AlignLeft|Qt::AlignTop);
+
+    //set Sample rate
+    m_baseControl.sliderSampleRate = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
+    m_baseControl.sliderSampleRate->setDigitAccuracy(0);
+    m_baseControl.sliderSampleRate->setScale(TIMEDATA_DEFAULT_MIN_SR,TIMEDATA_DEFAULT_MAX_SR,TIMEDATA_DEFAULT_STEP_SR);
+    m_baseControl.sliderSampleRate->setName("SR Generation");
+    m_baseControl.sliderSampleRate->setMeasureUnit("Hz");
+    m_baseControl.sliderSampleRate->setFont(f);
+    l->addWidget( m_baseControl.sliderSampleRate,1,Qt::AlignCenter|Qt::AlignTop);
+    connect(m_baseControl.sliderSampleRate,SIGNAL(valueChanged(qreal)),this,SIGNAL(sampleRateUIChanged(qreal)));
+
+    //set duration
+    m_baseControl.sliderMaxDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
+    m_baseControl.sliderMaxDuration->setDigitAccuracy(3);
+    m_baseControl.sliderMaxDuration->setScale(0,TIMEDATA_DEFAULT_MAX_TIME,TIMEDATA_DEFAULT_TIMESTEP);
+    m_baseControl.sliderMaxDuration->setName("Duration Generated file");
+    m_baseControl.sliderMaxDuration->setMeasureUnit("Sec.");
+    m_baseControl.sliderMaxDuration->setFont(f);
+    l->addWidget( m_baseControl.sliderMaxDuration,1, Qt::AlignCenter|Qt::AlignTop);
+    connect(m_baseControl.sliderMaxDuration,SIGNAL(valueChanged(qreal)),this,SIGNAL(maxDurationUIChanged(qreal)));
+
+    //add button show/hide all
+    m_baseControl.showAllCurves=new QPushButton("Show all curves");
+    m_baseControl.hideAllCurves=new QPushButton("Hide all curves");
+    QHBoxLayout * _lh=new QHBoxLayout();
+    _lh->addWidget(m_baseControl.showAllCurves,1,Qt::AlignCenter);
+    _lh->addWidget(m_baseControl.hideAllCurves,1,Qt::AlignCenter);
+    QWidget *_showHideWidget=new QWidget();
+    _showHideWidget->setLayout((QLayout*)_lh);
+    l->addWidget( _showHideWidget,1, Qt::AlignCenter|Qt::AlignTop);
+    connect(m_baseControl.showAllCurves,SIGNAL(clicked()),this,SIGNAL(showAllCurvesToggled()));
+    connect(m_baseControl.hideAllCurves,SIGNAL(clicked()),this,SIGNAL(hideAllCurvesToggled()));
+
+
+    //Add the local widget to the framework widget
+    this->addWidget(_widget, "Time Plot controls");
+}
+
+void TimePlotWidgetUI::ZMP_statusChanged() {
+    if (!m_zmp) return;
+
+    if (m_baseControl.ZMP_RadioButton.PICKER->isChecked()) {
+        m_zmp->enablePicker();
+    }
+    if (m_baseControl.ZMP_RadioButton.PAN->isChecked()) {
+        m_zmp->enablePanner();
+    }
+    if (m_baseControl.ZMP_RadioButton.ZOOM->isChecked()) {
+        m_zmp->enableZoomer();
+    }
+}

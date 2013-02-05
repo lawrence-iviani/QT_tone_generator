@@ -6,13 +6,14 @@
 #include "datauihandlercommon.h"
 #include "datauihandlerdelegate.h"
 
+class DataUiHandlerDelegate;
+
 /**
  * @brief The GetterSetterProperty class provides data controls, extracting data and setting data.
  * Now its working is very simple but may be in the future can make more (ie DB extraction/insertion and also).
  * The basic class provides a name (stored in the meatobjcet className, description and an ID).
  *
  */
-
 class DataUiHandlerProperty : public QObject
 {
     Q_OBJECT
@@ -20,7 +21,8 @@ class DataUiHandlerProperty : public QObject
     Q_PROPERTY(QString description READ description WRITE setDescription NOTIFY descriptionPropertyChanged)
 
 public:
-    explicit DataUiHandlerProperty(QObject *parent);
+    explicit DataUiHandlerProperty(QObject *parent=0);
+    explicit DataUiHandlerProperty(DataUiHandlerProperty *copyProperty,QObject *parent=0);
 
     //getter
     const QUuid& uuid() {return m_uuid;}

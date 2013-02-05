@@ -1,62 +1,179 @@
 #include "repeatedsinusdata.h"
+#include "Repeatedsinusdata.h"
+#include "genericsinusdata.h"
 
+//---------- PARAMETERS ----------
+RepeatedSinusParams::RepeatedSinusParams(RepeatedTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent) :
+    RepeatedTimeDataParams(baseProperty,params,parent),
+    m_amplitude(SINUSDATA_DEFAULT_AMPLITUDE),
+    m_frequency(SINUSDATA_DEFAULT_FREQUENCY),
+    m_initPhase(SINUSDATA_DEFAULT_INITPHASE)
+{}
 
-RepeatedSinusData::RepeatedSinusData(QWidget *widget) :
-    RepeatedTimeData (widget)
-{
-    //Create the storage class
-    m_sinusDataParams=new SinusDataParams((QObject*)widget);
-    //Connect a signal to call an update if the parameters are changed
-    connect(m_sinusDataParams,SIGNAL(dataUpdated()),this,SLOT(updateData()));
-    //Create a sinusdata UI, connecting the parameters
-    m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
-    //Register the UI for call general update when something change.
-    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "RepeatedSinusData control");
+RepeatedSinusParams::RepeatedSinusParams(RepeatedTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent, qreal amplitude, qreal frequency, qreal initPhase):
+    RepeatedTimeDataParams(baseProperty,params,parent),
+    m_amplitude(amplitude),
+    m_frequency(frequency),
+    m_initPhase(initPhase)
+{}
+
+void RepeatedSinusParams::setAmplitude(qreal amplitude) {
+    if (m_amplitude!=amplitude) {
+        m_amplitude=amplitude;
+        emit(amplitudeChanged(amplitude));
+    }
 }
 
-RepeatedSinusData::RepeatedSinusData(TimePlotParams *timePlotParams, QWidget *widget) :
-    RepeatedTimeData (timePlotParams)
-{
-    //Create the storage class
-    m_sinusDataParams=new SinusDataParams((QObject*)widget);
-    //Connect a signal to call an update if the parameters are changed
-    connect(m_sinusDataParams,SIGNAL(dataUpdated()),this,SLOT(updateData()));
-    //Create a sinusdata UI, connecting the parameters
-    m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
-    //Register the UI for call general update when something change.
-    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "RepeatedSinusData control");
+void RepeatedSinusParams::setFrequency(qreal frequency) {
+    if (m_frequency!=frequency) {
+        m_frequency=frequency;
+        emit(frequencyChanged(frequency));
+    }
 }
 
-RepeatedSinusData::~RepeatedSinusData() {
-
+void RepeatedSinusParams::setInitPhase(qreal initPhase) {
+    if (m_initPhase!=initPhase) {
+        m_initPhase=initPhase;
+        emit(initPhaseChanged(initPhase));
+    }
 }
 
-RepeatedSinusData::RepeatedSinusData(TimePlotParams * timePlotParams,qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
-    RepeatedTimeData (timePlotParams)
+//---------- UI ----------
+RepeatedSinusUI::RepeatedSinusUI(QWidget *widget ) :
+    RepeatedTimeDataUI(widget)
 {
-    //Create the storage class
-    m_sinusDataParams=new SinusDataParams(amplitude,frequency,initPhase, (QObject*)widget);
-    //Connect a signal to call an update if the parameters are changed
-    connect(m_sinusDataParams,SIGNAL(dataUpdated()),this,SLOT(updateData()));
-    //Create a sinusdata UI, connecting the parameters
-    m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
-    //Register the UI for call general update when something change.
-    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "RepeatedSinusData control");
+    this->initControlWidget();
+}
+
+void RepeatedSinusUI::initControlWidget() {
+    QWidget * _widget=new QWidget();//Create the widget for these controls
+    //setting font base dimension
+    QFont f=*(new QFont());
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
+
+    //Widget container and layout
+    QHBoxLayout * l=new QHBoxLayout();
+    l->setSizeConstraint(QLayout::SetMinimumSize);
+    _widget->setLayout(l);
+    _widget->setFont(f);
+
+    //set frequency
+    m_sinusDataControl.sliderFrequency= new ScaledSliderWidget(this, Qt::Vertical,ScaledSlider::Logarithmic) ;
+    m_sinusDataControl.sliderFrequency->setScale(10,22000,0.001);
+    m_sinusDataControl.sliderFrequency->setName("Freq.");
+    m_sinusDataControl.sliderFrequency->setMeasureUnit("Sec.");
+    m_sinusDataControl.sliderFrequency->setFont(f);
+    connect(m_sinusDataControl.sliderFrequency,SIGNAL(valueChanged(qreal)),this,SIGNAL(frequencyUIChanged(qreal)));
+
+    //set amplitude
+    m_sinusDataControl.sliderAmplitude=new ScaledSliderWidget(this, Qt::Vertical,ScaledSlider::Linear) ;
+    m_sinusDataControl.sliderAmplitude->setScale(0,1.0,0.01);
+    m_sinusDataControl.sliderAmplitude->setName("Amplitude");
+    m_sinusDataControl.sliderAmplitude->setMeasureUnit("0-1");
+    m_sinusDataControl.sliderAmplitude->setFont(f);
+    connect(m_sinusDataControl.sliderAmplitude,SIGNAL(valueChanged(qreal)),this,SIGNAL(amplitudeUIChanged(qreal)));
+
+
+    //set init phase
+    m_sinusDataControl.sliderInitPhase=new ScaledSliderWidget(this, Qt::Vertical,ScaledSlider::Linear) ;
+    m_sinusDataControl.sliderInitPhase->setScale(-180,180,1);
+    m_sinusDataControl.sliderInitPhase->setName("Phase");
+    m_sinusDataControl.sliderInitPhase->setMeasureUnit("deg.");
+    m_sinusDataControl.sliderInitPhase->setFont(f);
+    connect(m_sinusDataControl.sliderInitPhase,SIGNAL(valueChanged(qreal)),this,SIGNAL(initPhaseUIChanged(qreal)));
+
+    //Lay out all the control);
+    l->addWidget(m_sinusDataControl.sliderFrequency,1,Qt::AlignLeft);
+    l->addWidget(m_sinusDataControl.sliderAmplitude,1,Qt::AlignLeft);
+    l->addWidget(m_sinusDataControl.sliderInitPhase,1,Qt::AlignLeft);
+
+    this->addWidget(_widget, "Repeated tone controls");
+}
+
+void RepeatedSinusUI::amplitudeUIUpdate(qreal amplitude) {
+    if (amplitude!=m_sinusDataControl.sliderAmplitude->value())
+        m_sinusDataControl.sliderAmplitude->setValue(amplitude);
+}
+
+void RepeatedSinusUI::frequencyUIUpdate(qreal frequency) {
+    if (frequency!=m_sinusDataControl.sliderFrequency->value())
+        m_sinusDataControl.sliderFrequency->setValue(frequency);
+}
+
+void RepeatedSinusUI::initPhaseUIUpdate(qreal initphase) {
+    if (initphase!=m_sinusDataControl.sliderInitPhase->value())
+        m_sinusDataControl.sliderInitPhase->setValue(initphase);
+}
+
+
+
+//---------- FRONTEND ----------
+RepeatedSinusData::RepeatedSinusData(QObject * parent) :
+    RepeatedTimeData (parent)
+{
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,NULL);
+}
+
+RepeatedSinusData::RepeatedSinusData(TimePlotParams * timePlotParams, QObject * parent) :
+    RepeatedTimeData(timePlotParams,parent)
+{
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,timePlotParams);
+}
+
+RepeatedSinusData::RepeatedSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QObject * parent) :
+    RepeatedTimeData(timePlotParams,parent)
+{
+    init(amplitude,frequency,initPhase,timePlotParams);
+}
+
+void RepeatedSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,TimePlotParams * timePlotParams) {
+   //Create the delegate and instance the UI and the parameters
+    RepeatedTimeDataParams* _baseProp=dynamic_cast<RepeatedTimeDataParams*>(RepeatedTimeData::getDataParameters());
+    Q_ASSERT(_baseProp);
+    DataUiHandlerDelegate* _delegate=getDelegate();
+    RepeatedSinusParams* _derivedProp=new RepeatedSinusParams( _baseProp,timePlotParams,(QObject*)this);
+    DataUiHandlerProperty* _castedDerivedProp=dynamic_cast<DataUiHandlerProperty*>(_derivedProp);
+    _delegate->replacePropertiesAndUI(_castedDerivedProp,
+                                      dynamic_cast<DataUiHandlerUI*> (new RepeatedSinusUI() ));
+
+    //Set any eventual default parameters or passed by the constructor argmuents
+    RepeatedSinusParams* _rsp=dynamic_cast<RepeatedSinusParams*>(getDataParameters());
+    Q_ASSERT(_rsp);
+    _rsp->setAmplitude(amplitude);
+    _rsp->setFrequency(frequency);
+    _rsp->setInitPhase(initPhase);
 }
 
 void RepeatedSinusData::recalc() {
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - RepeatedSinusData::recalc() is enabled---------------- " << this->name();
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - RepeatedSinusData::recalc() SR=" << this->sampleRate()
-            << " nsamples="<< this->sampleNumber();
+    RepeatedSinusParams* _rsp=dynamic_cast<RepeatedSinusParams*>(getDataParameters());
+    Q_ASSERT(_rsp);
 
+    //Verify going to recalc with the enable flag true
+    Q_ASSERT(isEnableRecalc());
+    Q_ASSERT(_rsp->isCurveEnabled());
+
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ RECALC %1 with SR=%2-----")
+                        .arg(_rsp->name())
+                        .arg(_rsp->sampleRate()));
+
+    //Getting the minimum and maximum value where recalculate the data
+    quint64 n_dw=this->lowestSampleIndexForModification();
+    quint64 n_up=this->highestSampleIndexForModification();
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ indexlow=%1/%2 indexhi=%3/%2")
+                        .arg(n_dw)
+                        .arg(getSampleNumber())
+                        .arg(n_up));
+
+    //Gettine time base
     const qreal *t=this->getTimeData();
-    qreal phase=SinusDataParams::deg2rad(m_sinusDataParams->initPhase());
 
-    qint64 n_dw=this->lowestSampleIndexForModification();
-    qint64 n_up=this->highestSampleIndexForModification();
-    qDebug() << "RepeatedSinusData::recalc() m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_dw=" << n_dw << " n_up=" << n_up << " nsample=" << this->sampleNumber();
-
-    for (qint64 n=n_dw; n < n_up; n++) {
-        Q_ASSERT(this->insertSignalValue(n,m_sinusDataParams->amplitude()*sin(2*M_PI*m_sinusDataParams->frequency()*t[n]+phase)));
+    //Getting params
+    qreal _ampl=_rsp->amplitude();
+    qreal _freq=_rsp->frequency();
+    qreal _phase=M_RADIANS(_rsp->initPhase());
+    for (quint64 n=n_dw; n < n_up; n++) {
+        Q_ASSERT(insertSignalValue(n,_ampl*sin(2*M_PI*_freq*t[n]+_phase)));
     }
 }
+
+

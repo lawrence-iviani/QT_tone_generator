@@ -1,44 +1,17 @@
 #include "partialtimedataui.h"
 
-PartialTimeDataUI::PartialTimeDataUI(PartialTimeData *ptd, QWidget *widget ) :
-    CustomCurveUI(widget),
-    m_partiaTimeData(ptd)
+PartialTimeDataUI::PartialTimeDataUI(QWidget *widget ) :
+    GenericTimeDataUI(widget)
 {
     this->initControlWidget();
-    m_partiaTimeData->getControlWidget()->addControlFrame(this,"PTD control");
 }
 
 PartialTimeDataUI::~PartialTimeDataUI() {
 
 }
 
-void PartialTimeDataUI::updateControlUI() {
-    qDebug() << "PartialTimeDataUI::updateControlUI called";
-
-    bool sigStatus=m_partialDataControl.widgetDuration->blockSignals(true);
-    m_partialDataControl.widgetDuration->setValue(m_partiaTimeData->duration());
-    m_partialDataControl.widgetDuration->blockSignals(sigStatus);
-
-    sigStatus=m_partialDataControl.widget_t0->blockSignals(true);
-    m_partialDataControl.widget_t0->setValue(m_partiaTimeData->startTime());
-    m_partialDataControl.widget_t0->blockSignals(sigStatus);
-
-    emit (controlUIUpdated());
-
-}
-
-void PartialTimeDataUI::durationChange(qreal duration) {
-    bool _prevValue=m_partialDataControl.widgetDuration->blockSignals(true);
-    m_partialDataControl.widgetDuration->setMaxScaleValue(duration);
-    m_partialDataControl.widgetDuration->blockSignals(_prevValue);
-
-    _prevValue=m_partialDataControl.widget_t0->blockSignals(true);
-    m_partialDataControl.widget_t0->setMaxScaleValue(duration);
-    m_partialDataControl.widget_t0->blockSignals(_prevValue);
-}
-
 void PartialTimeDataUI::initControlWidget() {
-
+    QWidget * _widget=new QWidget();//Create the widget for these controls
     //setting font base dimension
     QFont f=*(new QFont());
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
@@ -46,8 +19,8 @@ void PartialTimeDataUI::initControlWidget() {
     //Widget container and layout
     QHBoxLayout * l=new QHBoxLayout();
     l->setSizeConstraint(QLayout::SetMinimumSize);
-    this->setLayout(l) ;
-    this->setFont(f);
+    _widget->setLayout(l);
+    _widget->setFont(f);
 
     //set duration
     m_partialDataControl.widgetDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -56,7 +29,7 @@ void PartialTimeDataUI::initControlWidget() {
     m_partialDataControl.widgetDuration->setName("Duration");
     m_partialDataControl.widgetDuration->setMeasureUnit("Sec.");
     m_partialDataControl.widgetDuration->setFont(f);
-    connect(m_partialDataControl.widgetDuration,SIGNAL(valueChanged(qreal)),m_partiaTimeData,SLOT(setDuration(qreal)));
+    connect(m_partialDataControl.widgetDuration,SIGNAL(valueChanged(qreal)),this,SIGNAL(durationUIChanged(qreal)));
 
     //set t0
     m_partialDataControl.widget_t0 = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -65,14 +38,33 @@ void PartialTimeDataUI::initControlWidget() {
     m_partialDataControl.widget_t0->setName("Start Time");
     m_partialDataControl.widget_t0->setMeasureUnit("Sec.");
     m_partialDataControl.widget_t0->setFont(f);
-    connect(m_partialDataControl.widget_t0,SIGNAL(valueChanged(qreal)),m_partiaTimeData,SLOT(setStartTime(qreal)));
+    connect(m_partialDataControl.widget_t0,SIGNAL(valueChanged(qreal)),this,SIGNAL(t0UIChanged(qreal)));
 
     //layouting
     l->addWidget(m_partialDataControl.widgetDuration,1,Qt::AlignLeft);
     l->addWidget(m_partialDataControl.widget_t0,1,Qt::AlignLeft);
 
-    //Setting values
-    m_partialDataControl.widgetDuration->setValue(m_partiaTimeData->duration());
-    m_partialDataControl.widget_t0->setValue(m_partiaTimeData->startTime());
-
+    this->addWidget(_widget, "Partial time Controls");
 }
+
+void PartialTimeDataUI::durationUIUpdate(qreal duration) {
+    if (duration!=m_partialDataControl.widgetDuration->value())
+        m_partialDataControl.widgetDuration->setValue(duration);
+}
+
+void PartialTimeDataUI::t0UIUpdate(qreal t0) {
+    if (t0!=m_partialDataControl.widget_t0->value())
+        m_partialDataControl.widget_t0->setValue(t0);
+}
+
+//void PartialTimeDataUI::durationChange(qreal duration) {
+//    bool _prevValue=m_partialDataControl.widgetDuration->blockSignals(true);
+//    m_partialDataControl.widgetDuration->setMaxScaleValue(duration);
+//    m_partialDataControl.widgetDuration->blockSignals(_prevValue);
+
+//    _prevValue=m_partialDataControl.widget_t0->blockSignals(true);
+//    m_partialDataControl.widget_t0->setMaxScaleValue(duration);
+//    m_partialDataControl.widget_t0->blockSignals(_prevValue);
+//}
+
+

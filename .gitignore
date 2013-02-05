@@ -85,3 +85,17 @@ ComplexToneGenerator/qrc_resource.cpp
 Widget/WidgetStyle/qrc_resource.cpp
 
 Widget/WidgetStyle/qrc_stylesheet.cpp
+
+Widget/SelectMultipleCurvesWindowDialog/ui_selectmultiplecurveswindowdialog.h
+
+Widget/SelectCurveWindowDialog/ui_selectcurvewindowdialog.h
+
+Widget/ScaledSliderWidget/ui_mainwindow.h
+
+Widget/ExportAudioFileWidget/ui_mainwindow.h
+
+Widget/ComboBoxWidgetColor/ui_comboboxwidgetcolor.h
+
+Widget/ComboBoxLabelWidget/ui_comboboxnamewidget.h
+
+ComplexToneGenerator/ui_dataenvelopeui.h

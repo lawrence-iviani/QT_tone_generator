@@ -1,8 +1,9 @@
 #include "domhelper.h"
 
-DomHelper::DomHelper(QObject * hostObj, QString docType, QString rootTag, QString fileExtension) :
+
+DomHelper::DomHelper(QObject *hostDelegate, QString docType, QString rootTag, QString fileExtension) :
     m_document(),
-    m_obj(hostObj),
+    m_hostObject(hostDelegate),
     m_docType(docType),
     m_rootTag(rootTag),
     m_fileSuffix(fileExtension),
@@ -12,7 +13,7 @@ DomHelper::DomHelper(QObject * hostObj, QString docType, QString rootTag, QStrin
 
 DomHelper::DomHelper() :
     m_document(),
-    m_obj(new QObject()),
+    m_hostObject(NULL),
     m_docType(DOMHELPER_DEFAULT_DOCTYPE),
     m_rootTag(DOMHELPER_DEFAULT_ROOT_TAG),
     m_fileSuffix(DOMHELPER_DEFAULT_FILE_SUFFIX),
@@ -22,6 +23,10 @@ DomHelper::DomHelper() :
 
 DomHelper::~DomHelper() {
     deleteDomDocument();
+}
+
+void DomHelper::setHostObject(QObject *obj) {
+    m_hostObject=obj;
 }
 
 void DomHelper::removeAllDocumentChildNodes() {
@@ -52,18 +57,18 @@ bool DomHelper::selfObjectData() {
 
     //Inserting class name
     QDomElement _classname = m_document->createElement(DOMHELPER_OBJECTTYPE_TAG);
-    QDomText _classnameText = m_document->createTextNode(m_obj->metaObject()->className());
+    QDomText _classnameText = m_document->createTextNode(m_hostObject->metaObject()->className());
     _rootElement.appendChild(_classname);
     _classname.appendChild(_classnameText);
 
     //qDebug() << "DomHelper::selfObjectData generate self data with TAG "<< rootTag;
     //qDebug() << "DomHelper::selfObjectData start with tag |" << rootTag <<"|";
     //qDebug() << "DomHelper::selfObjectData start  | "<< doc->toText().data()<< " |end";
-    const QMetaObject* metaObject = m_obj->metaObject();
+    const QMetaObject* metaObject = m_hostObject->metaObject();
     for(int i = 0; i < metaObject->propertyCount(); ++i) {
         QMetaProperty _prop=metaObject->property(i);
         QString _propName=_prop.name();
-        QVariant _propValueVariant=_prop.read(m_obj);
+        QVariant _propValueVariant=_prop.read(m_hostObject);
         //qDebug() << "DomHelper::generateDomDocument class "<< metaObject->className()<< " prop is " << _propName;
         //Save parameters that can be converted in string, others are rejected
         if (_propValueVariant.canConvert(QVariant::String)) {
@@ -219,7 +224,7 @@ void DomHelper::parseEntry(const QDomElement &element)
             }
 
             //Extract the actual class metaobject
-            const QMetaObject* metaObject = m_obj->metaObject();
+            const QMetaObject* metaObject = m_hostObject->metaObject();
 
             //Verifying the class is correct
             if (node.nodeName()==DOMHELPER_OBJECTTYPE_TAG) {
@@ -281,11 +286,11 @@ bool DomHelper::isSameObjectType(const QDomElement &element) {
     if (!node.isNull() && node.isText()) {
         QString _value=node.toText().data();
        // qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << " is elaborating property  with value " << _value;
-        retval=QString::compare(_value,m_obj->metaObject()->className())==0 ? true : false;
+        retval=QString::compare(_value,m_hostObject->metaObject()->className())==0 ? true : false;
       //  qDebug() << "DomHelper::isSameObjectType compare  " << _value << " and "  << m_obj->metaObject()->className() ;
     } else {
         PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("this node is not valid to set %1  invalid node, null=%2 isText() %3")
-                              .arg(m_obj->metaObject()->className())
+                              .arg(m_hostObject->metaObject()->className())
                               .arg(node.isNull())
                               .arg( node.isText()))  );
     }
@@ -300,7 +305,7 @@ bool DomHelper::parseAndSetProperty(const QDomElement &element, QMetaProperty &m
     if (!node.isNull() && node.isText()) {
         QString _value=node.toText().data();
        // qDebug() << "DomHelper::parseAndSetProperty find node  " << node.nodeName();
-        retval=metaProperties.write(m_obj,_value);
+        retval=metaProperties.write(m_hostObject,_value);
        // qDebug() << "DomHelper::parseAndSetProperty class " << m_obj->metaObject()->className() <<" write property " << _propName << " with value " << _value <<
        //             "property was " << (retval ? "set OK": " NOT SET");
 

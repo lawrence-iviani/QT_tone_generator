@@ -12,7 +12,7 @@ qreal static const TIMEDATA_DEFAULT_MAX_SR=96000.0;
 qreal static const TIMEDATA_DEFAULT_STEP_SR=4000.0;
 
 //The version of the generated XML data structure
-uint static const DOMHELPER_VERSION=1;
+//uint static const DOMHELPER_VERSION=1;
 
 //TAG for XML data
 const static QString ENEVELOPEPARAMETERS_TAG="EnvelopeParams";
@@ -37,7 +37,9 @@ const uint MAJORVERSION=0;
 const uint MINORVERSION=0;
 const uint RELEASE=1;
 
-
-
+//MATH
+#ifndef M_RADIANS
+#define M_RADIANS(deg) deg*M_PI/180.0;
+#endif
 
 #endif // CTG_CONSTANTS_H

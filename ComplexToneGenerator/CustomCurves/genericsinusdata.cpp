@@ -1,64 +1,175 @@
 #include "genericsinusdata.h"
 
-GenericSinusData::GenericSinusData( QWidget *widget) :
-    GenericTimeData (widget)
-{
-    //Create the storage class
-    m_sinusDataParams=new SinusDataParams((QObject*)widget);
-    //Connect a signal to call an update if the parameters are changed
-    connect(m_sinusDataParams,SIGNAL(dataUpdated()),this,SLOT(updateData()));
-    //Create a sinusdata UI, connecting the parameters
-    m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
-    //Register the UI for call general update when something change.
-    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "GenericSinusData control");
+//---------- PARAMETERS ----------
+GenericSinusParams::GenericSinusParams(GenericTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent) :
+    GenericTimeDataParams(baseProperty,params,parent),
+    m_amplitude(SINUSDATA_DEFAULT_AMPLITUDE),
+    m_frequency(SINUSDATA_DEFAULT_FREQUENCY),
+    m_initPhase(SINUSDATA_DEFAULT_INITPHASE)
+{}
+
+GenericSinusParams::GenericSinusParams(GenericTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent, qreal amplitude, qreal frequency, qreal initPhase):
+    GenericTimeDataParams(baseProperty,params,parent),
+    m_amplitude(amplitude),
+    m_frequency(frequency),
+    m_initPhase(initPhase)
+{}
+
+void GenericSinusParams::setAmplitude(qreal amplitude) {
+    if (m_amplitude!=amplitude) {
+        m_amplitude=amplitude;
+        emit(amplitudeChanged(amplitude));
+    }
 }
 
-GenericSinusData::GenericSinusData(TimePlotParams * timePlotParams, QWidget *widget) :
-    GenericTimeData (timePlotParams)
+void GenericSinusParams::setFrequency(qreal frequency) {
+    if (m_frequency!=frequency) {
+        m_frequency=frequency;
+        emit(frequencyChanged(frequency));
+    }
+}
+
+void GenericSinusParams::setInitPhase(qreal initPhase) {
+    if (m_initPhase!=initPhase) {
+        m_initPhase=initPhase;
+        emit(initPhaseChanged(initPhase));
+    }
+}
+
+//---------- UI ----------
+GenericSinusUI::GenericSinusUI(QWidget *widget ) :
+    GenericTimeDataUI(widget)
 {
-    //Create the storage class
-    m_sinusDataParams=new SinusDataParams((QObject*)widget);
-    //Connect a signal to call an update if the parameters are changed
-    connect(m_sinusDataParams,SIGNAL(dataUpdated()),this,SLOT(updateData()));
-    //Create a sinusdata UI, connecting the parameters
-    m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
-    //Register the UI for call general update when something change.
-    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "GenericSinusData control");
+    this->initControlWidget();
+}
+
+void GenericSinusUI::initControlWidget() {
+    QWidget * _widget=new QWidget();//Create the widget for these controls
+    //setting font base dimension
+    QFont f=*(new QFont());
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
+
+    //Widget container and layout
+    QHBoxLayout * l=new QHBoxLayout();
+    l->setSizeConstraint(QLayout::SetMinimumSize);
+    _widget->setLayout(l);
+    _widget->setFont(f);
+
+    //set frequency
+    m_sinusDataControl.sliderFrequency= new ScaledSliderWidget(this, Qt::Vertical,ScaledSlider::Logarithmic) ;
+    m_sinusDataControl.sliderFrequency->setScale(10,22000,0.001);
+    m_sinusDataControl.sliderFrequency->setName("Freq.");
+    m_sinusDataControl.sliderFrequency->setMeasureUnit("Sec.");
+    m_sinusDataControl.sliderFrequency->setFont(f);
+    connect(m_sinusDataControl.sliderFrequency,SIGNAL(valueChanged(qreal)),this,SIGNAL(frequencyUIChanged(qreal)));
+
+    //set amplitude
+    m_sinusDataControl.sliderAmplitude=new ScaledSliderWidget(this, Qt::Vertical,ScaledSlider::Linear) ;
+    m_sinusDataControl.sliderAmplitude->setScale(0,1.0,0.01);
+    m_sinusDataControl.sliderAmplitude->setName("Amplitude");
+    m_sinusDataControl.sliderAmplitude->setMeasureUnit("0-1");
+    m_sinusDataControl.sliderAmplitude->setFont(f);
+    connect(m_sinusDataControl.sliderAmplitude,SIGNAL(valueChanged(qreal)),this,SIGNAL(amplitudeUIChanged(qreal)));
+
+
+    //set init phase
+    m_sinusDataControl.sliderInitPhase=new ScaledSliderWidget(this, Qt::Vertical,ScaledSlider::Linear) ;
+    m_sinusDataControl.sliderInitPhase->setScale(-180,180,1);
+    m_sinusDataControl.sliderInitPhase->setName("Phase");
+    m_sinusDataControl.sliderInitPhase->setMeasureUnit("deg.");
+    m_sinusDataControl.sliderInitPhase->setFont(f);
+    connect(m_sinusDataControl.sliderInitPhase,SIGNAL(valueChanged(qreal)),this,SIGNAL(initPhaseUIChanged(qreal)));
+
+    //Lay out all the control);
+    l->addWidget(m_sinusDataControl.sliderFrequency,1,Qt::AlignLeft);
+    l->addWidget(m_sinusDataControl.sliderAmplitude,1,Qt::AlignLeft);
+    l->addWidget(m_sinusDataControl.sliderInitPhase,1,Qt::AlignLeft);
+
+    this->addWidget(_widget, "Generic tone controls");
+}
+
+void GenericSinusUI::amplitudeUIUpdate(qreal amplitude) {
+    if (amplitude!=m_sinusDataControl.sliderAmplitude->value())
+        m_sinusDataControl.sliderAmplitude->setValue(amplitude);
+}
+
+void GenericSinusUI::frequencyUIUpdate(qreal frequency) {
+    if (frequency!=m_sinusDataControl.sliderFrequency->value())
+        m_sinusDataControl.sliderFrequency->setValue(frequency);
+}
+
+void GenericSinusUI::initPhaseUIUpdate(qreal initphase) {
+    if (initphase!=m_sinusDataControl.sliderInitPhase->value())
+        m_sinusDataControl.sliderInitPhase->setValue(initphase);
 }
 
 
-
-GenericSinusData::GenericSinusData(TimePlotParams *timePlotParams, qreal amplitude, qreal frequency, qreal initPhase, QWidget *widget) :
-    GenericTimeData (timePlotParams)
+//---------- FRONTEND ----------
+GenericSinusData::GenericSinusData(QObject * parent) :
+    GenericTimeData (parent)
 {
-    //Create the storage class
-    m_sinusDataParams=new SinusDataParams(amplitude,frequency,initPhase, (QObject*)widget);
-    //Connect a signal to call an update if the parameters are changed
-    connect(m_sinusDataParams,SIGNAL(dataUpdated()),this,SLOT(updateData()));
-    //Create a sinusdata UI, connecting the parameters
-    m_sinusDataUI=new SinusDataUI(m_sinusDataParams,widget);
-    //Register the UI for call general update when something change.
-    this->getControlWidget()->addControlFrame((CustomCurveUI*) m_sinusDataUI, "GenericSinusData control");
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,NULL);
 }
 
-GenericSinusData::~GenericSinusData() {
+GenericSinusData::GenericSinusData(TimePlotParams * timePlotParams, QObject * parent) :
+    GenericTimeData(timePlotParams,parent)
+{
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,timePlotParams);
+}
 
+GenericSinusData::GenericSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QObject * parent) :
+    GenericTimeData(timePlotParams,parent)
+{
+    init(amplitude,frequency,initPhase,timePlotParams);
+}
+
+void GenericSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,TimePlotParams * timePlotParams) {
+   //Create the delegate and instance the UI and the parameters
+    GenericTimeDataParams* _baseProp=dynamic_cast<GenericTimeDataParams*>(GenericTimeData::getDataParameters());
+    Q_ASSERT(_baseProp);
+    DataUiHandlerDelegate* _delegate=getDelegate();
+    GenericSinusParams* _derivedProp=new GenericSinusParams( _baseProp,timePlotParams,(QObject*)this);
+    DataUiHandlerProperty* _castedDerivedProp=dynamic_cast<DataUiHandlerProperty*>(_derivedProp);
+    _delegate->replacePropertiesAndUI(_castedDerivedProp,
+                                      dynamic_cast<DataUiHandlerUI*> (new GenericSinusUI() ));
+
+    //Set any eventual default parameters or passed by the constructor argmuents
+    GenericSinusParams* _gsp=dynamic_cast<GenericSinusParams*>(getDataParameters());
+    Q_ASSERT(_gsp);
+    _gsp->setAmplitude(amplitude);
+    _gsp->setFrequency(frequency);
+    _gsp->setInitPhase(initPhase);
 }
 
 void GenericSinusData::recalc() {
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - GenericSinusData::recalc() is enabled---------------- " << this->name();
-    qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - GenericSinusData::recalc() SR=" << this->sampleRate()
-            << " nsamples="<< this->sampleNumber();
+    GenericSinusParams* _gsp=dynamic_cast<GenericSinusParams*>(getDataParameters());
+    Q_ASSERT(_gsp);
 
+    //Verify going to recalc with the enable flag true
+    Q_ASSERT(isEnableRecalc());
+    Q_ASSERT(_gsp->isCurveEnabled());
+
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ RECALC %1 with SR=%2-----")
+                        .arg(_gsp->name())
+                        .arg(_gsp->sampleRate()));
+
+    //Getting the minimum and maximum value where recalculate the data
+    quint64 n_dw=this->lowestSampleIndexForModification();
+    quint64 n_up=this->highestSampleIndexForModification();
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ indexlow=%1/%2 indexhi=%3/%2")
+                        .arg(n_dw)
+                        .arg(getSampleNumber())
+                        .arg(n_up));
+
+    //Gettine time base
     const qreal *t=this->getTimeData();
-    qreal phase=SinusDataParams::deg2rad(m_sinusDataParams->initPhase());
 
-    qint64 n_dw=this->lowestSampleIndexForModification();
-    qint64 n_up=this->highestSampleIndexForModification();
-    qDebug() << "GenericSinusData::recalc() m_max_Duration=" << this->maxDuration() <<" m_duration=" << this->duration()  << " n_dw=" << n_dw << " n_up=" << n_up << " nsample=" << this->sampleNumber();
-
-    for (qint64 n=n_dw; n < n_up; n++) {
-        Q_ASSERT(this->insertSignalValue(n,m_sinusDataParams->amplitude()*sin(2*M_PI*m_sinusDataParams->frequency()*t[n]+phase)));
+    //Getting params
+    qreal _ampl=_gsp->amplitude();
+    qreal _freq=_gsp->frequency();
+    qreal _phase=M_RADIANS(_gsp->initPhase());
+    for (quint64 n=n_dw; n < n_up; n++) {
+        Q_ASSERT(insertSignalValue(n,_ampl*sin(2*M_PI*_freq*t[n]+_phase)));
     }
 }
 

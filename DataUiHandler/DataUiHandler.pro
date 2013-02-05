@@ -19,14 +19,14 @@ SOURCES += XML_utils/domhelper.cpp \
     datauihandlerui.cpp \
     datauihandlerdelegate.cpp \
 
-HEADERS  += mainwindow.h \
-    XML_utils/domhelper_constant.h \
+HEADERS  += XML_utils/domhelper_constant.h \
     XML_utils/domhelperutility.h \
     XML_utils/domhelper.h \
     datauihandlercommon.h \
     datauihandlerproperty.h \
     datauihandlerui.h \
-    datauihandlerdelegate.h
+    datauihandlerdelegate.h \
+    DataUiHandler.h
 
 CONFIG(debug, debug|release) {
     DESTDIR = $$PWD/../ComplexToneGenerator/debug/ComplexToneGenerator.app/Contents/MacOS/

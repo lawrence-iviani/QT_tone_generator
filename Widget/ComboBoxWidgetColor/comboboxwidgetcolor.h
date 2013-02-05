@@ -42,7 +42,7 @@ public:
     static bool isSupportedColorName(QString colorName);
     static bool isSupportedColorName(QColor color);
 
-    QColor color();
+    QColor color() {return ComboBoxWidgetColor::convertStringToQtColor(this->item());}
     QString colorName();
 
 public slots:

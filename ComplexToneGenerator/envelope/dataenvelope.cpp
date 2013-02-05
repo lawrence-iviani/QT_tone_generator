@@ -1,102 +1,57 @@
 #include "dataenvelope.h"
 
-DataEnvelope::DataEnvelope(GenericTimeData *parent, QWidget *widget):
+DataEnvelope::DataEnvelope(GenericTimeData *parent):
     QObject((QObject*)parent),
     m_envelopeParams(new DataEnvelopeParameters((QObject*)parent)),
+    m_envelopeUI(NULL),
     m_genericTimeData(parent),
     m_length(0),
     m_envelope(NULL),
     m_SR(TIMEDATA_DEFAULT_SR)
 {
-    init(widget);
+    m_envelopeDelegate=new DataEnvelopeDelegate(m_envelopeParams,m_envelopeUI);
+//    init(widget);
 }
 
-DataEnvelope::DataEnvelope(qreal SR, GenericTimeData *parent, QWidget *widget) :
+DataEnvelope::DataEnvelope(qreal SR, GenericTimeData *parent) :
     QObject((QObject*)parent),
     m_envelopeParams(new DataEnvelopeParameters((QObject*)parent)),
+    m_envelopeUI(NULL),
     m_genericTimeData(parent),
     m_length(0),
     m_envelope(NULL),
     m_SR(SR)
 {
-    init(widget);
+    m_envelopeDelegate=new DataEnvelopeDelegate(m_envelopeParams,m_envelopeUI);
+  //  init(widget);
 }
 
-DataEnvelope::DataEnvelope(DataEnvelopeParameters *params, qint64 length, qreal SR, GenericTimeData *parent, QWidget *widget) :
+DataEnvelope::DataEnvelope(qint64 length, qreal SR, GenericTimeData *parent) :
     QObject((QObject*)parent),
-    m_envelopeParams(new DataEnvelopeParameters(params)),
+    m_envelopeParams(new DataEnvelopeParameters((QObject*)parent)),
+    m_envelopeUI(NULL),
     m_genericTimeData(parent),
+    m_length(0),
     m_envelope(NULL),
     m_SR(SR)
 {   
+   m_envelopeDelegate=new DataEnvelopeDelegate(m_envelopeParams,m_envelopeUI);
     m_length=(length >0 ? length : 0);
-    init(widget);
+    //init(widget);
 }
 
-void DataEnvelope::init(QWidget *widget) {
-    m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);
-    m_envelopeUI=new DataEnvelopeUI(m_envelopeParams,widget);
-    m_genericTimeData->getControlWidget()->addControlFrame((CustomCurveUI*)m_envelopeUI,"ENVELOPE control");
-    this->connectingSignals();
-    this->recalculateEnvelope();
-}
+//void DataEnvelope::init(QWidget *widget) {
+//    m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);
+//    m_envelopeUI=new DataEnvelopeUI(m_envelopeParams,widget);
+//    m_genericTimeData->getControlWidget()->addControlFrame((CustomCurveUI*)m_envelopeUI,"ENVELOPE control");
+//    this->connectingSignals();
+//    this->recalculateEnvelope();
+//}
 
 DataEnvelope::~DataEnvelope() {
     if (m_envelope) free(m_envelope);
     if (m_envelopeParams) delete m_envelopeParams;
-}
-
-void DataEnvelope::setLength(qint64 length) {
-   // qDebug() << "DataEnvelope::setLength() called with len=" << length;
-    if (length >=0 && length!=m_length) {
-        m_length=length;
-        m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);//This function already call recalcuateEnvelope()
-    }
-}
-
-void DataEnvelope::setEnvelopeParams(DataEnvelopeParameters * params) {
- //   qDebug() << "DataEnvelope::setEnvelopeParams() called";
-    if (params!=NULL) {
-        m_envelopeParams=params;
-        recalculateEnvelope();
-    }
-}
-
-bool DataEnvelope::setEnvelopeParams(QDomNode &node) {
-    bool _prevStatus=m_envelopeParams->blockSignals(true);
-    bool retval=m_envelopeParams->setClassByDomData(node);
-    m_envelopeParams->blockSignals(_prevStatus);
-    recalculateEnvelope();
-    forceRegenerateDomDocument();
-    return retval;
-}
-
-void DataEnvelope::setEnvelopeParamsAndLength(DataEnvelopeParameters *params,qint64 length) {
-    //qDebug() << "DataEnvelope::setEnvelopeParamsAndLength() called with len=" << length;
-    bool _needRecalculate=false;
-    if (params!=NULL) {
-        m_envelopeParams=params;
-        _needRecalculate=true;
-    }
-    if (length >=0 && length!=m_length) {
-        m_length=length;
-        m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);
-        _needRecalculate=false;//The function above has already generated a recalculate envelope
-    }
-    if (_needRecalculate) recalculateEnvelope();
-}
-
-void DataEnvelope::amplitudeEnvelopeChanged() {
-    this->recalculateEnvelope();
-}
-
-void DataEnvelope::timeEnvelopeChanged() {
-    this->recalculateEnvelope();
-}
-
-void DataEnvelope::setSampleRate(qreal SR) {
-    m_SR=SR;
-    m_envelopeParams->setTimeLength(((qreal)m_length)/SR);
+    if (m_envelopeUI) delete m_envelopeUI;
 }
 
 void DataEnvelope::connectingSignals() {
@@ -107,6 +62,59 @@ void DataEnvelope::connectingSignals() {
     //Connect this class to the UI
     connect(m_envelopeParams,SIGNAL(enableToggled(bool)), this, SIGNAL(enableToggled(bool)));
     connect(m_envelopeParams,SIGNAL(enableToggled(bool)), m_envelopeUI, SLOT(setEnableEnvelopeUI(bool)));
+}
+
+void DataEnvelope::setLength(qint64 length) {
+   // qDebug() << "DataEnvelope::setLength() called with len=" << length;
+    if (length >=0 && length!=m_length) {
+        m_length=length;
+        m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);//This function already call recalcuateEnvelope()
+    }
+}
+
+//void DataEnvelope::setEnvelopeParams(DataEnvelopeParameters * params) {
+// //   qDebug() << "DataEnvelope::setEnvelopeParams() called";
+//    if (params!=NULL) {
+//        m_envelopeParams=params;
+//        recalculateEnvelope();
+//    }
+//}
+
+//bool DataEnvelope::setEnvelopeParams(QDomNode &node) {
+//    bool _prevStatus=m_envelopeParams->blockSignals(true);
+//    bool retval=m_envelopeParams->setClassByDomData(node);
+//    m_envelopeParams->blockSignals(_prevStatus);
+//    recalculateEnvelope();
+//    forceRegenerateDomDocument();
+//    return retval;
+//}
+
+//void DataEnvelope::setEnvelopeParamsAndLength(DataEnvelopeParameters *params,qint64 length) {
+//    //qDebug() << "DataEnvelope::setEnvelopeParamsAndLength() called with len=" << length;
+//    bool _needRecalculate=false;
+//    if (params!=NULL) {
+//        m_envelopeParams=params;
+//        _needRecalculate=true;
+//    }
+//    if (length >=0 && length!=m_length) {
+//        m_length=length;
+//        m_envelopeParams->setTimeLength(((qreal)m_length)/m_SR);
+//        _needRecalculate=false;//The function above has already generated a recalculate envelope
+//    }
+//    if (_needRecalculate) recalculateEnvelope();
+//}
+
+//void DataEnvelope::amplitudeEnvelopeChanged() {
+//    this->recalculateEnvelope();
+//}
+
+//void DataEnvelope::timeEnvelopeChanged() {
+//    this->recalculateEnvelope();
+//}
+
+void DataEnvelope::setSampleRate(qreal SR) {
+    m_SR=SR;
+    m_envelopeParams->setTimeLength(((qreal)m_length)/SR);
 }
 
 void DataEnvelope::recalculateEnvelope() {

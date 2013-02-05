@@ -11,6 +11,7 @@
 #include <QString>
 #include "domhelper.h"
 
+class DomHelper;
 
 class DomHelperUtility
 {

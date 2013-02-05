@@ -4,8 +4,22 @@ DataUiHandlerProperty::DataUiHandlerProperty(QObject *parent) :
     QObject(parent),
     m_description("no description")
 {
-    this->setObjectName("GetterSetterProperty");
+    this->setObjectName("DataUiHandlerProperty");
     m_uuid=QUuid::createUuid();
+}
+
+DataUiHandlerProperty::DataUiHandlerProperty(DataUiHandlerProperty *copyProperty,QObject* parent) :
+    QObject(parent)
+{
+    if (copyProperty) {
+        this->setObjectName(copyProperty->objectName());
+        m_description=copyProperty->description();
+        m_uuid=QUuid::createUuid();
+    } else {
+        this->setObjectName("DataUiHandlerProperty");
+        m_uuid=QUuid::createUuid();
+        m_description="copy object null";
+    }
 }
 
 void DataUiHandlerProperty::descriptionPropertyUpdate(const QString& description) {

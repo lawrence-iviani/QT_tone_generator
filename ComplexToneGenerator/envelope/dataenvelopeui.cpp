@@ -2,20 +2,8 @@
 #include "ui_dataenvelopeui.h"
 
 DataEnvelopeUI::DataEnvelopeUI(QWidget *parent) :
-    CustomCurveUI(parent),
+    DataUiHandlerUI(parent),
     ui(new Ui::DataEnvelopeUI)
-{
-    ui->setupUi(this);
-    this->setLayout(ui->verticalLayout);
-    m_parameters=NULL;
-    this->initAmplitudeWidget();
-    this->initTimeWidget();
-}
-
-DataEnvelopeUI::DataEnvelopeUI(DataEnvelopeParameters *params , QWidget *parent) :
-    CustomCurveUI(parent),
-    ui(new Ui::DataEnvelopeUI),
-    m_parameters(params)
 {
     ui->setupUi(this);
     this->setLayout(ui->verticalLayout);
@@ -44,7 +32,7 @@ void DataEnvelopeUI::initAmplitudeWidget() {
     m_structAmplitude.hold->setName("Hold amplitude");
     m_structAmplitude.hold->setMeasureUnit("");
     m_structAmplitude.hold->setFont(f);
-    connect(m_structAmplitude.hold,SIGNAL(valueChanged(qreal)),this,SLOT(setHoldAmplitude(qreal)));
+    connect(m_structAmplitude.hold,SIGNAL(valueChanged(qreal)),this,SIGNAL(holdAmplitudeUIChanged(qreal)));
 
     //Setting up sustain control widget
     m_structAmplitude.sustain=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
@@ -54,16 +42,12 @@ void DataEnvelopeUI::initAmplitudeWidget() {
     m_structAmplitude.sustain->setName("Sustain amplitude");
     m_structAmplitude.sustain->setMeasureUnit("");
     m_structAmplitude.sustain->setFont(f);
-    connect(m_structAmplitude.sustain,SIGNAL(valueChanged(qreal)),this,SLOT(setSustainAmplitude(qreal)));
+    connect(m_structAmplitude.sustain,SIGNAL(valueChanged(qreal)),this,SIGNAL(sustainAmplitudeUIChanged(qreal)));
 
     //Layouting
     ui->hlayoutAmplitude->addWidget(m_structAmplitude.hold,1,Qt::AlignLeft);
     ui->hlayoutAmplitude->addWidget(m_structAmplitude.sustain,1,Qt::AlignLeft);
 
-    if (m_parameters!=NULL) {
-        setSliderValue(m_structAmplitude.hold,m_parameters->holdLevel());
-        setSliderValue(m_structAmplitude.sustain,m_parameters->sustainLevel());
-    }
 }
 
 void DataEnvelopeUI::initTimeWidget() {
@@ -79,7 +63,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.attack->setName("Attack time");
     m_structTime.attack->setMeasureUnit("sec.");
     m_structTime.attack->setFont(f);
-    connect(m_structTime.attack,SIGNAL(valueChanged(qreal)),this,SLOT(setAttackTime(qreal)) );
+    connect(m_structTime.attack,SIGNAL(valueChanged(qreal)),this,SIGNAL(attackTimeUIChanged(qreal)) );
 
 
     //Setting up attack time control widget
@@ -88,7 +72,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.hold->setName("Hold time");
     m_structTime.hold->setMeasureUnit("sec.");
     m_structTime.hold->setFont(f);
-    connect(m_structTime.hold,SIGNAL(valueChanged(qreal)),this,SLOT(setHoldTime(qreal)) );
+    connect(m_structTime.hold,SIGNAL(valueChanged(qreal)),this,SIGNAL(holdTimeUIChanged(qreal)) );
 
     //Setting up Decay time control widget
     m_structTime.decay=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -96,7 +80,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.decay->setName("Decay time");
     m_structTime.decay->setMeasureUnit("sec.");
     m_structTime.decay->setFont(f);
-    connect(m_structTime.decay,SIGNAL(valueChanged(qreal)),this,SLOT(setDecayTime(qreal)) );
+    connect(m_structTime.decay,SIGNAL(valueChanged(qreal)),this,SIGNAL(decayTimeUIChanged(qreal)) );
 
     //Setting up Sustain time control widget
     m_structTime.sustain=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -104,7 +88,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.sustain->setName("Sustain time");
     m_structTime.sustain->setMeasureUnit("sec.");
     m_structTime.sustain->setFont(f);
-    connect(m_structTime.sustain,SIGNAL(valueChanged(qreal)),this,SLOT(setSustainTime(qreal)) );
+    connect(m_structTime.sustain,SIGNAL(valueChanged(qreal)),this,SIGNAL(sustainTimeUIChanged(qreal)) );
 
     //Setting up Sustain time control widget
     m_structTime.release=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -112,7 +96,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.release->setName("Release time");
     m_structTime.release->setMeasureUnit("sec.");
     m_structTime.release->setFont(f);
-    connect(m_structTime.release,SIGNAL(valueChanged(qreal)),this,SLOT(setReleaseTime(qreal)) );
+    connect(m_structTime.release,SIGNAL(valueChanged(qreal)),this,SIGNAL(releaseTimeUIChanged(qreal)) );
 
     //Layouting
     ui->hlayoutTime->addWidget(m_structTime.attack,1,Qt::AlignLeft);
@@ -121,14 +105,6 @@ void DataEnvelopeUI::initTimeWidget() {
     ui->hlayoutTime->addWidget(m_structTime.sustain,1,Qt::AlignLeft);
     ui->hlayoutTime->addWidget(m_structTime.release,1,Qt::AlignLeft);
 
-    //setting init values
-    if (m_parameters!=NULL) {
-        setTimeSlider(m_structTime.attack, m_parameters->attack());
-        setTimeSlider(m_structTime.hold, m_parameters->hold());
-        setTimeSlider(m_structTime.decay, m_parameters->decay());
-        setTimeSlider(m_structTime.sustain, m_parameters->sustain());
-        setTimeSlider(m_structTime.release, m_parameters->release());
-    }
 }
 
 void DataEnvelopeUI::initEnvelopeWidget() {
@@ -137,14 +113,10 @@ void DataEnvelopeUI::initEnvelopeWidget() {
 
     //Enable curve
     ui->checkBoxEnableEnvelope->setFont(f);
-    connect(ui->checkBoxEnableEnvelope ,SIGNAL(toggled(bool)), m_parameters,SLOT(setEnableEnvelope(bool)));
-
-    if (m_parameters!=NULL) {
-        this->setEnableEnvelopeUI(m_parameters->isEnableEnvelope());
-    }
+    connect(ui->checkBoxEnableEnvelope ,SIGNAL(toggled(bool)), this,SIGNAL(enableUIChanged(bool)));
 }
 
-void DataEnvelopeUI::setEnableEnvelopeUI(bool enable) {
+void DataEnvelopeUI::enableUIUpdate(bool enable) {
     ui->checkBoxEnableEnvelope->setChecked(enable);
     if (enable) {
         ui->widgetTime->show();
@@ -155,83 +127,87 @@ void DataEnvelopeUI::setEnableEnvelopeUI(bool enable) {
     }
 }
 
-void DataEnvelopeUI::setHoldAmplitude(qreal holdAmplitude) {
-    if (holdAmplitude==m_structAmplitude.hold->value() && m_parameters==NULL) return;
-    m_parameters->setLevelParameters(holdAmplitude, m_parameters->sustainLevel() );
+void DataEnvelopeUI::holdAmplitudeUIUpdate(qreal holdAmplitude) {
+    if (holdAmplitude==m_structAmplitude.hold->value()) return;
+    m_structAmplitude.hold->setValue(holdAmplitude);
 }
 
-void DataEnvelopeUI::setSustainAmplitude(qreal sustainAmplitude) {
-    if (sustainAmplitude==m_structAmplitude.sustain->value() && m_parameters==NULL) return;
-    m_parameters->setLevelParameters(m_parameters->holdLevel(), sustainAmplitude );
+void DataEnvelopeUI::sustainAmplitudeUIUpdate(qreal sustainAmplitude) {
+    if (sustainAmplitude==m_structAmplitude.sustain->value()) return;
+    m_structAmplitude.sustain->setValue(sustainAmplitude);
 }
 
-void DataEnvelopeUI::setAttackTime(qreal attackTime) {
-    if (attackTime==m_structTime.attack->value() && m_parameters==NULL) return;
-    m_parameters->setTimeParameters(m_structTime.attack->value(),m_structTime.hold->value(),m_structTime.decay->value(),m_structTime.sustain->value(),m_structTime.release->value());
+void DataEnvelopeUI::attackTimeUIUpdate(qreal attackTime) {
+    if (attackTime==m_structTime.attack->value()) return;
+    m_structTime.attack->setValue(attackTime);
 }
 
-void DataEnvelopeUI::setHoldTime(qreal holdTime){
-    if (holdTime==m_structTime.hold->value() && m_parameters==NULL) return;
-    m_parameters->setTimeParameters(m_structTime.attack->value(),m_structTime.hold->value(),m_structTime.decay->value(),m_structTime.sustain->value(),m_structTime.release->value());
+void DataEnvelopeUI::holdTimeUIUpdate(qreal holdTime){
+    if (holdTime==m_structTime.hold->value()) return;
+    m_structTime.hold->setValue(holdTime);
 }
 
-void DataEnvelopeUI::setDecayTime(qreal decayTime) {
-    if (decayTime==m_structTime.decay->value() && m_parameters==NULL) return;
-    m_parameters->setTimeParameters(m_structTime.attack->value(),m_structTime.hold->value(),m_structTime.decay->value(),m_structTime.sustain->value(),m_structTime.release->value());
+void DataEnvelopeUI::decayTimeUIUpdate(qreal decayTime) {
+    if (decayTime==m_structTime.decay->value()) return;
+    m_structTime.decay->setValue(decayTime);
 }
 
-void DataEnvelopeUI::setSustainTime(qreal sustainTime) {
-    if (sustainTime==m_structTime.sustain->value() && m_parameters==NULL) return;
-    m_parameters->setTimeParameters(m_structTime.attack->value(),m_structTime.hold->value(),m_structTime.decay->value(),m_structTime.sustain->value(),m_structTime.release->value());
+void DataEnvelopeUI::sustainTimeUIUpdate(qreal sustainTime) {
+    if (sustainTime==m_structTime.sustain->value()) return;
+    m_structTime.sustain->setValue(sustainTime);
 }
 
-void DataEnvelopeUI::setReleaseTime(qreal releaseTime) {
-    if (releaseTime==m_structTime.release->value() && m_parameters==NULL) return;
-    m_parameters->setTimeParameters(m_structTime.attack->value(),m_structTime.hold->value(),m_structTime.decay->value(),m_structTime.sustain->value(),m_structTime.release->value());
+void DataEnvelopeUI::releaseTimeUIUpdate(qreal releaseTime) {
+    if (releaseTime==m_structTime.release->value()) return;
+    m_structTime.release->setValue(releaseTime);
 }
 
-void DataEnvelopeUI::updateUI() {
-    updateControlUI();
-}
+//bool DataEnvelopeUI::isEnabledEnvelopeUI()
+//{return ui->checkBoxEnableEnvelope->isChecked();}
 
-void DataEnvelopeUI::updateControlUI() {
-    qDebug() << "DataEnvelopeUI::updateControlUI called";
 
-    //Enable
-    bool sig=ui->checkBoxEnableEnvelope->blockSignals(true);
-    this->setEnableEnvelopeUI(m_parameters->isEnableEnvelope());
-    ui->checkBoxEnableEnvelope->blockSignals(sig);
+//void DataEnvelopeUI::updateUI() {
+//    updateControlUI();
+//}
 
-    //Set amplitude
-    setSliderValue(m_structAmplitude.hold,m_parameters->holdLevel());
-    setSliderValue(m_structAmplitude.sustain,m_parameters->sustainLevel());
+//void DataEnvelopeUI::updateControlUI() {
+//    qDebug() << "DataEnvelopeUI::updateControlUI called";
 
-    //qreal debugAttack= m_parameters->attack();
-    //Second, set the percentile
-    setTimeSlider(m_structTime.attack,m_parameters->attack());
-    setTimeSlider(m_structTime.hold,m_parameters->hold());
-    setTimeSlider(m_structTime.decay,m_parameters->decay());
-    setTimeSlider(m_structTime.sustain,m_parameters->sustain());
-    setTimeSlider(m_structTime.release,m_parameters->release());
-}
+//    //Enable
+//    bool sig=ui->checkBoxEnableEnvelope->blockSignals(true);
+//    this->setEnableEnvelopeUI(m_parameters->isEnabledEnvelope());
+//    ui->checkBoxEnableEnvelope->blockSignals(sig);
+
+//    //Set amplitude
+//    setSliderValue(m_structAmplitude.hold,m_parameters->holdLevel());
+//    setSliderValue(m_structAmplitude.sustain,m_parameters->sustainLevel());
+
+//    //qreal debugAttack= m_parameters->attack();
+//    //Second, set the percentile
+//    setTimeSlider(m_structTime.attack,m_parameters->attack());
+//    setTimeSlider(m_structTime.hold,m_parameters->hold());
+//    setTimeSlider(m_structTime.decay,m_parameters->decay());
+//    setTimeSlider(m_structTime.sustain,m_parameters->sustain());
+//    setTimeSlider(m_structTime.release,m_parameters->release());
+//}
 
 void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget *slider, qreal val) {
     //Setting scale
-    qreal settedTime=m_parameters->attack() + m_parameters->hold() + m_parameters->decay() + m_parameters->sustain() + m_parameters->release();
-    qreal remainingTime=(m_parameters->total()-settedTime);
+//    qreal settedTime=m_parameters->attack() + m_parameters->hold() + m_parameters->decay() + m_parameters->sustain() + m_parameters->release();
+//    qreal remainingTime=(m_parameters->total()-settedTime);
 
-    //Avoid a problem rounding. Assuming remainingTime is 0.0 if smaller than an arbitraty small amount
-    remainingTime=(qAbs(remainingTime) < (1.0e-6) ? 0.0 : remainingTime);
+//    //Avoid a problem rounding. Assuming remainingTime is 0.0 if smaller than an arbitraty small amount
+//    remainingTime=(qAbs(remainingTime) < (1.0e-6) ? 0.0 : remainingTime);
 
-    //qDebug() << "DataEnvelopeUI::setTimeSlider slider@" <<slider << "setTime="<<settedTime<<"remainingTime=" << remainingTime << " totalTime="<< m_parameters->total() ;
+//    //qDebug() << "DataEnvelopeUI::setTimeSlider slider@" <<slider << "setTime="<<settedTime<<"remainingTime=" << remainingTime << " totalTime="<< m_parameters->total() ;
 
-    Q_ASSERT( remainingTime>=0.0);
-    Q_ASSERT( remainingTime<=m_parameters->total());
-    m_structTime.attack->setScale(0,m_parameters->attack()+remainingTime,DATAENVELOPEUI_TIME_STEP);
-    m_structTime.hold->setScale(0,m_parameters->hold()+remainingTime,DATAENVELOPEUI_TIME_STEP);
-    m_structTime.decay->setScale(0,m_parameters->decay() +remainingTime,DATAENVELOPEUI_TIME_STEP);
-    m_structTime.sustain->setScale(0,m_parameters->sustain()+remainingTime,DATAENVELOPEUI_TIME_STEP);
-    m_structTime.release->setScale(0,m_parameters->release()+remainingTime,DATAENVELOPEUI_TIME_STEP);
+//    Q_ASSERT( remainingTime>=0.0);
+//    Q_ASSERT( remainingTime<=m_parameters->total());
+//    m_structTime.attack->setScale(0,m_parameters->attack()+remainingTime,DATAENVELOPEUI_TIME_STEP);
+//    m_structTime.hold->setScale(0,m_parameters->hold()+remainingTime,DATAENVELOPEUI_TIME_STEP);
+//    m_structTime.decay->setScale(0,m_parameters->decay() +remainingTime,DATAENVELOPEUI_TIME_STEP);
+//    m_structTime.sustain->setScale(0,m_parameters->sustain()+remainingTime,DATAENVELOPEUI_TIME_STEP);
+//    m_structTime.release->setScale(0,m_parameters->release()+remainingTime,DATAENVELOPEUI_TIME_STEP);
 
     setSliderValue(slider,val);
 }
@@ -244,5 +220,3 @@ void DataEnvelopeUI::setSliderValue(ScaledSliderWidget *slider, qreal val) {
     slider->blockSignals(sig);
 }
 
-bool DataEnvelopeUI::isEnabledEnvelopeUI()
-{return ui->checkBoxEnableEnvelope->isChecked();}

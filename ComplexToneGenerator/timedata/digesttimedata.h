@@ -4,6 +4,7 @@
 
 #include <timedata/generictimedata.h>
 #include "plotwidget/timeplotwidgetparams.h"
+#include <errormessage.h>
 #include <CTG_constants.h>
 
 /**
@@ -17,25 +18,17 @@ public:
     DigestTimeData(QList<GenericTimeData*> * curveList);
     DigestTimeData(QList<GenericTimeData*> * curveList, TimePlotParams * timePlotParams);//double maxDuration, double SRGen);
     virtual ~DigestTimeData();
-
-    //This was a duplicated function conflicting with an equivalent in super class generictimedata, removed 20121224
-//    bool inhibitRecalc() {return m_inhibitRecalc;}
-//    bool setInhibitRecalc(bool inhibit) {
-//        bool retval=m_inhibitRecalc;
-//        m_inhibitRecalc=inhibit;
-//        return retval;
-//    }
     
 signals:
 public slots:
  //   virtual void setMaxDuration(double maxDuration);//Set the max duration of this data set,  in this case i don't want a dataUpdate call
  //   virtual void setSampleRate(double SR);
-    void updateData();
+    virtual void updateData();
     void setTimeDataList(QList<GenericTimeData*> *m_curveList);
 protected:
 
 private:
-    //bool m_inhibitRecalc;
+    void init();
     virtual void recalc();
     QList<GenericTimeData*> * m_curveList;
 };

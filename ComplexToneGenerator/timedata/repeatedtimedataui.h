@@ -1,33 +1,23 @@
 #ifndef REPEATEDTIMEDATAUI_H
 #define REPEATEDTIMEDATAUI_H
 
-#include <CustomCurves/customcurveui.h>
-#include <timedata/repeatedtimedata.h>
+#include "partialtimedataui.h"
+#include <scaledsliderwidget.h>
 
-class RepeatedTimeData;
 
-class RepeatedTimeDataUI : public CustomCurveUI
+class RepeatedTimeDataUI : public PartialTimeDataUI
 {
     Q_OBJECT
 public:
-    explicit RepeatedTimeDataUI(RepeatedTimeData *rtd, QWidget *widget = 0);
+    explicit RepeatedTimeDataUI(QWidget *widget = 0);
     virtual ~RepeatedTimeDataUI();
 
 signals:
+    void blankTimeUIChanged(qreal);
 
 public slots:
 
-    /**
-     * @brief durationChange tell to this class to update the duration when is changed, this class update the number of repetitions
-     * @param duration
-     */
-    virtual void durationChange(qreal duration);
-
-    /**
-      * Force the UI to be update re-reading information from the referenced GenericTimeData class.
-      * This slot doesn't propagate the signal/slot related to the UI, is intended to be called just to refresh the UI if something changes in the data class
-      */
-    virtual void updateControlUI();
+    void blankTimeUIUpdate(qreal blanktime);
 
 protected:
 
@@ -43,10 +33,8 @@ private:
         ScaledSliderWidget *widgetBlankTime;
     } m_repeatedDataControl;
 
-    RepeatedTimeData *m_repeatedTimeData;
-
 private slots:
-
+//maxduration change????
 };
 
 #endif // REPEATEDTIMEDATAUI_H

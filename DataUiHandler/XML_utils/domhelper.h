@@ -10,6 +10,7 @@
 #include "domhelper_constant.h"
 
 
+
 /**
  * @brief The DomHelper class is an helper class that provides functionalities in order to manage an XML data format rappresenting the class.
  * The main funcionality are read and store instance object and properties of the class and recall the functions when data are read from an xml format.
@@ -22,7 +23,7 @@ public:
      * base class.
      * @param hostObj
      */
-    explicit DomHelper(QObject *hostObj,QString docType=DOMHELPER_OBJECTTYPE_TAG, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG,QString fileExtension=DOMHELPER_DEFAULT_FILE_SUFFIX);
+    explicit DomHelper(QObject *hostDelegate,QString docType=DOMHELPER_OBJECTTYPE_TAG, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG,QString fileExtension=DOMHELPER_DEFAULT_FILE_SUFFIX);
     explicit DomHelper();
     virtual ~DomHelper();
     
@@ -100,16 +101,20 @@ public:
 
     bool isImportingDomData() {return m_importingDomData;}
     //OLD
-    bool isSameObjectType(const QString objectType) { return (QString::compare(objectType,m_obj->metaObject()->className())==0);}
-    QString objectType() {return m_obj->metaObject()->className();}
+    bool isSameObjectType(const QString objectType) { return (QString::compare(objectType,m_hostObject->metaObject()->className())==0);}
+   // QString objectType() {return m_hostObject->metaObject()->className();}
 
 //    static bool isSameObjectType(const QDomDocument *doc, QObject *obj);
 
 public slots:
-//     bool appendDomDocument(const QDomDocument* doc);
-//     bool appendDomDocument(const QDomDocument& doc);
+
 
 protected:
+    /**
+     * @brief setHostObject If for some reason the object host change the super inherit class MUST change the reference host object, otherwise the dom helper will have a unpredictable beahvior.
+     * @param obj
+     */
+    void setHostObject(QObject* obj);
 
     /**
      * @brief isSameObjectType test if the tag objectType is of the same objetType descripted in the XML
@@ -134,7 +139,7 @@ private:
     /**
      * @brief m_obj The host object that has to be handled with a DOM struture
      */
-    QObject * m_obj;
+    QObject * m_hostObject;
 
     /**
      * @brief m_docTypeTag The document type generated and accepted by this class
@@ -191,7 +196,6 @@ private:
      * @brief removeAllChildNodes Remove all childs node from the root node
      */
     void removeAllDocumentChildNodes();
-
 
 };
 

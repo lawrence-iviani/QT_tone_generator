@@ -32,11 +32,11 @@ LIBS += -L../ExportAudioFileWidget -lexportaudiofiledialog.o  -lmoc_exportaudiof
 LIBS += -L../WidgetStyle -lwidgetstyle.o
 
 CONFIG(debug, debug|release) {
-    DESTDIR = $$PWD/../../ComplexToneGenerator/debug/ComplexToneGenerator.app/Contents/MacOS/
+   # DESTDIR = $$PWD/../../ComplexToneGenerator/debug/ComplexToneGenerator.app/Contents/MacOS/
     OBJECTS_DIR = debug/obj
     MOC_DIR = debug/moc
 } else {
-    DESTDIR = $$PWD/../../ComplexToneGenerator/release/ComplexToneGenerator.app/Contents/MacOS/
+   # DESTDIR = $$PWD/../../ComplexToneGenerator/release/ComplexToneGenerator.app/Contents/MacOS/
     OBJECTS_DIR = release/obj
     MOC_DIR = release/moc
 }

@@ -1,35 +1,17 @@
 #include "repeatedtimedataui.h"
 
-RepeatedTimeDataUI::RepeatedTimeDataUI(RepeatedTimeData *rtd, QWidget *widget ) :
-    CustomCurveUI(widget),
-    m_repeatedTimeData(rtd)
+RepeatedTimeDataUI::RepeatedTimeDataUI(QWidget *widget ) :
+    PartialTimeDataUI(widget)
 {
     this->initControlWidget();
-    m_repeatedTimeData->getControlWidget()->addControlFrame(this,"RTD control");
-}
-
-void RepeatedTimeDataUI::durationChange(qreal duration) {
-    bool _prevValue=m_repeatedDataControl.widgetBlankTime->blockSignals(true);
-    m_repeatedDataControl.widgetBlankTime->setMaxScaleValue(duration);
-    m_repeatedDataControl.widgetBlankTime->blockSignals(_prevValue);
-
 }
 
 RepeatedTimeDataUI::~RepeatedTimeDataUI() {
 
 }
 
-void RepeatedTimeDataUI::updateControlUI() {
-    qDebug() << "RepeatedTimeDataUI::updateControlUI called";
-
-    bool sigStatus=m_repeatedDataControl.widgetBlankTime->blockSignals(true);
-    m_repeatedDataControl.widgetBlankTime->setValue(m_repeatedTimeData->blankTime());
-    m_repeatedDataControl.widgetBlankTime->blockSignals(sigStatus);
-    emit (controlUIUpdated());
-}
-
 void RepeatedTimeDataUI::initControlWidget() {
-
+    QWidget * _widget=new QWidget();//Create the widget for these controls
     //setting font base dimension
     QFont f=*(new QFont());
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
@@ -37,8 +19,8 @@ void RepeatedTimeDataUI::initControlWidget() {
     //Widget container and layout
     QHBoxLayout * l=new QHBoxLayout();
     l->setSizeConstraint(QLayout::SetMinimumSize);
-    this->setLayout(l) ;
-    this->setFont(f);
+    _widget->setLayout(l);
+    _widget->setFont(f);
 
 //    //set duration
     m_repeatedDataControl.widgetBlankTime = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -47,13 +29,25 @@ void RepeatedTimeDataUI::initControlWidget() {
     m_repeatedDataControl.widgetBlankTime->setName("Blank Time");
     m_repeatedDataControl.widgetBlankTime->setMeasureUnit("Sec.");
     m_repeatedDataControl.widgetBlankTime->setFont(f);
-    connect(m_repeatedDataControl.widgetBlankTime,SIGNAL(valueChanged(qreal)),m_repeatedTimeData,SLOT(setBlankTime(qreal)));
-    connect(this,SLOT(durationChange(qreal)),m_repeatedDataControl.widgetBlankTime,SLOT(setMaxScaleValue(qreal)));
+    connect(m_repeatedDataControl.widgetBlankTime,SIGNAL(valueChanged(qreal)),this,SIGNAL(blankTimeUIChanged(qreal)));
+
+    //Interessante...
+    // connect(this,SLOT(durationChange(qreal)),m_repeatedDataControl.widgetBlankTime,SLOT(setMaxScaleValue(qreal)));
 
     //layouting
     l->addWidget(m_repeatedDataControl.widgetBlankTime,1,Qt::AlignLeft);
 
-    //Setting values
-    m_repeatedDataControl.widgetBlankTime->setValue(m_repeatedTimeData->blankTime());
-
+    this->addWidget(_widget, "Repeated time Controls");
 }
+
+void RepeatedTimeDataUI::blankTimeUIUpdate(qreal blanktime) {
+    if (blanktime!=m_repeatedDataControl.widgetBlankTime->value())
+        m_repeatedDataControl.widgetBlankTime->setValue(blanktime);
+}
+
+//void RepeatedTimeDataUI::durationChange(qreal duration) {
+//    bool _prevValue=m_repeatedDataControl.widgetBlankTime->blockSignals(true);
+//    m_repeatedDataControl.widgetBlankTime->setMaxScaleValue(duration);
+//    m_repeatedDataControl.widgetBlankTime->blockSignals(_prevValue);
+
+//}

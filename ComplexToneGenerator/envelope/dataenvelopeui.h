@@ -6,63 +6,69 @@
 #include <qmath.h>
 #include "scaledsliderwidget.h"
 #include "envelope/dataenvelopeparameters.h"
-#include <CustomCurves/customcurveui.h>
 #include "CTG_constants.h"
+#include "DataUiHandler.h"
 
 namespace Ui {
-class DataEnvelopeUI;
+    class DataEnvelopeUI;
 }
 
 static const qreal  DATAENVELOPEUI_TIME_STEP=0.0001;
 
-class DataEnvelopeUI : public CustomCurveUI
+class DataEnvelopeUI : public DataUiHandlerUI
 {
     Q_OBJECT
     
 public:
     explicit DataEnvelopeUI(QWidget *widget = 0);
-    explicit DataEnvelopeUI(DataEnvelopeParameters *params ,  QWidget *widget = 0);
-    ~DataEnvelopeUI();
+    virtual ~DataEnvelopeUI();
 
-    /**
-     * @brief isEnabledEnvelopeUI, return if is enabled the envloper.
-     * @return true, envelope enabled, false envelope disabled.
-     */
-    bool isEnabledEnvelopeUI();
+//    /**
+//     * @brief isEnabledEnvelopeUI, return if is enabled the envloper.
+//     * @return true, envelope enabled, false envelope disabled.
+//     */
+//    bool isEnabledEnvelopeUI();
 
 
 signals:
-
+    void holdAmplitudeUIChanged(qreal);
+    void sustainAmplitudeUIChanged(qreal);
+    void attackTimeUIChanged(qreal);
+    void holdTimeUIChanged(qreal);
+    void decayTimeUIChanged(qreal);
+    void sustainTimeUIChanged(qreal);
+    void releaseTimeUIChanged(qreal);
+    void enableUIChanged(bool);
 public slots:
     /**
       * Set the hold amplitude value
       */
-    void setHoldAmplitude(qreal holdAmplitude);
+    void holdAmplitudeUIUpdate(qreal holdAmplitude);
 
     /**
      * @brief setSustainAmplitude , Set the sustain amplitude value
      * @param sustainAmplitude amplitude sustain to set.
      */
-    void setSustainAmplitude(qreal sustainAmplitude);
+    void sustainAmplitudeUIUpdate(qreal sustainAmplitude);
 
-    void setAttackTime(qreal attackTime);
-    void setHoldTime(qreal holdTime);
-    void setDecayTime(qreal decayTime);
-    void setSustainTime(qreal sustainTime);
-    void setReleaseTime(qreal releaseTime);
+    void attackTimeUIUpdate(qreal attackTime);
+    void holdTimeUIUpdate(qreal holdTime);
+    void decayTimeUIUpdate(qreal decayTime);
+    void sustainTimeUIUpdate(qreal sustainTime);
+    void releaseTimeUIUpdate(qreal releaseTime);
 
     /**
      * @brief setEnableEnvelopeUI enable/disable the UI checkbox related to envelope and emit
      * @param true enable check
      */
-    void setEnableEnvelopeUI(bool enable);
+    void enableUIUpdate(bool enable);
 
-    /**
-      * Refresh the ui with the actual value in the DataEnvelopeParameters class
-      */
-    virtual void updateControlUI();
+//    /**
+//      * Refresh the ui with the actual value in the DataEnvelopeParameters class
+//      */
+//    virtual void updateControlUI();
 
-    void updateUI();
+   // void updateUI();
 
 
 private:
@@ -83,7 +89,7 @@ private:
         ScaledSliderWidget * release;
     }  m_structTime;
 
-    DataEnvelopeParameters *  m_parameters;
+   // DataEnvelopeParameters *  m_parameters;
     void initEnvelopeWidget();
     void initAmplitudeWidget();
     void initTimeWidget();

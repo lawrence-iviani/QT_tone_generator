@@ -6,54 +6,41 @@
 #include <qwt_series_data.h>
 #include <qwt_plot_curve.h>
 #include <math.h>
-#include <QTime>
-#include <QFileDialog>
-#include <QMessageBox>
 #include "ctg_app.h"
 #include "envelope/dataenvelope.h"
-#include "envelope/dataenvelopeparameters.h"
+#include "DataUiHandler.h"
 #include "timedata/generictimedataui.h"
-#include "timedata/timedatacontrolui.h"
+#include "timedata/generictimedataparams.h"
 #include "plotwidget/timeplotwidgetparams.h"
-#include "XML_utils/domhelper.h"
 
 class GenericTimeDataUI;
-class TimeDataControlUI;
-class DataEnvelope;
+
+//class GenericTimeDataDelegate : public DataUiHandlerDelegate
+//{
+//public:
+//    GenericTimeDataDelegate(GenericTimeDataParams * params, GenericTimeDataUI * ui , QObject *parent = 0) :
+//        DataUiHandlerDelegate((DataUiHandlerProperty *)params,(DataUiHandlerUI*)ui,"GTDDocument","Envelope_GTD",parent)
+//    {}
+//    virtual ~GenericTimeDataDelegate() {}
+//};
 
 /**
   * This class handle a generic time data object. Is useful to handle time based series as data container for a time data.
   */
-class GenericTimeData : public QObject, public DomHelper
+class GenericTimeData : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(qreal maxduration READ maxDuration WRITE setMaxDuration)
-    Q_PROPERTY(qreal samplerate READ sampleRate WRITE setSampleRate)
-    Q_PROPERTY(QString name READ name WRITE setName)
-    Q_PROPERTY(QColor color READ color WRITE setColor)
-    Q_PROPERTY(bool showcurve READ isShowEnabled WRITE setShowCurve)
-    Q_PROPERTY(bool enable READ isEnabled WRITE setEnableCurve)
-    Q_PROPERTY(bool enableenvelope READ isEnvelopeEnabled WRITE setEnableEnvelope)
 
 public:
-    explicit GenericTimeData(QWidget *widget=0);
-    explicit GenericTimeData(TimePlotParams * timePlotParams,QWidget *widget=0);
+    explicit GenericTimeData(QObject *parent=0);
+    explicit GenericTimeData(TimePlotParams * timePlotParams,QObject *parent=0);
     virtual ~GenericTimeData();
-    QwtPlotCurve * getCurve() {return m_curve;}
-    QwtCPointerData * getData() {return m_data;}
-    TimeDataControlUI * getControlWidget() {return m_timeDataUI; }// Give back a QWidget that can be used to control this class.
-
-    inline qreal duration() {return m_MaxDuration;}
-    inline qreal maxDuration() {return m_MaxDuration;}
-    inline qreal sampleRate() {return m_SR;}
-    inline qreal minStartTime() {return m_Min_t0;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
-    inline qint64 sampleNumber() {return m_sample;}
-    inline bool isEnabled() { return m_curveEnabled;}
-    inline bool isShowEnabled() { return m_curve->isVisible();}
-    inline bool isEnvelopeEnabled() { return m_enableEnvelope;}
-    const QString& name() {return  m_name;}
-    const QColor color() {return m_curve->pen().color(); }
-    void setParent(QWidget* widget) {QObject::setParent((QObject*)widget);}
+    inline QwtPlotCurve * getCurve() {return m_curve;}
+    inline QwtCPointerData * getData() {return m_data;}
+    QWidget * getControlWidget() {return dynamic_cast<QWidget*>(m_timeDataDelegate->getUI()); }// Give back a QWidget that can be used to control this class.
+    DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_timeDataDelegate->getProperty());}
+    inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_timeDataDelegate);}
+    inline quint64 getSampleNumber()  {return m_sample;}
 
     /**
      * @brief insertSignalValue This function insert a qreal value in the sample position index and return true if the insertion is succesful, if return false the index is out of range
@@ -61,16 +48,16 @@ public:
      * @param value the value to insert
      * @return True if the insert was succesful.
      */
-    virtual bool insertSignalValue(qint64 index, qreal value);
-    const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
-    const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
-    DataEnvelope * getEnvelopeData() {return m_envelope;}
+    virtual bool insertSignalValue(quint64 index, qreal value);
+    inline const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
+    inline const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
+    inline DataEnvelope * getEnvelopeData() {return m_envelope;}
 
-    void forceRegenerateDomDocument() {this->regenerateDomDocument();}
-
-    virtual bool isImportableByDomData(const QDomDocument & doc);
-    virtual bool isImportableByDomData(const QDomDocument * doc);
-    virtual bool isImportableByDomData(QDomNode& node);
+    inline bool isEnableRecalc() {return m_enableRecalc;}
+//    void forceRegenerateDomDocument() {this->regenerateDomDocument();}
+//    virtual bool isImportableByDomData(const QDomDocument & doc);
+//    virtual bool isImportableByDomData(const QDomDocument * doc);
+//    virtual bool isImportableByDomData(QDomNode& node);
 
 signals:
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
@@ -90,112 +77,46 @@ signals:
        */
      void curveAttributeUpdated();
 
-     /**
-      * @brief maxDurationChanged emit a signal for the inerithed subclass to signal the length is changed. The Inerithed class should not call createData
-      * because it's called by this function before exit, otherwise data will be created two times
-      * @param maxduration
-      */
-     void maxDurationChanged(qreal maxduration);
+//     /**
+//      * @brief maxDurationChanged emit a signal for the inerithed subclass to signal the length is changed. The Inerithed class should not call createData
+//      * because it's called by this function before exit, otherwise data will be created two times
+//      * @param maxduration
+//      */
+//     void maxDurationChanged(qreal maxduration);
 
-     /**
-      * @brief sampleRateChanged emit a signal for the inerithed subclass to signal the SR is changed. The Inerithed class should not call createData
-      * because it's called by this function before exit, otherwise data will be created two times
-      * @param samplerate
-      */
-     void sampleRateChanged(qreal samplerate);
+//     /**
+//      * @brief sampleRateChanged emit a signal for the inerithed subclass to signal the SR is changed. The Inerithed class should not call createData
+//      * because it's called by this function before exit, otherwise data will be created two times
+//      * @param samplerate
+//      */
+//     void sampleRateChanged(qreal samplerate);
 
 public slots:
      /**
        * Set the max duration of this signal and update for data, redefine in the inerithed class if you want change beaviour. (ie don't call an update)
        * you have to change the singal length. Tipically you should override this method.
        */
-     virtual bool setMaxDuration(qreal maxDuration);
+     virtual void maxDurationHasChanged(qreal maxDuration);
 
      /**
        * Set the max duration of this signal and update for data, redefine in the inerithed class if you want change beaviour. (ie don't call an update).
        * Normally you shouldn't override this method
        */
-     virtual bool setSampleRate(qreal SR);//Set the SR of this signal
-
-     /**
-      * @brief setName
-      * @param name
-      */
-     void setName(QString name);
-
-     /**
-      * @brief setColor
-      * @param color
-      */
-     void setColor(QColor color);
-
-     /**
-       * Enable the curve in any eventual calculation (ie digest)
-       */
-     void setEnableCurve(bool enable);
-
-     /**
-       * Show/hide the curve but keep enabled in the calculation (ie digest)
-       */
-     void setShowCurve(bool enable);
-
-     /**
-       * Enable/disable the envevope related to this data curve.
-       */
-     void setEnableEnvelope(bool enable);
+    virtual void sampleRateHasChanged(qreal SR);
 
      /**
        * Update the actual array of data, overwriting the data actually stored in. Ask only for a recalc and avoid to reinit all the array. Faster mtehod.
+       * Override if you need some different beahviour (ie in this is ovveride in DigestTimeData
        */
      /**
       * @brief updateData Update the actual array of data, overwriting the data actually stored in. Ask only for a recalc and avoid to reinit all the array. Faster mtehod.
        */
-     void updateData();
+     virtual void updateData();
 
      /**
       * @brief createData (Re)Create the internal data array (filling of zero), recalculating the sample number. Useful in case of length  array change.
       */
      void createData();
-
-     /**
-      * @brief exportXML open a dialog window and ask for the destionation XML file where to export the DOM data structure
-      */
-     void exportXML();
-
-     /**
-      * @brief exportXML export the DOM structure to a filename (path+file)
-      * @param filename
-      */
-     void exportXML(const QString filename);
-
-     /**
-      * @brief importXML import an XML file by opening a file dialog
-      * @return true if succesful
-      */
-     bool importXML();
-
-     /**
-      * @brief importXML import an XML file
-      * @param fileName the file to import
-      * @return  true if succesful
-      */
-     bool importXML(QString fileName);
-
-     /**
-      * @brief importXML import a QDomDocument
-      * @param doc the DOM document to be imported
-      * @return true if succesful
-      */
-     bool importXML(const QDomDocument * doc);
-
-     /**
-      * @brief importXML import a QDomDocument by node
-      * @param node the node you want to import
-      * @return true if succesful
-      */
-     bool importXML(const QDomNode *node);
-
-     bool importXML(const QDomNode &node);
 
      /**
       * @brief enableRecalc enable/disable recalculation for this curve.
@@ -224,17 +145,56 @@ public slots:
       */
      void setTimePlotParams(TimePlotParams * timePlotParams);
 
+//     /**
+//      * @brief copy Copy in an apposite application structure this curve
+//      */
+//     void copy();
 
-     /**
-      * @brief copy Copy in an apposite application structure this curve
-      */
-     void copy();
+//     /**
+//      * @brief paste Paste from an apposite application structure to this curve
+//      * @return
+//      */
+//     bool paste();
 
-     /**
-      * @brief paste Paste from an apposite application structure to this curve
-      * @return
-      */
-     bool paste();
+     //     /**
+     //      * @brief exportXML open a dialog window and ask for the destionation XML file where to export the DOM data structure
+     //      */
+     //     void exportXML();
+
+     //     /**
+     //      * @brief exportXML export the DOM structure to a filename (path+file)
+     //      * @param filename
+     //      */
+     //     void exportXML(const QString filename);
+
+     //     /**
+     //      * @brief importXML import an XML file by opening a file dialog
+     //      * @return true if succesful
+     //      */
+     //     bool importXML();
+
+     //     /**
+     //      * @brief importXML import an XML file
+     //      * @param fileName the file to import
+     //      * @return  true if succesful
+     //      */
+     //     bool importXML(QString fileName);
+
+     //     /**
+     //      * @brief importXML import a QDomDocument
+     //      * @param doc the DOM document to be imported
+     //      * @return true if succesful
+     //      */
+     //     bool importXML(const QDomDocument * doc);
+
+     //     /**
+     //      * @brief importXML import a QDomDocument by node
+     //      * @param node the node you want to import
+     //      * @return true if succesful
+     //      */
+     //     bool importXML(const QDomNode *node);
+
+     //     bool importXML(const QDomNode &node);
 
 protected:
      /**
@@ -261,42 +221,38 @@ protected:
 
      void createDataCurve();//Set
 
-     qreal * timeData() {return m_t;}
-     qreal * signalData() {return m_s;}
+     inline qreal * timeData() {return m_t;}
+     inline qreal * signalData() {return m_s;}
 
      /**
        * The method provide capability to the extended class to set modified time data
        */
-     void setTimeData(qreal * t, qint64 len);
+     void setTimeData(qreal * t, quint64 len);
 
      /**
        * The method provide capability to the extended class to set modified signal data
        */
-     void setSignalData(qreal * s, qint64 len);
+     void setSignalData(qreal * s, quint64 len);
 
      /**
        * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
        */
-    inline virtual qint64 lowestSampleIndexForModification()  {
-         qint64 retval=this->minStartTime()*this->sampleRate();
-         Q_ASSERT(retval>=0);
-         Q_ASSERT(retval<=this->sampleNumber());
+    inline virtual quint64 lowestSampleIndexForModification()  {
+         GenericTimeDataParams *_gtdp=(GenericTimeDataParams *) getDataParameters();
+         quint64 retval=_gtdp->startTime()*_gtdp->sampleRate();
+         Q_ASSERT(retval<=m_sample);
          return retval;
      }
 
      /**
        * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
        */
-     inline virtual qint64 highestSampleIndexForModification() {
-         qint64 retval=(this->minStartTime()+this->duration())*this->sampleRate();
-         Q_ASSERT(retval >=0);
-         Q_ASSERT(retval <=this->sampleNumber());
+     inline virtual quint64 highestSampleIndexForModification() {
+         GenericTimeDataParams *_gtdp=(GenericTimeDataParams *)getDataParameters();
+         quint64 retval=(_gtdp->startTime()+_gtdp->maxDuration())*_gtdp->sampleRate();
+         Q_ASSERT(retval<=m_sample);
          return retval;
      }
-
-     bool isValidMaxDuration(qreal  maxDuration) {return (m_TimePlotParams->duration()==maxDuration ?  true :  false);}
-
-     bool isValidSampleRate(qreal  SR) {return (m_TimePlotParams->sampleRate()==SR ?  true :  false); }
 
      /**
       * @brief setEnvelopeLength Set effective length of the envelope data, this class
@@ -304,31 +260,30 @@ protected:
       */
     // virtual void setEnvelopeLength(qreal length);
 
-     TimeDataControlUI *m_timeDataUI;
-     bool m_enableRecalc;
-     GenericTimeDataUI *m_genericTimeDataUI;
+     //TimeDataControlUI *m_timeDataUI;
 
-protected slots:
-     void regenerateDomDocument();
+
+     //GenericTimeDataUI *m_genericTimeDataUI;
+
+
 
 private:
-     void init(QWidget *widget);
+     void init();
      void connectSignal();
-     void setTimePlotParams();
+     void initTimePlotParams();
+     bool m_enableRecalc;
+    // TimePlotParams * m_TimePlotParams;
+     DataUiHandlerDelegate * m_timeDataDelegate;
+     DataEnvelope *m_envelope;
      QwtPlotCurve *m_curve;
      QwtCPointerData *m_data;
-     QString m_name;
-     TimePlotParams * m_TimePlotParams;
-     qreal m_MaxDuration;//Duration, it's possible modify any of the parameter duration,t0,t1 to make modification to the length of the signal
-     qreal m_Min_t0;//Start time to make calculation, The min value of time allowable constrained externally. This is NOT YET USED!! MAY BE BUGGED, it's always used as 0.0
-     qreal m_SR;//The SR
+
+   //  const DataEnvelopeParameters * m_envParams;
      qreal * m_t;//The pointer to array of base time
      qreal * m_s;//The pointer to array of the signal
-     qint64 m_sample;//Number of sample of m_s and m_t
-     bool m_curveEnabled;
-     DataEnvelope *m_envelope;
-     bool m_enableEnvelope;
-     QString m_fileName;
+     quint64 m_sample;//Number of sample of m_s and m_t
+
+    // QString m_fileName;
 };
 
 #endif // GENERICTIMEDATA_H

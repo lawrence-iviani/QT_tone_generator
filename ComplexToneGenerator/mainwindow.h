@@ -11,6 +11,7 @@
 
 #include <audioplayer.h>
 #include <sndfile.hh>
+#include <QTreeWidget>
 
 //ALL THESE INCLUDES NEED TO BE REVIEWED
 #include "plotwidget/timeplotwidget.h"
@@ -19,13 +20,15 @@
 #include "CustomCurves/genericsinusdata.h"
 #include "CustomCurves/partialsinusdata.h"
 #include "CustomCurves/repeatedsinusdata.h"
-#include "CustomCurves/constanttimedata.h"
 #include "CustomCurves/repeatedsinusdata.h"
 #include "selectcurvewindowdialog.h"
 #include "selectmultiplecurveswindowdialog.h"
 #include "exportaudiofiledialog.h"
 #include "CustomCurves/customcurvefactory.h"
+#include <errormessage.h>
 #include "widgetstyle.h"
+
+
 
 namespace Ui {
     class MainWindow;
@@ -43,10 +46,10 @@ public slots:
     void newCurve();
     void removeCurve();
     void exportDigestCurve();
-    bool exportXML(const QString& filename);
-    bool importXML(const QDomDocument& doc);
-    bool importXML(const QString& fileName);
-    void showXML();
+   // bool exportXML(const QString& filename);
+  //  bool importXML(const QDomDocument& doc);
+  //  bool importXML(const QString& fileName);
+  //  void showXML();
     void updateCurvesName();
     void timeDataUpdated();
     void digestCurveChanged();
@@ -54,12 +57,12 @@ public slots:
     void streamPositionUpdate(qreal position);
     void removeAllCurves();
     void removeAllCurvesWithDialog();
-    void duplicateCurves();
+   // void duplicateCurves();
     void newProject();
-    void load();
-    void save();
-    void saveAs();
-    void importCurve();
+  //  void load();
+  //  void save();
+  //  void saveAs();
+  //  void importCurve();
 
 private:
     void setupUI();

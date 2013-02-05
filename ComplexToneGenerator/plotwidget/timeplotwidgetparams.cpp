@@ -1,51 +1,33 @@
 #include "timeplotwidgetparams.h"
 
-TimePlotParams::TimePlotParams(QObject *parent) :
-    QObject(parent),
-    DomHelper(this),
-    m_duration(TIMEDATA_DEFAULT_PROJECT_TIME),
-    m_sampleRate(TIMEDATA_DEFAULT_SR),
+TimePlotParams::TimePlotParams(QObject *object) :
+    DataUiHandlerProperty(object),
     m_t0(TIMEDATA_DEFAULT_MIN_TIME)
 {
-    regenerateDomDocument();
+    setMaxDuration(TIMEDATA_DEFAULT_PROJECT_TIME);
+    setSampleRate(TIMEDATA_DEFAULT_SR);
 }
 
-TimePlotParams::TimePlotParams(qreal duration, qreal sampleRate, QObject *parent) :
-    QObject(parent),
-    DomHelper(this),
-    m_duration(TIMEDATA_DEFAULT_PROJECT_TIME),
-    m_sampleRate(TIMEDATA_DEFAULT_SR),
+TimePlotParams::TimePlotParams(qreal duration, qreal sampleRate, DataUiHandlerProperty * baseProperty, QObject *object) :
+    DataUiHandlerProperty(baseProperty, object),
     m_t0(TIMEDATA_DEFAULT_MIN_TIME)
 {
-    setDuration(duration);
+    setMaxDuration(duration);
     setSampleRate(sampleRate);
-    regenerateDomDocument();
 }
 
-bool TimePlotParams::setDuration(qreal duration) {
-    if (TIMEDATA_DEFAULT_MIN_TIME < 0.0 || duration > TIMEDATA_DEFAULT_MAX_TIME) return false;
-    if (duration==m_duration) return false;
-    m_duration=duration;
-    regenerateDomDocument();
-    return true;
+void TimePlotParams::setMaxDuration(qreal maxduration) {
+    if ( (maxduration < 0) || (maxduration > TIMEDATA_DEFAULT_MAX_TIME)) return;
+    if (maxduration!=m_maxDuration) {
+        m_maxDuration=maxduration;
+        emit (maxDurationChanged(maxduration));
+    }
 }
 
-bool TimePlotParams::setSampleRate(qreal sampleRate) {
-    if (sampleRate < TIMEDATA_DEFAULT_MIN_SR || sampleRate > TIMEDATA_DEFAULT_MAX_SR ) return false;
-    if (sampleRate==m_sampleRate) return false;
-    m_sampleRate=sampleRate;
-    regenerateDomDocument();
-    return true;
+void TimePlotParams::setSampleRate(qreal sampleRate) {
+    if (sampleRate < TIMEDATA_DEFAULT_MIN_SR || sampleRate > TIMEDATA_DEFAULT_MAX_SR ) return;
+    if (sampleRate!=m_sampleRate) {
+        m_sampleRate=sampleRate;
+        emit (sampleRateChanged(sampleRate));
+    }
 }
-
-void TimePlotParams::regenerateDomDocument()
-{
-    //Get DOM document of this object QPROPERTY
-    if ( m_doc!=NULL) delete m_doc;
-    m_doc=new QDomDocument();
-    Q_ASSERT(this->selfObjectData(m_doc,PROJECTPARAMETERS_TAG));
-    Q_ASSERT(!m_doc->isNull());
-    Q_ASSERT(m_doc->isDocument());
-  // qDebug() << "TimePlotParams::regenerateDomDocument \n" << m_doc->toString(2);
-}
-

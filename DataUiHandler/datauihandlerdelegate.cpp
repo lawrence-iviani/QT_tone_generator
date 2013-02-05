@@ -39,9 +39,14 @@ DataUiHandlerDelegate::DataUiHandlerDelegate(DataUiHandlerProperty * property,
     initClass();
 }
 
+DataUiHandlerDelegate::~DataUiHandlerDelegate() {
+    if (m_property) delete m_property;
+    if (m_ui) delete m_ui;
+}
+
 void DataUiHandlerDelegate::initClass() {
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Connecting signal ---------"));
-    connectSignal();
+    connectSignal(m_property,m_ui);
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Creating DOM ---------"));
     this->selfObjectData();
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Emit ALL Prop Signal ---------"));
@@ -50,16 +55,17 @@ void DataUiHandlerDelegate::initClass() {
     this->setEnableDataUpdate(true);
 }
 
-void DataUiHandlerDelegate::connectSignal() {
-
-    if (m_property==NULL || m_ui==NULL) {
+void DataUiHandlerDelegate::connectSignal(DataUiHandlerProperty *properties, DataUiHandlerUI *ui) {
+    if (properties==NULL || ui==NULL) {        
         PRINT_WARNING( ErrorMessage::WARNING(Q_FUNC_INFO,
-                     QString("trying to connect unreferenced data, property@%1, UI@%2").arg((qlonglong)m_property).arg((qlonglong)m_ui)));
+                     QString("trying to connect unreferenced data, property@%1, UI@%2").
+                                             arg(QString::number((qlonglong)properties,16)).
+                                             arg(QString::number((qlonglong)ui,16))));
         return;
     }
 
-    const QMetaObject* _propMetaObject = m_property->metaObject();
-    const QMetaObject* _uiMetaObject = m_ui->metaObject();
+    const QMetaObject* _propMetaObject = properties->metaObject();
+    const QMetaObject* _uiMetaObject = ui->metaObject();
 
     //Collecting all the method from property and ui
     QStringList _propMethod=extractMethodSignatureList(_propMetaObject);
@@ -99,13 +105,13 @@ void DataUiHandlerDelegate::connectSignal() {
         //Connect property SIGNAL to ui SLOT
         _signalSignature.prepend("2");//2 is in front because in qobjectdefs.h the macro SIGNAL introduce this number
         _slotSignature.prepend("1");//1 is in front because in qobjectdefs.h the macro SLOT introduce this number
-        if (!connect(m_property,_signalSignature.toAscii().constData(),m_ui,_slotSignature.toAscii().data())) {
+        if (!connect(properties,_signalSignature.toAscii().constData(),ui,_slotSignature.toAscii().data())) {
             PRINT_WARNING( ErrorMessage::WARNING(Q_FUNC_INFO,
                          QString("fail to connect signal %1 to signal %2").arg(_signalSignature).arg(_slotSignature)
                         ));
         } else {
             //Every time a property is changed this method is called
-            Q_ASSERT(connect(m_property,_signalSignature.toAscii().constData(),this,SLOT(dataChanged())));
+            Q_ASSERT(connect(properties,_signalSignature.toAscii().constData(),this,SLOT(dataChanged())));
             PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
                          QString("connected signal %1 to signal %2").arg(_signalSignature).arg(_slotSignature)
                         ));
@@ -147,7 +153,7 @@ void DataUiHandlerDelegate::connectSignal() {
             //Connect property SIGNAL to ui SLOT
             _signalSignature.prepend("2");//2 is in front because in qobjectdefs.h the macro SIGNAL introduce this number
             _slotSignature.prepend("1");//1 is in front because in qobjectdefs.h the macro SLOT introduce this number
-            if (!connect(m_ui,_signalSignature.toAscii().constData(),m_property,_slotSignature.toAscii().data())) {
+            if (!connect(ui,_signalSignature.toAscii().constData(),properties,_slotSignature.toAscii().data())) {
                 PRINT_WARNING( ErrorMessage::WARNING(Q_FUNC_INFO,
                              QString("fail to connect signal %1 to signal %2").arg(_signalSignature).arg(_slotSignature)
                             ));
@@ -239,4 +245,43 @@ bool DataUiHandlerDelegate::setEnableDataUpdate(bool enable) {
         if (enable) dataChanged();
     }
     return retval;
+}
+
+void DataUiHandlerDelegate::replacePropertiesAndUI(DataUiHandlerProperty *properties, DataUiHandlerUI *ui) {
+    //Should delete the signal connection?
+    ErrorMessage _err1(Q_FUNC_INFO, QString("Prev Internal ref m_property@%1 m_ui@%2, new ref. properties@%3, ui@%4")
+                       .arg(QString::number((qlonglong)m_property,16))
+                       .arg(QString::number((qlonglong)m_ui,16))
+                       .arg(QString::number((qlonglong)properties,16))
+                       .arg(QString::number((qlonglong)ui,16)));
+
+    if (properties==NULL || ui==NULL) {
+        PRINT_WARNING( ErrorMessage::WARNING(Q_FUNC_INFO,
+                     QString("trying to connect unreferenced data, property@%1, UI@%2").arg((qlonglong)properties).arg((qlonglong)ui)));
+        return;
+    }
+    DataUiHandlerProperty *prevProperties=m_property;
+    DataUiHandlerUI *prevUi=m_ui;
+   // if (m_property) delete m_property;
+   // if (m_ui) delete m_ui;
+
+    m_property=properties;
+    m_ui=ui;
+
+    ErrorMessage _err2(Q_FUNC_INFO, QString("Now  internal ref m_property@%1 m_ui@%2, new ref. properties@%3, ui@%4")
+                        .arg(QString::number((qlonglong)m_property,16))
+                        .arg(QString::number((qlonglong)m_ui,16))
+                        .arg(QString::number((qlonglong)properties,16))
+                        .arg(QString::number((qlonglong)ui,16)));
+
+
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,_err1);
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,_err2);
+    setHostObject(m_property);
+    initClass();
+
+    //These leads to a crash, but without lead to a memory leakage... (BUG)!
+    delete(prevProperties);
+    delete(prevUi);
+
 }

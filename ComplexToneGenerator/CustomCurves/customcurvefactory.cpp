@@ -14,7 +14,7 @@ GenericTimeData* CustomCurveFactory::newCurve(QString className, TimePlotParams*
    // GenericTimeData* retval = NULL;
 
     if (className=="GenericSinusData")
-        return (GenericTimeData*) new GenericSinusData(timeParams,parent); //m_plotTime->getTimePlotParams() , m_plotTime);
+        return (GenericTimeData*) new GenericSinusData(timeParams,parent);
 
     if (className=="PartialSinusData")
         return (GenericTimeData*) new PartialSinusData(timeParams,parent);

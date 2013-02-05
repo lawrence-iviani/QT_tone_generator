@@ -56,67 +56,65 @@ CONFIG(debug, debug|release) {
 QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 
 # ------ Files
-SOURCES += envelope/dataenvelope.cpp \
-    envelope/dataenvelopeparameters.cpp \
+SOURCES += envelope/dataenvelopeparameters.cpp \
     envelope/dataenvelopeui.cpp \
-    XML_utils/domhelper.cpp \
-    timedata/generictimedata.cpp \
+    envelope/dataenvelopedelegate.cpp \
+    envelope/dataenvelope.cpp \
+    timedata/generictimedataparams.cpp \
     timedata/generictimedataui.cpp \
+    timedata/generictimedata.cpp \
     timedata/digesttimedata.cpp \
-    timedata/partialtimedata.cpp \
+    timedata/partialtimedataparams.cpp \
     timedata/partialtimedataui.cpp \
-    timedata/timedatacontrolui.cpp \
+    timedata/partialtimedata.cpp \
+    timedata/repeatedtimedataparams.cpp \
+    timedata/repeatedtimedataui.cpp \
     timedata/repeatedtimedata.cpp \
     plotwidget/plotwidget.cpp \
+    plotwidget/timeplotwidgetparams.cpp \
+    plotwidget/timeplotwidgetui.cpp \
     plotwidget/timeplotwidget.cpp \
     plotwidget/freqplotwidget.cpp \
     CustomCurves/customcurvefactory.cpp \
-    CustomCurves/sinusdataparams.cpp \
     CustomCurves/genericsinusdata.cpp \
-    CustomCurves/constanttimedata.cpp \
-    CustomCurves/sinusdataui.cpp \
     CustomCurves/partialsinusdata.cpp \
     CustomCurves/repeatedsinusdata.cpp \
-    timedata/repeatedtimedataui.cpp \
     mainwindow.cpp \
     main.cpp \
-    plotwidget/timeplotwidgetparams.cpp \
-    ctg_app.cpp
-
+    ctg_app.cpp \
 
 
 
 
 HEADERS  += CTG_constants.h \
-    envelope/dataenvelope.h \
     envelope/dataenvelopeparameters.h \
     envelope/dataenvelopeui.h \
-    XML_utils/domhelper.h \
+    envelope/dataenvelopedelegate.h \
+    envelope/dataenvelope.h \
+    timedata/generictimedataparams.h \
+    timedata/generictimedataui.h \
     timedata/generictimedata.h \
     timedata/digesttimedata.h \
-    timedata/partialtimedata.h \
-    timedata/generictimedataui.h \
+    timedata/partialtimedataparams.h \
     timedata/partialtimedataui.h \
-    timedata/timedatacontrolui.h \
+    timedata/partialtimedata.h \
+    timedata/repeatedtimedataparams.h \
     timedata/repeatedtimedata.h \
     timedata/repeatedtimedataui.h \
     plotwidget/plotwidget.h \
+    plotwidget/timeplotwidgetparams.h \
+    plotwidget/timeplotwidgetui.h \
     plotwidget/timeplotwidget.h \
     plotwidget/freqplotwidget.h \
     plotwidget/scrollrubberband.h \
     CustomCurves/abstractcurvesfactory.h \
     CustomCurves/customcurvefactory.h \
-    CustomCurves/sinusdataparams.h \
-    CustomCurves/repeatedsinusdata.h \
     CustomCurves/genericsinusdata.h \
-    CustomCurves/constanttimedata.h \
-    CustomCurves/customcurveui.h \
-    CustomCurves/sinusdataui.h \
+    CustomCurves/repeatedsinusdata.h \
     CustomCurves/partialsinusdata.h \
     mainwindow.h \
-    plotwidget/timeplotwidgetparams.h \
     ctg_app.h \
-    CustomCurves/customcurvesheader.h
+    CustomCurves/customcurvesheader.h \
 
 
 FORMS    += mainwindow.ui \

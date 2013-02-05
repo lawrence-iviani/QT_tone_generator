@@ -1,33 +1,36 @@
 #ifndef PARTIALTIMEDATAUI_H
 #define PARTIALTIMEDATAUI_H
 
-#include <QFrame>
 #include "generictimedataui.h"
-#include "partialtimedata.h"
-#include "CustomCurves/customcurveui.h"
+#include <scaledsliderwidget.h>
 
-class PartialTimeData;
 
-class PartialTimeDataUI : public CustomCurveUI
+class PartialTimeDataUI : public GenericTimeDataUI
 {
     Q_OBJECT
 public:
-    explicit PartialTimeDataUI(PartialTimeData *ptd, QWidget *widget = 0);
+    explicit PartialTimeDataUI(QWidget *widget = 0);
     virtual ~PartialTimeDataUI();
-signals:
-    
-public slots:
-    /**
-      * Force the UI to be update re-reading information from the referenced GenericTimeData class.
-      * This slot doesn't propagate the signal/slot related to the UI, is intended to be called just to refresh the UI if something changes in the data class
-      */
-    virtual void updateControlUI();
 
-    /**
-     * @brief durationChange tell to this class to update the duration when is changed, this class update the duration widget and the start time
-     * @param duration
-     */
-    virtual void durationChange(qreal duration);
+signals:
+    void durationUIChanged(qreal);
+    void t0UIChanged(qreal);
+
+public slots:
+
+    void durationUIUpdate(qreal duration);
+    void t0UIUpdate(qreal t0);
+//    /**
+//      * Force the UI to be update re-reading information from the referenced GenericTimeData class.
+//      * This slot doesn't propagate the signal/slot related to the UI, is intended to be called just to refresh the UI if something changes in the data class
+//      */
+//    virtual void updateControlUI();
+
+//    /**
+//     * @brief durationChange tell to this class to update the duration when is changed, this class update the duration widget and the start time
+//     * @param duration
+//     */
+//    virtual void durationChange(qreal duration);
 protected:
 
 private:
@@ -42,10 +45,6 @@ private:
         ScaledSliderWidget *widgetDuration;
         ScaledSliderWidget *widget_t0;
     } m_partialDataControl;
-
-    PartialTimeData *m_partiaTimeData;
-
-private slots:
 
 };
 
