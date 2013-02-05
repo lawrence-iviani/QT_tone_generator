@@ -11,7 +11,7 @@ class PartialSinusParams  : public PartialTimeDataParams
     Q_OBJECT
     Q_PROPERTY(qreal amplitude READ amplitude WRITE setAmplitude NOTIFY amplitudeChanged)
     Q_PROPERTY(qreal frequency READ frequency WRITE setFrequency NOTIFY frequencyChanged)
-    Q_PROPERTY(qreal initphase READ initPhase WRITE setInitPhase NOTIFY initPhaseChanged)
+    Q_PROPERTY(qreal initPhase READ initPhase WRITE setInitPhase NOTIFY initPhaseChanged)
 
 public:
     explicit PartialSinusParams(PartialTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent);
@@ -78,6 +78,7 @@ public slots:
 
 protected:
     virtual void recalc();
+    virtual void connectSignals();
 
 private:
     void init(qreal amplitude, qreal frequency, qreal initPhase,TimePlotParams * timePlotParams);

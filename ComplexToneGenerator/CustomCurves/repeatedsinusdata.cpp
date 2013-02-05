@@ -142,6 +142,17 @@ void RepeatedSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,Ti
     _rsp->setAmplitude(amplitude);
     _rsp->setFrequency(frequency);
     _rsp->setInitPhase(initPhase);
+    connectSignals();
+}
+
+void RepeatedSinusData::connectSignals() {
+    PartialTimeData::connectSignals();
+
+    RepeatedSinusParams* _rsp=dynamic_cast<RepeatedSinusParams*>(getDataParameters());
+    Q_ASSERT(_rsp);
+    Q_ASSERT(connect(_rsp,SIGNAL(amplitudeChanged(qreal)),this,SLOT(updateData())));
+    Q_ASSERT(connect(_rsp,SIGNAL(frequencyChanged(qreal)),this,SLOT(updateData())));
+    Q_ASSERT(connect(_rsp,SIGNAL(initPhaseChanged(qreal)),this,SLOT(updateData())));
 }
 
 void RepeatedSinusData::recalc() {

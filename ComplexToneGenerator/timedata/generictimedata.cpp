@@ -91,7 +91,6 @@ void GenericTimeData::connectSignals() {
     Q_ASSERT(connect(_gtdp,SIGNAL(colorChanged(QColor)),this,SLOT(curveHasChanged())));
     Q_ASSERT(connect(_gtdp,SIGNAL(nameChanged(QString)),this,SLOT(curveHasChanged())));
 
-
     //emit when the name change
     Q_ASSERT(connect(_gtdp,SIGNAL(nameChanged(QString)),this,SIGNAL(nameChanged(QString))));
 

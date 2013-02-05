@@ -77,6 +77,7 @@ public:
     int dimension()  {return m_dimension;}
     virtual void setRubberBandPosition(qreal position) {Q_UNUSED(position);}
 
+    inline bool isPlotUpdateEnabled() {return m_enablePlotUpdate;}
 
 signals:
     void curveListChanged();
@@ -98,7 +99,8 @@ public slots:
     * All the stuff of init, object handling etc. are delegated to the inheriting class.
     */
     virtual void updatePlot() {
-        if (m_enableUpdate) {
+        if (m_enablePlotUpdate) {
+            PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ REPLOT "));
             replot();
         }
     }
@@ -108,7 +110,7 @@ public slots:
      * @param enable
      * @return the previous value
      */
-    virtual bool setEnableUpdate(bool enable);
+    virtual bool setEnablePlot(bool enable);
 
 //    /**
 //     * @brief forceRecalcAll force to recalc all the data curve. All the curves are recalculated by calling recalc
@@ -130,9 +132,10 @@ protected:
 
     int m_xScaleType;
     int m_yScaleType;
-    bool m_enableUpdate;
+
     ScrollRubberBand * m_scrollRubberBand;//Object to scroll a vertical or horizontal line in order to display where the signal is analyzed.
 private:
+    bool m_enablePlotUpdate;
     void connectSignal();
     void plotSetup();
     int m_dimension;

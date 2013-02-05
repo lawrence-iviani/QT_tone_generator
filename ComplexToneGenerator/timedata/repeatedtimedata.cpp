@@ -16,21 +16,20 @@ void RepeatedTimeData::init(TimePlotParams *timePlotParams) {
     DataUiHandlerProperty* _castedDerivedProp=dynamic_cast<DataUiHandlerProperty*>(_derivedProp);
     _delegate->replacePropertiesAndUI(_castedDerivedProp,
                                       dynamic_cast<DataUiHandlerUI*> (new RepeatedTimeDataUI() ));
-
-
-    this->connectSignal();
     RepeatedTimeDataParams* _rtp=dynamic_cast<RepeatedTimeDataParams*>(getDataParameters());
     Q_ASSERT(_rtp);
     _rtp->setBlankTime(REPEATEDTIMEDATA_DEFAULT_BLANK);
     _rtp->setDuration(PARTIALTIMEDATA_DEFAULT_DURATION/(REPEATEDTIMEDATA_DEFAULT_BLANK*2));
     updateRepetitions();
+    connectSignals();
 }
 
-void RepeatedTimeData::connectSignal() {
+void RepeatedTimeData::connectSignals() {
+    RepeatedTimeData::connectSignals();
     //Connect the slot to change the max duration
-    connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions()));
-    connect(this ,SIGNAL(startTimeChanged(qreal)),this,SLOT(updateRepetitions()));
-    connect(this ,SIGNAL(durationChanged(qreal)),this,SLOT(updateRepetitions()));
+ //   connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions()));
+ //   connect(this ,SIGNAL(startTimeChanged(qreal)),this,SLOT(updateRepetitions()));
+ //   connect(this ,SIGNAL(durationChanged(qreal)),this,SLOT(updateRepetitions()));
     //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
     //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
 }

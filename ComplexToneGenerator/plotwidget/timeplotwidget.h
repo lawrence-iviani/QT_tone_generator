@@ -5,21 +5,11 @@
 #include "plotwidget/plotwidget.h"
 #include "plotwidget/timeplotwidgetparams.h"
 #include "plotwidget/timeplotwidgetui.h"
-#include  <qwt_plot_marker.h>
-#include  <qwt_symbol.h>
+#include <qwt_plot_marker.h>
+#include <qwt_symbol.h>
 #include <CTG_constants.h>
 #include <QRadioButton>
 #include <QGroupBox>
-
-//class TimePlotWidgetDelegate : public DataUiHandlerDelegate
-//{
-//public:
-//    TimePlotWidgetDelegate(TimePlotParams * params, TimePlotWidgetUI * ui , QObject *parent = 0) :
-//        DataUiHandlerDelegate((DataUiHandlerProperty*)params,(DataUiHandlerUI*)ui,"TimePlotWidgetDocument","TimePlotWidgetRoot",parent)
-//    {}
-//    virtual ~TimePlotWidgetDelegate() {}
-
-//};
 
 /**
   * This class specializes the PlotWidget with a data digest class a sum of all the init timedata in the prject.
@@ -50,33 +40,12 @@ public slots:
      * @brief updateAndRecalc Override base method and recall a digest update.
      */
     virtual void recalcAndUpdatePlot() {
-        if (m_enableUpdate) {
+        if (isPlotUpdateEnabled()) {
+            PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ Digest Update "));
             m_digestCurve->updateData();
             updatePlot();
         }
     }
-
-//    /**
-//     * @brief setEnableUpdate enable/disble of update the widget, this is propagate to all curves
-//     * @param enable
-//     * @return the previous value
-//     */
-//    virtual bool setEnableUpdate(bool enable);
-
-//    /**
-//     * @brief forceRecalcAll force to recalc all the data curve and the digest curve. All the curves are recalculated by calling recalc
-//     */
-//    virtual void forceRecreateAll();
-
-//    /**
-//     * @brief forceUpdateAll force to update all the data curve and the digest curve. All the curves are recalculated by calling update
-//     */
-//    virtual void forceUpdateAll() ;
-
-//    /**
-//     * @brief updateUI update the UI to the actual stored parameters (sample rate and duration).
-//     */
-//    void updateUI();
 
     /**
      * @brief showAllCurves show/hide all curves stored in this widget

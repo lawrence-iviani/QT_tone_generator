@@ -2,7 +2,7 @@
 
 PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     QwtPlot(parent),
-    m_enableUpdate(true)
+    m_enablePlotUpdate(true)
 {
     m_dimension=PLOTWIDGET_DEFAULT_PLOT_DIMENSION;
     this->plotSetup();
@@ -177,13 +177,10 @@ GenericTimeData *PlotWidget::getTimeData(int index) {
 //    }
 //}
 
-bool PlotWidget::setEnableUpdate(bool enable) {
-    bool retval=m_enableUpdate;
-    if (enable!=m_enableUpdate) {
-        m_enableUpdate=enable;
-        foreach(GenericTimeData* p, m_curveList) {
-            enable ? p->enableUpdate() : p->inihbitUpdate();
-        }
+bool PlotWidget::setEnablePlot(bool enable) {
+    bool retval=m_enablePlotUpdate;
+    if (enable!=m_enablePlotUpdate) {
+        m_enablePlotUpdate=enable;
     }
     return retval;
 }

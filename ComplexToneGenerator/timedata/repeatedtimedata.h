@@ -48,6 +48,7 @@ protected:
      * @return True if the insert was succesful.
      */
     virtual bool insertSignalValue(quint64 index, qreal value);
+    virtual void connectSignals();
 
 private slots:
     /**
@@ -56,7 +57,7 @@ private slots:
     void updateRepetitions();
 private:
     void init(TimePlotParams *timePlotParams);
-    void connectSignal();
+
     uint m_repetitions;
 };
 

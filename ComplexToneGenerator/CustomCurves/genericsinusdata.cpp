@@ -142,6 +142,16 @@ void GenericSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,Tim
     connectSignals();
 }
 
+void GenericSinusData::connectSignals() {
+    GenericTimeData::connectSignals();
+
+    GenericSinusParams* _gsp=dynamic_cast<GenericSinusParams*>(getDataParameters());
+    Q_ASSERT(_gsp);
+    Q_ASSERT(connect(_gsp,SIGNAL(amplitudeChanged(qreal)),this,SLOT(updateData())));
+    Q_ASSERT(connect(_gsp,SIGNAL(frequencyChanged(qreal)),this,SLOT(updateData())));
+    Q_ASSERT(connect(_gsp,SIGNAL(initPhaseChanged(qreal)),this,SLOT(updateData())));
+}
+
 void GenericSinusData::recalc() {
     GenericSinusParams* _gsp=dynamic_cast<GenericSinusParams*>(getDataParameters());
     Q_ASSERT(_gsp);

@@ -16,14 +16,15 @@ void PartialTimeData::init(TimePlotParams *timePlotParams) {
     DataUiHandlerProperty* _castedDerivedProp=dynamic_cast<DataUiHandlerProperty*>(_derivedProp);
     _delegate->replacePropertiesAndUI(_castedDerivedProp,
                                       dynamic_cast<DataUiHandlerUI*> (new PartialTimeDataUI() ));
-    this->connectSignal();
     PartialTimeDataParams* _ptp=dynamic_cast<PartialTimeDataParams*>(getDataParameters());
     Q_ASSERT(_ptp);
     _ptp->sett0( PARTIALTIMEDATA_DEFAULT_T0);
     _ptp->setDuration(PARTIALTIMEDATA_DEFAULT_DURATION);
+    connectSignals();
 }
 
-void PartialTimeData::connectSignal() {
+void PartialTimeData::connectSignals() {
+    GenericTimeData::connectSignals();
     //Connect the slot to change the max duration
     //connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(maxDurationChange(qreal)));//This grant when never SR o duration is changed the appropriate methods are called!
     //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.

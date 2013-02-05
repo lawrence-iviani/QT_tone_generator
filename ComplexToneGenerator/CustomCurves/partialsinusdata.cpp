@@ -140,8 +140,18 @@ void PartialSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,Tim
     _psp->setAmplitude(amplitude);
     _psp->setFrequency(frequency);
     _psp->setInitPhase(initPhase);
+    connectSignals();
 }
 
+void PartialSinusData::connectSignals() {
+    PartialTimeData::connectSignals();
+
+    PartialSinusParams* _psp=dynamic_cast<PartialSinusParams*>(getDataParameters());
+    Q_ASSERT(_psp);
+    Q_ASSERT(connect(_psp,SIGNAL(amplitudeChanged(qreal)),this,SLOT(updateData())));
+    Q_ASSERT(connect(_psp,SIGNAL(frequencyChanged(qreal)),this,SLOT(updateData())));
+    Q_ASSERT(connect(_psp,SIGNAL(initPhaseChanged(qreal)),this,SLOT(updateData())));
+}
 
 void PartialSinusData::recalc() {
     PartialSinusParams* _psp=dynamic_cast<PartialSinusParams*>(getDataParameters());

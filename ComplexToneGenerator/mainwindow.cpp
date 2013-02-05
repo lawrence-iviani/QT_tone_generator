@@ -340,7 +340,7 @@ void MainWindow::removeCurve(){
      QList<int> _selctedCurvesList=removeDialog->getSelectedCurvesIndex();
      qSort(_selctedCurvesList);
      int _extracted=0;
-     bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
+     bool _prevValueEnablePlot=m_plotTime->setEnablePlot(false);
      foreach (int i, _selctedCurvesList) {
             int _index=i-_extracted;
             int _indexui=_index+m_toolBoxFixedItem;
@@ -357,7 +357,7 @@ void MainWindow::removeCurve(){
                 qDebug() << "MainWindow::removeCurve: removed GenericTimeData@index=" <<_index;
             }
      }
-     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
+     m_plotTime->setEnablePlot(_prevValueEnablePlot);
      m_plotTime->updatePlot();
      this->digestCurveChanged();
      delete removeDialog;
@@ -365,13 +365,13 @@ void MainWindow::removeCurve(){
 
 void MainWindow::removeAllCurves() {
     //Disable update
-    bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
+    bool _prevValueEnablePlot=m_plotTime->setEnablePlot(false);
     while (m_plotTime->removeTimeData(0))  {
         //s_widgetUI.toolboxOption->removeItem(m_toolBoxFixedItem);
         //delete s_widgetUI.toolboxOption->widget(m_toolBoxFixedItem);
      }
     //enable again and force recalc
-     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
+     m_plotTime->setEnablePlot(_prevValueEnablePlot);
      m_plotTime->updatePlot();
      this->digestCurveChanged();
 }

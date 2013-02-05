@@ -52,9 +52,9 @@ protected:
       */
     virtual quint64 highestSampleIndexForModification();
 
+    virtual void connectSignals();
 private:
     void init(TimePlotParams *timePlotParams);
-    void connectSignal();
     void privateSetDuration(qreal duration);
 
 private slots:
