@@ -1,5 +1,12 @@
 #include "partialtimedataparams.h"
 
+PartialTimeDataParams::PartialTimeDataParams(QObject *parent) :
+    GenericTimeDataParams(parent),
+    m_t0(0),
+    m_duration(0)
+{}
+
+
 PartialTimeDataParams::PartialTimeDataParams(GenericTimeDataParams * baseProperty, TimePlotParams* params,QObject *parent) :
     GenericTimeDataParams(baseProperty,params,parent),
     m_t0(0),

@@ -15,6 +15,7 @@ class PartialTimeDataParams : public GenericTimeDataParams
     Q_PROPERTY(qreal t0 READ t0 WRITE sett0 NOTIFY t0Changed)
 
 public:
+    explicit PartialTimeDataParams(QObject *parent);
     explicit PartialTimeDataParams(GenericTimeDataParams * baseProperty,TimePlotParams* params,QObject *parent);
 
     inline qreal duration() {return m_duration;}

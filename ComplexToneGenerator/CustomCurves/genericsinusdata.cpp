@@ -1,6 +1,14 @@
 #include "genericsinusdata.h"
 
 //---------- PARAMETERS ----------
+
+GenericSinusParams::GenericSinusParams(QObject * parent) : //,TimePlotParams* params, QObject *parent) :
+    GenericTimeDataParams(parent),
+    m_amplitude(SINUSDATA_DEFAULT_AMPLITUDE),
+    m_frequency(SINUSDATA_DEFAULT_FREQUENCY),
+    m_initPhase(SINUSDATA_DEFAULT_INITPHASE)
+{}
+
 GenericSinusParams::GenericSinusParams(GenericTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent) :
     GenericTimeDataParams(baseProperty,params,parent),
     m_amplitude(SINUSDATA_DEFAULT_AMPLITUDE),
@@ -108,29 +116,24 @@ void GenericSinusUI::initPhaseUIUpdate(qreal initphase) {
 GenericSinusData::GenericSinusData(QObject * parent) :
     GenericTimeData (parent)
 {
-    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,NULL);
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE);
 }
 
 GenericSinusData::GenericSinusData(TimePlotParams * timePlotParams, QObject * parent) :
     GenericTimeData(timePlotParams,parent)
 {
-    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,timePlotParams);
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE);
 }
 
 GenericSinusData::GenericSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QObject * parent) :
     GenericTimeData(timePlotParams,parent)
 {
-    init(amplitude,frequency,initPhase,timePlotParams);
+    init(amplitude,frequency,initPhase);
 }
 
-void GenericSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,TimePlotParams * timePlotParams) {
-   //Create the delegate and instance the UI and the parameters
-    GenericTimeDataParams* _baseProp=dynamic_cast<GenericTimeDataParams*>(GenericTimeData::getDataParameters());
-    Q_ASSERT(_baseProp);
-    DataUiHandlerDelegate* _delegate=getDelegate();
-    GenericSinusParams* _derivedProp=new GenericSinusParams( _baseProp,timePlotParams,(QObject*)this);
-    DataUiHandlerProperty* _castedDerivedProp=dynamic_cast<DataUiHandlerProperty*>(_derivedProp);
-    _delegate->replacePropertiesAndUI(_castedDerivedProp,
+void GenericSinusData::init(qreal amplitude, qreal frequency, qreal initPhase) {
+    GenericSinusParams* _derivedProp=new GenericSinusParams((QObject*)this);
+    getDelegate()->replacePropertiesAndUI(dynamic_cast<DataUiHandlerProperty*>(_derivedProp),
                                       dynamic_cast<DataUiHandlerUI*> (new GenericSinusUI() ));
 
     //Set any eventual default parameters or passed by the constructor argmuents

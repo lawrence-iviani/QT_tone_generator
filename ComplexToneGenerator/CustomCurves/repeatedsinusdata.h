@@ -14,7 +14,7 @@ class RepeatedSinusParams  : public RepeatedTimeDataParams
     Q_PROPERTY(qreal initPhase READ initPhase WRITE setInitPhase NOTIFY initPhaseChanged)
 
 public:
-
+    explicit RepeatedSinusParams(QObject *parent);
     explicit RepeatedSinusParams(RepeatedTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent);
     explicit RepeatedSinusParams(RepeatedTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent, qreal amplitude, qreal frequency, qreal initPhase);
 
@@ -82,7 +82,7 @@ protected:
     virtual void connectSignals();
 
 private:
-    void init(qreal amplitude,qreal frequency, qreal initPhase, TimePlotParams * timePlotParams);
+    void init(qreal amplitude, qreal frequency, qreal initPhase);
 };
 
 #endif // REPEATEDSINUSDATA_H

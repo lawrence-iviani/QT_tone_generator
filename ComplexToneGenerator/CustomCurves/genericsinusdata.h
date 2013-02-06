@@ -18,6 +18,7 @@ class GenericSinusParams  : public GenericTimeDataParams
     Q_PROPERTY(qreal initPhase READ initPhase WRITE setInitPhase NOTIFY initPhaseChanged)
 
 public:
+    explicit GenericSinusParams(QObject * parent) ;
     explicit GenericSinusParams(GenericTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent);
     explicit GenericSinusParams(GenericTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent, qreal amplitude, qreal frequency, qreal initPhase);
 
@@ -85,7 +86,7 @@ protected:
     virtual void connectSignals();
 
 private:
-    void init(qreal amplitude, qreal frequency, qreal initPhase,TimePlotParams * timePlotParams);
+    void init(qreal amplitude, qreal frequency, qreal initPhase);
 
 };
 

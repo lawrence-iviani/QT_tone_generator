@@ -38,6 +38,16 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
     m_curve=new QwtPlotCurve(_gtdp->name());
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
+
+    //setting color & Style
+    QPen _p=m_curve->pen();
+    QColor _c=_gtdp->color();
+    _c.setAlpha(PLOTWIDGET_DEFAULT_PLOT_CURVE_TRANSPARENCY);
+    _p.setColor(_c);
+    _p.setWidthF(PLOTWIDGET_DEFAULT_PLOT_CURVE_WIDTH);
+    m_curve->setPen(_p);
+
+
     //Set property for this curve
     setTimePlotParams(timePlotParams);
     _gtdp->setShowCurve(true);
@@ -216,9 +226,13 @@ void GenericTimeData::curveHasChanged() {
     Q_ASSERT(_gtdp!=NULL);
 
     //setting color
-    QPen  p=m_curve->pen();
-    p.setColor(_gtdp->color());
-    m_curve->setPen(p);
+    //setting color & Style
+    QPen _p=m_curve->pen();
+    QColor _c=_gtdp->color();
+    _c.setAlpha(PLOTWIDGET_DEFAULT_PLOT_CURVE_TRANSPARENCY);
+    _p.setColor(_c);
+    _p.setWidthF(PLOTWIDGET_DEFAULT_PLOT_CURVE_WIDTH);
+    m_curve->setPen(_p);
 
     //Set name
     m_curve->setTitle(_gtdp->name());

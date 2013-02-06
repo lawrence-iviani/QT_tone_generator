@@ -15,6 +15,16 @@ void DigestTimeData::init() {
     //Force to disconnect the envelope data. Saving on performance
     disconnect(this->getEnvelopeData(),SIGNAL(envelopeChanged()),this,SLOT(updateData()));
     this->updateData();
+
+    //setting color & Style
+    QwtPlotCurve *_curve=this->getCurve();
+    QPen _p=_curve->pen();
+    QColor _c=_p.color();
+    _c.setAlpha(PLOTWIDGET_DEFAULT_PLOT_CURVE_TRANSPARENCY);
+    _p.setColor(_c);
+    _p.setWidthF(PLOTWIDGET_DEFAULT_PLOT_CURVE_WIDTH*2);
+    _curve->setPen(_p);
+    this->getCurve()->setPen(_p);
 }
 
 DigestTimeData::~DigestTimeData() {}

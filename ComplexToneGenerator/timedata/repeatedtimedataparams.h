@@ -13,6 +13,7 @@ class RepeatedTimeDataParams : public PartialTimeDataParams
     Q_OBJECT
         Q_PROPERTY(qreal blanktime READ blankTime WRITE setBlankTime NOTIFY blankTimeChanged)
 public:
+    explicit RepeatedTimeDataParams(QObject *parent);
     explicit RepeatedTimeDataParams(PartialTimeDataParams * baseProperty,TimePlotParams* params,QObject *parent);
 
     inline qreal blankTime() {return m_blankTime;}

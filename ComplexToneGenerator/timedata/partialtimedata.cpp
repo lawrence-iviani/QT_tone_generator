@@ -9,6 +9,7 @@ PartialTimeData::PartialTimeData(TimePlotParams *timePlotParams, QObject *parent
 {    init(timePlotParams); }
 
 void PartialTimeData::init(TimePlotParams *timePlotParams) {
+
     GenericTimeDataParams* _baseProp=dynamic_cast<GenericTimeDataParams*>(GenericTimeData::getDataParameters());
     Q_ASSERT(_baseProp);
     DataUiHandlerDelegate* _delegate=getDelegate();
@@ -25,10 +26,15 @@ void PartialTimeData::init(TimePlotParams *timePlotParams) {
 
 void PartialTimeData::connectSignals() {
     GenericTimeData::connectSignals();
+
+    PartialTimeDataParams* _ptd=dynamic_cast<PartialTimeDataParams*>(getDataParameters());
+    Q_ASSERT(_ptd);
+    Q_ASSERT(connect(_ptd,SIGNAL(durationChanged(qreal)),this,SLOT(createData())));
+    Q_ASSERT(connect(_ptd,SIGNAL(t0Changed(qreal)),this,SLOT(createData())));
+
     //Connect the slot to change the max duration
     //connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(maxDurationChange(qreal)));//This grant when never SR o duration is changed the appropriate methods are called!
-    //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
-    //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
+
 }
 
 //void PartialTimeData::setDuration(qreal duration) {

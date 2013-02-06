@@ -25,7 +25,12 @@ void RepeatedTimeData::init(TimePlotParams *timePlotParams) {
 }
 
 void RepeatedTimeData::connectSignals() {
-    RepeatedTimeData::connectSignals();
+    PartialTimeData::connectSignals();
+
+    RepeatedTimeDataParams* _rtd=dynamic_cast<RepeatedTimeDataParams*>(getDataParameters());
+    Q_ASSERT(_rtd);
+    Q_ASSERT(connect(_rtd,SIGNAL(blankTimeChanged(qreal)),this,SLOT(createData())));
+
     //Connect the slot to change the max duration
  //   connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions()));
  //   connect(this ,SIGNAL(startTimeChanged(qreal)),this,SLOT(updateRepetitions()));

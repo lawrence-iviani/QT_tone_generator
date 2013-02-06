@@ -1,5 +1,9 @@
 #include "repeatedtimedataparams.h"
 
+RepeatedTimeDataParams::RepeatedTimeDataParams(QObject *parent) :
+    PartialTimeDataParams(parent),
+    m_blankTime(0)
+{}
 
 RepeatedTimeDataParams::RepeatedTimeDataParams(PartialTimeDataParams * baseProperty, TimePlotParams* params,QObject *parent) :
     PartialTimeDataParams(baseProperty,params,parent),

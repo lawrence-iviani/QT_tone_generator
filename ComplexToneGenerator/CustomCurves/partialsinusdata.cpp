@@ -2,6 +2,13 @@
 #include "genericsinusdata.h"
 
 //---------- PARAMETERS ----------
+PartialSinusParams::PartialSinusParams(QObject *parent) :
+    PartialTimeDataParams(parent),
+m_amplitude(SINUSDATA_DEFAULT_AMPLITUDE),
+m_frequency(SINUSDATA_DEFAULT_FREQUENCY),
+m_initPhase(SINUSDATA_DEFAULT_INITPHASE)
+{}
+
 PartialSinusParams::PartialSinusParams(PartialTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent) :
     PartialTimeDataParams(baseProperty,params,parent),
     m_amplitude(SINUSDATA_DEFAULT_AMPLITUDE),
@@ -109,29 +116,24 @@ void PartialSinusUI::initPhaseUIUpdate(qreal initphase) {
 PartialSinusData::PartialSinusData(QObject * parent) :
     PartialTimeData (parent)
 {
-    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,NULL);
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE);
 }
 
 PartialSinusData::PartialSinusData(TimePlotParams * timePlotParams, QObject * parent) :
     PartialTimeData(timePlotParams,parent)
 {
-    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,timePlotParams);
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE);
 }
 
 PartialSinusData::PartialSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QObject * parent) :
     PartialTimeData(timePlotParams,parent)
 {
-    init(amplitude,frequency,initPhase,timePlotParams);
+    init(amplitude,frequency,initPhase);
 }
 
-void PartialSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,TimePlotParams * timePlotParams) {
-   //Create the delegate and instance the UI and the parameters
-    PartialTimeDataParams* _baseProp=dynamic_cast<PartialTimeDataParams*>(PartialTimeData::getDataParameters());
-    Q_ASSERT(_baseProp);
-    DataUiHandlerDelegate* _delegate=getDelegate();
-    PartialSinusParams* _derivedProp=new PartialSinusParams( _baseProp,timePlotParams,(QObject*)this);
-    DataUiHandlerProperty* _castedDerivedProp=dynamic_cast<DataUiHandlerProperty*>(_derivedProp);
-    _delegate->replacePropertiesAndUI(_castedDerivedProp,
+void PartialSinusData::init(qreal amplitude,qreal frequency, qreal initPhase) {
+    PartialSinusParams* _derivedProp=new PartialSinusParams((QObject*)this);
+    getDelegate()->replacePropertiesAndUI(dynamic_cast<DataUiHandlerProperty*>(_derivedProp),
                                       dynamic_cast<DataUiHandlerUI*> (new PartialSinusUI() ));
 
     //Set any eventual default parameters or passed by the constructor argmuents

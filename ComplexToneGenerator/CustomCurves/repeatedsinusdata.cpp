@@ -3,6 +3,13 @@
 #include "genericsinusdata.h"
 
 //---------- PARAMETERS ----------
+RepeatedSinusParams::RepeatedSinusParams(QObject *parent) :
+    RepeatedTimeDataParams(parent),
+    m_amplitude(SINUSDATA_DEFAULT_AMPLITUDE),
+    m_frequency(SINUSDATA_DEFAULT_FREQUENCY),
+    m_initPhase(SINUSDATA_DEFAULT_INITPHASE)
+{}
+
 RepeatedSinusParams::RepeatedSinusParams(RepeatedTimeDataParams * baseProperty,TimePlotParams* params, QObject *parent) :
     RepeatedTimeDataParams(baseProperty,params,parent),
     m_amplitude(SINUSDATA_DEFAULT_AMPLITUDE),
@@ -106,35 +113,30 @@ void RepeatedSinusUI::initPhaseUIUpdate(qreal initphase) {
 }
 
 
-
 //---------- FRONTEND ----------
 RepeatedSinusData::RepeatedSinusData(QObject * parent) :
     RepeatedTimeData (parent)
 {
-    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,NULL);
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE);
 }
 
 RepeatedSinusData::RepeatedSinusData(TimePlotParams * timePlotParams, QObject * parent) :
     RepeatedTimeData(timePlotParams,parent)
 {
-    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE,timePlotParams);
+    init(SINUSDATA_DEFAULT_AMPLITUDE,SINUSDATA_DEFAULT_FREQUENCY,SINUSDATA_DEFAULT_INITPHASE);
 }
 
 RepeatedSinusData::RepeatedSinusData(TimePlotParams * timePlotParams, qreal amplitude, qreal frequency, qreal initPhase , QObject * parent) :
     RepeatedTimeData(timePlotParams,parent)
 {
-    init(amplitude,frequency,initPhase,timePlotParams);
+    init(amplitude,frequency,initPhase);
 }
 
-void RepeatedSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,TimePlotParams * timePlotParams) {
-   //Create the delegate and instance the UI and the parameters
-    RepeatedTimeDataParams* _baseProp=dynamic_cast<RepeatedTimeDataParams*>(RepeatedTimeData::getDataParameters());
-    Q_ASSERT(_baseProp);
-    DataUiHandlerDelegate* _delegate=getDelegate();
-    RepeatedSinusParams* _derivedProp=new RepeatedSinusParams( _baseProp,timePlotParams,(QObject*)this);
-    DataUiHandlerProperty* _castedDerivedProp=dynamic_cast<DataUiHandlerProperty*>(_derivedProp);
-    _delegate->replacePropertiesAndUI(_castedDerivedProp,
+void RepeatedSinusData::init(qreal amplitude,qreal frequency, qreal initPhase) {
+    RepeatedSinusParams* _derivedProp=new RepeatedSinusParams((QObject*)this);
+    getDelegate()->replacePropertiesAndUI(dynamic_cast<DataUiHandlerProperty*>(_derivedProp),
                                       dynamic_cast<DataUiHandlerUI*> (new RepeatedSinusUI() ));
+
 
     //Set any eventual default parameters or passed by the constructor argmuents
     RepeatedSinusParams* _rsp=dynamic_cast<RepeatedSinusParams*>(getDataParameters());
@@ -146,7 +148,7 @@ void RepeatedSinusData::init(qreal amplitude,qreal frequency, qreal initPhase,Ti
 }
 
 void RepeatedSinusData::connectSignals() {
-    PartialTimeData::connectSignals();
+    RepeatedTimeData::connectSignals();
 
     RepeatedSinusParams* _rsp=dynamic_cast<RepeatedSinusParams*>(getDataParameters());
     Q_ASSERT(_rsp);

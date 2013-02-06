@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QMetaProperty>
 #include <errormessage.h>
+#include <QHash>
 #include "datauihandlercommon.h"
 #include "datauihandlerproperty.h"
 #include "datauihandlerui.h"
@@ -122,6 +123,8 @@ private:
      */
     bool isEnabledData() {return m_updateDataEnabled;}
 
+    void readProperties(DataUiHandlerProperty *properties,  QHash<QString, QVariant> &hash);
+    void writeProperties(DataUiHandlerProperty *properties, QHash<QString, QVariant>& hash);
 private slots:
     /**
      * @brief dataChanged This slot is called everytime a property change,

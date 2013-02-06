@@ -25,8 +25,11 @@ const static QString WINDOW_TAG="MainWindow";//Not really used, for future devel
 //DOCTYPE
 const static QString PROJECT_DOCTYPE="CTG_project";
 const static QString PROJECT_CURVETYPE="CTG_curve";
+
 //Some constant regarding the draw
 static const int PLOTWIDGET_DEFAULT_PLOT_DIMENSION=10;//The default font size in px, every widget has its own poliicy scaling starting from this value
+static const qreal PLOTWIDGET_DEFAULT_PLOT_CURVE_WIDTH=0.5;
+static const int PLOTWIDGET_DEFAULT_PLOT_CURVE_TRANSPARENCY=125;
 
 //About my company, yes I'm an industrial! :)))
 const static QString COMPANYNAME="PuppaSoft";

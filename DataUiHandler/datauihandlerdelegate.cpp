@@ -262,8 +262,9 @@ void DataUiHandlerDelegate::replacePropertiesAndUI(DataUiHandlerProperty *proper
     }
     DataUiHandlerProperty *prevProperties=m_property;
     DataUiHandlerUI *prevUi=m_ui;
-   // if (m_property) delete m_property;
-   // if (m_ui) delete m_ui;
+
+    QHash<QString, QVariant> _hashProperties;
+    readProperties(m_property,_hashProperties);
 
     m_property=properties;
     m_ui=ui;
@@ -277,11 +278,41 @@ void DataUiHandlerDelegate::replacePropertiesAndUI(DataUiHandlerProperty *proper
 
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,_err1);
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,_err2);
+
+
     setHostObject(m_property);
     initClass();
+    writeProperties(m_property,_hashProperties);
 
     //These leads to a crash, but without lead to a memory leakage... (BUG)!
     delete(prevProperties);
     delete(prevUi);
 
 }
+
+void DataUiHandlerDelegate::readProperties(DataUiHandlerProperty *properties, QHash<QString, QVariant>& hash) {
+    const QMetaObject* _propMetaObject = properties->metaObject();
+    for (int n=0; n < _propMetaObject->propertyCount() ; n++) {
+        QMetaProperty _prop=_propMetaObject->property(n);
+        QString _propName=_prop.name();
+        QVariant _propValueVariant=_prop.read(properties);
+        if (_propValueVariant.isValid())
+            hash[_propName] = _propValueVariant;
+    }
+}
+
+void DataUiHandlerDelegate::writeProperties(DataUiHandlerProperty *properties, QHash<QString, QVariant>& hash) {
+    const QMetaObject* _propMetaObject = properties->metaObject();
+    for (int n=0; n < _propMetaObject->propertyCount() ; n++) {
+        QMetaProperty _prop=_propMetaObject->property(n);
+        QString _propName=_prop.name();
+        if (hash.contains(_propName)) {
+             QVariant  _propValueVariant = hash.value(_propName);
+             if (!_prop.write(properties,_propValueVariant))
+                 Q_ASSERT(false);
+        }
+    }
+
+}
+
+
