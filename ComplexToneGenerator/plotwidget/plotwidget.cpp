@@ -45,16 +45,13 @@ void PlotWidget::plotSetup() {
     _palette.setColor(QPalette::Text, Qt::gray);
     this->axisWidget(yLeft)->setPalette((const QPalette)_palette);
 
-
     //canvas
-    //this->canvas()->setLineWidth( 1 );
     this->canvas()->setFrameStyle( QFrame::Box | QFrame::Raised );
     this->canvas()->setBorderRadius( 12 );
-    QPalette canvasPalette( Qt::lightGray );
-    canvasPalette.setColor( QPalette::Foreground, QColor( 133, 190, 232 ) );
-    this->canvas()->setPalette( canvasPalette );
+    PlotWidgetBackground *bg = new PlotWidgetBackground(QColor( 230, 230, 255 ));
+    bg->attach(this);
     m_scrollRubberBand=new ScrollRubberBand(this->canvas());
-    //this->setDimension(m_dimension);
+
 }
 
 void PlotWidget::setXScaleType(int xScaleType) {
@@ -117,6 +114,7 @@ void PlotWidget::setDimension(int pointDimension) {
 int PlotWidget::addTimeData(GenericTimeData * gtd) {
     if (!gtd) return -1;
     m_curveList.append(gtd);
+    gtd->getCurve()->setZ(m_curveList.length());
     gtd->getCurve()->attach(this);
     Q_ASSERT(connect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot())));
     Q_ASSERT(connect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot())));

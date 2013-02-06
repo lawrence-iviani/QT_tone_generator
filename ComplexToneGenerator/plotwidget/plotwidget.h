@@ -17,6 +17,7 @@
 #include <qwt_interval.h>
 #include <qwt_scale_engine.h>
 #include <QList>
+#include <QPainter>
 #include "timedata/generictimedata.h"
 #include "zmp_handler.h"
 #include "plotwidget/scrollrubberband.h"
@@ -36,6 +37,7 @@ class PlotWidget : public QwtPlot
 public:
     enum Scale {Linear=0, Logarithmic=1};
     explicit PlotWidget(QWidget *widget = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
+
     void setAxisName(QString xName,QString yName);
     void setBothAxisScale(qreal xmin, qreal xmax,qreal ymin, qreal ymax);
     void setBothAxisScale(int xScaleType, qreal xmin, qreal xmax,int yScaleType,qreal ymin, qreal ymax);
@@ -140,6 +142,54 @@ private:
     void plotSetup();
     int m_dimension;
 
+};
+
+class PlotWidgetBackground: public QwtPlotItem
+{
+public:
+    PlotWidgetBackground(QColor color) : //=QColor(70,150,255)) :
+        m_color(color)
+    {
+        setZ(0.0);
+    }
+
+    virtual int rtti() const
+    {
+        return QwtPlotItem::Rtti_PlotUserItem;
+    }
+
+    virtual void draw(QPainter *painter,
+        const QwtScaleMap &, const QwtScaleMap &yMap,
+        const QRectF &rect) const
+    {
+        Q_UNUSED(yMap);
+        QRectF r = rect;
+        QColor c=m_color;
+        //this->plot()->axisMaxMinor(QwtPlot::yLeft)
+//        for ( int i = 100; i > -100; i -= 1 )
+//        {
+//            r.setBottom(yMap.transform(i - 1));
+//            r.setTop(yMap.transform(i));
+//            painter->fillRect(r, c);
+//            c = c.dark(101);
+//        }
+        int ymin=(int) rect.y();
+        int ymax=(int) rect.y()+rect.height();
+        int step=rect.height()/70;
+
+        for ( int i = ymax; i > ymin; i -= step )
+        {
+            r.setBottom(i-step);
+            r.setTop(i);
+            painter->fillRect(r, c);
+            c = c.dark(101);
+        }
+    }
+    QColor color() {return m_color;}
+    void setColor(QColor color) {m_color=color;}
+
+private:
+    QColor m_color;
 };
 
 #endif // PLOTWIDGET_H

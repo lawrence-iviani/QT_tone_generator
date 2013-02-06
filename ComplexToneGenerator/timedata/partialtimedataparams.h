@@ -12,7 +12,7 @@ class PartialTimeDataParams : public GenericTimeDataParams
 {
     Q_OBJECT
     Q_PROPERTY(qreal duration READ duration WRITE setDuration NOTIFY durationChanged)
-    Q_PROPERTY(qreal t0 READ t0 WRITE sett0 NOTIFY t0Changed)
+    Q_PROPERTY(qreal t0 READ t0 WRITE setT0 NOTIFY t0Changed)
 
 public:
     explicit PartialTimeDataParams(QObject *parent);
@@ -27,7 +27,7 @@ signals:
 
 public slots:
     void setDuration(qreal duration);
-    void sett0(qreal t0);
+    void setT0(qreal t0);
 
 private:
     qreal m_t0;

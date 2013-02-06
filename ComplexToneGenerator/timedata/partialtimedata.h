@@ -37,6 +37,11 @@ public:
 signals:
 
 public slots:
+    /**
+      * Set the max duration of this signal and update for data, redefine in the inerithed class if you want change beaviour. (ie don't call an update)
+      * you have to change the singal length. Tipically you should override this method.
+      */
+    virtual void maxDurationHasChanged(qreal maxDuration);
 
 protected:
 
@@ -58,7 +63,7 @@ private:
     void privateSetDuration(qreal duration);
 
 private slots:
-    void maxDurationChange(qreal maxduration);
+  //  void maxDurationChange(qreal maxduration);
 };
 
 #endif // PARTIALTIMEDATA_H

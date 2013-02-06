@@ -20,6 +20,9 @@ public slots:
 
     void durationUIUpdate(qreal duration);
     void t0UIUpdate(qreal t0);
+    void setT0Scale(qreal maxDuration);
+    void setDurationScale();
+
 //    /**
 //      * Force the UI to be update re-reading information from the referenced GenericTimeData class.
 //      * This slot doesn't propagate the signal/slot related to the UI, is intended to be called just to refresh the UI if something changes in the data class

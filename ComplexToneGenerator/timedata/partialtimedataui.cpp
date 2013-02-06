@@ -25,7 +25,7 @@ void PartialTimeDataUI::initControlWidget() {
     //set duration
     m_partialDataControl.widgetDuration = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
     m_partialDataControl.widgetDuration->setDigitAccuracy(3);
-    m_partialDataControl.widgetDuration->setScale(0,TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_TIMESTEP);//TODO: this needs to be set from an external part, ie the base class
+    m_partialDataControl.widgetDuration->setScale(0,TIMEDATA_DEFAULT_PROJECT_TIME,TIMEDATA_DEFAULT_TIMESTEP);
     m_partialDataControl.widgetDuration->setName("Duration");
     m_partialDataControl.widgetDuration->setMeasureUnit("Sec.");
     m_partialDataControl.widgetDuration->setFont(f);
@@ -55,6 +55,19 @@ void PartialTimeDataUI::durationUIUpdate(qreal duration) {
 void PartialTimeDataUI::t0UIUpdate(qreal t0) {
     if (t0!=m_partialDataControl.widget_t0->value())
         m_partialDataControl.widget_t0->setValue(t0);
+}
+
+void PartialTimeDataUI::setT0Scale(qreal maxDuration) {
+    if (maxDuration>=0) {
+        m_partialDataControl.widget_t0->setScale(0,maxDuration,TIMEDATA_DEFAULT_TIMESTEP);
+        setDurationScale();
+    }
+}
+
+void PartialTimeDataUI::setDurationScale() {
+    qreal _maxVal=m_partialDataControl.widget_t0->getMaximumScaleValue()-m_partialDataControl.widget_t0->value();
+    _maxVal=qMax(0.0,_maxVal);
+    m_partialDataControl.widgetDuration->setScale(0,_maxVal,TIMEDATA_DEFAULT_TIMESTEP);
 }
 
 //void PartialTimeDataUI::durationChange(qreal duration) {

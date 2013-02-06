@@ -10,6 +10,7 @@
 #include  <QDebug>
 #include "scaledslider.h"
 
+class ScaledSlider;
 
 static const unsigned short int SCALED_SLIDER_DEFAULT_DIGIT_ACCURACY=2;
 
@@ -29,6 +30,9 @@ public:
     qreal value();
     void setFont(QFont f);
     unsigned short int digitAccuracy() {return m_digitAccuracy;}
+    qreal getMinimumScaleValue() {return m_slider->getMinimumScaleValue();}
+    qreal getMaximumScaleValue() {return m_slider->getMaximumScaleValue();}
+
 signals:
     void valueChanged(qreal);
 public slots:

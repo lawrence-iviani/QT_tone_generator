@@ -13,7 +13,7 @@ PartialTimeDataParams::PartialTimeDataParams(GenericTimeDataParams * basePropert
     m_duration(0)
 {}
 
-void PartialTimeDataParams::sett0(qreal t0) {
+void PartialTimeDataParams::setT0(qreal t0) {
     if (m_t0!=t0) {
         m_t0=t0;
         emit (t0Changed(t0));

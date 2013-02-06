@@ -19,7 +19,7 @@ void PartialTimeData::init(TimePlotParams *timePlotParams) {
                                       dynamic_cast<DataUiHandlerUI*> (new PartialTimeDataUI() ));
     PartialTimeDataParams* _ptp=dynamic_cast<PartialTimeDataParams*>(getDataParameters());
     Q_ASSERT(_ptp);
-    _ptp->sett0( PARTIALTIMEDATA_DEFAULT_T0);
+    _ptp->setT0( PARTIALTIMEDATA_DEFAULT_T0);
     _ptp->setDuration(PARTIALTIMEDATA_DEFAULT_DURATION);
     connectSignals();
 }
@@ -29,9 +29,17 @@ void PartialTimeData::connectSignals() {
 
     PartialTimeDataParams* _ptd=dynamic_cast<PartialTimeDataParams*>(getDataParameters());
     Q_ASSERT(_ptd);
+    PartialTimeDataUI* _ptdUI=dynamic_cast<PartialTimeDataUI*>(getControlWidget());
+
+    //if parameters change, update plot
     Q_ASSERT(connect(_ptd,SIGNAL(durationChanged(qreal)),this,SLOT(createData())));
     Q_ASSERT(connect(_ptd,SIGNAL(t0Changed(qreal)),this,SLOT(createData())));
 
+
+    //if maxduration change update t0 scale and duration scale
+    Q_ASSERT(connect(_ptd,SIGNAL(maxDurationChanged(qreal)),_ptdUI,SLOT(setT0Scale(qreal))));
+    //if t0 changed update the duration scale
+    Q_ASSERT(connect(_ptd,SIGNAL(t0Changed(qreal)),_ptdUI,SLOT(setDurationScale())));
     //Connect the slot to change the max duration
     //connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(maxDurationChange(qreal)));//This grant when never SR o duration is changed the appropriate methods are called!
 
@@ -78,12 +86,13 @@ void PartialTimeData::connectSignals() {
 //    createData();
 //}
 
-void PartialTimeData::maxDurationChange(qreal maxDuration) {
+void PartialTimeData::maxDurationHasChanged(qreal maxDuration) {
     PartialTimeDataParams* _params=dynamic_cast<PartialTimeDataParams*> (getDataParameters());
     Q_ASSERT(_params);
     if ( (_params->t0()+_params->duration())>maxDuration ) {
         _params->setDuration(maxDuration-_params->t0());
     }
+    GenericTimeData::maxDurationHasChanged(maxDuration);
 }
 
 quint64 PartialTimeData::lowestSampleIndexForModification()  {
@@ -91,15 +100,16 @@ quint64 PartialTimeData::lowestSampleIndexForModification()  {
     Q_ASSERT(_params);
     qreal _minDuration=qMax(_params->startTime() ,_params->t0()-_params->startTime());
     quint64 retval=_minDuration*_params->sampleRate();
-    Q_ASSERT(retval<=getSampleNumber() );
-    return retval;
+    //Q_ASSERT(retval<=getSampleNumber() );
+    return (qMin(retval,getSampleNumber()));
 }
 
 quint64 PartialTimeData::highestSampleIndexForModification() {
     PartialTimeDataParams* _params=dynamic_cast<PartialTimeDataParams*> (getDataParameters());
     Q_ASSERT(_params);
-    qreal _maxDuration=qMin(_params->startTime()+_params->maxDuration(),_params->startTime()+_params->duration());
+    //qreal _maxDuration=qMin(_params->startTime()+_params->maxDuration(),_params->startTime()+_params->duration());
+    qreal _maxDuration=qMin(_params->startTime()+_params->maxDuration(),_params->t0()+_params->duration());
     quint64 retval=_maxDuration*_params->sampleRate();
-    Q_ASSERT(retval<=getSampleNumber());
-    return retval;
+ //   Q_ASSERT(retval<=getSampleNumber());
+    return  (qMin(retval,getSampleNumber()));;
 }

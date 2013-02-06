@@ -20,11 +20,13 @@ void DigestTimeData::init() {
     QwtPlotCurve *_curve=this->getCurve();
     QPen _p=_curve->pen();
     QColor _c=_p.color();
+ //   QBrush _b=_curve->brush();
+ //   _b.setStyle(Qt::SolidPattern);
     _c.setAlpha(PLOTWIDGET_DEFAULT_PLOT_CURVE_TRANSPARENCY);
     _p.setColor(_c);
     _p.setWidthF(PLOTWIDGET_DEFAULT_PLOT_CURVE_WIDTH*2);
     _curve->setPen(_p);
-    this->getCurve()->setPen(_p);
+  //      _curve->setBrush(_b);
 }
 
 DigestTimeData::~DigestTimeData() {}
@@ -33,12 +35,6 @@ void DigestTimeData::setTimeDataList(QList<GenericTimeData *> *curveList) {
     m_curveList=curveList;
     this->updateData();
 }
-
-//void DigestTimeData::updateData() {
-//    //Need to force a reset, because the digest list is updated when all the curves are updated, this means that
-//    // for example, SR o duration change this will updated twice. In this case force a reset before go on.
-//    if (isEnableRecalc()) DigestTimeData::createData();
-//}
 
 void DigestTimeData::recalc() {
     GenericTimeDataParams * _params=dynamic_cast<GenericTimeDataParams*>(this->getDataParameters());
