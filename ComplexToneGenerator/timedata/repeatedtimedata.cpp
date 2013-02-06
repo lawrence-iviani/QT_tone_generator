@@ -29,12 +29,15 @@ void RepeatedTimeData::connectSignals() {
 
     RepeatedTimeDataParams* _rtd=dynamic_cast<RepeatedTimeDataParams*>(getDataParameters());
     Q_ASSERT(_rtd);
+    RepeatedTimeDataUI* _rtdUI=dynamic_cast<RepeatedTimeDataUI*>(getControlWidget());
+    Q_ASSERT(_rtdUI);
+
     Q_ASSERT(connect(_rtd,SIGNAL(blankTimeChanged(qreal)),this,SLOT(createData())));
 
-    //Connect the slot to change the max duration
- //   connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions()));
- //   connect(this ,SIGNAL(startTimeChanged(qreal)),this,SLOT(updateRepetitions()));
- //   connect(this ,SIGNAL(durationChanged(qreal)),this,SLOT(updateRepetitions()));
+    //Connect all the signal that can potentially change the number of repetitions
+    Q_ASSERT(connect(_rtd ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions())));
+    Q_ASSERT(connect(_rtd ,SIGNAL(t0Changed(qreal)),this,SLOT(updateRepetitions())));
+    Q_ASSERT(connect(_rtd ,SIGNAL(durationChanged(qreal)),this,SLOT(updateRepetitions())));
     //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
     //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
 }
@@ -47,14 +50,19 @@ void RepeatedTimeData::updateRepetitions() {
 
     //Calculate one shot duration
     qreal _singleShotDuration=_params->duration()+_params->blankTime();
-    m_repetitions=qFloor(_availableDuration/(_singleShotDuration));
-
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"_availableDuration(%1)/_singleShotDuration(%2)=")
-                        .arg(_availableDuration)
-                        .arg(_singleShotDuration)
-                        .arg(_availableDuration/_singleShotDuration));
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"m_repetitions=%1").arg(m_repetitions));
-
+    qreal repetitions=qFloor(_availableDuration/(_singleShotDuration));
+    if(repetitions!=m_repetitions) {
+        m_repetitions=repetitions;
+        PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"m_repetitions _availableDuration(%1)/_singleShotDuration(%2)=%3 repetitions (m_repetitions=%4)")
+                            .arg(_availableDuration)
+                            .arg(_singleShotDuration)
+                            .arg(_availableDuration/_singleShotDuration)
+                          .arg(m_repetitions));
+        //recall an update
+        updateData();
+    } else {
+        PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"m_repetitions=%1 doesn't change").arg(m_repetitions));
+    }
 }
 
 

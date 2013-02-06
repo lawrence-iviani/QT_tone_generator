@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget *parent) :
     TimePlotParams* _params=dynamic_cast<TimePlotParams*> (m_plotTime->getDataParameters());
     Q_ASSERT(_params);
     _params->setSampleRate(44100);
-    _params->setMaxDuration(6);
+    _params->setMaxDuration(5);
 
     m_audioPlayer=new AudioPlayer(this);
     ui->setupUi(this);
