@@ -3,6 +3,7 @@
 GenericTimeData::GenericTimeData(QObject *parent) :
     QObject(parent),
     m_enableRecalc(false),
+    m_ui(NULL),
     m_envelope(NULL),
     m_data(NULL),
     m_t(NULL),
@@ -19,6 +20,7 @@ GenericTimeData::GenericTimeData(QObject *parent) :
 GenericTimeData::GenericTimeData(TimePlotParams * timePlotParams, QObject *parent) :
     QObject(parent),
     m_enableRecalc(false),
+    m_ui(NULL),
     m_envelope(NULL),
     m_data(NULL),
     m_t(NULL),
@@ -51,16 +53,19 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
     _p.setWidthF(PLOTWIDGET_DEFAULT_PLOT_CURVE_WIDTH);
     m_curve->setPen(_p);
 
-    //Generate envelope
-    m_envelope=new DataEnvelope(_gtdp->sampleRate(),this);
-    //TODO UI ENVELOPE
-
     //Set property for this curve
     setTimePlotParams(timePlotParams);
     _gtdp->setShowCurve(true);
     _gtdp->setEnableCurve(true);
+
+    //Prepare envelope
+    initEnvelope();
+
+    //init control widget
+
     //connect any signal
     this->connectSignals();
+
 
     //set recalc enabled
     m_enableRecalc=true;
@@ -71,20 +76,33 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
 
 }
 
-//void GenericTimeData::refreshEnvelope() {
-//    DataUiHandlerDelegate *_envDelegate= m_envelope->getDelegate();
-//    Q_ASSERT(_envDelegate);
-//    DataUiHandlerProperty *_envProp=_envDelegate->getProperty();
-//    Q_ASSERT(_envProp);
+void GenericTimeData::initEnvelope() {
+    GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
+    Q_ASSERT(_gtdp!=NULL);
+    //Generate envelope
+    m_envelope=new DataEnvelope(_gtdp->sampleRate(),this);
+    //Connect envelope changed.
+    Q_ASSERT(connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData())));
+}
 
-//    GenericTimeDataUI *_gtdpUI=dynamic_cast<GenericTimeDataUI*> (m_timeDataDelegate->getUI());
-//    Q_ASSERT(_gtdpUI);
-//    //DataUiHandlerUI *_envUI=_gtdpUI->getEnvelopeUI();
-//    //Q_ASSERT(_envUI);
-//    //_envDelegate->replacePropertiesAndUI(_envProp,_envUI);
+void GenericTimeData::initControlWidget() {
+    QWidget *_wGTD=dynamic_cast<QWidget*>(m_timeDataDelegate->getUI());
+    Q_ASSERT(_wGTD);
+    QWidget *_wEnv=dynamic_cast<QWidget*>(m_envelope->getDelegate()->getUI());
+    Q_ASSERT(_wEnv);
 
+    QWidget *_prevWidget=NULL;
+    if (m_ui) {
+        _prevWidget=m_ui;
+    }
+    m_ui=new QWidget();
+    QVBoxLayout * _l=new QVBoxLayout(m_ui);
 
-//}
+    _l->addWidget(_wEnv,1);
+    _l->addWidget(_wGTD,1);
+
+    if (_prevWidget) delete _prevWidget;
+}
 
 void GenericTimeData::setTimePlotParams(TimePlotParams * timePlotParams) {
     GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
@@ -114,6 +132,9 @@ GenericTimeData::~GenericTimeData() {
 }
 
 void GenericTimeData::connectSignals() {
+    //Init the control widget for this curve
+    initControlWidget();
+
     GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
     //connect sample rate & max duration
@@ -128,9 +149,6 @@ void GenericTimeData::connectSignals() {
 
     //emit when the name change
     Q_ASSERT(connect(_gtdp,SIGNAL(nameChanged(QString)),this,SIGNAL(nameChanged(QString))));
-
-    //Connect envelope changed.
-    Q_ASSERT(connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData())));
 
 }
 
@@ -156,12 +174,10 @@ bool GenericTimeData::insertSignalValue(quint64 index, qreal value) {
     bool _enableEnv=_ep->isEnabledEnvelope();
     if (_enableEnv) {
         Q_ASSERT(m_envelope!=NULL);
-        //Q_ASSERT(index<=m_envelope->sampleNumber());
         const qreal * envelopData=m_envelope->getEnvelope();
         Q_ASSERT(envelopData!=NULL);
         quint64 lowestIndex=lowestSampleIndexForModification();
         quint64 highestIndex=highestSampleIndexForModification();
-     //   qDebug() << index << "-lowestIndex=" << lowestIndex << " highestIndex" <<highestIndex<< "envelopeLen=" << m_envelope->sampleNumber();
         if ((lowestIndex<=index) && (index<=highestIndex)  ) {
             m_s[index]= value*envelopData[index-lowestIndex];
             retval=true;

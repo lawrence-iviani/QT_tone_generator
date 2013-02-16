@@ -29,7 +29,8 @@ void PartialTimeData::connectSignals() {
 
     PartialTimeDataParams* _ptd=dynamic_cast<PartialTimeDataParams*>(getDataParameters());
     Q_ASSERT(_ptd);
-    PartialTimeDataUI* _ptdUI=dynamic_cast<PartialTimeDataUI*>(getControlWidget());
+    PartialTimeDataUI* _ptdUI=dynamic_cast<PartialTimeDataUI*>(this->getDelegate()->getUI());
+    Q_ASSERT(_ptdUI);
 
     //if parameters change, update plot
     Q_ASSERT(connect(_ptd,SIGNAL(durationChanged(qreal)),this,SLOT(createData())));

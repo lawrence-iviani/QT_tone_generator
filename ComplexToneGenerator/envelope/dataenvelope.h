@@ -122,6 +122,14 @@ private:
     void init(QObject *parent);
     void recalculateEnvelope();
     void connectingSignals();
+
+private slots:
+
+    void envelopeHasToggledEnable();
+    /**
+     * @brief envelopeHasChanged This method should be called when the envelope has changed and need to be recalc
+     */
+    void envelopeHasChanged();
 };
 
 #endif // DATAENVELOPE_H

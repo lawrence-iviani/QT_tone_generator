@@ -29,7 +29,7 @@ void RepeatedTimeData::connectSignals() {
 
     RepeatedTimeDataParams* _rtd=dynamic_cast<RepeatedTimeDataParams*>(getDataParameters());
     Q_ASSERT(_rtd);
-    RepeatedTimeDataUI* _rtdUI=dynamic_cast<RepeatedTimeDataUI*>(getControlWidget());
+    RepeatedTimeDataUI* _rtdUI=dynamic_cast<RepeatedTimeDataUI*>(this->getDelegate()->getUI());
     Q_ASSERT(_rtdUI);
 
     Q_ASSERT(connect(_rtd,SIGNAL(blankTimeChanged(qreal)),this,SLOT(createData())));

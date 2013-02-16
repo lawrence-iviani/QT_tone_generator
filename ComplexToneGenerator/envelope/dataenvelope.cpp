@@ -34,7 +34,6 @@ DataEnvelope::DataEnvelope(quint64 length, qreal SR, QObject *parent) :
 }
 
 void DataEnvelope::init(QObject *parent) {
-
     m_envelopeDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*> (new DataEnvelopeParameters(parent)),
                 dynamic_cast<DataUiHandlerUI*>(new DataEnvelopeUI()),
@@ -48,19 +47,31 @@ DataEnvelope::~DataEnvelope() {
     if (m_envelopeDelegate) delete m_envelopeDelegate;
 }
 
+void DataEnvelope::envelopeHasChanged() {
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Envelope has changed, recalc envelope"));
+    recalculateEnvelope();
+}
+
+void DataEnvelope::envelopeHasToggledEnable() {
+    DataEnvelopeParameters *_ep=dynamic_cast<DataEnvelopeParameters*> (m_envelopeDelegate->getProperty());
+    Q_ASSERT(_ep!=NULL);
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Envelope has toggled, envelope is %1")
+                      .arg(_ep->isEnabledEnvelope() ? "enabled" : "disabled" ));
+    emit (envelopeChanged());
+}
+
 void DataEnvelope::connectingSignals() {
     DataEnvelopeParameters *_ep=dynamic_cast<DataEnvelopeParameters*> (m_envelopeDelegate->getProperty());
     Q_ASSERT(_ep!=NULL);
     DataEnvelopeUI *_epUI=dynamic_cast<DataEnvelopeUI*> (m_envelopeDelegate->getUI());
     Q_ASSERT(_epUI!=NULL);
 
-
     //Connect the parameter modification to the slot of this instance
-    Q_ASSERT(connect(_ep,SIGNAL(amplitudeParametersChanged()),this,SIGNAL(envelopeChanged())));
-    Q_ASSERT(connect(_ep,SIGNAL(timeParametersChanged()),this,SIGNAL(envelopeChanged())));
+    Q_ASSERT(connect(_ep,SIGNAL(amplitudeParametersChanged()),this,SLOT(envelopeHasChanged())));
+    Q_ASSERT(connect(_ep,SIGNAL(timeParametersChanged()),this,SLOT(envelopeHasChanged())));
 
     //Connect this class to the UI
-    Q_ASSERT(connect(_ep,SIGNAL(enableToggled(bool)), this, SIGNAL(envelopeChanged())));
+    Q_ASSERT(connect(_ep,SIGNAL(enableEnvelopeChanged(bool)), this, SLOT(envelopeHasToggledEnable())));
     //Q_ASSERT(connect(_ep,SIGNAL(enableToggled(bool)), _epUI, SLOT(setEnableEnvelopeUI(bool))));
 }
 
@@ -73,7 +84,6 @@ void DataEnvelope::replacePropertyAndUI(DataUiHandlerProperty *params, DataUiHan
 void DataEnvelope::setSampleNumber(quint64 length) {
     DataEnvelopeParameters *_ep=dynamic_cast<DataEnvelopeParameters*> (m_envelopeDelegate->getProperty());
     Q_ASSERT(_ep!=NULL);
-   // qDebug() << "DataEnvelope::setLength() called with len=" << length;
     if (length!=m_sampleNumber) {
         m_sampleNumber=length;
         _ep->setTimeLength(((qreal)m_sampleNumber)/m_SR);//This function already call recalcuateEnvelope()

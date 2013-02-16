@@ -8,10 +8,6 @@ DataEnvelopeUI::DataEnvelopeUI(QWidget *parent) :
     this->initAmplitudeWidget();
     this->initTimeWidget();
     this->initEnvelopeWidget();
-    //Add the local widget to the framework widget
-//    QWidget* _w=ui->horizontalLayoutWidget;
-//    this->addWidget(_w);
-  //  this->addWidget(ui->, "Envelope Controls");
 }
 
 DataEnvelopeUI::~DataEnvelopeUI()
@@ -159,8 +155,12 @@ void DataEnvelopeUI::initEnvelopeWidget() {
 }
 
 void DataEnvelopeUI::enableUIUpdate(bool enable) {
+    if (enable!=m_structEnable.enableCB->isChecked())
+            m_structEnable.enableCB->setChecked(enable);
+    else return;
 
-        m_structEnable.enableCB->setChecked(enable);
+    m_widgetAmplitude->setEnabled(enable);
+    m_widgetTime->setEnabled(enable);
 
 //    ui->checkBoxEnableEnvelope->setChecked(enable);
 //    if (enable) {
@@ -266,5 +266,8 @@ void DataEnvelopeUI::setSliderValue(ScaledSliderWidget *slider, qreal val) {
 }
 
 void DataEnvelopeUI::enableCheckBoxToggled() {
-    emit (enableUIUpdate(m_structEnable.enableCB->isChecked()));
+    bool enable=m_structEnable.enableCB->isChecked();
+    m_widgetAmplitude->setEnabled(enable);
+    m_widgetTime->setEnabled(enable);
+    emit (enableUIChanged(enable));
 }
