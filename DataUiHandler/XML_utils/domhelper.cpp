@@ -71,6 +71,7 @@ bool DomHelper::selfObjectData() {
         QVariant _propValueVariant=_prop.read(m_hostObject);
         //qDebug() << "DomHelper::generateDomDocument class "<< metaObject->className()<< " prop is " << _propName;
         //Save parameters that can be converted in string, others are rejected
+        if (_propName=="uuid") continue; //uuid is not a memeber of qvariant
         if (_propValueVariant.canConvert(QVariant::String)) {
             //appending element node
             QDomElement _element=m_document->createElement(_propName);

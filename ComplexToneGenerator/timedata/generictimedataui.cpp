@@ -4,11 +4,14 @@ GenericTimeDataUI::GenericTimeDataUI(QWidget *widget) :
     DataUiHandlerUI(widget)
 {
     this->initControlWidget();
+    m_envelopeUI=new DataEnvelopeUI();
+    addWidget(m_envelopeUI);
 }
 
 GenericTimeDataUI::~GenericTimeDataUI() {
-
+    delete m_envelopeUI;
 }
+
 
 void GenericTimeDataUI::initControlWidget() {
     QWidget * _widget=new QWidget();//Create the widget for these controls
@@ -120,7 +123,6 @@ void GenericTimeDataUI::enableCurveUIUpdate(bool enable) {
             m_baseControl.checkBoxShowCurve->setDisabled(false);
     }
 }
-
 
 //void GenericTimeDataUI::updateXML() {
 //    const QDomDocument *_d=m_genericTimeData->getDomDocument();

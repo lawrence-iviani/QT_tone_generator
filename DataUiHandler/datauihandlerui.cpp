@@ -10,9 +10,14 @@ DataUiHandlerUI::DataUiHandlerUI(QWidget *parent) :
 }
 
 void DataUiHandlerUI::addWidget(QWidget *widget, const QString &label, uint priority) {
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
+                 QString("Adding widget %1 @%2 to this@%3")
+                .arg(label)
+                .arg(QString::number((qlonglong)widget,16))
+                .arg(QString::number((qlonglong)this,16))
+                ));
     Q_UNUSED(priority);
     QVBoxLayout *_layout=(QVBoxLayout *) this->layout();
-
     QLabel * _label=new QLabel(label,this);
     QFrame * _frame=new QFrame(this);
     _frame->setLayout(new QVBoxLayout());

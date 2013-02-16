@@ -3,30 +3,39 @@
 
 DataEnvelopeParameters::DataEnvelopeParameters(QObject *object) :
         DataUiHandlerProperty(object)
-    {
-        m_total=5.0;
-        this->setTimeParameters(1.0,1.0,1.0,1.0,1.0);
-        m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
-        m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
-        m_enable=false;
-        connectSignals();
-    }
+{
+    m_total=5.0;
+    this->setTimeParameters(1.0,1.0,1.0,1.0,1.0);
+    m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
+    m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
+    m_enable=false;
+    connectSignals();
+}
 
 DataEnvelopeParameters::DataEnvelopeParameters(qreal attack, qreal hold, qreal decay ,qreal sustain, qreal release, QObject *object) :
         DataUiHandlerProperty(object)
-    {
-        m_total=attack+hold+decay+sustain+release;
-        this->setTimeParameters(attack,hold,decay,sustain,release);
-        m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
-        m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
-        m_enable=false;
-        connectSignals();
-    }
+{
+    m_total=attack+hold+decay+sustain+release;
+    this->setTimeParameters(attack,hold,decay,sustain,release);
+    m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
+    m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
+    m_enable=false;
+    connectSignals();
+}
 
 void  DataEnvelopeParameters::connectSignals() {
-   // connect(this,SIGNAL(amplitudeParametersChanged()),this,SLOT(regenerateDomDocument()));
-   // connect(this,SIGNAL(timeParametersChanged()),this,SLOT(regenerateDomDocument()));
-   // connect(this,SIGNAL(enableToggled(bool)),this,SLOT(regenerateDomDocument()));
+
+    //Connect amplitude changed
+    Q_ASSERT(connect(this,SIGNAL(holdLevelChanged(qreal)),this,SIGNAL(amplitudeParametersChanged())));
+    Q_ASSERT(connect(this,SIGNAL(sustainLevelChanged(qreal)),this,SIGNAL(amplitudeParametersChanged())));
+
+    //Connect time duration changed
+    Q_ASSERT(connect(this,SIGNAL(attackDurationChanged(qreal)),this,SIGNAL(timeParametersChanged())));
+    Q_ASSERT(connect(this,SIGNAL(holdDurationChanged(qreal)),this,SIGNAL(timeParametersChanged())));
+    Q_ASSERT(connect(this,SIGNAL(decayDurationChanged(qreal)),this,SIGNAL(timeParametersChanged())));
+    Q_ASSERT(connect(this,SIGNAL(sustainDurationChanged(qreal)),this,SIGNAL(timeParametersChanged())));
+    Q_ASSERT(connect(this,SIGNAL(releaseDurationChanged(qreal)),this,SIGNAL(timeParametersChanged())));
+
 }
 
 void DataEnvelopeParameters::setTimeLength(qreal length) {
@@ -77,16 +86,21 @@ void DataEnvelopeParameters::setTimeLength(qreal length) {
                                _releasePercentile*m_total));
 }
 
-void DataEnvelopeParameters::setLevelParameters(qreal holdLevel,qreal sustainLevel) {
-    m_holdLevel=(holdLevel > DATAENVELOPE_UPPERBOUND_AMPLITUDE ? DATAENVELOPE_UPPERBOUND_AMPLITUDE : holdLevel );
-    m_holdLevel=(holdLevel < DATAENVELOPE_LOWERBOUND_AMPLITUDE ? DATAENVELOPE_LOWERBOUND_AMPLITUDE : holdLevel );
+bool DataEnvelopeParameters::setLevelParameters(qreal holdLevel,qreal sustainLevel) {
+    bool retval=false;
+    if (holdLevel!=m_holdLevel) {
+        m_holdLevel=(holdLevel > DATAENVELOPE_UPPERBOUND_AMPLITUDE ? DATAENVELOPE_UPPERBOUND_AMPLITUDE : holdLevel );
+        m_holdLevel=(holdLevel < DATAENVELOPE_LOWERBOUND_AMPLITUDE ? DATAENVELOPE_LOWERBOUND_AMPLITUDE : holdLevel );
+        retval=true;
+    }
 
-    m_sustainLevel=(sustainLevel > DATAENVELOPE_UPPERBOUND_AMPLITUDE ? DATAENVELOPE_UPPERBOUND_AMPLITUDE : sustainLevel );
-    m_sustainLevel=(sustainLevel < DATAENVELOPE_LOWERBOUND_AMPLITUDE ? DATAENVELOPE_LOWERBOUND_AMPLITUDE : sustainLevel );
-
-    //emit (amplitudeParametersChanged());
+    if (sustainLevel!=m_sustainLevel) {
+        m_sustainLevel=(sustainLevel > DATAENVELOPE_UPPERBOUND_AMPLITUDE ? DATAENVELOPE_UPPERBOUND_AMPLITUDE : sustainLevel );
+        m_sustainLevel=(sustainLevel < DATAENVELOPE_LOWERBOUND_AMPLITUDE ? DATAENVELOPE_LOWERBOUND_AMPLITUDE : sustainLevel );
+        retval=true;
+    }
+    return retval;
 }
-
 
 bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal decay ,qreal sustain, qreal release) {
     bool retval=false;
@@ -132,38 +146,33 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
 }
 
 //Single Setter
-bool DataEnvelopeParameters::setAttack(qreal attack) {
+void DataEnvelopeParameters::setAttackDuration(qreal attack) {
     bool retval=setTimeParameters(attack,m_hold,m_decay,m_sustain,m_release);
-    if (retval) emit (attackChanged(attack));
-    return retval;
+    if (retval) emit (attackDurationChanged(attack));
 }
-bool DataEnvelopeParameters::setHold(qreal hold) {
+void DataEnvelopeParameters::setHoldDuration(qreal hold) {
     bool retval=this->setTimeParameters(m_attack,hold,m_decay,m_sustain,m_release);
-    if (retval) emit (holdChanged(hold));
-    return retval;
+    if (retval) emit (holdDurationChanged(hold));
 }
-bool DataEnvelopeParameters::setDecay(qreal decay) {
+void DataEnvelopeParameters::setDecayDuration(qreal decay) {
     bool retval=this->setTimeParameters(m_attack,m_hold,decay,m_sustain,m_release);
-    if (retval) emit (decayChanged(decay));
-    return retval;
+    if (retval) emit (decayDurationChanged(decay));
 }
-bool DataEnvelopeParameters::setSustain(qreal sustain) {
+void DataEnvelopeParameters::setSustainDuration(qreal sustain) {
     bool retval=this->setTimeParameters(m_attack,m_hold,m_decay,sustain,m_release);
-    if (retval) emit (sustainChanged(sustain));
-    return retval;
+    if (retval) emit (sustainDurationChanged(sustain));
 }
-bool DataEnvelopeParameters::setRelease(qreal release) {
+void DataEnvelopeParameters::setReleaseDuration(qreal release) {
     bool retval=this->setTimeParameters(m_attack,m_hold,m_decay,m_sustain,release);
-    if (retval) emit (releaseChanged( release));
-    return retval;
+    if (retval) emit (releaseDurationChanged( release));
 }
 void DataEnvelopeParameters::setHoldLevel(qreal holdLevel) {
-    setLevelParameters( holdLevel, m_sustainLevel);
-    emit (holdLevelChanged(holdLevel));
+    bool retval=setLevelParameters( holdLevel, m_sustainLevel);
+    if (retval) emit (holdLevelChanged(holdLevel));
 }
 void DataEnvelopeParameters::setSustainLevel(qreal sustainLevel) {
-    setLevelParameters( m_holdLevel, sustainLevel);
-    emit (sustainLevelChanged(sustainLevel));
+    bool retval=setLevelParameters( m_holdLevel, sustainLevel);
+    if (retval) emit (sustainLevelChanged(sustainLevel));
 }
 void DataEnvelopeParameters::setEnableEnvelope(bool enable) {
     if(m_enable!=enable) {

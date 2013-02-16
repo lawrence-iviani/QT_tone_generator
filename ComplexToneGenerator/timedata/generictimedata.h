@@ -14,15 +14,7 @@
 #include "plotwidget/timeplotwidgetparams.h"
 
 class GenericTimeDataUI;
-
-//class GenericTimeDataDelegate : public DataUiHandlerDelegate
-//{
-//public:
-//    GenericTimeDataDelegate(GenericTimeDataParams * params, GenericTimeDataUI * ui , QObject *parent = 0) :
-//        DataUiHandlerDelegate((DataUiHandlerProperty *)params,(DataUiHandlerUI*)ui,"GTDDocument","Envelope_GTD",parent)
-//    {}
-//    virtual ~GenericTimeDataDelegate() {}
-//};
+class DataEnvelopeParameters;
 
 /**
   * This class handle a generic time data object. Is useful to handle time based series as data container for a time data.
@@ -37,15 +29,22 @@ public:
     virtual ~GenericTimeData();
     inline QwtPlotCurve * getCurve() {return m_curve;}
     inline QwtCPointerData * getData() {return m_data;}
-    QWidget * getControlWidget() {return dynamic_cast<QWidget*>(m_timeDataDelegate->getUI()); }// Give back a QWidget that can be used to control this class.
-    DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_timeDataDelegate->getProperty());}
+    inline QWidget * getControlWidget() {return dynamic_cast<QWidget*>(m_timeDataDelegate->getUI()); }// Give back a QWidget that can be used to control this class.
+    inline DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_timeDataDelegate->getProperty());}
     inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_timeDataDelegate);}
     inline quint64 getSampleNumber()  {return m_sample;}
 
 
     inline const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
     inline const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
-    inline DataEnvelope * getEnvelopeData() {return m_envelope;}
+    inline DataEnvelope * getEnvelope() {return m_envelope;}
+
+    inline DataEnvelopeParameters * getEnvelopeParameters() {
+        DataEnvelopeParameters* retval=NULL;
+        retval=dynamic_cast<DataEnvelopeParameters*> (m_envelope->getDataParameters());
+        Q_ASSERT(retval!=NULL);
+        return retval;
+    }
 
     inline bool isEnableRecalc() {return m_enableRecalc;}
 //    void forceRegenerateDomDocument() {this->regenerateDomDocument();}
@@ -282,6 +281,7 @@ private:
      void init(TimePlotParams * timePlotParams=0);
      void initTimePlotParams();
      bool m_enableRecalc;
+     void refreshEnvelope();
     // TimePlotParams * m_TimePlotParams;
      DataUiHandlerDelegate * m_timeDataDelegate;
      DataEnvelope *m_envelope;

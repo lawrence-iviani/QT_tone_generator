@@ -56,13 +56,12 @@ CONFIG(debug, debug|release) {
 QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 
 # ------ Files
-SOURCES += envelope/dataenvelopeparameters.cpp \
-    envelope/dataenvelopeui.cpp \
-    envelope/dataenvelopedelegate.cpp \
-    envelope/dataenvelope.cpp \
-    timedata/generictimedataparams.cpp \
+SOURCES +=    timedata/generictimedataparams.cpp \
     timedata/generictimedataui.cpp \
     timedata/generictimedata.cpp \
+    envelope/dataenvelopeparameters.cpp \
+    envelope/dataenvelopeui.cpp \
+    envelope/dataenvelope.cpp \
     timedata/digesttimedata.cpp \
     timedata/partialtimedataparams.cpp \
     timedata/partialtimedataui.cpp \
@@ -87,14 +86,13 @@ SOURCES += envelope/dataenvelopeparameters.cpp \
 
 
 HEADERS  += CTG_constants.h \
-    envelope/dataenvelopeparameters.h \
-    envelope/dataenvelopeui.h \
-    envelope/dataenvelopedelegate.h \
-    envelope/dataenvelope.h \
     timedata/generictimedataparams.h \
     timedata/generictimedataui.h \
     timedata/generictimedata.h \
     timedata/digesttimedata.h \
+    envelope/dataenvelopeparameters.h \
+    envelope/dataenvelopeui.h \
+    envelope/dataenvelope.h \
     timedata/partialtimedataparams.h \
     timedata/partialtimedataui.h \
     timedata/partialtimedata.h \
@@ -117,8 +115,7 @@ HEADERS  += CTG_constants.h \
     CustomCurves/customcurvesheader.h \
 
 
-FORMS    += mainwindow.ui \
-    envelope/dataenvelopeui.ui
+FORMS    += mainwindow.ui
 
 RESOURCES += \
     Resources/resource.qrc

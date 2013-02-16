@@ -1,28 +1,57 @@
 #include "dataenvelopeui.h"
-#include "ui_dataenvelopeui.h"
+
 
 DataEnvelopeUI::DataEnvelopeUI(QWidget *parent) :
-    DataUiHandlerUI(parent),
-    ui(new Ui::DataEnvelopeUI)
+    DataUiHandlerUI(parent)
 {
-    ui->setupUi(this);
-    this->setLayout(ui->verticalLayout);
-    this->initEnvelopeWidget();
+    this->initEnableWidget();
     this->initAmplitudeWidget();
     this->initTimeWidget();
+    this->initEnvelopeWidget();
+    //Add the local widget to the framework widget
+//    QWidget* _w=ui->horizontalLayoutWidget;
+//    this->addWidget(_w);
+  //  this->addWidget(ui->, "Envelope Controls");
 }
 
 DataEnvelopeUI::~DataEnvelopeUI()
 {
-    delete ui;
+    delete m_widgetAmplitude;
+    delete m_widgetTime;
+    delete m_widgetEnable;
 }
 
-void DataEnvelopeUI::initAmplitudeWidget() {
+void DataEnvelopeUI::initEnableWidget() {
+    m_widgetEnable=new QWidget();//Create the widget for these controls
     //setting font base dimension
     QFont f=*(new QFont());
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
-    ui->widgetAmplitude->setLayout(ui->hlayoutAmplitude);
+    //Widget  layout
+    QHBoxLayout * _l=new QHBoxLayout();
+    _l->setSizeConstraint(QLayout::SetMinimumSize);
+    m_widgetEnable->setLayout(_l);
+    m_widgetEnable->setFont(f);
+
+    //Setting up hold control widget
+    m_structEnable.enableCB=new QCheckBox("Enable/disable envelope");
+    m_structEnable.enableCB->setFont(f);
+    connect(m_structEnable.enableCB,SIGNAL(clicked()),this,SLOT(enableCheckBoxToggled()));
+
+    _l->addWidget(m_structEnable.enableCB,1,Qt::AlignLeft);
+}
+
+void DataEnvelopeUI::initAmplitudeWidget() {
+    m_widgetAmplitude=new QWidget();//Create the widget for these controls
+    //setting font base dimension
+    QFont f=*(new QFont());
+    f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
+
+    //Widget  layout
+    QHBoxLayout * _l=new QHBoxLayout();
+    _l->setSizeConstraint(QLayout::SetMinimumSize);
+    m_widgetAmplitude->setLayout(_l);
+    m_widgetAmplitude->setFont(f);
 
     //Setting up hold control widget
     m_structAmplitude.hold=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -45,17 +74,21 @@ void DataEnvelopeUI::initAmplitudeWidget() {
     connect(m_structAmplitude.sustain,SIGNAL(valueChanged(qreal)),this,SIGNAL(sustainAmplitudeUIChanged(qreal)));
 
     //Layouting
-    ui->hlayoutAmplitude->addWidget(m_structAmplitude.hold,1,Qt::AlignLeft);
-    ui->hlayoutAmplitude->addWidget(m_structAmplitude.sustain,1,Qt::AlignLeft);
-
+    _l->addWidget(m_structAmplitude.hold,1,Qt::AlignLeft);
+    _l->addWidget(m_structAmplitude.sustain,1,Qt::AlignLeft);
 }
 
 void DataEnvelopeUI::initTimeWidget() {
+    m_widgetTime=new QWidget();//Create the widget for these controls
     //setting font base dimension
     QFont f=*(new QFont());
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
-    ui->widgetTime->setLayout(ui->hlayoutTime );
+    //Widget  layout
+    QHBoxLayout * l=new QHBoxLayout();
+    l->setSizeConstraint(QLayout::SetMinimumSize);
+    m_widgetTime->setLayout(l);
+    m_widgetTime->setFont(f);
 
     //Setting up attack time control widget
     m_structTime.attack=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -63,7 +96,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.attack->setName("Attack time");
     m_structTime.attack->setMeasureUnit("sec.");
     m_structTime.attack->setFont(f);
-    connect(m_structTime.attack,SIGNAL(valueChanged(qreal)),this,SIGNAL(attackTimeUIChanged(qreal)) );
+    Q_ASSERT(connect(m_structTime.attack,SIGNAL(valueChanged(qreal)),this,SIGNAL(attackDurationUIChanged(qreal)) ));
 
 
     //Setting up attack time control widget
@@ -72,7 +105,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.hold->setName("Hold time");
     m_structTime.hold->setMeasureUnit("sec.");
     m_structTime.hold->setFont(f);
-    connect(m_structTime.hold,SIGNAL(valueChanged(qreal)),this,SIGNAL(holdTimeUIChanged(qreal)) );
+    Q_ASSERT(connect(m_structTime.hold,SIGNAL(valueChanged(qreal)),this,SIGNAL(holdDurationUIChanged(qreal)) ));
 
     //Setting up Decay time control widget
     m_structTime.decay=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -80,7 +113,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.decay->setName("Decay time");
     m_structTime.decay->setMeasureUnit("sec.");
     m_structTime.decay->setFont(f);
-    connect(m_structTime.decay,SIGNAL(valueChanged(qreal)),this,SIGNAL(decayTimeUIChanged(qreal)) );
+    Q_ASSERT(connect(m_structTime.decay,SIGNAL(valueChanged(qreal)),this,SIGNAL(decayDurationUIChanged(qreal)) ));
 
     //Setting up Sustain time control widget
     m_structTime.sustain=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -88,7 +121,7 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.sustain->setName("Sustain time");
     m_structTime.sustain->setMeasureUnit("sec.");
     m_structTime.sustain->setFont(f);
-    connect(m_structTime.sustain,SIGNAL(valueChanged(qreal)),this,SIGNAL(sustainTimeUIChanged(qreal)) );
+    Q_ASSERT(connect(m_structTime.sustain,SIGNAL(valueChanged(qreal)),this,SIGNAL(sustainDurationUIChanged(qreal)) ));
 
     //Setting up Sustain time control widget
     m_structTime.release=new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear);
@@ -96,68 +129,80 @@ void DataEnvelopeUI::initTimeWidget() {
     m_structTime.release->setName("Release time");
     m_structTime.release->setMeasureUnit("sec.");
     m_structTime.release->setFont(f);
-    connect(m_structTime.release,SIGNAL(valueChanged(qreal)),this,SIGNAL(releaseTimeUIChanged(qreal)) );
+    Q_ASSERT(connect(m_structTime.release,SIGNAL(valueChanged(qreal)),this,SIGNAL(releaseDurationUIChanged(qreal)) ));
 
     //Layouting
-    ui->hlayoutTime->addWidget(m_structTime.attack,1,Qt::AlignLeft);
-    ui->hlayoutTime->addWidget(m_structTime.hold,1,Qt::AlignLeft);
-    ui->hlayoutTime->addWidget(m_structTime.decay,1,Qt::AlignLeft);
-    ui->hlayoutTime->addWidget(m_structTime.sustain,1,Qt::AlignLeft);
-    ui->hlayoutTime->addWidget(m_structTime.release,1,Qt::AlignLeft);
-
+    l->addWidget(m_structTime.attack,1,Qt::AlignLeft);
+    l->addWidget(m_structTime.hold,1,Qt::AlignLeft);
+    l->addWidget(m_structTime.decay,1,Qt::AlignLeft);
+    l->addWidget(m_structTime.sustain,1,Qt::AlignLeft);
+    l->addWidget(m_structTime.release,1,Qt::AlignLeft);
 }
 
 void DataEnvelopeUI::initEnvelopeWidget() {
+    QWidget * _widget=new QWidget();//Create the widget for these controls
+    //setting font base dimension
     QFont f=*(new QFont());
     f.setPointSize(PLOTWIDGET_DEFAULT_PLOT_DIMENSION);
 
-    //Enable curve
-    ui->checkBoxEnableEnvelope->setFont(f);
-    connect(ui->checkBoxEnableEnvelope ,SIGNAL(toggled(bool)), this,SIGNAL(enableUIChanged(bool)));
+    //Widget  layout
+    QVBoxLayout * _l=new QVBoxLayout();
+    _l->setSizeConstraint(QLayout::SetMinimumSize);
+    _widget->setLayout(_l);
+    _widget->setFont(f);
+
+    _l->addWidget(m_widgetEnable);
+    _l->addWidget(m_widgetAmplitude);
+    _l->addWidget(m_widgetTime);
+
+    this->addWidget(_widget, "Envelope Controls");
 }
 
 void DataEnvelopeUI::enableUIUpdate(bool enable) {
-    ui->checkBoxEnableEnvelope->setChecked(enable);
-    if (enable) {
-        ui->widgetTime->show();
-        ui->widgetAmplitude->show();
-    } else {
-        ui->widgetTime->hide();
-        ui->widgetAmplitude->hide();
-    }
+
+        m_structEnable.enableCB->setChecked(enable);
+
+//    ui->checkBoxEnableEnvelope->setChecked(enable);
+//    if (enable) {
+//        ui->widgetTime->show();
+//        ui->widgetAmplitude->show();
+//    } else {
+//        ui->widgetTime->hide();
+//        ui->widgetAmplitude->hide();
+//    }
 }
 
-void DataEnvelopeUI::holdAmplitudeUIUpdate(qreal holdAmplitude) {
+void DataEnvelopeUI::holdLevelUIUpdate(qreal holdAmplitude) {
     if (holdAmplitude==m_structAmplitude.hold->value()) return;
     m_structAmplitude.hold->setValue(holdAmplitude);
 }
 
-void DataEnvelopeUI::sustainAmplitudeUIUpdate(qreal sustainAmplitude) {
+void DataEnvelopeUI::sustainLevelUIUpdate(qreal sustainAmplitude) {
     if (sustainAmplitude==m_structAmplitude.sustain->value()) return;
     m_structAmplitude.sustain->setValue(sustainAmplitude);
 }
 
-void DataEnvelopeUI::attackTimeUIUpdate(qreal attackTime) {
+void DataEnvelopeUI::attackDurationUIUpdate(qreal attackTime) {
     if (attackTime==m_structTime.attack->value()) return;
     m_structTime.attack->setValue(attackTime);
 }
 
-void DataEnvelopeUI::holdTimeUIUpdate(qreal holdTime){
+void DataEnvelopeUI::holdDurationUIUpdate(qreal holdTime){
     if (holdTime==m_structTime.hold->value()) return;
     m_structTime.hold->setValue(holdTime);
 }
 
-void DataEnvelopeUI::decayTimeUIUpdate(qreal decayTime) {
+void DataEnvelopeUI::decayDurationUIUpdate(qreal decayTime) {
     if (decayTime==m_structTime.decay->value()) return;
     m_structTime.decay->setValue(decayTime);
 }
 
-void DataEnvelopeUI::sustainTimeUIUpdate(qreal sustainTime) {
+void DataEnvelopeUI::sustainDurationUIUpdate(qreal sustainTime) {
     if (sustainTime==m_structTime.sustain->value()) return;
     m_structTime.sustain->setValue(sustainTime);
 }
 
-void DataEnvelopeUI::releaseTimeUIUpdate(qreal releaseTime) {
+void DataEnvelopeUI::releaseDurationUIUpdate(qreal releaseTime) {
     if (releaseTime==m_structTime.release->value()) return;
     m_structTime.release->setValue(releaseTime);
 }
@@ -220,3 +265,6 @@ void DataEnvelopeUI::setSliderValue(ScaledSliderWidget *slider, qreal val) {
     slider->blockSignals(sig);
 }
 
+void DataEnvelopeUI::enableCheckBoxToggled() {
+    emit (enableUIUpdate(m_structEnable.enableCB->isChecked()));
+}

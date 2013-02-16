@@ -5,6 +5,7 @@
 #include <qmath.h>
 #include <DataUiHandler.h>
 #include <errormessage.h>
+#include <envelope/dataenvelope.h>
 
 //Some constants
 static const qreal DATAENVELOPE_DEFAULT_HOLDLEVEL=1.0;
@@ -22,13 +23,13 @@ class DataEnvelope;
 class DataEnvelopeParameters : public DataUiHandlerProperty
 {
     Q_OBJECT
-    Q_PROPERTY(qreal attack READ attack WRITE setAttack NOTIFY attackChanged)
-    Q_PROPERTY(qreal hold READ hold WRITE setHold NOTIFY holdChanged)
-    Q_PROPERTY(qreal decay READ decay WRITE setDecay NOTIFY decayChanged)
-    Q_PROPERTY(qreal sustain READ sustain WRITE setSustain NOTIFY sustainChanged)
-    Q_PROPERTY(qreal release READ release WRITE setRelease NOTIFY releaseChanged)
-    Q_PROPERTY(qreal holdlevel READ holdLevel WRITE setHoldLevel NOTIFY holdLevelChanged)
-    Q_PROPERTY(qreal sustainlevel READ sustainLevel WRITE setSustainLevel NOTIFY sustainLevelChanged)
+    Q_PROPERTY(qreal attackDuration READ attackDuration WRITE setAttackDuration NOTIFY attackDurationChanged)
+    Q_PROPERTY(qreal holdDuration READ hold WRITE setHoldDuration NOTIFY holdDurationChanged)
+    Q_PROPERTY(qreal decayDuration READ decay WRITE setDecayDuration NOTIFY decayDurationChanged)
+    Q_PROPERTY(qreal sustainDuration READ sustain WRITE setSustainDuration NOTIFY sustainDurationChanged)
+    Q_PROPERTY(qreal releaseDuration READ release WRITE setReleaseDuration NOTIFY releaseDurationChanged)
+    Q_PROPERTY(qreal holdLevel READ holdLevel WRITE setHoldLevel NOTIFY holdLevelChanged)
+    Q_PROPERTY(qreal sustainLevel READ sustainLevel WRITE setSustainLevel NOTIFY sustainLevelChanged)
     Q_PROPERTY(bool enable READ isEnabledEnvelope WRITE setEnableEnvelope NOTIFY enableEnvelopeChanged)
 
 public:
@@ -38,10 +39,10 @@ public:
     /**
       * Set the data with the constructor
       */
-    explicit  DataEnvelopeParameters(qreal attack, qreal hold, qreal decay , qreal sustain, qreal release, QObject *object = 0);
+    explicit  DataEnvelopeParameters(qreal attackDuration, qreal hold, qreal decay , qreal sustain, qreal release, QObject *object = 0);
 
     friend class DataEnvelope;
-    qreal attack() {return m_attack;}
+    qreal attackDuration() {return m_attack;}
     qreal hold() {return m_hold;}
     qreal decay() {return m_decay;}
     qreal sustain() {return m_sustain;}
@@ -60,7 +61,7 @@ public:
     /**
       * This function returns the sum of all the time values
       */
-    qreal total() {return m_total;}
+    qreal totalTimeLength() {return m_total;}
 
     /**
      * @brief isEnabledEnvelope tell if the envelope is enabled
@@ -69,30 +70,30 @@ public:
     bool isEnabledEnvelope() {return m_enable;}
 
 signals:
-    void attackChanged(qreal);
-    void holdChanged(qreal);
-    void decayChanged(qreal);
-    void sustainChanged(qreal);
-    void releaseChanged(qreal);
+    void attackDurationChanged(qreal);
+    void holdDurationChanged(qreal);
+    void decayDurationChanged(qreal);
+    void sustainDurationChanged(qreal);
+    void releaseDurationChanged(qreal);
     void holdLevelChanged(qreal);
     void sustainLevelChanged(qreal);
     void enableEnvelopeChanged(bool);
 
-//    /**
-//     * @brief amplitudeParametersChanged,    Emitted if some amplitude params are changhed.
-//     */
-//    void amplitudeParametersChanged();
+    /**
+     * @brief amplitudeParametersChanged,    Emitted if some amplitude params are changhed.
+     */
+    void amplitudeParametersChanged();
 
-//    /**
-//     * @brief timeParametersChanged, Emitted if some time params are changhed
-//     */
-//    void timeParametersChanged();
+    /**
+     * @brief timeParametersChanged, Emitted if some time params are changhed
+     */
+    void timeParametersChanged();
 
-//    /**
-//     * @brief enabledToggle, the envelope enabled was toggled
-//     * @param toggle, true if envelope is enabled
-//     */
-//    void enableToggled(bool enable);
+    /**
+     * @brief enabledToggle, the envelope enabled was toggled
+     * @param toggle, true if envelope is enabled
+     */
+    void enableToggled(bool enable);
 
 public slots:
     /**
@@ -100,11 +101,11 @@ public slots:
      * @param attack
      * @return
      */
-    bool setAttack(qreal attack);
-    bool setHold(qreal hold);
-    bool setDecay(qreal decay);
-    bool setSustain(qreal sustain);
-    bool setRelease(qreal release);
+    void setAttackDuration(qreal attackDuration);
+    void setHoldDuration(qreal hold);
+    void setDecayDuration(qreal decay);
+    void setSustainDuration(qreal sustain);
+    void setReleaseDuration(qreal release);
 
     void setHoldLevel(qreal holdLevel);
     void setSustainLevel(qreal sustainLevel);
@@ -128,13 +129,13 @@ private:
     /**
       * Set hold and sustain level parameters
       */
-    void setLevelParameters(qreal holdLevel,qreal sustainLevel);
+    bool setLevelParameters(qreal holdLevel,qreal sustainLevel);
 
     /**
       * Set all the duration parameters. No matter if they are in time or sample, the total must be less of the length set.
       * Return a true if the operation was made (summing time < total time set) or false if it's not possible  to set these values.
       */
-    bool setTimeParameters(qreal attack, qreal hold, qreal decay ,qreal sustain, qreal release);
+    bool setTimeParameters(qreal attackDuration, qreal hold, qreal decay ,qreal sustain, qreal release);
 
 
     void connectSignals();

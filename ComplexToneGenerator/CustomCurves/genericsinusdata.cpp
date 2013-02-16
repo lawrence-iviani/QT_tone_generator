@@ -148,6 +148,9 @@ void GenericSinusData::init(qreal amplitude, qreal frequency, qreal initPhase) {
 void GenericSinusData::connectSignals() {
     GenericTimeData::connectSignals();
 
+    DataEnvelopeUI* _d=(DataEnvelopeUI*) getEnvelope()->getDataParameters();
+
+
     GenericSinusParams* _gsp=dynamic_cast<GenericSinusParams*>(getDataParameters());
     Q_ASSERT(_gsp);
     Q_ASSERT(connect(_gsp,SIGNAL(amplitudeChanged(qreal)),this,SLOT(updateData())));

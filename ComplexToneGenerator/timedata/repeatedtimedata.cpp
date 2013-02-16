@@ -46,11 +46,11 @@ void RepeatedTimeData::updateRepetitions() {
     RepeatedTimeDataParams* _params=dynamic_cast<RepeatedTimeDataParams*>(getDataParameters());
     Q_ASSERT(_params);
     //Get the total time available for all the repetitions (including the first and orginal one)
-    qreal _availableDuration=_params->maxDuration()-_params->t0();
+    qreal _availableDuration=_params->maxDuration()-_params->t0()+_params->blankTime();
 
     //Calculate one shot duration
     qreal _singleShotDuration=_params->duration()+_params->blankTime();
-    qreal repetitions=qFloor(_availableDuration/(_singleShotDuration));
+    quint64 repetitions=qFloor(_availableDuration/(_singleShotDuration));
     if(repetitions!=m_repetitions) {
         m_repetitions=repetitions;
         PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"m_repetitions _availableDuration(%1)/_singleShotDuration(%2)=%3 repetitions (m_repetitions=%4)")
@@ -87,9 +87,9 @@ bool RepeatedTimeData::insertSignalValue(quint64 index, qreal value) {
     quint64 _sampleShotDuration=qFloor((_params->duration()+_params->blankTime())*_params->sampleRate());
 
     quint64 lowestIndex=lowestSampleIndexForModification();
-    bool _envEnable=getEnvelopeData()->isEnableEnvelope();
+    bool _envEnable=getEnvelopeParameters()->isEnabledEnvelope();
     if (_envEnable) {
-        envelopData=getEnvelopeData()->getEnvelope();
+        envelopData=getEnvelope()->getEnvelope();
     }
     qreal _tVal;
     if ((lowestIndex<=index) && (index<=highestSampleIndexForModification())  ) {
@@ -97,8 +97,11 @@ bool RepeatedTimeData::insertSignalValue(quint64 index, qreal value) {
         quint64 i;
         for (unsigned int _rep=0; _rep < m_repetitions; _rep++) {
             i=_rep*_sampleShotDuration+index;
-            Q_ASSERT(i<=getSampleNumber());
-            _s[i]=_tVal;
+            // Q_ASSERT(i<=getSampleNumber());
+            if (i<=getSampleNumber())
+                _s[i]= _tVal;
+            else
+                break;
         }
         retval=true;
     }

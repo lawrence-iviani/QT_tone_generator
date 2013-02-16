@@ -107,13 +107,13 @@ void DataUiHandlerDelegate::connectSignal(DataUiHandlerProperty *properties, Dat
         _slotSignature.prepend("1");//1 is in front because in qobjectdefs.h the macro SLOT introduce this number
         if (!connect(properties,_signalSignature.toAscii().constData(),ui,_slotSignature.toAscii().data())) {
             PRINT_WARNING( ErrorMessage::WARNING(Q_FUNC_INFO,
-                         QString("fail to connect signal %1 to signal %2").arg(_signalSignature).arg(_slotSignature)
+                         QString("fail to connect signal %1 to slot %2").arg(_signalSignature).arg(_slotSignature)
                         ));
         } else {
             //Every time a property is changed this method is called
             Q_ASSERT(connect(properties,_signalSignature.toAscii().constData(),this,SLOT(dataChanged())));
             PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
-                         QString("connected signal %1 to signal %2").arg(_signalSignature).arg(_slotSignature)
+                         QString("connected signal %1 to slot %2").arg(_signalSignature).arg(_slotSignature)
                         ));
         }
     }
@@ -137,7 +137,7 @@ void DataUiHandlerDelegate::connectSignal(DataUiHandlerProperty *properties, Dat
 
             QString _propMethodSignature=findMethodSignature(&_propMethod,_slotName);
             if (_propMethodSignature=="") {
-                PRINT_WARNING( ErrorMessage::DEBUG(Q_FUNC_INFO,
+                PRINT_WARNING( ErrorMessage::WARNING(Q_FUNC_INFO,
                              QString("found signal %1 but candidate method %2 can't be find").arg(_signalSignature).arg(_slotName)
                             ));
                 continue;
@@ -213,7 +213,6 @@ const QString DataUiHandlerDelegate::findSlotSignature(const QMetaObject * metaO
                     ));
     }*/
     QMetaMethod _slot=metaObj->method(_slotIndex);
-    //qDebug() <<Q_FUNC_INFO<<"Property SLOT"<< _slot.signature() << _slot.parameterTypes() << _slot.parameterNames();
     return (const QString) _slot.signature();
 }
 
@@ -248,6 +247,8 @@ bool DataUiHandlerDelegate::setEnableDataUpdate(bool enable) {
 }
 
 void DataUiHandlerDelegate::replacePropertiesAndUI(DataUiHandlerProperty *properties, DataUiHandlerUI *ui) {
+    if (properties==m_property && m_ui==ui) return; //nothing to change!!
+
     //Should delete the signal connection?
     ErrorMessage _err1(Q_FUNC_INFO, QString("Prev Internal ref m_property@%1 m_ui@%2, new ref. properties@%3, ui@%4")
                        .arg(QString::number((qlonglong)m_property,16))
@@ -274,20 +275,30 @@ void DataUiHandlerDelegate::replacePropertiesAndUI(DataUiHandlerProperty *proper
                         .arg(QString::number((qlonglong)m_ui,16))
                         .arg(QString::number((qlonglong)properties,16))
                         .arg(QString::number((qlonglong)ui,16)));
-
-
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,_err1);
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,_err2);
 
+    //Delete previous property/UI if they are changed
+    if (prevProperties!=m_property) {
+        setHostObject(m_property);
+        writeProperties(m_property,_hashProperties);
+        //Before delete  i should disconnect the previous signal!!!
+        delete(prevProperties);
+    }
 
-    setHostObject(m_property);
-    initClass();
-    writeProperties(m_property,_hashProperties);
+    //THIS IS A BUG, FOR SOME REASON IF THE PREVIOUS UI is DELETED THE PROGRAM CRASH!
+    if (prevUi!=m_ui) {
+        qDebug() <<"\n\t\t" << prevUi;
+        qDebug() <<"\n\t\t" << m_ui;
+        //delete(prevUi);
+    }
 
-    //These leads to a crash, but without lead to a memory leakage... (BUG)!
-    delete(prevProperties);
-    delete(prevUi);
-
+    connectSignal(m_property,m_ui);
+    //updating properties
+    this->setEnableDataUpdate(false);
+    m_property->sendAllPropertiesSignal();
+    this->selfObjectData();
+    this->setEnableDataUpdate(true);
 }
 
 void DataUiHandlerDelegate::readProperties(DataUiHandlerProperty *properties, QHash<QString, QVariant>& hash) {
@@ -312,7 +323,4 @@ void DataUiHandlerDelegate::writeProperties(DataUiHandlerProperty *properties, Q
                  Q_ASSERT(false);
         }
     }
-
 }
-
-

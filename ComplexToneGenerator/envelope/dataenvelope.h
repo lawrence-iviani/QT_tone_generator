@@ -7,8 +7,6 @@
 #include <QDebug>
 #include "dataenvelopeparameters.h"
 #include "dataenvelopeui.h"
-#include "dataenvelopedelegate.h"
-//#include "timedata/generictimedata.h"
 #include <DataUiHandler.h>
 
 class GenericTimeData;
@@ -22,9 +20,9 @@ class DataEnvelope : public QObject
     Q_OBJECT
     Q_ENUMS(TransientFunction)
 public:
-    explicit DataEnvelope(GenericTimeData *parent=0);
-    explicit DataEnvelope(qreal SR, GenericTimeData *parent=0);
-    explicit DataEnvelope(qint64 length , qreal SR, GenericTimeData *parent=0);
+    explicit DataEnvelope(QObject *parent=0);
+    explicit DataEnvelope(qreal SR, QObject *parent=0);
+    explicit DataEnvelope(quint64 length , qreal SR, QObject *parent=0);
 
     enum TransientFunction {Linear, Exponential, Logarithmic};//NOT IMPLEMENTED!!
     virtual ~DataEnvelope();
@@ -33,57 +31,54 @@ public:
       * Return a const pointer to the envelope data
       */
     inline const qreal * getEnvelope() {return (const qreal*) m_envelope;}
-    //OK
 
     /**
       * Return the length in samples of the whole envelope data.
       */
-    inline qint64 length();
-    //OK
+    inline quint64 sampleNumber() {return m_sampleNumber;}
 
     /**
-      * Return the ui to control this envelope
-      */
-    QWidget * getEnvelopeUI() {return (QWidget*) m_envelopeUI;}
-    //RIVEDERE/IMPLMENETARE CUSTOMCURVEUI
-
-    /**
-      * Return the data class with envelope parameters
-      */
-    inline DataEnvelopeParameters * getEnvelopeParameters() {return m_envelopeParams;}
-    //OK
-
-//    /**
-//     * @brief getEnvelopeParametersDomDocument Return the envelope parameters in a DomDocument format
-//     * @return
-//     */
-//    const  QDomDocument* getEnvelopeParametersDomDocument() {
-//        return (const QDomDocument *) m_envelopeParams->getDomDocument();
-//    }
-
-//    /**
-//     * @brief forceRegenarateDomDocument
-//     */
-//    void forceRegenerateDomDocument() {
-//        m_envelopeParams->regenerateDomDocument();
-//    }
-
-    /**
-     * @brief isEnableEnvelope tell if the envelope is enabled
-     * @return true if enabled
+     * @brief sampleRate return the actual sample rate used by this class
+     * @return
      */
-    inline bool isEnableEnvelope() {return m_envelopeParams->isEnabledEnvelope();}
+    inline qreal sampleRate() {return m_SR;}
+
+
+    /**
+     * @brief getControlWidget Return the ui to control this envelope
+     * @return
+     */
+    inline QWidget * getControlWidget() {return dynamic_cast<QWidget*>(m_envelopeDelegate->getUI()); }
+
+    /**
+     * @brief getDataParameters Return the data class with envelope parameters
+     * @return
+     */
+    inline DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_envelopeDelegate->getProperty());}
+
+    /**
+     * @brief getDelegate Retrun the delegate of this class
+     * @return
+     */
+    inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_envelopeDelegate);}
+
+    /**
+     * @brief replacePropertyAndUI If for some reason property or UI change (due to inheritance for example) is possible to set again both two
+     * @param params
+     * @param ui
+     */
+    void replacePropertyAndUI(DataUiHandlerProperty *params, DataUiHandlerUI *ui);
 
 signals:
     /**
      * @brief enabledToggle, the envelope enabled was toggled
      * @param toggle, true if envelope is enabled
      */
-    void enableToggled(bool enable);
+ //   void enableToggled(bool enable);
     //VERIFICARE, NON DOVREBBE PIU' SERVIRE
 
     /**
-     * @brief envelopeChanged, emitted whenever the enable is modified (length or parameters)
+     * @brief envelopeChanged, emitted whenever the enable is modified (enable, length or parameters)
      */
     void envelopeChanged();
 
@@ -92,34 +87,12 @@ public slots:
     /**
       * Set the total length in sample of the envelope
       */
-    void setLength(qint64 length);
-    //OK
-
-//    /**
-//      * Set the params of the whole envelope
-//      */
-//    void setEnvelopeParams(DataEnvelopeParameters * params);
-    //DIRETTAMENTE VIA GET/SET
-
-//    /**
-//     * @brief setEnvelopeParams using a well formed DOM node
-//     * @param node
-//     * @return
-//     */
-//    bool setEnvelopeParams(QDomNode& node);
-    //DIRETTAMENTE VIA GET/SET
-
-//    /**
-//      * Set the params and length of the envelope
-//      */
-//    void setEnvelopeParamsAndLength(DataEnvelopeParameters *params,qint64 length);
-    //DIRETTAMENTE VIA GET/SET
+    void setSampleNumber(quint64 length);
 
     /**
       * Set the sample rate, this is needed for the UI sample length.
       */
     void setSampleRate(qreal SR);
-    //OK
 
     /**
       * Call this if the amplitude parameters are changed and/or need recalculation of the amplitude values and relative calls to UI etc.
@@ -137,19 +110,16 @@ public slots:
      * @brief enabledToggle, the envelope enabled was toggled
      * @param toggle, true if envelope is enabled
      */
-    void enableEnvelope(bool enable) {m_envelopeParams->setEnableEnvelope(enable);}
-    //OK
+    //void enableEnvelope(bool enable) {m_envelopeParams->setEnableEnvelope(enable);}
 
 private:
-    DataEnvelopeParameters * m_envelopeParams;
-    DataEnvelopeUI *m_envelopeUI;
-    DataEnvelopeDelegate *m_envelopeDelegate;
+    DataUiHandlerDelegate *m_envelopeDelegate;
 
-    GenericTimeData *m_genericTimeData;
-    qint64 m_length;
+   // GenericTimeData *m_genericTimeData;
+    quint64 m_sampleNumber;
     qreal * m_envelope;
     qreal m_SR;
-    void init(QWidget *widget);
+    void init(QObject *parent);
     void recalculateEnvelope();
     void connectingSignals();
 };

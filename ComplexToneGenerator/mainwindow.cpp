@@ -320,6 +320,7 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
         TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
         Q_ASSERT(_tParams);
         GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData",_tParams);
+        qDebug() << Q_FUNC_INFO << " generated gtd@" << s;
         s->setTimePlotParams(_tParams);
         retval=(GenericTimeData*) s;
     }

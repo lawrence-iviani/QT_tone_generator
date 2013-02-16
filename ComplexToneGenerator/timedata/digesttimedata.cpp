@@ -12,8 +12,8 @@ void DigestTimeData::init() {
     GenericTimeDataParams * _params=dynamic_cast<GenericTimeDataParams*>(this->getDataParameters());
     Q_ASSERT(_params!=NULL);
     _params->setName("Digest");
-    //Force to disconnect the envelope data. Saving on performance
-    disconnect(this->getEnvelopeData(),SIGNAL(envelopeChanged()),this,SLOT(updateData()));
+    //disable envelope
+    getEnvelopeParameters()->setEnableEnvelope(false);
     this->updateData();
 
     //setting color & Style

@@ -57,7 +57,13 @@ public:
     DataUiHandlerProperty * getProperty() {return m_property;}
     DataUiHandlerUI * getUI() {return m_ui;}
 
+    /**
+     * @brief replacePropertiesAndUI change the properties & UI association of this class with a new one
+     * @param properties
+     * @param ui
+     */
     void replacePropertiesAndUI(DataUiHandlerProperty *properties, DataUiHandlerUI *ui);
+
 
 signals:
     

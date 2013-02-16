@@ -9,6 +9,7 @@
 #include <comboboxwidgetcolor.h>
 #include <DataUiHandler.h>
 #include "timedata/generictimedata.h"
+//#include "envelope/dataenvelopeui.h"
 
 class GenericTimeDataUI : public DataUiHandlerUI
 {
@@ -16,6 +17,8 @@ class GenericTimeDataUI : public DataUiHandlerUI
 public:
     explicit GenericTimeDataUI( QWidget *widget = 0);
     virtual ~GenericTimeDataUI();
+    DataEnvelopeUI* getEnvelopeUI() {return m_envelopeUI;}
+
 //    /**
 //     * @brief isShowXML tell if the showXML widget is showed
 //     * @return  true if is showed
@@ -53,6 +56,8 @@ protected slots:
 //    virtual void updateXML();
 private:
     void initControlWidget();//Create only the base control
+    void initEnvelopeUI();
+    //void addDataUIHandlerUI(DataUiHandlerUI *envelopeWidget);
 
     struct {
       QLineEdit * lineName;
@@ -66,6 +71,7 @@ private:
       QPushButton *paste;
     } m_baseControl; //This class control.
 
+    DataEnvelopeUI * m_envelopeUI;
 private slots:
     void nameUpdated();
 };
