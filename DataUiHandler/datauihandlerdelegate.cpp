@@ -56,7 +56,7 @@ void DataUiHandlerDelegate::initClass() {
 }
 
 void DataUiHandlerDelegate::connectSignal(DataUiHandlerProperty *properties, DataUiHandlerUI *ui) {
-    if (properties==NULL || ui==NULL) {        
+    if (properties==NULL || ui==NULL) {
         PRINT_WARNING( ErrorMessage::WARNING(Q_FUNC_INFO,
                      QString("trying to connect unreferenced data, property@%1, UI@%2").
                                              arg(QString::number((qlonglong)properties,16)).
@@ -286,11 +286,11 @@ void DataUiHandlerDelegate::replacePropertiesAndUI(DataUiHandlerProperty *proper
         delete(prevProperties);
     }
 
-    //THIS IS A BUG, FOR SOME REASON IF THE PREVIOUS UI is DELETED THE PROGRAM CRASH!
     if (prevUi!=m_ui) {
-        qDebug() <<"\n\t\t" << prevUi;
-        qDebug() <<"\n\t\t" << m_ui;
-        //delete(prevUi);
+        //BE CAREFUL, THIS MAY LEAD TO SOME SEGFAULT IF SOME WIDGET IS CONNECTED AS A CHILD TO THE WIDGET POINTED
+        //BY THIS POINTER. SOME MECHANISM WITH REMOVE THE CHILD WIDGET SHOULD BE IMPLEMENTED, LEAVING THE DELETE OF
+        //ANY SINGLE WIDGET TO THE CREATOR ITSELF
+        delete(prevUi);
     }
 
     connectSignal(m_property,m_ui);

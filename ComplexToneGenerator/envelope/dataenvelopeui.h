@@ -28,8 +28,8 @@ public:
 
 
 signals:
-    void holdAmplitudeUIChanged(qreal);
-    void sustainAmplitudeUIChanged(qreal);
+    void holdLevelUIChanged(qreal);
+    void sustainLevelUIChanged(qreal);
     void attackDurationUIChanged(qreal);
     void holdDurationUIChanged(qreal);
     void decayDurationUIChanged(qreal);
@@ -60,13 +60,17 @@ public slots:
      */
     void enableUIUpdate(bool enable);
 
-//    /**
-//      * Refresh the ui with the actual value in the DataEnvelopeParameters class
-//      */
-//    virtual void updateControlUI();
+    /**
+     * @brief setMaxLengthScale Set the max value of the time scale (attack,hold,devay,sustain, release).
+     * @param len
+     */
+    void setMaxLengthScale(qreal len);
 
-   // void updateUI();
-
+    /**
+     * @brief setSpareTime Set the max spare time available (the difference between the max time for this envelope and the allocated time as summation of the whole env phase )
+     * @param spareTime
+     */
+    void setSpareTime(qreal spareTime);
 
 private:
     QWidget * m_widgetEnable;

@@ -4,7 +4,7 @@
 DataEnvelopeParameters::DataEnvelopeParameters(QObject *object) :
         DataUiHandlerProperty(object)
 {
-    m_total=5.0;
+    m_totalTime=5.0;
     this->setTimeParameters(1.0,1.0,1.0,1.0,1.0);
     m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
     m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
@@ -15,7 +15,7 @@ DataEnvelopeParameters::DataEnvelopeParameters(QObject *object) :
 DataEnvelopeParameters::DataEnvelopeParameters(qreal attack, qreal hold, qreal decay ,qreal sustain, qreal release, QObject *object) :
         DataUiHandlerProperty(object)
 {
-    m_total=attack+hold+decay+sustain+release;
+    m_totalTime=attack+hold+decay+sustain+release;
     this->setTimeParameters(attack,hold,decay,sustain,release);
     m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
     m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
@@ -47,7 +47,7 @@ void DataEnvelopeParameters::setTimeLength(qreal length) {
 
     //If the total previous length was 0, update with the previous percentile
     //Other get the actual percentile
-    if (m_total==0) {
+    if (m_totalTime==0) {
         _attackPercentile=m_previousAttackPercentile;
         _holdPercentile=m_previousholdPercentile;
         _decayPercentile=m_previousdecayPercentile;
@@ -61,9 +61,9 @@ void DataEnvelopeParameters::setTimeLength(qreal length) {
         _releasePercentile=releasePercentile();
     }
 
-    m_total=(length>=0.0 ? length : 0.0);
+    m_totalTime=(length>=0.0 ? length : 0.0);
 
-    if (m_total==0.0) {
+    if (m_totalTime==0.0) {
         _attackPercentile=(_attackPercentile<=0.0 ? m_previousAttackPercentile : _attackPercentile);
         _holdPercentile=(_holdPercentile<=0.0 ? m_previousholdPercentile : _holdPercentile);
         _decayPercentile=(_decayPercentile<=0.0 ? m_previousdecayPercentile : _decayPercentile);
@@ -79,11 +79,11 @@ void DataEnvelopeParameters::setTimeLength(qreal length) {
 
 
     //This set must be always true! Otherwise something is wrong
-    Q_ASSERT(setTimeParameters(_attackPercentile*m_total,
-                               _holdPercentile*m_total,
-                               _decayPercentile*m_total,
-                               _sustainPercentile*m_total,
-                               _releasePercentile*m_total));
+    Q_ASSERT(setTimeParameters(_attackPercentile*m_totalTime,
+                               _holdPercentile*m_totalTime,
+                               _decayPercentile*m_totalTime,
+                               _sustainPercentile*m_totalTime,
+                               _releasePercentile*m_totalTime));
 }
 
 bool DataEnvelopeParameters::setLevelParameters(qreal holdLevel,qreal sustainLevel) {
@@ -119,12 +119,12 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
                       .arg(release));
     PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"with _total=%1 m_total=%2 comparison (_total <= m_total) is %3")
                       .arg(_total)
-                      .arg(m_total)
-                      .arg((_total <= m_total)));
+                      .arg(m_totalTime)
+                      .arg((_total <= m_totalTime)));
 
     //To avoid prolem of rounding the total is compared with rounding after a multplication by 1000000
     //Set only if _total is adequate
-    if (qFloor(1000000*_total) <= qFloor(1000000*m_total)) {
+    if (qFloor(1000000*_total) <= qFloor(1000000*m_totalTime)) {
         m_attack=attack;
         m_hold=hold;
         m_decay=decay;
@@ -140,37 +140,67 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
         //emit (timeParametersChanged());
     } else {
         PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,"dataset invalid %1+%2+%3+%4+%5=%6").arg(attack).arg(hold).arg(decay).arg(sustain).arg(release).arg(_total));
-        PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,"should be %1 <=%2").arg(_total).arg(m_total));
+        PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,"should be %1 <=%2").arg(_total).arg(m_totalTime));
     }
     return retval;
 }
 
 //Single Setter
 void DataEnvelopeParameters::setAttackDuration(qreal attack) {
+    if (attack==m_attack) return;
     bool retval=setTimeParameters(attack,m_hold,m_decay,m_sustain,m_release);
-    if (retval) emit (attackDurationChanged(attack));
+    if (retval) {
+        emit (attackDurationChanged(attack));
+    } else {
+        emit (timeParamsRevert());
+    }
+
 }
 void DataEnvelopeParameters::setHoldDuration(qreal hold) {
+    if (hold==m_hold) return;
     bool retval=this->setTimeParameters(m_attack,hold,m_decay,m_sustain,m_release);
-    if (retval) emit (holdDurationChanged(hold));
+    if (retval) {
+        emit (holdDurationChanged(hold));
+    } else {
+        emit (timeParamsRevert());
+    }
 }
 void DataEnvelopeParameters::setDecayDuration(qreal decay) {
+    if (decay==m_decay) return;
     bool retval=this->setTimeParameters(m_attack,m_hold,decay,m_sustain,m_release);
-    if (retval) emit (decayDurationChanged(decay));
+    if (retval) {
+        emit (decayDurationChanged(decay));
+    } else {
+        emit (timeParamsRevert());
+    }
+
 }
 void DataEnvelopeParameters::setSustainDuration(qreal sustain) {
+    if (sustain==m_sustain) return;
     bool retval=this->setTimeParameters(m_attack,m_hold,m_decay,sustain,m_release);
-    if (retval) emit (sustainDurationChanged(sustain));
+    if (retval) {
+        emit (sustainDurationChanged(sustain));
+    } else {
+        emit (timeParamsRevert());
+    }
+
 }
 void DataEnvelopeParameters::setReleaseDuration(qreal release) {
+    if (release==m_release) return;
     bool retval=this->setTimeParameters(m_attack,m_hold,m_decay,m_sustain,release);
-    if (retval) emit (releaseDurationChanged( release));
+    if (retval) {
+        emit (releaseDurationChanged( release));
+    } else {
+        emit (timeParamsRevert());
+    }
 }
 void DataEnvelopeParameters::setHoldLevel(qreal holdLevel) {
+    if (holdLevel==m_holdLevel) return;
     bool retval=setLevelParameters( holdLevel, m_sustainLevel);
     if (retval) emit (holdLevelChanged(holdLevel));
 }
 void DataEnvelopeParameters::setSustainLevel(qreal sustainLevel) {
+    if (sustainLevel==m_sustainLevel) return;
     bool retval=setLevelParameters( m_holdLevel, sustainLevel);
     if (retval) emit (sustainLevelChanged(sustainLevel));
 }
@@ -179,5 +209,16 @@ void DataEnvelopeParameters::setEnableEnvelope(bool enable) {
         m_enable=enable;
         emit (enableEnvelopeChanged(enable));
     }
+}
+
+const qreal DataEnvelopeParameters::spareTimeAvailable() {
+    //Setting scale
+    qreal _allocatedTime=m_attack + m_hold + m_decay + m_sustain + m_release;
+    qreal _remainingTime=(m_totalTime-_allocatedTime);
+    //    //Avoid a problem rounding. Assuming remainingTime is 0.0 if smaller than an arbitraty small amount
+    _remainingTime=(qAbs(_remainingTime) < (1.0e-6) ? 0.0 : _remainingTime);
+    Q_ASSERT( _remainingTime>=0.0);
+    Q_ASSERT( _remainingTime<=m_totalTime);
+    return  _remainingTime;
 }
 

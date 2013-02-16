@@ -61,11 +61,8 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
     //Prepare envelope
     initEnvelope();
 
-    //init control widget
-
     //connect any signal
     this->connectSignals();
-
 
     //set recalc enabled
     m_enableRecalc=true;
@@ -149,6 +146,7 @@ void GenericTimeData::connectSignals() {
 
     //emit when the name change
     Q_ASSERT(connect(_gtdp,SIGNAL(nameChanged(QString)),this,SIGNAL(nameChanged(QString))));
+
 
 }
 
@@ -258,6 +256,8 @@ void GenericTimeData::enableUpdate() {
 }
 
 void GenericTimeData::maxDurationHasChanged(qreal maxDuration) {
+//    DataEnvelopeUI *_envUI=dynamic_cast<DataEnvelopeUI *> m_envelope->getControlWidget();
+//    Q_ASSERT(_envUI);
     Q_UNUSED(maxDuration);
     createData();
     //    resetAllData();

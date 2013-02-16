@@ -41,9 +41,6 @@ void PartialTimeData::connectSignals() {
     Q_ASSERT(connect(_ptd,SIGNAL(maxDurationChanged(qreal)),_ptdUI,SLOT(setT0Scale(qreal))));
     //if t0 changed update the duration scale
     Q_ASSERT(connect(_ptd,SIGNAL(t0Changed(qreal)),_ptdUI,SLOT(setDurationScale())));
-    //Connect the slot to change the max duration
-    //connect(this ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(maxDurationChange(qreal)));//This grant when never SR o duration is changed the appropriate methods are called!
-
 }
 
 //void PartialTimeData::setDuration(qreal duration) {

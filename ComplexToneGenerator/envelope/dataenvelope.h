@@ -94,24 +94,6 @@ public slots:
       */
     void setSampleRate(qreal SR);
 
-    /**
-      * Call this if the amplitude parameters are changed and/or need recalculation of the amplitude values and relative calls to UI etc.
-      */
- //   void amplitudeEnvelopeChanged();
-    //VERIFICARE
-
-    /**
-      * Call this if the time parameters are changed and/or need recalculation of the amplitude values and relative calls to UI etc.
-      */
- //   void timeEnvelopeChanged();
-    //VERIFICARE
-
-    /**
-     * @brief enabledToggle, the envelope enabled was toggled
-     * @param toggle, true if envelope is enabled
-     */
-    //void enableEnvelope(bool enable) {m_envelopeParams->setEnableEnvelope(enable);}
-
 private:
     DataUiHandlerDelegate *m_envelopeDelegate;
 

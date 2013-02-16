@@ -61,13 +61,20 @@ public:
     /**
       * This function returns the sum of all the time values
       */
-    qreal totalTimeLength() {return m_total;}
+    qreal totalTimeLength() {return m_totalTime;}
 
     /**
      * @brief isEnabledEnvelope tell if the envelope is enabled
      * @return true if enabled
      */
     bool isEnabledEnvelope() {return m_enable;}
+
+    /**
+     * @brief spareTimeAvailable Return the not allocated time, the difference between the total time and the allocated time for envelope phase.
+     * @return
+     */
+    const qreal spareTimeAvailable();
+
 
 signals:
     void attackDurationChanged(qreal);
@@ -78,6 +85,17 @@ signals:
     void holdLevelChanged(qreal);
     void sustainLevelChanged(qreal);
     void enableEnvelopeChanged(bool);
+
+    /**
+     * @brief timeParamsRevert it's emitted if a time params was tried but it wasn't compatible.
+     */
+    void timeParamsRevert();
+
+//    /**
+//     * @brief maxSpareTime it's emitted when never a time params is set.
+//     * @param time The difference between the max time available for the whole envelope and the summation of time params set.
+//     */
+//    void maxSpareTime(qreal time);
 
     /**
      * @brief amplitudeParametersChanged,    Emitted if some amplitude params are changhed.
@@ -137,17 +155,16 @@ private:
       */
     bool setTimeParameters(qreal attackDuration, qreal hold, qreal decay ,qreal sustain, qreal release);
 
-
     void connectSignals();
-    qreal attackPercentile() {return (m_total>0.0 ? m_attack/m_total : 0.0 );}
-    qreal holdPercentile() {return (m_total>0.0 ? m_hold/m_total : 0.0);}
-    qreal decayPercentile() {return (m_total>0.0 ? m_decay/m_total : 0.0);}
-    qreal sustainPercentile() {return (m_total>0.0 ? m_sustain/m_total : 0.0);}
-    qreal releasePercentile() {return (m_total>0.0 ? m_release/m_total : 0.0);}
+    qreal attackPercentile() {return (m_totalTime>0.0 ? m_attack/m_totalTime : 0.0 );}
+    qreal holdPercentile() {return (m_totalTime>0.0 ? m_hold/m_totalTime : 0.0);}
+    qreal decayPercentile() {return (m_totalTime>0.0 ? m_decay/m_totalTime : 0.0);}
+    qreal sustainPercentile() {return (m_totalTime>0.0 ? m_sustain/m_totalTime : 0.0);}
+    qreal releasePercentile() {return (m_totalTime>0.0 ? m_release/m_totalTime : 0.0);}
 
 
     bool m_enable;
-    qreal m_total;
+    qreal m_totalTime;
     qreal m_attack;
     qreal m_hold;
     qreal m_decay;
