@@ -17,7 +17,7 @@ class GenericTimeDataUI : public DataUiHandlerUI
 public:
     explicit GenericTimeDataUI( QWidget *widget = 0);
     virtual ~GenericTimeDataUI();
-    DataEnvelopeUI* getEnvelopeUI() {return m_envelopeUI;}
+ //   DataEnvelopeUI* getEnvelopeUI() {return m_envelopeUI;}
 
 //    /**
 //     * @brief isShowXML tell if the showXML widget is showed
@@ -56,7 +56,7 @@ protected slots:
 //    virtual void updateXML();
 private:
     void initControlWidget();//Create only the base control
-    void initEnvelopeUI();
+ //   void initEnvelopeUI();
     //void addDataUIHandlerUI(DataUiHandlerUI *envelopeWidget);
 
     struct {
@@ -71,7 +71,7 @@ private:
       QPushButton *paste;
     } m_baseControl; //This class control.
 
-    DataEnvelopeUI * m_envelopeUI;
+   // DataEnvelopeUI * m_envelopeUI;
 private slots:
     void nameUpdated();
 };

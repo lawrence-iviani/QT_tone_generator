@@ -53,7 +53,8 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
 
     //Generate envelope
     m_envelope=new DataEnvelope(_gtdp->sampleRate(),this);
-    getEnvelopeParameters()->setEnableEnvelope(true);
+    //TODO UI ENVELOPE
+
     //Set property for this curve
     setTimePlotParams(timePlotParams);
     _gtdp->setShowCurve(true);
@@ -65,23 +66,25 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
     m_enableRecalc=true;
     this->createData();
 
+    //JUST FOR DEBUG
+    getEnvelopeParameters()->setEnableEnvelope(true);
+
 }
 
-void GenericTimeData::refreshEnvelope() {
-    DataUiHandlerDelegate *_envDelegate= m_envelope->getDelegate();
-    Q_ASSERT(_envDelegate);
-    DataUiHandlerProperty *_envProp=_envDelegate->getProperty();
-    Q_ASSERT(_envProp);
+//void GenericTimeData::refreshEnvelope() {
+//    DataUiHandlerDelegate *_envDelegate= m_envelope->getDelegate();
+//    Q_ASSERT(_envDelegate);
+//    DataUiHandlerProperty *_envProp=_envDelegate->getProperty();
+//    Q_ASSERT(_envProp);
 
-    GenericTimeDataUI *_gtdpUI=dynamic_cast<GenericTimeDataUI*> (m_timeDataDelegate->getUI());
-    Q_ASSERT(_gtdpUI);
-    DataUiHandlerUI *_envUI=_gtdpUI->getEnvelopeUI();
-    Q_ASSERT(_envUI);
-    _envDelegate->replacePropertiesAndUI(_envProp,_envUI);
+//    GenericTimeDataUI *_gtdpUI=dynamic_cast<GenericTimeDataUI*> (m_timeDataDelegate->getUI());
+//    Q_ASSERT(_gtdpUI);
+//    //DataUiHandlerUI *_envUI=_gtdpUI->getEnvelopeUI();
+//    //Q_ASSERT(_envUI);
+//    //_envDelegate->replacePropertiesAndUI(_envProp,_envUI);
 
-    //Connect envelope changed.
-    Q_ASSERT(connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData())));
-}
+
+//}
 
 void GenericTimeData::setTimePlotParams(TimePlotParams * timePlotParams) {
     GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
@@ -127,10 +130,8 @@ void GenericTimeData::connectSignals() {
     Q_ASSERT(connect(_gtdp,SIGNAL(nameChanged(QString)),this,SIGNAL(nameChanged(QString))));
 
     //Connect envelope changed.
- //   Q_ASSERT(connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData())));
+    Q_ASSERT(connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData())));
 
-    //set envelope
- //   refreshEnvelope();
 }
 
 void GenericTimeData::updateData() {

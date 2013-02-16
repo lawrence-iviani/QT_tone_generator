@@ -281,7 +281,7 @@ private:
      void init(TimePlotParams * timePlotParams=0);
      void initTimePlotParams();
      bool m_enableRecalc;
-     void refreshEnvelope();
+   //  void refreshEnvelope();
     // TimePlotParams * m_TimePlotParams;
      DataUiHandlerDelegate * m_timeDataDelegate;
      DataEnvelope *m_envelope;

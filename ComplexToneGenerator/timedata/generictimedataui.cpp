@@ -4,12 +4,12 @@ GenericTimeDataUI::GenericTimeDataUI(QWidget *widget) :
     DataUiHandlerUI(widget)
 {
     this->initControlWidget();
-    m_envelopeUI=new DataEnvelopeUI();
-    addWidget(m_envelopeUI);
+ //   m_envelopeUI=new DataEnvelopeUI();
+ //   addWidget(m_envelopeUI);
 }
 
 GenericTimeDataUI::~GenericTimeDataUI() {
-    delete m_envelopeUI;
+ //    delete m_envelopeUI;
 }
 
 
