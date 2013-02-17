@@ -55,10 +55,10 @@ void MainWindow::connectSignals() {
    // connect(m_plotTime->getDigestCurve(),SIGNAL(sampleRateChanged(qreal)),this,SLOT(sampleRateChange(qreal)));
 
     //connect digest curve to handle update in the plots
-   // connect(m_plotTime->getDigestCurve(),SIGNAL(dataUpdated()),this,SLOT(digestCurveChanged()));
+    Q_ASSERT(connect(m_plotTime->getDigestCurve(),SIGNAL(dataChanged()),this,SLOT(digestCurveChanged())));
 
     //Connect position slider
-   // connect(m_audioPlayer,SIGNAL(streamTimePositionChanged(qreal)) ,this,SLOT(streamPositionUpdate(qreal)));
+    Q_ASSERT(connect(m_audioPlayer,SIGNAL(streamTimePositionChanged(qreal)) ,this,SLOT(streamPositionUpdate(qreal))));
 }
 
 void MainWindow::setupUI() {
@@ -82,8 +82,6 @@ void MainWindow::setupUI() {
 }
 
 void MainWindow::setupStyle() {
-
-
     //What i want to setup with a different style?
     m_widgetStyleUI.setStyle(s_widgetUI.toolboxOption);
     m_widgetStyleUI.setStyle(s_widgetUI.toolboxOptionFrame);
@@ -98,7 +96,7 @@ void MainWindow::connectMenusAndShortcut() {
     //---------File menu
     {
         //NEW
-      //  connect(ui->actionNew_Project,SIGNAL(triggered()),this,SLOT(newProject()));//new
+        Q_ASSERT(connect(ui->actionNew_Project,SIGNAL(triggered()),this,SLOT(newProject())));
         //LOAD
       //  connect(ui->actionLoad_Project ,SIGNAL(triggered()),this,SLOT(load()));
       //  //SAVE
@@ -108,19 +106,19 @@ void MainWindow::connectMenusAndShortcut() {
         //Import curve
       //  connect(ui->actionImport_curve,SIGNAL(triggered()),this,SLOT( importCurve()) );
         //EXPORT AUDIO FILE
-      //  connect(ui->actionExport_audio_file,SIGNAL(triggered()),this,SLOT(exportDigestCurve()));
+        Q_ASSERT(connect(ui->actionExport_audio_file,SIGNAL(triggered()),this,SLOT(exportDigestCurve())));
     }
 
     //---------Curves menu
     {
         //NEW CURVE
-        connect(ui->actionAdd_curve,SIGNAL(triggered()),this,SLOT(newCurve()));
+        Q_ASSERT(connect(ui->actionAdd_curve,SIGNAL(triggered()),this,SLOT(newCurve())));
         //DUPLICATE
       //  connect(ui->actionDuplicate_curves,SIGNAL(triggered()),this,SLOT(duplicateCurves()));
         //REMOVE ALL
-        connect(ui->actionRemove_all_curves,SIGNAL(triggered()),this,SLOT(removeAllCurvesWithDialog()) );
+        Q_ASSERT(connect(ui->actionRemove_all_curves,SIGNAL(triggered()),this,SLOT(removeAllCurvesWithDialog())));
         //REMOVE ONE
-        connect(ui->actionRemove_curve ,SIGNAL(triggered()),this,SLOT(removeCurve()) );
+        Q_ASSERT(connect(ui->actionRemove_curve ,SIGNAL(triggered()),this,SLOT(removeCurve())));
     }
 
     //---------Show menu
@@ -247,7 +245,7 @@ void MainWindow::newCurve() {
     _gtdParams->setColor(Qt::green);
     _gtdParams->setName(name);
     _gtdParams->setShowCurve(true);
-    connect(s,SIGNAL(nameChanged()),this,SLOT(updateCurvesName()));
+    Q_ASSERT(connect(s,SIGNAL(nameChanged(QString)),this,SLOT(updateCurvesName())));
 
     //adding data to the plot time
     m_plotTime->addTimeData(s);
