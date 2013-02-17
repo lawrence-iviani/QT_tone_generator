@@ -52,7 +52,7 @@ void DataEnvelope::envelopeHasChanged() {
     Q_ASSERT(_ep!=NULL);
     DataEnvelopeUI *_epUI=dynamic_cast<DataEnvelopeUI*> (m_envelopeDelegate->getUI());
     Q_ASSERT(_epUI!=NULL);
-    _epUI->setSpareTime(_ep->spareTimeAvailable());
+    _epUI->setParamsTime(_ep);
     recalculateEnvelope();
 }
 
@@ -78,7 +78,7 @@ void DataEnvelope::connectingSignals() {
     Q_ASSERT(connect(_ep,SIGNAL(enableEnvelopeChanged(bool)), this, SLOT(envelopeHasToggledEnable())));
 
     //If for some reason a set time params failed it's necessary restore the value in the params
-    //Q_ASSERT(connect(_ep,SIGNAL(timeParamsRevert()), this, SLOT());
+    Q_ASSERT(connect(_ep,SIGNAL(timeParamsChanged(DataEnvelopeParameters*)), _epUI, SLOT(setParamsTime(DataEnvelopeParameters*))));
 }
 
 void DataEnvelope::replacePropertyAndUI(DataUiHandlerProperty *params, DataUiHandlerUI *ui) {
@@ -96,8 +96,7 @@ void DataEnvelope::setSampleNumber(quint64 length) {
     if (length!=m_sampleNumber) {
         m_sampleNumber=length;
         _ep->setTimeLength(((qreal)m_sampleNumber)/m_SR);//This function already call recalcuateEnvelope()
-        _epUI->setMaxLengthScale(((qreal)m_sampleNumber)/m_SR);
-        _epUI->setSpareTime(_ep->spareTimeAvailable());
+        _epUI->setParamsTime(_ep);
         recalculateEnvelope();
     }
 }
@@ -105,8 +104,10 @@ void DataEnvelope::setSampleNumber(quint64 length) {
 void DataEnvelope::setSampleRate(qreal SR) {
     DataEnvelopeParameters *_ep=dynamic_cast<DataEnvelopeParameters*> (m_envelopeDelegate->getProperty());
     Q_ASSERT(_ep!=NULL);
+    DataEnvelopeUI *_epUI=dynamic_cast<DataEnvelopeUI*> (m_envelopeDelegate->getUI());
+    Q_ASSERT(_epUI!=NULL);
+
     m_SR=SR;
-    _ep->setTimeLength(((qreal)m_sampleNumber)/SR);
 }
 
 void DataEnvelope::recalculateEnvelope() {

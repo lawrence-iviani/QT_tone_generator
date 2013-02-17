@@ -9,7 +9,6 @@ PartialTimeData::PartialTimeData(TimePlotParams *timePlotParams, QObject *parent
 {    init(timePlotParams); }
 
 void PartialTimeData::init(TimePlotParams *timePlotParams) {
-
     GenericTimeDataParams* _baseProp=dynamic_cast<GenericTimeDataParams*>(GenericTimeData::getDataParameters());
     Q_ASSERT(_baseProp);
     DataUiHandlerDelegate* _delegate=getDelegate();
@@ -19,8 +18,11 @@ void PartialTimeData::init(TimePlotParams *timePlotParams) {
                                       dynamic_cast<DataUiHandlerUI*> (new PartialTimeDataUI() ));
     PartialTimeDataParams* _ptp=dynamic_cast<PartialTimeDataParams*>(getDataParameters());
     Q_ASSERT(_ptp);
-    _ptp->setT0( PARTIALTIMEDATA_DEFAULT_T0);
+
+    //setting default values for t0 and duration
+    _ptp->setT0(PARTIALTIMEDATA_DEFAULT_T0);
     _ptp->setDuration(PARTIALTIMEDATA_DEFAULT_DURATION);
+
     connectSignals();
 }
 
@@ -41,6 +43,10 @@ void PartialTimeData::connectSignals() {
     Q_ASSERT(connect(_ptd,SIGNAL(maxDurationChanged(qreal)),_ptdUI,SLOT(setT0Scale(qreal))));
     //if t0 changed update the duration scale
     Q_ASSERT(connect(_ptd,SIGNAL(t0Changed(qreal)),_ptdUI,SLOT(setDurationScale())));
+
+    //setting scale for UI
+    _ptdUI->setT0Scale(_ptd->maxDuration());
+    _ptdUI->setT0Scale(_ptd->maxDuration());
 }
 
 //void PartialTimeData::setDuration(qreal duration) {

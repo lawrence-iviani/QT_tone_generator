@@ -296,8 +296,6 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
 
     QString curveName=selectCurveHelper->getSelectedDataCurve().name;
     if (curveName==NULL) return NULL;
-    qDebug() << "MainWindow::decodeSelectedCurve curve selected is " << curveName;
-
 
     if (QString::compare(curveName,"Limited duration Tone generator")==0 ) {
         TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
@@ -311,7 +309,6 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
         TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
         Q_ASSERT(_tParams);
         GenericTimeData *s=CustomCurveFactory::instance()->newCurve("RepeatedSinusData",_tParams);
-       // s->setParent(m_plotTime);
         s->setTimePlotParams(_tParams);
         retval=(GenericTimeData*) s;
     }
@@ -320,7 +317,6 @@ GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * sele
         TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
         Q_ASSERT(_tParams);
         GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData",_tParams);
-        qDebug() << Q_FUNC_INFO << " generated gtd@" << s;
         s->setTimePlotParams(_tParams);
         retval=(GenericTimeData*) s;
     }

@@ -38,8 +38,12 @@ void RepeatedTimeData::connectSignals() {
     Q_ASSERT(connect(_rtd ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions())));
     Q_ASSERT(connect(_rtd ,SIGNAL(t0Changed(qreal)),this,SLOT(updateRepetitions())));
     Q_ASSERT(connect(_rtd ,SIGNAL(durationChanged(qreal)),this,SLOT(updateRepetitions())));
-    //EXAMPLE, to connect your class signal to update UI, use this example, connecting to the main control widget.
-    //connect(this ,SIGNAL(SOME SIGNAL),getControlWidget(),SLOT(updateUI());
+
+    //if maxduration changed update the blank scale
+    Q_ASSERT(connect(_rtd,SIGNAL(maxDurationChanged(qreal)),_rtdUI,SLOT(setBlankTimeScale(qreal))));
+
+    //setting scale for UI
+    _rtdUI->setBlankTimeScale(_rtd->maxDuration());
 }
 
 void RepeatedTimeData::updateRepetitions() {

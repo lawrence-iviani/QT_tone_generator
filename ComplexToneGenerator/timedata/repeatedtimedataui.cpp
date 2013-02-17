@@ -31,9 +31,6 @@ void RepeatedTimeDataUI::initControlWidget() {
     m_repeatedDataControl.widgetBlankTime->setFont(f);
     connect(m_repeatedDataControl.widgetBlankTime,SIGNAL(valueChanged(qreal)),this,SIGNAL(blankTimeUIChanged(qreal)));
 
-    //Interessante...
-    // connect(this,SLOT(durationChange(qreal)),m_repeatedDataControl.widgetBlankTime,SLOT(setMaxScaleValue(qreal)));
-
     //layouting
     l->addWidget(m_repeatedDataControl.widgetBlankTime,1,Qt::AlignLeft);
 
@@ -45,9 +42,8 @@ void RepeatedTimeDataUI::blankTimeUIUpdate(qreal blanktime) {
         m_repeatedDataControl.widgetBlankTime->setValue(blanktime);
 }
 
-//void RepeatedTimeDataUI::durationChange(qreal duration) {
-//    bool _prevValue=m_repeatedDataControl.widgetBlankTime->blockSignals(true);
-//    m_repeatedDataControl.widgetBlankTime->setMaxScaleValue(duration);
-//    m_repeatedDataControl.widgetBlankTime->blockSignals(_prevValue);
-
-//}
+void RepeatedTimeDataUI::setBlankTimeScale(qreal maxDuration) {
+    if (maxDuration>=0) {
+        m_repeatedDataControl.widgetBlankTime->setScale(0,maxDuration,TIMEDATA_DEFAULT_TIMESTEP);
+    }
+}

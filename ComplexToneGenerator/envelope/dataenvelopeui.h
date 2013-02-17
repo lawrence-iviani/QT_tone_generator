@@ -9,6 +9,7 @@
 #include "CTG_constants.h"
 #include "DataUiHandler.h"
 
+class DataEnvelopeParameters;
 
 static const qreal  DATAENVELOPEUI_TIME_STEP=0.0001;
 
@@ -61,16 +62,10 @@ public slots:
     void enableUIUpdate(bool enable);
 
     /**
-     * @brief setMaxLengthScale Set the max value of the time scale (attack,hold,devay,sustain, release).
-     * @param len
+     * @brief setParamsTime
+     * @param params
      */
-    void setMaxLengthScale(qreal len);
-
-    /**
-     * @brief setSpareTime Set the max spare time available (the difference between the max time for this envelope and the allocated time as summation of the whole env phase )
-     * @param spareTime
-     */
-    void setSpareTime(qreal spareTime);
+    void setParamsTime(DataEnvelopeParameters * params);
 
 private:
     QWidget * m_widgetEnable;

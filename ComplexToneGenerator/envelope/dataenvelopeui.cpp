@@ -198,23 +198,6 @@ void DataEnvelopeUI::releaseDurationUIUpdate(qreal releaseTime) {
     m_structTime.release->setValue(releaseTime);
 }
 
-void DataEnvelopeUI::setMaxLengthScale(qreal len) {
-    m_structTime.attack->setScale(0,len,TIMEDATA_DEFAULT_TIMESTEP);
-    m_structTime.hold->setScale(0,len,TIMEDATA_DEFAULT_TIMESTEP);
-    m_structTime.decay->setScale(0,len,TIMEDATA_DEFAULT_TIMESTEP);
-    m_structTime.sustain->setScale(0,len,TIMEDATA_DEFAULT_TIMESTEP);
-    m_structTime.release->setScale(0,len,TIMEDATA_DEFAULT_TIMESTEP);
-}
-
-void DataEnvelopeUI::setSpareTime(qreal spareTime) {
-     m_structTime.attack->setScale(0,m_structTime.attack->value()+spareTime,TIMEDATA_DEFAULT_TIMESTEP);
-     m_structTime.hold->setScale(0,m_structTime.hold->value()+spareTime,TIMEDATA_DEFAULT_TIMESTEP);
-     m_structTime.decay->setScale(0,m_structTime.decay->value()+spareTime,TIMEDATA_DEFAULT_TIMESTEP);
-     m_structTime.sustain->setScale(0,m_structTime.sustain->value()+spareTime,TIMEDATA_DEFAULT_TIMESTEP);
-     m_structTime.release->setScale(0,m_structTime.release->value()+spareTime,TIMEDATA_DEFAULT_TIMESTEP);
-
-}
-
 void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget *slider, qreal val) {
     setSliderValue(slider,val);
 }
@@ -232,4 +215,23 @@ void DataEnvelopeUI::enableCheckBoxToggled() {
     m_widgetAmplitude->setEnabled(enable);
     m_widgetTime->setEnabled(enable);
     emit (enableUIChanged(enable));
+}
+
+void DataEnvelopeUI::setParamsTime(DataEnvelopeParameters *params) {
+    qreal _spareTime=params->spareTimeAvailable();
+
+    //Setting value
+    m_structTime.attack->setValue(params->attack());
+    m_structTime.hold->setValue(params->hold());
+    m_structTime.decay->setValue(params->decay());
+    m_structTime.sustain->setValue(params->sustain());
+    m_structTime.release->setValue(params->release());
+
+    //setting scale
+    m_structTime.attack->setScale(0,params->attack()+_spareTime,TIMEDATA_DEFAULT_TIMESTEP);
+    m_structTime.hold->setScale(0,params->hold()+_spareTime,TIMEDATA_DEFAULT_TIMESTEP);
+    m_structTime.decay->setScale(0,params->decay()+_spareTime,TIMEDATA_DEFAULT_TIMESTEP);
+    m_structTime.sustain->setScale(0,params->sustain()+_spareTime,TIMEDATA_DEFAULT_TIMESTEP);
+    m_structTime.release->setScale(0,params->release()+_spareTime,TIMEDATA_DEFAULT_TIMESTEP);
+
 }

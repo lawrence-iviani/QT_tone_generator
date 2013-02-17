@@ -84,6 +84,7 @@ void DataEnvelopeParameters::setTimeLength(qreal length) {
                                _decayPercentile*m_totalTime,
                                _sustainPercentile*m_totalTime,
                                _releasePercentile*m_totalTime));
+    emit (timeParamsChanged(this));
 }
 
 bool DataEnvelopeParameters::setLevelParameters(qreal holdLevel,qreal sustainLevel) {
@@ -152,7 +153,7 @@ void DataEnvelopeParameters::setAttackDuration(qreal attack) {
     if (retval) {
         emit (attackDurationChanged(attack));
     } else {
-        emit (timeParamsRevert());
+        emit (timeParamsChanged(this));
     }
 
 }
@@ -162,7 +163,7 @@ void DataEnvelopeParameters::setHoldDuration(qreal hold) {
     if (retval) {
         emit (holdDurationChanged(hold));
     } else {
-        emit (timeParamsRevert());
+        emit (timeParamsChanged(this));
     }
 }
 void DataEnvelopeParameters::setDecayDuration(qreal decay) {
@@ -171,7 +172,7 @@ void DataEnvelopeParameters::setDecayDuration(qreal decay) {
     if (retval) {
         emit (decayDurationChanged(decay));
     } else {
-        emit (timeParamsRevert());
+        emit (timeParamsChanged(this));
     }
 
 }
@@ -181,7 +182,7 @@ void DataEnvelopeParameters::setSustainDuration(qreal sustain) {
     if (retval) {
         emit (sustainDurationChanged(sustain));
     } else {
-        emit (timeParamsRevert());
+        emit (timeParamsChanged(this));
     }
 
 }
@@ -191,7 +192,7 @@ void DataEnvelopeParameters::setReleaseDuration(qreal release) {
     if (retval) {
         emit (releaseDurationChanged( release));
     } else {
-        emit (timeParamsRevert());
+        emit (timeParamsChanged(this));
     }
 }
 void DataEnvelopeParameters::setHoldLevel(qreal holdLevel) {

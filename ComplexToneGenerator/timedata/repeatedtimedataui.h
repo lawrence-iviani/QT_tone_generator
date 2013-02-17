@@ -16,8 +16,8 @@ signals:
     void blankTimeUIChanged(qreal);
 
 public slots:
-
     void blankTimeUIUpdate(qreal blanktime);
+    void setBlankTimeScale(qreal maxDuration);
 
 protected:
 

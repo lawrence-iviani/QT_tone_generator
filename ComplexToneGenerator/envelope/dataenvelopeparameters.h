@@ -23,7 +23,7 @@ class DataEnvelope;
 class DataEnvelopeParameters : public DataUiHandlerProperty
 {
     Q_OBJECT
-    Q_PROPERTY(qreal attackDuration READ attackDuration WRITE setAttackDuration NOTIFY attackDurationChanged)
+    Q_PROPERTY(qreal attackDuration READ attack WRITE setAttackDuration NOTIFY attackDurationChanged)
     Q_PROPERTY(qreal holdDuration READ hold WRITE setHoldDuration NOTIFY holdDurationChanged)
     Q_PROPERTY(qreal decayDuration READ decay WRITE setDecayDuration NOTIFY decayDurationChanged)
     Q_PROPERTY(qreal sustainDuration READ sustain WRITE setSustainDuration NOTIFY sustainDurationChanged)
@@ -39,10 +39,10 @@ public:
     /**
       * Set the data with the constructor
       */
-    explicit  DataEnvelopeParameters(qreal attackDuration, qreal hold, qreal decay , qreal sustain, qreal release, QObject *object = 0);
+    explicit  DataEnvelopeParameters(qreal attack, qreal hold, qreal decay , qreal sustain, qreal release, QObject *object = 0);
 
     friend class DataEnvelope;
-    qreal attackDuration() {return m_attack;}
+    qreal attack() {return m_attack;}
     qreal hold() {return m_hold;}
     qreal decay() {return m_decay;}
     qreal sustain() {return m_sustain;}
@@ -87,9 +87,10 @@ signals:
     void enableEnvelopeChanged(bool);
 
     /**
-     * @brief timeParamsRevert it's emitted if a time params was tried but it wasn't compatible.
+     * @brief timeParamsChanged This signal is emitted when never some time is changed.
+     * @param params
      */
-    void timeParamsRevert();
+    void timeParamsChanged(DataEnvelopeParameters * params);
 
 //    /**
 //     * @brief maxSpareTime it's emitted when never a time params is set.
@@ -119,7 +120,7 @@ public slots:
      * @param attack
      * @return
      */
-    void setAttackDuration(qreal attackDuration);
+    void setAttackDuration(qreal attack);
     void setHoldDuration(qreal hold);
     void setDecayDuration(qreal decay);
     void setSustainDuration(qreal sustain);
@@ -153,7 +154,7 @@ private:
       * Set all the duration parameters. No matter if they are in time or sample, the total must be less of the length set.
       * Return a true if the operation was made (summing time < total time set) or false if it's not possible  to set these values.
       */
-    bool setTimeParameters(qreal attackDuration, qreal hold, qreal decay ,qreal sustain, qreal release);
+    bool setTimeParameters(qreal attack, qreal hold, qreal decay ,qreal sustain, qreal release);
 
     void connectSignals();
     qreal attackPercentile() {return (m_totalTime>0.0 ? m_attack/m_totalTime : 0.0 );}
