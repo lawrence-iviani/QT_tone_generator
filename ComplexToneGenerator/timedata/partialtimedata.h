@@ -49,13 +49,13 @@ protected:
       * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
       * Reimplemented from GenericTimeData.
       */
-    virtual quint64 lowestSampleIndexForModification();
+    virtual const quint64 lowestSampleIndexForModification();
 
     /**
       * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
       * Reimplemented from GenericTimeData.
       */
-    virtual quint64 highestSampleIndexForModification();
+    virtual const quint64 highestSampleIndexForModification();
 
     virtual void connectSignals();
 private:

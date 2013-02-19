@@ -61,11 +61,11 @@ void GenericTimeDataUI::initControlWidget() {
     //C&P Button
     m_baseControl.copy=new QPushButton("Copy");
     m_baseControl.copy->setFont(f);
-    //connect(m_baseControl.copy ,SIGNAL(clicked()),m_genericTimeData,SLOT(copy()));
+    connect(m_baseControl.copy ,SIGNAL(clicked()),this,SIGNAL(buttonCopyPressed()));
 
     m_baseControl.paste=new QPushButton("Paste");
     m_baseControl.paste->setFont(f);
-    //connect(m_baseControl.paste ,SIGNAL(clicked()),m_genericTimeData,SLOT(paste()));
+    connect(m_baseControl.paste ,SIGNAL(clicked()),this,SIGNAL(buttonPastePressed()));
 
 
     //Layouting XML button & C&P button

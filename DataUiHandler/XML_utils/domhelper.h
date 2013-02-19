@@ -38,36 +38,40 @@ public:
     /**
      * @brief setClassByDomData Set the class by importing a QDomNode, there must be compatibility in the ROOT tag of the relative XML
      * @param doc
+     * @param allowUpdate by default true, this means that signals are emitted for every properties change
      * @param errMessage
      * @return
      */
-    bool setClassByDomData(const QDomNode& doc, ErrorMessage* errMessage=NULL);
+    bool setClassByDomData(const QDomNode& doc, bool allowUpdate=true, ErrorMessage* errMessage=NULL);
 
     /**
      * @brief setClassByDomData Set the class by importing a QDomNode, there must be compatibility in the ROOT tag of the relative XML
      * @param doc
+     * @param allowUpdate by default true, this means that signals are emitted for every properties change
      * @param errMessage
      * @return
      */
-    bool setClassByDomData(const QDomNode* doc, ErrorMessage* errMessage=NULL);
+    bool setClassByDomData(const QDomNode* doc, bool allowUpdate=true, ErrorMessage* errMessage=NULL);
 
     /**
      * @brief setClassByDomData setClassByDomData Set the class by importing a QDomNode, there must be compatibility in the ROOT tag of the relative XML
      * and in the document type specified for this class
      * @param doc the reference to doc
+     * @param allowUpdate by default true, this means that signals are emitted for every properties change
      * @param errMessage
      * @return
      */
-    bool setClassByDomData(const QDomDocument& doc, ErrorMessage* errMessage=NULL);
+    bool setClassByDomData(const QDomDocument& doc, bool allowUpdate=true, ErrorMessage* errMessage=NULL);
 
     /**
      * @brief setClassByDomData setClassByDomData Set the class by importing a QDomNode, there must be compatibility in the ROOT tag of the relative XML
      * and in the document type specified for this class
      * @param doc the pointer to doc
+     * @param allowUpdate by default true, this means that signals are emitted for every properties change
      * @param errMessage
      * @return
      */
-    bool setClassByDomData(const QDomDocument* doc, ErrorMessage* errMessage=NULL);
+    bool setClassByDomData(const QDomDocument* doc, bool allowUpdate=true, ErrorMessage* errMessage=NULL);
 
 
     /**

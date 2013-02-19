@@ -92,7 +92,7 @@ private:
 
     /**
      * @brief findSignalSignature Given a certain QMetaObject this method look in and find if exists a method with
-     * a certain methodSignature a returns the complete SignalSignature
+     * a certain methodSignature and returns the complete SignalSignature
      * @param metaObj
      * @param methodSignature
      * @return return an empty string if the slot isn't found
@@ -101,7 +101,7 @@ private:
 
     /**
      * @brief findSlotSignature Given a certain QMetaObject this method look in and find if exists a method with
-     * a certain methodSignature a returns the complete SlotSignature
+     * a certain methodSignature and returns the complete SlotSignature
      * @param metaObj
      * @param methodSignature
      * @return return an empty string if the slot isn't found

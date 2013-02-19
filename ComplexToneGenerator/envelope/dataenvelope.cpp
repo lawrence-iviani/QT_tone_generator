@@ -37,6 +37,9 @@ void DataEnvelope::init(QObject *parent) {
     m_envelopeDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*> (new DataEnvelopeParameters(parent)),
                 dynamic_cast<DataUiHandlerUI*>(new DataEnvelopeUI()),
+                ENVELOPE_DOCTYPE,
+                ENVELOPE_TAG,
+                ENVELOPE_SUFFIX,
                 parent);
     this->connectingSignals();
 }
@@ -108,6 +111,11 @@ void DataEnvelope::setSampleRate(qreal SR) {
     Q_ASSERT(_epUI!=NULL);
 
     m_SR=SR;
+}
+
+void DataEnvelope::setSampleRateAndSampleNumber(qreal SR, quint64 length) {
+    setSampleRate(SR);
+    setSampleNumber(length);
 }
 
 void DataEnvelope::recalculateEnvelope() {

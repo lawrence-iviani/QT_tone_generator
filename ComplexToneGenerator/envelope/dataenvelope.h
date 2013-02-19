@@ -85,14 +85,23 @@ signals:
 public slots:
 
     /**
-      * Set the total length in sample of the envelope
-      */
+     * @brief setSampleNumber Set the total length in sample of the envelope
+     * @param length
+     */
     void setSampleNumber(quint64 length);
 
     /**
-      * Set the sample rate, this is needed for the UI sample length.
-      */
+     * @brief setSampleRate Set the sample rate, this is needed for the UI sample length.
+     * @param SR
+     */
     void setSampleRate(qreal SR);
+
+    /**
+     * @brief setSampleRateAndSampleNumber
+     * @param SR
+     * @param length
+     */
+    void setSampleRateAndSampleNumber(qreal SR,quint64 length);
 
 private:
     DataUiHandlerDelegate *m_envelopeDelegate;

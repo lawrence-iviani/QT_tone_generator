@@ -18,8 +18,8 @@ public:
     explicit PartialTimeDataParams(QObject *parent);
     explicit PartialTimeDataParams(GenericTimeDataParams * baseProperty,TimePlotParams* params,QObject *parent);
 
-    inline qreal duration() {return m_duration;}
-    inline qreal t0() {return m_t0;}
+    inline const qreal duration() {return m_duration;}
+    inline const qreal t0() {return m_t0;}
 
 signals:
     void durationChanged(qreal);

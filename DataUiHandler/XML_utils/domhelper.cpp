@@ -137,7 +137,7 @@ void DomHelper::initDomDocument() {
 //    return true;
 //}
 
-bool DomHelper::setClassByDomData(const QDomDocument* doc, ErrorMessage* errMessage) {
+bool DomHelper::setClassByDomData(const QDomDocument* doc, bool allowUpdate, ErrorMessage* errMessage) {
     m_importingDomData=true;
     if (doc->isNull() ) {
         ErrorMessage::WARNING(errMessage,Q_FUNC_INFO,"Document is null");
@@ -150,14 +150,14 @@ bool DomHelper::setClassByDomData(const QDomDocument* doc, ErrorMessage* errMess
         return false;
     }
     QDomNode node = doc->firstChild();
-    return this->setClassByDomData(node, errMessage);
+    return this->setClassByDomData(node, allowUpdate, errMessage);
 }
 
-bool DomHelper::setClassByDomData(const QDomDocument& doc, ErrorMessage* errMessage) {
-    return setClassByDomData(&doc,errMessage);
+bool DomHelper::setClassByDomData(const QDomDocument& doc, bool allowUpdate, ErrorMessage* errMessage) {
+    return setClassByDomData(&doc,allowUpdate,errMessage);
 }
 
-bool DomHelper::setClassByDomData(const QDomNode* node, ErrorMessage* errMessage) {
+bool DomHelper::setClassByDomData(const QDomNode* node, bool allowUpdate, ErrorMessage* errMessage) {
     m_importingDomData=true;
     if (node->isNull()) {
         ErrorMessage::WARNING(errMessage,Q_FUNC_INFO,"DomHelper::setClassByDomData node is null");
@@ -166,19 +166,27 @@ bool DomHelper::setClassByDomData(const QDomNode* node, ErrorMessage* errMessage
     }
     ErrorMessage _err;
     if (!isImportableByDomData(node,&_err)) {
-        errMessage->appendMessage(_err);
-        ErrorMessage::WARNING(errMessage,Q_FUNC_INFO,"DomHelper::setClassByDomData document is not importable");
+        if (errMessage) {
+            errMessage->appendMessage(_err);
+            ErrorMessage::WARNING(errMessage,Q_FUNC_INFO,"DomHelper::setClassByDomData document is not importable");
+        }
         m_importingDomData=false;
         return false;
     }
-    parseEntry(node->toElement());
+    if (!allowUpdate) {
+        bool prevValue=m_hostObject->blockSignals(true);
+        parseEntry(node->toElement());
+        m_hostObject->blockSignals(prevValue);
+    } else
+        parseEntry(node->toElement());
+
     m_importingDomData=false;
     this->selfObjectData();//this recreate the dom object, otherwise the dom document remains with the old data and not the new one
     return true;
 }
 
-bool DomHelper::setClassByDomData(const QDomNode& node, ErrorMessage* errMessage) {
-    return setClassByDomData(&node,errMessage);
+bool DomHelper::setClassByDomData(const QDomNode& node, bool allowUpdate, ErrorMessage* errMessage) {
+    return setClassByDomData(&node,allowUpdate,errMessage);
 }
 
 bool DomHelper::isImportableByDomData(const QDomNode* node, ErrorMessage* errMessage ) {
@@ -198,6 +206,30 @@ bool DomHelper::isImportableByDomData(const QDomNode* node, ErrorMessage* errMes
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
             errMessage->setMessage(QString("RootTag not compatbile, expected <%1> found <%2>").arg(m_rootTag).arg(node->toElement().tagName()));
+        }
+        return false;
+    }
+    QDomNodeList _nodeList=node->toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
+    if (_nodeList.length()==0) {
+        if (errMessage) {
+            errMessage->setMethod(Q_FUNC_INFO);
+            errMessage->setMessage(QString("Not node to recognize Object type"));
+        }
+        return false;
+    }
+    if (_nodeList.length()!=1) {
+        if (errMessage) {
+            errMessage->setMethod(Q_FUNC_INFO);
+            errMessage->setMessage(QString("Too many node to recognize Object type"));
+        }
+        return false;
+    }
+    if (!isSameObjectType(_nodeList.at(0).toElement())) {
+        if (errMessage) {
+            errMessage->setMethod(Q_FUNC_INFO);
+            errMessage->setMessage(QString("Wrong node object type, expected to find %1 but found %2").
+                                   arg(m_hostObject->metaObject()->className()).
+                                   arg(_nodeList.at(0).nodeName()));
         }
         return false;
     }
@@ -229,7 +261,6 @@ void DomHelper::parseEntry(const QDomElement &element)
 
             //Verifying the class is correct
             if (node.nodeName()==DOMHELPER_OBJECTTYPE_TAG) {
-               // qDebug() << "DomHelper::parseEntry this class "<< m_obj->metaObject()->className() <<" is elaborating the  node "<< node.nodeName()<< " with the class property " << DOMHELPER_OBJECTTYPE_TAG;
                 Q_ASSERT(isSameObjectType(node.toElement()));
             }
 

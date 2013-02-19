@@ -23,12 +23,12 @@ public:
     explicit GenericTimeDataParams(QObject *object = 0);
     explicit GenericTimeDataParams(DataUiHandlerProperty * baseProperty, TimePlotParams* params=0, QObject *parent=0);
 
-    inline qreal maxDuration() {return m_maxDuration;}
-    inline qreal sampleRate() {return m_SR;}
-    inline qreal startTime() {return m_startTime;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
+    inline const qreal maxDuration() {return m_maxDuration;}
+    inline const qreal sampleRate() {return m_SR;}
+    inline const qreal startTime() {return m_startTime;}//Return the  min start time, for now is fix to 0.0, future version may allows different values.
 
-    inline bool isShowEnabled() { return m_showEnabled;}
-    inline bool isCurveEnabled() { return m_curveEnabled;}
+    inline const bool isShowEnabled() { return m_showEnabled;}
+    inline const bool isCurveEnabled() { return m_curveEnabled;}
 
     const QString& name() {return  m_name;}
     const QColor color() {return m_color;}

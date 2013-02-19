@@ -13,6 +13,9 @@ GenericTimeData::GenericTimeData(QObject *parent) :
     m_timeDataDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*>(new GenericTimeDataParams(parent)),
                 dynamic_cast<DataUiHandlerUI*>(new GenericTimeDataUI()),
+                TIMEDATA_DOCTYPE,
+                TIMEDATAPARAMETERS_TAG,
+                TIMEDATACURVE_SUFFIX,
                 parent);
     init();
 }
@@ -30,6 +33,9 @@ GenericTimeData::GenericTimeData(TimePlotParams * timePlotParams, QObject *paren
     m_timeDataDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*>(new GenericTimeDataParams(parent)),
                 dynamic_cast<DataUiHandlerUI*>(new GenericTimeDataUI()),
+                TIMEDATA_DOCTYPE,
+                TIMEDATAPARAMETERS_TAG,
+                TIMEDATACURVE_SUFFIX,
                 parent);
     init(timePlotParams);
 }
@@ -68,16 +74,16 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
     m_enableRecalc=true;
     this->createData();
 
-    //JUST FOR DEBUG
+    //THIS IS A TRICK BUT IT WORLS, WITHOUT THE LENGTH OF THE ENVELOPE IS WRONG
     getEnvelopeParameters()->setEnableEnvelope(true);
-
 }
 
 void GenericTimeData::initEnvelope() {
     GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
     //Generate envelope
-    m_envelope=new DataEnvelope(_gtdp->sampleRate(),this);
+    m_envelope=new DataEnvelope(_gtdp->sampleRate(),
+                                this);
     //Connect envelope changed.
     Q_ASSERT(connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData())));
 }
@@ -134,6 +140,9 @@ void GenericTimeData::connectSignals() {
 
     GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
+    GenericTimeDataUI *_gtdpUI=dynamic_cast<GenericTimeDataUI*> (m_timeDataDelegate->getUI());
+    Q_ASSERT(_gtdpUI!=NULL);
+
     //connect sample rate & max duration
     Q_ASSERT(connect(_gtdp,SIGNAL(maxDurationChanged(qreal)),this,SLOT(maxDurationHasChanged(qreal))));
     Q_ASSERT(connect(_gtdp,SIGNAL(sampleRateChanged(qreal)),this,SLOT(sampleRateHasChanged(qreal))));
@@ -147,6 +156,9 @@ void GenericTimeData::connectSignals() {
     //emit when the name change
     Q_ASSERT(connect(_gtdp,SIGNAL(nameChanged(QString)),this,SIGNAL(nameChanged(QString))));
 
+    //C&P button pressed
+    Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonCopyPressed()),this,SLOT(copy())));
+    Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonPastePressed()),this,SLOT(paste())));
 
 }
 
@@ -247,12 +259,11 @@ void GenericTimeData::setSignalData(qreal *s, quint64 len){
 
 void GenericTimeData::inihbitUpdate() {
     this->setEnableRecalc(false);
-    // this->blockSignals(true);
 }
 
 void GenericTimeData::enableUpdate() {
     this->setEnableRecalc(true);
-    //this->blockSignals(false);
+    createData();
 }
 
 void GenericTimeData::maxDurationHasChanged(qreal maxDuration) {
@@ -299,6 +310,109 @@ void GenericTimeData::curveHasChanged() {
     emit (curveAttributeChanged());
 }
 
+QDomDocument GenericTimeData::composeDomDocument() {
+    QDomNode _n1=getDelegate()->getDomDocument().firstChild();
+    QDomNode _n2=m_envelope->getDelegate()->getDomDocument().firstChild();
+    QList<QDomNode*> _nodeList;
+    _nodeList << &_n1;
+    _nodeList << &_n2;
+    QDomDocument _d=DomHelperUtility::createDocFromNodesList(_nodeList,
+                                                             TIMEDATA_DOCTYPE,
+                                                             TIMEDATACURVE_TAG,
+                                                             TIMEDATA_DOCVERSION);
+    return _d;
+}
+
+void GenericTimeData::copy() {
+    CTG_app * _app=(CTG_app*) qApp;
+    QDomDocument _d=composeDomDocument();
+    _app->setClipboard(_d);
+}
+
+
+
+void GenericTimeData::paste() {
+    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
+    Q_ASSERT(_gtdp!=NULL);
+    CTG_app * _app=(CTG_app*) qApp;
+
+    //preserve name and color
+    QString _name=_gtdp->name();
+    QColor _color=_gtdp->color();
+    if( QMessageBox::question(NULL,"Confirm paste curve",
+                              QString("Do you want to overwrte curve %1 ?").arg(_name),
+                              QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No )
+        return ;
+
+    QDomDocument _d=_app->clipboard();
+    importDomDocument(_d);
+    _gtdp->setName(_name);
+    _gtdp->setColor(_color);
+}
+
+void GenericTimeData::importDomDocument(const QDomDocument& doc){
+    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
+    Q_ASSERT(_gtdp!=NULL);
+    ErrorMessage _err;
+
+    //TIMEDATAPARAMS
+    QDomNodeList _nodeListTimeDataParams;
+    if(!DomHelperUtility::nodeListByTagName(_nodeListTimeDataParams,
+                                        doc,
+                                        TIMEDATA_DOCTYPE,
+                                        TIMEDATAPARAMETERS_TAG,
+                                        TIMEDATA_PARAMSVERSION,
+                                        &_err)) {
+        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing time data, internal error\n%1").arg(_err.message()));
+        return;
+    }
+    if (_nodeListTimeDataParams.length()==0) {
+        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing time data, no valid parameters node\n%1").arg(_err.message()));
+        return;
+    }
+    if (_nodeListTimeDataParams.length()>1) {
+        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing time data, too many parameters nodes\n%1").arg(_err.message()));
+        return;
+    }
+    QDomNode _timeDataParamsNode=_nodeListTimeDataParams.at(0);
+
+    this->inihbitUpdate();
+    if (!getDelegate()->setClassByDomData(_timeDataParamsNode,true,&_err)) {
+        QMessageBox::warning(NULL,QString("Error pasting curve"),QString("Error setting time data, \n%1").arg(_err.message()));
+        this->enableUpdate();
+        return;
+    }
+    m_envelope->setSampleRateAndSampleNumber(_gtdp->sampleRate(),
+                                             this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
+
+
+    //ENVELOPE
+    QDomNodeList _nodeListEnvelope;
+    if (!DomHelperUtility::nodeListByTagName(_nodeListEnvelope,
+                                        doc,
+                                        TIMEDATA_DOCTYPE,
+                                        ENVELOPE_TAG,
+                                        ENVELOPE_PARAMSVERSION,
+                                        &_err) ) {
+        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing envelope data, internal error\n%1").arg(_err.message()));
+        return;
+    }
+    if (_nodeListEnvelope.length()==0) {
+        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing envelope data, no valid envelope node\n%1").arg(_err.message()));
+        return;
+    }
+    if (_nodeListEnvelope.length()>1) {
+        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing envelope data, too many envelope nodes\n%1").arg(_err.message()));
+        return;
+    }
+    QDomNode _envelopeNode=_nodeListEnvelope.at(0);
+    if (!m_envelope->getDelegate()->setClassByDomData(_envelopeNode,true,&_err) ) {
+        QMessageBox::warning(NULL,QString("Error pasting curve"),QString("Error setting envelope data, \n%1").arg(_err.message()));
+        this->enableUpdate();
+        return;
+    }
+    this->enableUpdate();
+}
 
 //void GenericTimeData::setEnableCurve(bool enable) {
 //    this->m_curveEnabled=enable;
@@ -553,29 +667,4 @@ void GenericTimeData::curveHasChanged() {
 //    DomHelper::save(fileName,this->getDomDocument());
 //}
 
-//void GenericTimeData::copy() {
-//    CTG_app * _app=(CTG_app*) qApp;
-//    const QDomDocument*  _d=this->getDomDocument();
-//    _app->setClipboard(*_d);
-//}
 
-//bool GenericTimeData::paste() {
-//    if( QMessageBox::question(NULL,"Confirm paste curve",
-//                              QString("Do you want to overwrte curve %1 ?").arg(name()),
-//                              QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return true;
-
-//    QString _name=name();
-//    QColor _color=color();
-//    CTG_app * _app=(CTG_app*) qApp;
-
-//    QDomDocument& _d=_app->clipboard();
-//    if (! importXML(&_d) ) {
-//        return false;
-//    }
-//    inihbitUpdate();
-//    setName(_name);
-//    enableUpdate();
-//    setColor(_color);
-
-//    return true;
-//}

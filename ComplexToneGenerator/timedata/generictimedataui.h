@@ -31,6 +31,10 @@ signals:
     void showCurveUIChanged(bool);
     void enableCurveUIChanged(bool);
 
+    //button for import/export and C&P
+    void buttonCopyPressed();
+    void buttonPastePressed();
+
 public slots:
     void nameUIUpdate(QString name);
     void colorUIUpdate(QColor color);

@@ -42,8 +42,8 @@ public:
     void setAudioDigestSavePath(QString path) {m_audioDigestSavePath=path;m_settings.setValue(CTGKEY_SAVE_AUDIO_DIGEST_PATH,QVariant(path));}
     void setAudioDigestSaveName(QString name) {m_audioDigestName=name;}
 
-    bool setClipboard(QDomDocument doc);
-    QDomDocument& clipboard() {return m_clipboardDomDocTimeData;}
+    bool setClipboard(const QDomDocument doc);
+    const QDomDocument& clipboard() {return m_clipboardDomDocTimeData;}
 signals:
     
 public slots:

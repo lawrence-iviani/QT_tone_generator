@@ -16,7 +16,7 @@ public:
     explicit RepeatedTimeDataParams(QObject *parent);
     explicit RepeatedTimeDataParams(PartialTimeDataParams * baseProperty,TimePlotParams* params,QObject *parent);
 
-    inline qreal blankTime() {return m_blankTime;}
+    inline const qreal blankTime() {return m_blankTime;}
 
 signals:
     void blankTimeChanged(qreal);

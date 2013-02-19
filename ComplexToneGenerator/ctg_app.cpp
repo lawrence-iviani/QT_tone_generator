@@ -16,7 +16,7 @@ CTG_app::CTG_app(int argc,char** argv ):
     m_audioDigestName="";
 }
 
-bool CTG_app::setClipboard(QDomDocument doc) {
+bool CTG_app::setClipboard(const QDomDocument doc) {
     if (doc.isNull() || !doc.isDocument() ) return false;
     m_clipboardDomDocTimeData=doc;
     return true;

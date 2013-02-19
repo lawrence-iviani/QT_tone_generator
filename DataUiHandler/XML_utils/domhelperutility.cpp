@@ -96,6 +96,106 @@ QString DomHelperUtility::getObjectType(const QDomDocument & doc) {
     return DomHelperUtility::getObjectType(&doc);
 }
 
+QDomDocument DomHelperUtility::createDocFromNodesList(const QList<QDomNode*>& nodeList,const QString& documentType, const QString& rootTag , uint version ) {
+    QDomDocument _d(documentType);
+    QDomElement _rootElement = _d.createElement(rootTag);
+    _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,version);
+    _d.appendChild(_rootElement);
+    foreach (QDomNode* _n, nodeList) {
+        _rootElement.appendChild(*_n);
+    }
+    return _d;
+}
+
+bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomDocument& doc, const QString& documentType, const QString& tagName,uint version,ErrorMessage * err) {
+    //verifying doc
+    if (doc.isNull()) {
+        if (err) {
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Document is null"));
+        }
+        return false;
+    }
+
+    //test doc type
+    if (doc.doctype().name()!=documentType) {
+        if (err){
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Invalid doc type, expected -%1- found -%2-").
+                                   arg(doc.doctype().toText().data()).
+                                   arg(documentType));
+        }
+        return false;
+    }
+    QDomNode _rootNode=doc.firstChild();
+    if (_rootNode.isNull()) {
+        if (err){
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Root element is null").
+                                   arg(doc.doctype().toText().data()).
+                                   arg(documentType));
+        }
+        return false;
+    }
+
+   // qDebug() << doc.toString();
+    bool retval=DomHelperUtility::nodeListByTagName(nodeList,_rootNode,tagName,version,err);
+    return retval;
+}
+
+bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomNode& rootNode, const QString& tagName,uint version,ErrorMessage * err) {
+    if (rootNode.isNull()){
+        if (err) {
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Root node is null"));
+        }
+        return false;
+    }
+
+    if (!rootNode.hasAttributes()) {
+        if (err) {
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("No attributes for root node"));
+        }
+        return false;
+    }
+
+    //test attribute version root node
+    QDomNamedNodeMap _att=rootNode.attributes();
+    QDomNode _attVersion=_att.namedItem(DOMHELPER_VERSION_ATTRIBUTE);
+    if (_attVersion.isNull()) {
+        if (err) {
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Attribute version found but is null"));
+        }
+        return false;
+    }
+    //verify version
+    bool _conversionOk=false;
+    uint _version=_attVersion.toAttr().nodeValue().toUInt(&_conversionOk);
+    if (!_conversionOk) {
+        if (err) {
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Attribute value version seems not work, found %1").arg(_attVersion.toAttr().nodeValue()));
+        }
+        return false;
+    }
+    if ((version>0) && (version!=_version)) {
+        if (err){
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Invalid version, expected -%1- found -%2-").
+                                   arg(version).
+                                   arg(_version));
+        }
+        return false;
+    }
+
+    nodeList=rootNode.toElement().elementsByTagName(tagName);
+    qDebug() << Q_FUNC_INFO << " found " <<nodeList.length() << " nodes with tag " <<tagName;
+        return true;
+}
+
+
 //------------ Static ToQTreeWidget ------------//
 bool DomHelperUtility::parseDOMToQTreeWidget(DomHelper *dh, QTreeWidget * treeWidget, ErrorMessage* errMessage) {
     if (dh==NULL) {
@@ -233,3 +333,4 @@ void DomHelperUtility::parseAttributeToQTreeWidget(const QDomNamedNodeMap &eleme
         DomHelperUtility::parseEntryToQTreeWidget(node.toElement(), childitem,++parentLevel);
     }
 }
+

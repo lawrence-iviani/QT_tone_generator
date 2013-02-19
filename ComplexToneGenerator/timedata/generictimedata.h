@@ -6,6 +6,8 @@
 #include <qwt_series_data.h>
 #include <qwt_plot_curve.h>
 #include <math.h>
+#include <QMessageBox>
+#include <XML_utils/domhelperutility.h>
 #include "ctg_app.h"
 #include "envelope/dataenvelope.h"
 #include "DataUiHandler.h"
@@ -28,32 +30,25 @@ public:
     explicit GenericTimeData(TimePlotParams * timePlotParams,QObject *parent=0);
     virtual ~GenericTimeData();
     inline QwtPlotCurve * getCurve() {return m_curve;}
-    inline QwtCPointerData * getData() {return m_data;}
+    inline const QwtCPointerData * getData() {return m_data;}
     inline QWidget * getControlWidget() {return m_ui;}
     inline DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_timeDataDelegate->getProperty());}
     inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_timeDataDelegate);}
-    inline quint64 getSampleNumber()  {return m_sample;}
+    inline const quint64 getSampleNumber()  {return m_sample;}
 
 
     inline const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
     inline const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
     inline DataEnvelope * getEnvelope() {return m_envelope;}
-
-    inline DataEnvelopeParameters * getEnvelopeParameters() {
-        DataEnvelopeParameters* retval=NULL;
-        retval=dynamic_cast<DataEnvelopeParameters*> (m_envelope->getDataParameters());
-        Q_ASSERT(retval!=NULL);
-        return retval;
-    }
-
-    inline bool isEnableRecalc() {return m_enableRecalc;}
+    inline const bool isEnableRecalc() {return m_enableRecalc;}
 //    void forceRegenerateDomDocument() {this->regenerateDomDocument();}
 //    virtual bool isImportableByDomData(const QDomDocument & doc);
 //    virtual bool isImportableByDomData(const QDomDocument * doc);
 //    virtual bool isImportableByDomData(QDomNode& node);
 
-signals:
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
+
+signals:
 
     /**
       * This signal is emitted whenever the data, and therefore the curve are updated
@@ -69,20 +64,6 @@ signals:
        * This signal is emitted whenever curve attribute (color, name etc) are updated, and therefore only the curve need to be reploted and not recalculated
        */
      void curveAttributeChanged();
-
-//     /**
-//      * @brief maxDurationChanged emit a signal for the inerithed subclass to signal the length is changed. The Inerithed class should not call createData
-//      * because it's called by this function before exit, otherwise data will be created two times
-//      * @param maxduration
-//      */
-//     void maxDurationChanged(qreal maxduration);
-
-//     /**
-//      * @brief sampleRateChanged emit a signal for the inerithed subclass to signal the SR is changed. The Inerithed class should not call createData
-//      * because it's called by this function before exit, otherwise data will be created two times
-//      * @param samplerate
-//      */
-//     void sampleRateChanged(qreal samplerate);
 
 public slots:
      /**
@@ -145,16 +126,15 @@ public slots:
       */
      void curveHasChanged();
 
-//     /**
-//      * @brief copy Copy in an apposite application structure this curve
-//      */
-//     void copy();
+     /**
+      * @brief copy Copy in an apposite application structure this curve
+      */
+     void copy();
 
-//     /**
-//      * @brief paste Paste from an apposite application structure to this curve
-//      * @return
-//      */
-//     bool paste();
+     /**
+      * @brief paste Paste from an apposite application structure to this curve
+      */
+     void paste();
 
      //     /**
      //      * @brief exportXML open a dialog window and ask for the destionation XML file where to export the DOM data structure
@@ -218,6 +198,12 @@ protected:
        */
      inline void resetAllData();
 
+     inline DataEnvelopeParameters * getEnvelopeParameters() {
+         DataEnvelopeParameters* retval=NULL;
+         retval=dynamic_cast<DataEnvelopeParameters*> (m_envelope->getDataParameters());
+         Q_ASSERT(retval!=NULL);
+         return retval;
+     }
 
      void createDataCurve();//Set
 
@@ -237,7 +223,7 @@ protected:
      /**
        * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
        */
-    inline virtual quint64 lowestSampleIndexForModification()  {
+    inline const virtual quint64 lowestSampleIndexForModification()  {
          GenericTimeDataParams *_gtdp=(GenericTimeDataParams *) getDataParameters();
          quint64 retval=_gtdp->startTime()*_gtdp->sampleRate();
          Q_ASSERT(retval<=m_sample);
@@ -247,7 +233,7 @@ protected:
      /**
        * Return the lowest index available to modify the internal curve, is needed in inerithed class in order to insert correct recalculated values
        */
-     inline virtual quint64 highestSampleIndexForModification() {
+     inline const virtual quint64 highestSampleIndexForModification() {
          GenericTimeDataParams *_gtdp=(GenericTimeDataParams *)getDataParameters();
          quint64 retval=(_gtdp->startTime()+_gtdp->maxDuration())*_gtdp->sampleRate();
          Q_ASSERT(retval<=m_sample);
@@ -281,6 +267,8 @@ private:
      void init(TimePlotParams * timePlotParams=0);
      void initTimePlotParams();
      void initControlWidget();
+     void importDomDocument(const QDomDocument& doc);
+     QDomDocument composeDomDocument() ;
      void initEnvelope();
      bool m_enableRecalc;
    //  void refreshEnvelope();

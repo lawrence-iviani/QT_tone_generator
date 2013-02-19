@@ -15,16 +15,33 @@ qreal static const TIMEDATA_DEFAULT_STEP_SR=4000.0;
 //uint static const DOMHELPER_VERSION=1;
 
 //TAG for XML data
+//params
 const static QString ENEVELOPEPARAMETERS_TAG="EnvelopeParams";
-const static QString GENERICTIMEDATA_TAG="TimeData";
-const static QString GENERICTIMEDATAPARAMETERS_TAG="TimeDataParams";
+const static QString TIMEDATAPARAMETERS_TAG="TimeDataParams";
 const static QString PROJECTPARAMETERS_TAG="ProjectParams";
-const static QString PROJECTROOT_TAG="ProjectRoot";
+const static uint TIMEDATA_PARAMSVERSION=1;
+const static uint ENVELOPE_PARAMSVERSION=1;
+
+//root tag
+const static QString ENVELOPE_TAG="EnvelopeData";
+const static QString PROJECT_TAG="ProjectRoot";
+const static QString TIMEDATACURVE_TAG="TimeData";
+//other
 const static QString WINDOW_TAG="MainWindow";//Not really used, for future development
 
 //DOCTYPE
 const static QString PROJECT_DOCTYPE="CTG_project";
-const static QString PROJECT_CURVETYPE="CTG_curve";
+const static QString TIMEDATA_DOCTYPE="CTG_curve";
+const static QString ENVELOPE_DOCTYPE="CTG_envelope";
+//doc version
+const static uint PROJECT_DOCVERSION=1;
+const static uint TIMEDATA_DOCVERSION=1;
+
+
+//SUFFIX
+const static QString PROJECT_SUFFIX="cpf";
+const static QString TIMEDATACURVE_SUFFIX="ccf";
+const static QString ENVELOPE_SUFFIX="cef";
 
 //Some constant regarding the draw
 static const int PLOTWIDGET_DEFAULT_PLOT_DIMENSION=10;//The default font size in px, every widget has its own poliicy scaling starting from this value
