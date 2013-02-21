@@ -191,8 +191,7 @@ bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomNode&
     }
 
     nodeList=rootNode.toElement().elementsByTagName(tagName);
-    qDebug() << Q_FUNC_INFO << " found " <<nodeList.length() << " nodes with tag " <<tagName;
-        return true;
+    return true;
 }
 
 

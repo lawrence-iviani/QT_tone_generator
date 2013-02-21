@@ -7,6 +7,7 @@
 #include <qwt_plot_curve.h>
 #include <math.h>
 #include <QMessageBox>
+#include <QFileDialog>
 #include <XML_utils/domhelperutility.h>
 #include "ctg_app.h"
 #include "envelope/dataenvelope.h"
@@ -41,10 +42,6 @@ public:
     inline const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
     inline DataEnvelope * getEnvelope() {return m_envelope;}
     inline const bool isEnableRecalc() {return m_enableRecalc;}
-//    void forceRegenerateDomDocument() {this->regenerateDomDocument();}
-//    virtual bool isImportableByDomData(const QDomDocument & doc);
-//    virtual bool isImportableByDomData(const QDomDocument * doc);
-//    virtual bool isImportableByDomData(QDomNode& node);
 
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
 
@@ -136,10 +133,10 @@ public slots:
       */
      void paste();
 
-     //     /**
-     //      * @brief exportXML open a dialog window and ask for the destionation XML file where to export the DOM data structure
-     //      */
-     //     void exportXML();
+          /**
+           * @brief exportXML open a dialog window and ask for the destionation XML file where to export the DOM data structure
+           */
+          void exportXML();
 
      //     /**
      //      * @brief exportXML export the DOM structure to a filename (path+file)
@@ -147,11 +144,10 @@ public slots:
      //      */
      //     void exportXML(const QString filename);
 
-     //     /**
-     //      * @brief importXML import an XML file by opening a file dialog
-     //      * @return true if succesful
-     //      */
-     //     bool importXML();
+          /**
+           * @brief importXML import an XML file by opening a file dialog
+           */
+          void importXML();
 
      //     /**
      //      * @brief importXML import an XML file
@@ -260,6 +256,9 @@ protected:
       */
      virtual bool insertSignalValue(quint64 index, qreal value);
 
+     bool areValidTimeDataSettings(const QDomNode &node, ErrorMessage *errMessage);
+
+
 protected slots:
 
 
@@ -284,7 +283,7 @@ private:
      qreal * m_s;//The pointer to array of the signal
      quint64 m_sample;//Number of sample of m_s and m_t
 
-    // QString m_fileName;
+     QString m_fileName;
 };
 
 #endif // GENERICTIMEDATA_H

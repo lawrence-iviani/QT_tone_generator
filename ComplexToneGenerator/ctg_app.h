@@ -8,7 +8,6 @@
 #include "CTG_constants.h"
 
 
-
 class QDomDocument;
 
 
@@ -43,7 +42,7 @@ public:
     void setAudioDigestSaveName(QString name) {m_audioDigestName=name;}
 
     bool setClipboard(const QDomDocument doc);
-    const QDomDocument& clipboard() {return m_clipboardDomDocTimeData;}
+    const QDomDocument clipboard() {return m_clipboardDomDocTimeData;}
 signals:
     
 public slots:

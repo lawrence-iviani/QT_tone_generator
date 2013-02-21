@@ -66,7 +66,8 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
 
     //Prepare envelope
     initEnvelope();
-
+    //THIS IS A TRICK BUT IT WORLS, WITHOUT THE LENGTH OF THE ENVELOPE IS WRONG
+    getEnvelopeParameters()->setEnableEnvelope(true);
     //connect any signal
     this->connectSignals();
 
@@ -74,8 +75,7 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
     m_enableRecalc=true;
     this->createData();
 
-    //THIS IS A TRICK BUT IT WORLS, WITHOUT THE LENGTH OF THE ENVELOPE IS WRONG
-    getEnvelopeParameters()->setEnableEnvelope(true);
+
 }
 
 void GenericTimeData::initEnvelope() {
@@ -159,6 +159,10 @@ void GenericTimeData::connectSignals() {
     //C&P button pressed
     Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonCopyPressed()),this,SLOT(copy())));
     Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonPastePressed()),this,SLOT(paste())));
+
+    //import&export button pressed
+    Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonExportXMLPressed()),this,SLOT(exportXML())));
+    Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonImportXMLPressed()),this,SLOT(importXML())));
 
 }
 
@@ -312,7 +316,9 @@ void GenericTimeData::curveHasChanged() {
 
 QDomDocument GenericTimeData::composeDomDocument() {
     QDomNode _n1=getDelegate()->getDomDocument().firstChild();
+    Q_ASSERT(!_n1.isNull());
     QDomNode _n2=m_envelope->getDelegate()->getDomDocument().firstChild();
+    Q_ASSERT(!_n2.isNull());
     QList<QDomNode*> _nodeList;
     _nodeList << &_n1;
     _nodeList << &_n2;
@@ -320,6 +326,7 @@ QDomDocument GenericTimeData::composeDomDocument() {
                                                              TIMEDATA_DOCTYPE,
                                                              TIMEDATACURVE_TAG,
                                                              TIMEDATA_DOCVERSION);
+    qDebug() << Q_FUNC_INFO<<  "compose doc=" << _d.toString();
     return _d;
 }
 
@@ -329,10 +336,8 @@ void GenericTimeData::copy() {
     _app->setClipboard(_d);
 }
 
-
-
 void GenericTimeData::paste() {
-    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
+    GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
     CTG_app * _app=(CTG_app*) qApp;
 
@@ -345,17 +350,100 @@ void GenericTimeData::paste() {
         return ;
 
     QDomDocument _d=_app->clipboard();
+
     importDomDocument(_d);
     _gtdp->setName(_name);
     _gtdp->setColor(_color);
+}
+
+void GenericTimeData::importXML() {
+        CTG_app * _app=(CTG_app*) qApp;
+        QString _fileName = QFileDialog::getOpenFileName(NULL, tr("Open curve"),
+                                   _app->curveSavePath(),
+                                   tr("Curve file (*.%1 *.%2)")
+                                         .arg(QString(TIMEDATACURVE_SUFFIX).toUpper())
+                                         .arg(QString(TIMEDATACURVE_SUFFIX).toLower()));
+        //Retrieving File Info and saving path
+        QFileInfo _fi(_fileName);
+        QString _path=_fi.absolutePath();
+        QString _name=_fi.baseName();
+        if (_fileName=="") return;
+        if (_path!="")
+            _app->setCurveSavePath(_path);
+        if (_name!="")
+            m_fileName=QString("%1.ccf").arg(_name);
+
+        QDomDocument _d;
+        ErrorMessage _err;
+        if (!DomHelperUtility::load(_fileName,_d,&_err)) {
+            QMessageBox::warning(NULL,QString("Error loading file"), QString("Error loading file%1\n%2")
+                                 .arg(m_fileName)
+                                 .arg(_err.message()));
+        }
+
+
+
+//        GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
+//        Q_ASSERT(_gtdp!=NULL);
+//        CTG_app * _app=(CTG_app*) qApp;
+
+//        //preserve name and color
+
+        if( QMessageBox::question(NULL,"Confirm import curve",
+                                  QString("Do you want to overwrite curve %1 ?").arg(_name),
+                                  QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No )
+            return ;
+
+        importDomDocument(_d);
+
+}
+
+void GenericTimeData::exportXML() {
+    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
+    Q_ASSERT(_gtdp!=NULL);
+    CTG_app * _app=(CTG_app*) qApp;
+
+    QString _fileName="";
+    if (m_fileName=="")
+        _fileName=QString("%1/%2_SR%3_%4s.%5")
+                .arg(_app->curveSavePath())
+                .arg(_gtdp->name())
+                .arg(_gtdp->sampleRate())
+                .arg(_gtdp->maxDuration())
+                .arg(TIMEDATACURVE_SUFFIX);
+    else
+        _fileName=m_fileName;
+
+     _fileName = QFileDialog::getSaveFileName(NULL, tr("Save curve"),
+                                              _fileName,
+                                              tr("Curve file (*.%1 *.%2)")
+                                                    .arg(QString(TIMEDATACURVE_SUFFIX).toUpper())
+                                                    .arg(QString(TIMEDATACURVE_SUFFIX).toLower()));
+     ErrorMessage _err;
+     //QDomDocument( _fileName)
+     if (!DomHelperUtility::save(_fileName,composeDomDocument(),&_err)) {
+         QMessageBox::warning(NULL,QString("Error saving file"), QString("Error saving file%1\n%2")
+                              .arg(m_fileName)
+                              .arg(_err.message()));
+     }
+
+    //saving path
+    QFileInfo _fi(_fileName);
+    QString _path=_fi.absolutePath();
+    if (_path!="")
+        _app->setCurveSavePath(_path);
 }
 
 void GenericTimeData::importDomDocument(const QDomDocument& doc){
     GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
     ErrorMessage _err;
-
-    //TIMEDATAPARAMS
+    qDebug() << Q_FUNC_INFO<<  "importing doc=" << doc.toString();
+///-------------Getting all data stuff
+//////------------- 1 retrieving data node for TIME DATA and ENVELOPE
+//////------------- 2 verifing importing before importing
+//////------------- 3 Importing
+    //1a------------- RETRIEVING TIMEDATAPARAMS NODE
     QDomNodeList _nodeListTimeDataParams;
     if(!DomHelperUtility::nodeListByTagName(_nodeListTimeDataParams,
                                         doc,
@@ -363,30 +451,20 @@ void GenericTimeData::importDomDocument(const QDomDocument& doc){
                                         TIMEDATAPARAMETERS_TAG,
                                         TIMEDATA_PARAMSVERSION,
                                         &_err)) {
-        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing time data, internal error\n%1").arg(_err.message()));
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error parsing time data, internal error\n%1").arg(_err.message()));
         return;
     }
     if (_nodeListTimeDataParams.length()==0) {
-        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing time data, no valid parameters node\n%1").arg(_err.message()));
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error parsing time data, no valid parameters node\n%1").arg(_err.message()));
         return;
     }
     if (_nodeListTimeDataParams.length()>1) {
-        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing time data, too many parameters nodes\n%1").arg(_err.message()));
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error parsing time data, too many parameters nodes\n%1").arg(_err.message()));
         return;
     }
     QDomNode _timeDataParamsNode=_nodeListTimeDataParams.at(0);
 
-    this->inihbitUpdate();
-    if (!getDelegate()->setClassByDomData(_timeDataParamsNode,true,&_err)) {
-        QMessageBox::warning(NULL,QString("Error pasting curve"),QString("Error setting time data, \n%1").arg(_err.message()));
-        this->enableUpdate();
-        return;
-    }
-    m_envelope->setSampleRateAndSampleNumber(_gtdp->sampleRate(),
-                                             this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
-
-
-    //ENVELOPE
+    //1b------------- RETRIEVING ENVELOPE NODE
     QDomNodeList _nodeListEnvelope;
     if (!DomHelperUtility::nodeListByTagName(_nodeListEnvelope,
                                         doc,
@@ -394,24 +472,129 @@ void GenericTimeData::importDomDocument(const QDomDocument& doc){
                                         ENVELOPE_TAG,
                                         ENVELOPE_PARAMSVERSION,
                                         &_err) ) {
-        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing envelope data, internal error\n%1").arg(_err.message()));
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error parsing envelope data, internal error\n%1").arg(_err.message()));
         return;
     }
     if (_nodeListEnvelope.length()==0) {
-        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing envelope data, no valid envelope node\n%1").arg(_err.message()));
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error parsing envelope data, no valid envelope node\n%1").arg(_err.message()));
         return;
     }
     if (_nodeListEnvelope.length()>1) {
-        QMessageBox::warning(NULL,QString("Error pasting curve"), QString("Error parsing envelope data, too many envelope nodes\n%1").arg(_err.message()));
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error parsing envelope data, too many envelope nodes\n%1").arg(_err.message()));
         return;
     }
     QDomNode _envelopeNode=_nodeListEnvelope.at(0);
+
+    ///2------------- VERIFYING
+    //Ask to delegate if time data is importable
+    if (!m_timeDataDelegate->isImportableByDomData(_timeDataParamsNode,&_err) ) {
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Time Data format error\n%1").arg(_err.message()));
+        return;
+    }
+
+    if (!areValidTimeDataSettings(doc.firstChild(),&_err)) {
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Time data not compatible\n%1").arg(_err.message()));
+        return;
+    }
+    //same for envelope
+    if (!m_envelope->getDelegate()->isImportableByDomData(_envelopeNode,&_err)) {
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Envelope data format not compatible\n%1").arg(_err.message()));
+        return;
+    }
+
+    //3------------- SETTING PARAMS
+    this->inihbitUpdate();
+    if (!getDelegate()->setClassByDomData(_timeDataParamsNode,true,&_err)) {
+        QMessageBox::warning(NULL,QString("Error import curve"),QString("Error setting time data, \n%1").arg(_err.message()));
+        this->enableUpdate();
+        return;
+    }
+
+    //Before setting envelope sets SR an sample (they are not recalculated due to the inihbitUpdate)
+    m_envelope->setSampleRateAndSampleNumber(_gtdp->sampleRate(),
+                                             this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
     if (!m_envelope->getDelegate()->setClassByDomData(_envelopeNode,true,&_err) ) {
-        QMessageBox::warning(NULL,QString("Error pasting curve"),QString("Error setting envelope data, \n%1").arg(_err.message()));
+        QMessageBox::warning(NULL,QString("Error import curve"),QString("Error setting envelope data, \n%1").arg(_err.message()));
         this->enableUpdate();
         return;
     }
     this->enableUpdate();
+}
+
+bool GenericTimeData::areValidTimeDataSettings(const QDomNode& node, ErrorMessage* errMessage) {
+    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
+    Q_ASSERT(_gtdp!=NULL);
+
+    QDomNodeList _nodeListObjType=node.toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
+    if (_nodeListObjType.length()==0) {
+        if (errMessage) {
+            errMessage->setMethod(Q_FUNC_INFO);
+            errMessage->setMessage(QString("Data object not importable! no TAG |%1| found.").
+                                   arg(DOMHELPER_OBJECTTYPE_TAG));
+        }
+        return false;
+    }
+
+    //Lookin for the correct node, many can be in there
+    QDomNode _nodeObject;
+    bool _foundNode=false;
+    QString _objParams=getDelegate()->getProperty()->metaObject()->className();
+    for (uint i=0 ; i < _nodeListObjType.length() ; i++ ) {
+        QDomNode _n=_nodeListObjType.at(i);
+        QString _objTypeString=DomHelperUtility::getNodeValue(_n);
+        if (QString::compare(_objTypeString,_objParams)==0) {
+            if (_foundNode) {
+                if (errMessage) {
+                    errMessage->setMethod(Q_FUNC_INFO);
+                    errMessage->setMessage(QString("Too many data object with TAG |%1| and value |%2|.").
+                                           arg(DOMHELPER_OBJECTTYPE_TAG).
+                                           arg(DomHelperUtility::getNodeValue(_nodeObject)).
+                                           arg(_objParams));
+                }
+                return false;
+            }
+            _foundNode=true;
+            _nodeObject=_n;
+        }
+    }
+
+    //Test if i found something
+    if (!_foundNode || _nodeObject.isNull()) {
+        if (errMessage) {
+            errMessage->setMethod(Q_FUNC_INFO);
+            errMessage->setMessage(QString("Object not importable! Can't found a valid object descriptor."));
+        }
+        return false;
+    }
+
+    //Test if the curve is importable, duration
+    QDomNodeList _nodeListDuration=node.toElement().elementsByTagName("maxDuration");
+    Q_ASSERT(_nodeListDuration.length()==1);
+    QString _durationString=DomHelperUtility::getNodeValue(_nodeListDuration.at(0));
+    if (_gtdp->maxDuration()<_durationString.toDouble()) {
+        if (errMessage) {
+            errMessage->setMethod(Q_FUNC_INFO);
+            errMessage->setMessage(QString("Document  contains invalid maxDuration  |%1|, project has been set for |%2|.").
+                                           arg(_durationString).
+                                           arg(_gtdp->maxDuration()));
+        }
+        return false;
+    }
+
+    //And Sample Rate
+    QDomNodeList _nodeListSR=node.toElement().elementsByTagName("sampleRate");
+    Q_ASSERT(_nodeListSR.length()==1);
+    QString _SRstring=DomHelperUtility::getNodeValue(_nodeListSR.at(0));
+    if (_gtdp->sampleRate()!=_SRstring.toDouble()) {
+        if (errMessage) {
+            errMessage->setMethod(Q_FUNC_INFO);
+            errMessage->setMessage(QString("Document  contains invalid sampleRate  |%1|, project has been set for |%2|.").
+                                   arg(_SRstring).
+                                   arg(_gtdp->sampleRate()));
+        }
+        return false;
+    }
+    return true;
 }
 
 //void GenericTimeData::setEnableCurve(bool enable) {
@@ -493,39 +676,6 @@ void GenericTimeData::importDomDocument(const QDomDocument& doc){
 //    return this->isImportableByDomData(node);
 //}
 
-//bool GenericTimeData::isImportableByDomData(QDomNode& node) {
-
-//    //Test if the object is compatible
-//    QDomNodeList _nodeListObjType=node.toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
-//    Q_ASSERT(_nodeListObjType.length()==1);
-//    QString _objTypeString=this->getNodeValue(_nodeListObjType.at(0));
-//    if (!QString::compare(_objTypeString,this->metaObject()->className())==0) {
-//        qWarning() << "GenericTimeData::importXML " << QString("Object not importable! Incompatible object |%1| and |%2|.").arg(_objTypeString).arg(this->metaObject()->className());
-//        QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Incompatible object |%1| and |%2|.").arg(_objTypeString).arg(this->metaObject()->className()));
-//        return false;
-//    }
-
-//    //Test if the curve is importable, duration
-//    QDomNodeList _nodeListDuration=node.toElement().elementsByTagName("maxduration");
-//    Q_ASSERT(_nodeListDuration.length()==1);
-//    QString _durationString=this->getNodeValue(_nodeListDuration.at(0));
-//    if (!isValidMaxDuration(_durationString.toDouble())) {
-//        qWarning() <<  "GenericTimeData::importXML " << QString("Object not importable! Document  contains invalid maxduration  |%1|, project has been set for |%2|.").arg(_durationString).arg(m_MaxDuration);
-//        QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Document  contains invalid maxduration  |%1|, project has been set for |%2|.").arg(_durationString).arg(m_MaxDuration));
-//        return false;
-//    }
-
-//    //And Sample Rate
-//    QDomNodeList _nodeListSR=node.toElement().elementsByTagName("samplerate");
-//    Q_ASSERT(_nodeListSR.length()==1);
-//    QString _SRstring=this->getNodeValue(_nodeListSR.at(0));
-//    if (!isValidSampleRate(_SRstring.toDouble())) {
-//        qWarning() << "GenericTimeData::importXML "<< QString("Object not importable! Document  contains invalid samplerate  |%1|, project has been set for |%2|.").arg(_SRstring).arg(m_SR);
-//        QMessageBox::warning(0, "GenericTimeData::importXML",QString("Object not importable! Document  contains invalid samplerate  |%1|, project has been set for |%2|.").arg(_SRstring).arg(m_SR));
-//        return false;
-//    }
-//    return true;
-//}
 
 //bool GenericTimeData::importXML() {
 //    CTG_app * _app=(CTG_app*) qApp;

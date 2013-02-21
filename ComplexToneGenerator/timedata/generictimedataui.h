@@ -34,6 +34,8 @@ signals:
     //button for import/export and C&P
     void buttonCopyPressed();
     void buttonPastePressed();
+    void buttonExportXMLPressed();
+    void buttonImportXMLPressed();
 
 public slots:
     void nameUIUpdate(QString name);

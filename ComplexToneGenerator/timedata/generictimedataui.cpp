@@ -46,13 +46,13 @@ void GenericTimeDataUI::initControlWidget() {
     connect(m_baseControl.comboColor, SIGNAL(colorChanged(QColor)),this,SIGNAL(colorUIChanged(QColor)));
 
     //XML Button
-    m_baseControl.exportXML=new QPushButton("Export ...");
+    m_baseControl.exportXML=new QPushButton("Export");
     m_baseControl.exportXML->setFont(f);
-//    connect(m_baseControl.exportXML ,SIGNAL(clicked()),m_genericTimeData,SLOT(exportXML()));
+    connect(m_baseControl.exportXML ,SIGNAL(pressed()),this,SIGNAL(buttonExportXMLPressed()));
 
     m_baseControl.importXML=new QPushButton("Import");
     m_baseControl.importXML->setFont(f);
-  //  connect(m_baseControl.importXML ,SIGNAL(clicked()),m_genericTimeData,SLOT(importXML()));
+    connect(m_baseControl.importXML ,SIGNAL(pressed()),this,SIGNAL(buttonImportXMLPressed()));
 
     m_baseControl.showXML=new QPushButton("Show data");
     m_baseControl.showXML->setFont(f);
@@ -61,11 +61,11 @@ void GenericTimeDataUI::initControlWidget() {
     //C&P Button
     m_baseControl.copy=new QPushButton("Copy");
     m_baseControl.copy->setFont(f);
-    connect(m_baseControl.copy ,SIGNAL(clicked()),this,SIGNAL(buttonCopyPressed()));
+    connect(m_baseControl.copy ,SIGNAL(pressed()),this,SIGNAL(buttonCopyPressed()));
 
     m_baseControl.paste=new QPushButton("Paste");
     m_baseControl.paste->setFont(f);
-    connect(m_baseControl.paste ,SIGNAL(clicked()),this,SIGNAL(buttonPastePressed()));
+    connect(m_baseControl.paste ,SIGNAL(pressed()),this,SIGNAL(buttonPastePressed()));
 
 
     //Layouting XML button & C&P button

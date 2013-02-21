@@ -2,7 +2,7 @@
 
 
 DomHelper::DomHelper(QObject *hostDelegate, QString docType, QString rootTag, QString fileExtension) :
-    m_document(),
+    m_document(NULL),
     m_hostObject(hostDelegate),
     m_docType(docType),
     m_rootTag(rootTag),
@@ -12,7 +12,7 @@ DomHelper::DomHelper(QObject *hostDelegate, QString docType, QString rootTag, QS
 }
 
 DomHelper::DomHelper() :
-    m_document(),
+    m_document(NULL),
     m_hostObject(NULL),
     m_docType(DOMHELPER_DEFAULT_DOCTYPE),
     m_rootTag(DOMHELPER_DEFAULT_ROOT_TAG),
@@ -85,6 +85,7 @@ bool DomHelper::selfObjectData() {
             PRINT_WARNING(ErrorMessage(Q_FUNC_INFO,QString("can convert property %1 ").arg(_propName),ErrorMessage::WARNINGMESSAGE));
         }
     }
+
     return true;
 }
 
@@ -101,41 +102,16 @@ void DomHelper::deleteDomDocument() {
 
 void DomHelper::initDomDocument() {
 
-    deleteDomDocument();
-    //Set up document
-    m_document=new  QDomDocument(m_docType);
-
-}
-
-
-//void DomHelper::initDomDocument(const QString &rootTag) {
+    //20130221 REMOVED the delete function, it looks a little bit messy. But in this way i don't have some problem in memory leakage?
+//    deleteDomDocument();
 //    //Set up document
-//    if (m_doc!=NULL) delete m_doc;
-//    m_doc=new QDomDocument( (new QString(rootTag))->append("_").append(m_obj->metaObject()->className()));
-//    QDomElement _root=m_doc->createElement(rootTag);
-//    m_doc->appendChild(_root);
-//}
-
-//bool DomHelper::appendDomDocument(const QDomDocument& doc) {
-//    return this->appendDomDocument(&doc);
-//}
-
-//bool DomHelper::appendDomDocument(const QDomDocument *doc) {
-//    if (m_doc==NULL) {
-//    //    qDebug() << "DomHelper::appendDomDocument m_doc NULL, regenerate document";
-//    //    generateDomDocument();
-//        qWarning() << "DomHelper::appendDomDocument can't append to a NULL document";
-//        return false;
-//    }
-//  //  qDebug() << "DomHelper::appendDomDocument  processing node " << doc->nodeName();
-//    if (!doc->isNull()) {
-//        m_doc->firstChild().appendChild(doc->firstChild());
-//    } else {
-//        qWarning() << "DomHelper::appendDomDocument trying to append a null doc, node " << doc->nodeName();
-//        return false;
-//    }
-//    return true;
-//}
+//    m_document=new  QDomDocument(m_docType);
+    if (m_document) {
+        deleteDomDocument();
+        delete m_document;
+    }
+    m_document=new  QDomDocument(m_docType);
+}
 
 bool DomHelper::setClassByDomData(const QDomDocument* doc, bool allowUpdate, ErrorMessage* errMessage) {
     m_importingDomData=true;
@@ -347,7 +323,10 @@ bool DomHelper::parseAndSetProperty(const QDomElement &element, QMetaProperty &m
     return retval;
 }
 
-
-
+const QDomDocument DomHelper::getDomDocument() {
+//This is a trick, due to the fact that many times the DOM document is empty
+   if (m_document->isNull() || m_document->firstChild().isNull()) selfObjectData();
+    return (const QDomDocument) *m_document;
+}
 
 

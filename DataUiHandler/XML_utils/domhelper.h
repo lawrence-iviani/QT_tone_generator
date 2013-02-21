@@ -33,7 +33,7 @@ public:
      */
     const QDomNode getRootNode() { return (const QDomNode) m_document->firstChild().cloneNode(true); }
 
-    const QDomDocument& getDomDocument() {return (const QDomDocument&) *m_document;}
+    const QDomDocument getDomDocument();
 
     /**
      * @brief setClassByDomData Set the class by importing a QDomNode, there must be compatibility in the ROOT tag of the relative XML
