@@ -8,7 +8,7 @@
 #include <QDebug>
 #include <errormessage.h>
 #include "domhelper_constant.h"
-
+#include "domhelperutility.h"
 
 
 /**

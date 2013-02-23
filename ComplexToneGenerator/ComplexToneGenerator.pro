@@ -37,18 +37,20 @@ INCLUDEPATH += ../AudioEngine
 INCLUDEPATH += ../ErrorMessage
 INCLUDEPATH += ../DataUiHandler
 
-LIBS += -L../Widget/WidgetLib/ -lwidget -L../AudioEngine -lAudioEngine
+LIBS += -L../Widget/WidgetLib/ -lwidget
 
 CONFIG(debug, debug|release) {
     DESTDIR = debug
     OBJECTS_DIR = debug/obj
     MOC_DIR = debug/moc
+    LIBS += -L$$PWD/../AudioEngine/debug/ -lAudioEngine
     LIBS += -L$$PWD/../ErrorMessage/debug/ -lErrorMessage
     LIBS += -L$$PWD/../DataUiHandler/debug/ -lDataUiHandler
 } else {
     DESTDIR = release
     OBJECTS_DIR = release/obj
     MOC_DIR = release/moc
+    LIBS += -L$$PWD/../AudioEngine/release/ -lAudioEngine
     LIBS += -L$$PWD/../ErrorMessage/release/ -lErrorMessage
     LIBS += -L$$PWD/../DataUiHandler/release/ -lDataUiHandler
 }

@@ -66,16 +66,16 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
 
     //Prepare envelope
     initEnvelope();
-    //THIS IS A TRICK BUT IT WORLS, WITHOUT THE LENGTH OF THE ENVELOPE IS WRONG
-    getEnvelopeParameters()->setEnableEnvelope(true);
+
+    //Now reset everything so everything has the correct init.
+    this->resetAllData();
+    this->createDataCurve();
     //connect any signal
     this->connectSignals();
 
     //set recalc enabled
     m_enableRecalc=true;
-    this->createData();
-
-
+    this->updateData();
 }
 
 void GenericTimeData::initEnvelope() {
@@ -86,6 +86,9 @@ void GenericTimeData::initEnvelope() {
                                 this);
     //Connect envelope changed.
     Q_ASSERT(connect(m_envelope,SIGNAL(envelopeChanged()),this,SLOT(updateData())));
+
+    //I Want show the envelope and set to true?
+    //getEnvelopeParameters()->setEnableEnvelope(true);
 }
 
 void GenericTimeData::initControlWidget() {
@@ -164,6 +167,8 @@ void GenericTimeData::connectSignals() {
     Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonExportXMLPressed()),this,SLOT(exportXML())));
     Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonImportXMLPressed()),this,SLOT(importXML())));
 
+    //Prepare envelope, I need to set the correct number of sample in this stage because the sample number depends on the select curve type
+    m_envelope->setSampleNumber(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
 }
 
 void GenericTimeData::updateData() {
@@ -439,7 +444,7 @@ void GenericTimeData::importDomDocument(const QDomDocument& doc){
     Q_ASSERT(_gtdp!=NULL);
     ErrorMessage _err;
     qDebug() << Q_FUNC_INFO<<  "importing doc=" << doc.toString();
-///-------------Getting all data stuff
+
 //////------------- 1 retrieving data node for TIME DATA and ENVELOPE
 //////------------- 2 verifing importing before importing
 //////------------- 3 Importing

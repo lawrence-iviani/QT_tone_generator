@@ -72,7 +72,11 @@ void DataEnvelopeUI::initAmplitudeWidget() {
     //Layouting
     _l->addWidget(m_structAmplitude.hold,1,Qt::AlignLeft);
     _l->addWidget(m_structAmplitude.sustain,1,Qt::AlignLeft);
+
+    //Disable to start
+    m_widgetAmplitude->setEnabled(false);
 }
+
 
 void DataEnvelopeUI::initTimeWidget() {
     m_widgetTime=new QWidget();//Create the widget for these controls
@@ -133,6 +137,9 @@ void DataEnvelopeUI::initTimeWidget() {
     l->addWidget(m_structTime.decay,1,Qt::AlignLeft);
     l->addWidget(m_structTime.sustain,1,Qt::AlignLeft);
     l->addWidget(m_structTime.release,1,Qt::AlignLeft);
+
+    //disable to start
+    m_widgetTime->setEnabled(false);
 }
 
 void DataEnvelopeUI::initEnvelopeWidget() {

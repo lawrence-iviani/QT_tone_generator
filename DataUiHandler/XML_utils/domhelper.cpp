@@ -205,7 +205,7 @@ bool DomHelper::isImportableByDomData(const QDomNode* node, ErrorMessage* errMes
             errMessage->setMethod(Q_FUNC_INFO);
             errMessage->setMessage(QString("Wrong node object type, expected to find %1 but found %2").
                                    arg(m_hostObject->metaObject()->className()).
-                                   arg(_nodeList.at(0).nodeName()));
+                                   arg(DomHelperUtility::getNodeValue(_nodeList.at(0))));
         }
         return false;
     }
@@ -325,7 +325,10 @@ bool DomHelper::parseAndSetProperty(const QDomElement &element, QMetaProperty &m
 
 const QDomDocument DomHelper::getDomDocument() {
 //This is a trick, due to the fact that many times the DOM document is empty
-   if (m_document->isNull() || m_document->firstChild().isNull()) selfObjectData();
+ //  if (m_document->isNull() || m_document->firstChild().isNull())
+    //This is a trick, due to the fact that many times the DOM document is empty, especially during init a class there some inconsitency problem,
+    // this trick fix the behaviour
+    selfObjectData();
     return (const QDomDocument) *m_document;
 }
 

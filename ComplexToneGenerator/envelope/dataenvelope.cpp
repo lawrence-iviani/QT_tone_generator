@@ -42,6 +42,7 @@ void DataEnvelope::init(QObject *parent) {
                 ENVELOPE_SUFFIX,
                 parent);
     this->connectingSignals();
+
 }
 
 DataEnvelope::~DataEnvelope() {
