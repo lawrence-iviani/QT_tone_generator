@@ -41,7 +41,7 @@ void MainWindow::connectSignals() {
     //connect command buttons
     connect(s_button.addCurve,SIGNAL(clicked()),SLOT(newCurve()));
     connect(s_button.removeCurve,SIGNAL(clicked()),SLOT(removeCurve()));
-    //connect(s_button.duplicateCurves,SIGNAL(clicked()),SLOT(duplicateCurves()));
+    connect(s_button.duplicateCurves,SIGNAL(clicked()),SLOT(duplicateCurves()));
 
 #ifdef COMPLETE_FAST_SELECTION
     connect(s_button.removeAllCurves,SIGNAL(clicked()),SLOT(removeAllCurvesWithDialog()));
@@ -114,7 +114,7 @@ void MainWindow::connectMenusAndShortcut() {
         //NEW CURVE
         Q_ASSERT(connect(ui->actionAdd_curve,SIGNAL(triggered()),this,SLOT(newCurve())));
         //DUPLICATE
-      //  connect(ui->actionDuplicate_curves,SIGNAL(triggered()),this,SLOT(duplicateCurves()));
+        connect(ui->actionDuplicate_curves,SIGNAL(triggered()),this,SLOT(duplicateCurves()));
         //REMOVE ALL
         Q_ASSERT(connect(ui->actionRemove_all_curves,SIGNAL(triggered()),this,SLOT(removeAllCurvesWithDialog())));
         //REMOVE ONE
@@ -574,36 +574,63 @@ void MainWindow::exportDigestCurve() {
     QMessageBox::information(this,"Save ok!",msg);
 }
 
-//void MainWindow::duplicateCurves() {
-//     QStringList  sl=m_plotTime->getTimeDataStringList();
-//     SelectMultipleCurvesWindowDialog * duplicateDialog=new SelectMultipleCurvesWindowDialog(&sl,this);
-//     duplicateDialog->setActionDialog("duplicate");
-//     m_widgetStyleUI.setStyle(duplicateDialog);
-//     duplicateDialog->exec();
-//     bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
-//     QList<GenericTimeData*> _tempListPointer;
-//     GenericTimeData * _pGtd;
-//     foreach (int i, duplicateDialog->getSelectedCurvesIndex()) {
-//         _pGtd=m_plotTime->getTimeData(i);
-//         if (_pGtd==NULL) {
-//             qWarning() << "MainWindow::duplicateCurves() can't import GenericTimeData @ index "<< i << ", return a NULL pointer. Going ahead";
-//             continue;
-//         }
-//         _tempListPointer.append(_pGtd);
-//     }
+void MainWindow::duplicateCurves() {
+     QStringList  sl=m_plotTime->getTimeDataStringList();
+     SelectMultipleCurvesWindowDialog * duplicateDialog=new SelectMultipleCurvesWindowDialog(&sl,this);
+     duplicateDialog->setActionDialog("duplicate");
+     m_widgetStyleUI.setStyle(duplicateDialog);
+     duplicateDialog->exec();
 
-//     foreach (_pGtd, _tempListPointer) {
-//         Q_ASSERT(_pGtd!=NULL);
-//         Q_ASSERT(importXMLCurve(_pGtd->getDomDocument()));
-//         _pGtd->setName(QString("%1_%2").arg(_pGtd->name()).arg("copy"));
-//     }
+     //Create a list of selected items
+     QList<GenericTimeData*> _tempListPointer;
+     GenericTimeData * _pGtd;
+     foreach (int i, duplicateDialog->getSelectedCurvesIndex()) {
+         _pGtd=m_plotTime->getTimeData(i);
+         if (_pGtd==NULL) {
+             PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,"can't import GenericTimeData @ index %1, return a NULL pointer. Going ahead")
+                                 .arg(i));
+             continue;
+         }
+         _tempListPointer.append(_pGtd);
+     }
+
+     TimePlotParams* _pTpParams=dynamic_cast<TimePlotParams*> (m_plotTime->getDelegate()->getProperty());
+     Q_ASSERT(_pTpParams);
+     ErrorMessage _err;
+     m_plotTime->setEnabled(false);
+     foreach (_pGtd, _tempListPointer) {
+         _err.clear();
+         Q_ASSERT(_pGtd);
+         GenericTimeDataParams* _pGtdParams=dynamic_cast<GenericTimeDataParams*> (_pGtd->getDataParameters());
+         Q_ASSERT(_pGtdParams);
+         GenericTimeData* _curve=NULL;
+         QString _objTypeName=_pGtd->metaObject()->className();
+
+         _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName,_pTpParams);
+         if (!_curve) {
+             QMessageBox::warning(this,"Error duplicate", QString("Curve %1 can't be duplicated").arg(_pGtdParams->name()));
+             continue;
+         }
+         if (!_curve->importXML(_pGtd->exportXML(),&_err)) {
+            QMessageBox::warning(this,"Error duplicate", QString("Error duplicating curve %1\n%2").arg(_pGtdParams->name()).arg(_err.message()));
+            continue;
+         }
+         GenericTimeDataParams* _pCurveParams=dynamic_cast<GenericTimeDataParams*> (_curve->getDataParameters());
+         Q_ASSERT(_pCurveParams);
+         _pCurveParams->setName(QString("%1_%2").arg(_pGtdParams->name()).arg("copy"));
+         m_plotTime->addTimeData(_curve);
+         s_widgetUI.toolboxOption->addItem(_curve->getControlWidget(),_pCurveParams->name());
+     }
+     m_plotTime->setEnabled(true);
+     m_plotTime->recalcAndUpdatePlot();
+
 //     //this should be in the import functiom
 //     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
 //     m_plotTime->forceUpdateUI();
 //     m_plotTime->updatePlot();
 //     updateCurvesName();//This need a FIX,  should be made automatically with the set function
-//     delete duplicateDialog;
-//}
+     delete duplicateDialog;
+}
 
 //QDomDocument MainWindow::createDomDocument() {
 //    //Set up the main document

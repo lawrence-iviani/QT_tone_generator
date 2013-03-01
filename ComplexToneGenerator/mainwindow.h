@@ -57,7 +57,7 @@ public slots:
     void streamPositionUpdate(qreal position);
     void removeAllCurves();
     void removeAllCurvesWithDialog();
-   // void duplicateCurves();
+    void duplicateCurves();
     void newProject();
   //  void load();
   //  void save();

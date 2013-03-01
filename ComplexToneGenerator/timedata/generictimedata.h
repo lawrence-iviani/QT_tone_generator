@@ -133,10 +133,16 @@ public slots:
       */
      void paste();
 
-          /**
-           * @brief exportXML open a dialog window and ask for the destionation XML file where to export the DOM data structure
-           */
-          void exportXML();
+    /**
+    * @brief exportXMLDialog open a dialog window and ask for the destionation XML file where to export the DOM data structure
+    */
+    void exportXMLDialog();
+
+    /**
+     * @brief exportXML Export the curve as a DOM document
+     * @return The Dom Document describing the curve
+     */
+    QDomDocument exportXML();
 
      //     /**
      //      * @brief exportXML export the DOM structure to a filename (path+file)
@@ -144,10 +150,10 @@ public slots:
      //      */
      //     void exportXML(const QString filename);
 
-          /**
-           * @brief importXML import an XML file by opening a file dialog
-           */
-          void importXML();
+      /**
+       * @brief importXMLDialog import an XML file by opening a file dialog
+       */
+     void importXMLDialog();
 
      //     /**
      //      * @brief importXML import an XML file
@@ -156,12 +162,12 @@ public slots:
      //      */
      //     bool importXML(QString fileName);
 
-     //     /**
-     //      * @brief importXML import a QDomDocument
-     //      * @param doc the DOM document to be imported
-     //      * @return true if succesful
-     //      */
-     //     bool importXML(const QDomDocument * doc);
+    /**
+    * @brief importXML import a QDomDocument
+    * @param doc the DOM document to be imported
+    * @return true if succesful
+    */
+    bool importXML(const QDomDocument& doc, ErrorMessage *err=NULL);
 
      //     /**
      //      * @brief importXML import a QDomDocument by node
@@ -266,7 +272,7 @@ private:
      void init(TimePlotParams * timePlotParams=0);
      void initTimePlotParams();
      void initControlWidget();
-     void importDomDocument(const QDomDocument& doc);
+     bool importDomDocument(const QDomDocument &doc, ErrorMessage *_err);
      QDomDocument composeDomDocument() ;
      void initEnvelope();
      bool m_enableRecalc;
