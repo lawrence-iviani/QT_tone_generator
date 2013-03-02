@@ -102,8 +102,25 @@ QDomDocument DomHelperUtility::createDocFromNodesList(const QList<QDomNode*>& no
     _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,version);
     _d.appendChild(_rootElement);
     foreach (QDomNode* _n, nodeList) {
+        Q_ASSERT(_n && !_n->isNull());
+      //  qDebug() << Q_FUNC_INFO << "TEST NODE\n" << DomHelperUtility::nodeToString(_n);
         _rootElement.appendChild(*_n);
     }
+ //   qDebug() << Q_FUNC_INFO << "FINAL DOC\n" << _d.toString();
+    return _d;
+}
+
+QDomDocument DomHelperUtility::createDocFromNodesList(const QList<QDomNode>& nodeList,const QString& documentType, const QString& rootTag , uint version ) {
+    QDomDocument _d(documentType);
+    QDomElement _rootElement = _d.createElement(rootTag);
+    _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,version);
+    _d.appendChild(_rootElement);
+    foreach (QDomNode _n, nodeList) {
+        Q_ASSERT(!_n.isNull());
+      //  qDebug() << Q_FUNC_INFO << "TEST NODE\n" << DomHelperUtility::nodeToString(_n);
+        _rootElement.appendChild(_n);
+    }
+ //   qDebug() << Q_FUNC_INFO << "FINAL DOC\n" << _d.toString();
     return _d;
 }
 
@@ -138,7 +155,6 @@ bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomDocum
         return false;
     }
 
-   // qDebug() << doc.toString();
     bool retval=DomHelperUtility::nodeListByTagName(nodeList,_rootNode,tagName,version,err);
     return retval;
 }
@@ -225,8 +241,6 @@ bool DomHelperUtility::parseDOMToQTreeWidget(const QDomDocument *doc, QTreeWidge
        return false;
     }
 
-    //qDebug() << "DomHelperUtility::parseXMLToQTreeWidget  start parsing " << doc->nodeName() ;
-
     QDomNode node = doc->firstChild();
     return parseDOMToQTreeWidget(&node,treeWidget,errMessage);
 }
@@ -262,7 +276,7 @@ void DomHelperUtility::parseEntryToQTreeWidget(const QDomElement &element, QTree
 {
     QDomNode node = element.firstChild();
     while (!node.isNull()) {
-        //qDebug() << "DomParser::parseEntry  node " << node.toElement().tagName();
+        ///*qDebug*/() << "DomParser::parseEntry  node " << node.toElement().tagName();
     //    qDebug() << "DomParser::parseEntry  parsing node " << node.nodeName();
          if (node.isElement()) {
             //qDebug() << "DomParser::parseEntry "<< node.nodeName()<< " is element ";
@@ -333,3 +347,10 @@ void DomHelperUtility::parseAttributeToQTreeWidget(const QDomNamedNodeMap &eleme
     }
 }
 
+QString DomHelperUtility::nodeToString(const QDomNode* rootNode){// ,ErrorMessage *errMessage=NULL) {
+    QString _retVal;
+    QTextStream _ts(&_retVal);
+    rootNode->save(_ts,2);
+ //   qDebug() << Q_FUNC_INFO << "rootNode=" << *_ts.string();
+    return *_ts.string();
+}

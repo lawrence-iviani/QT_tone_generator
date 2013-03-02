@@ -23,7 +23,7 @@ public:
      * base class.
      * @param hostObj
      */
-    explicit DomHelper(QObject *hostDelegate,QString docType=DOMHELPER_OBJECTTYPE_TAG, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG,QString fileExtension=DOMHELPER_DEFAULT_FILE_SUFFIX);
+    explicit DomHelper(QObject *hostDelegate, QString docType=DOMHELPER_OBJECTTYPE_TAG, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG, uint version=DOMHELPER_VERSION, QString fileExtension=DOMHELPER_DEFAULT_FILE_SUFFIX);
     explicit DomHelper();
     virtual ~DomHelper();
     
@@ -159,6 +159,11 @@ private:
      * @brief m_fileSuffix The suffix file when this class is exported/imported to/from file
      */
     QString m_fileSuffix;
+
+    /**
+     * @brief m_version The version of this data
+     */
+    uint m_version;
 
     /**
      * @brief m_importingDomData This flag report is set to true every time this class is importing data with the appropriate methods.

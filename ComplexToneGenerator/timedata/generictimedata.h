@@ -34,7 +34,6 @@ public:
     inline const QwtCPointerData * getData() {return m_data;}
     inline QWidget * getControlWidget() {return m_ui;}
     inline DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_timeDataDelegate->getProperty());}
-    inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_timeDataDelegate);}
     inline const quint64 getSampleNumber()  {return m_sample;}
 
 
@@ -136,7 +135,7 @@ public slots:
     /**
     * @brief exportXMLDialog open a dialog window and ask for the destionation XML file where to export the DOM data structure
     */
-    void exportXMLDialog();
+    void save();
 
     /**
      * @brief exportXML Export the curve as a DOM document
@@ -153,7 +152,7 @@ public slots:
       /**
        * @brief importXMLDialog import an XML file by opening a file dialog
        */
-     void importXMLDialog();
+     void load();
 
      //     /**
      //      * @brief importXML import an XML file
@@ -206,6 +205,9 @@ protected:
          Q_ASSERT(retval!=NULL);
          return retval;
      }
+
+     inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_timeDataDelegate);}
+
 
      void createDataCurve();//Set
 
@@ -272,7 +274,8 @@ private:
      void init(TimePlotParams * timePlotParams=0);
      void initTimePlotParams();
      void initControlWidget();
-     bool importDomDocument(const QDomDocument &doc, ErrorMessage *_err);
+     bool importDomDocument(const QDomDocument &doc, ErrorMessage *_err=NULL);
+     bool importDomNode(const QDomNode& rootNode, ErrorMessage* err=NULL);
      QDomDocument composeDomDocument() ;
      void initEnvelope();
      bool m_enableRecalc;

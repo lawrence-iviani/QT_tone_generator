@@ -26,14 +26,24 @@ public:
     static bool load(const QString namefile,  QDomDocument *doc, ErrorMessage* errMessage=NULL);
     static bool load(const QString namefile,  QDomDocument &doc, ErrorMessage *errMessage=NULL);
     /**
-     * @brief createDocFromNodesList Starting from a list of node create a DomDOcument
+     * @brief createDocFromNodesList Starting from a list of node pointer create a DomDOcument
      * @param nodeList
      * @param documentType
      * @param rootTag
      * @param version
      * @return
      */
-    static QDomDocument createDocFromNodesList(const QList<QDomNode *> &nodeList, const QString& documentType, const QString& rootTag , uint version );
+    static QDomDocument createDocFromNodesList(const QList<QDomNode*> &nodeList, const QString& documentType, const QString& rootTag , uint version );
+
+    /**
+     * @brief createDocFromNodesList Starting from a list of node pointer create a DomDOcument
+     * @param nodeList
+     * @param documentType
+     * @param rootTag
+     * @param version
+     * @return
+     */
+    static QDomDocument createDocFromNodesList(const QList<QDomNode>& nodeList,const QString& documentType, const QString& rootTag , uint version );
 
     /**
      * @brief nodeListByTagName create a list of node checking for roots node with tagName from doc. Check also the document type compatiblity and the version (0 no check).
@@ -57,7 +67,7 @@ public:
      */
     static bool nodeListByTagName(QDomNodeList& nodeList, const QDomNode& rootNode, const QString& tagName,uint version=0,ErrorMessage * err=NULL);
 
-    static QString nodeToString(const QDomNode* rootNode ,ErrorMessage *errMessage=NULL);
+    static QString nodeToString(const QDomNode* rootNode );
 
     static bool parseDOMToQTreeWidget(const QDomDocument *doc, QTreeWidget * treeWidget, ErrorMessage* errMessage=NULL);
     static bool parseDOMToQTreeWidget(const QDomNode* rootNode , QTreeWidget * treeWidget, ErrorMessage *errMessage=NULL);

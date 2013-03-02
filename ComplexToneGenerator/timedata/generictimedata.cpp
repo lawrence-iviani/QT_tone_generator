@@ -13,8 +13,9 @@ GenericTimeData::GenericTimeData(QObject *parent) :
     m_timeDataDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*>(new GenericTimeDataParams(parent)),
                 dynamic_cast<DataUiHandlerUI*>(new GenericTimeDataUI()),
-                TIMEDATA_DOCTYPE,
-                TIMEDATAPARAMETERS_TAG,
+                TIMEDATACURVE_DOCTYPE,
+                TIMEDATACURVEPARAMETERS_TAG,
+                TIMEDATACURVE_DOCVERSION,
                 TIMEDATACURVE_SUFFIX,
                 parent);
     init();
@@ -33,8 +34,9 @@ GenericTimeData::GenericTimeData(TimePlotParams * timePlotParams, QObject *paren
     m_timeDataDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*>(new GenericTimeDataParams(parent)),
                 dynamic_cast<DataUiHandlerUI*>(new GenericTimeDataUI()),
-                TIMEDATA_DOCTYPE,
-                TIMEDATAPARAMETERS_TAG,
+                TIMEDATACURVE_DOCTYPE,
+                TIMEDATACURVEPARAMETERS_TAG,
+                TIMEDATACURVE_DOCVERSION,
                 TIMEDATACURVE_SUFFIX,
                 parent);
     init(timePlotParams);
@@ -164,8 +166,8 @@ void GenericTimeData::connectSignals() {
     Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonPastePressed()),this,SLOT(paste())));
 
     //import&export button pressed
-    Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonExportXMLPressed()),this,SLOT(exportXMLDialog())));
-    Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonImportXMLPressed()),this,SLOT(importXMLDialog())));
+    Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonExportXMLPressed()),this,SLOT(save())));
+    Q_ASSERT(connect(_gtdpUI,SIGNAL(buttonImportXMLPressed()),this,SLOT(load())));
 
     //Prepare envelope, I need to set the correct number of sample in this stage because the sample number depends on the select curve type
     m_envelope->setSampleNumber(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
@@ -347,7 +349,7 @@ void GenericTimeData::paste() {
     _gtdp->setColor(_color);
 }
 
-void GenericTimeData::importXMLDialog() {
+void GenericTimeData::load() {
         CTG_app * _app=(CTG_app*) qApp;
         QString _fileName = QFileDialog::getOpenFileName(NULL, tr("Open curve"),
                                    _app->curveSavePath(),
@@ -399,7 +401,7 @@ QDomDocument GenericTimeData::exportXML() {
     return composeDomDocument();
 }
 
-void GenericTimeData::exportXMLDialog() {
+void GenericTimeData::save() {
     GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
     CTG_app * _app=(CTG_app*) qApp;
@@ -421,9 +423,8 @@ void GenericTimeData::exportXMLDialog() {
                                                     .arg(QString(TIMEDATACURVE_SUFFIX).toUpper())
                                                     .arg(QString(TIMEDATACURVE_SUFFIX).toLower()));
      ErrorMessage _err;
-     //QDomDocument( _fileName)
      if (!DomHelperUtility::save(_fileName,composeDomDocument(),&_err)) {
-         QMessageBox::warning(NULL,QString("Error saving file"), QString("Error saving file%1\n%2")
+         QMessageBox::warning(NULL,QString("Error saving file"), QString("Error saving file %1\n%2")
                               .arg(m_fileName)
                               .arg(_err.message()));
      }
@@ -436,30 +437,45 @@ void GenericTimeData::exportXMLDialog() {
 }
 
 bool GenericTimeData::importDomDocument(const QDomDocument& doc, ErrorMessage* err) {
-    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
-    Q_ASSERT(_gtdp!=NULL);
-    if (doc.isNull()) {
+    QDomNode _rootNode=doc.firstChild();
+    ErrorMessage _localErr;
+    if (doc.isNull() || _rootNode.isNull() ) {
         QString msg("Null data document");
         if (err) {
-            err->setMethod(Q_FUNC_INFO);
-            err->setMessage(msg);
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
         } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
         return false;
     }
+    //Verify doctype
+    if (doc.doctype().name()!=TIMEDATACURVE_DOCTYPE) {
+        QString msg=QString("Invalid doc type, expected -%1- found -%2-").arg(doc.doctype().toText().data()).arg(TIMEDATACURVE_DOCTYPE);
+        if (err){
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        }  else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        return false;
+    }
 
-    qDebug() << Q_FUNC_INFO<<  "importing doc=" << doc.toString();
+ //   qDebug() << Q_FUNC_INFO<<  "importing doc=" << doc.toString();
+    return importDomNode(_rootNode,err);
+}
 
-//////------------- 1 retrieving data node for TIME DATA and ENVELOPE
+bool GenericTimeData::importDomNode(const QDomNode& rootNode, ErrorMessage* err) {
+    GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
+    Q_ASSERT(_gtdp!=NULL);
+//////------------- 1 retrieving data node for TIME DATA and ENVELOPE rootNode
 //////------------- 2 verifing importing before importing
 //////------------- 3 Importing
     //1a------------- RETRIEVING TIMEDATAPARAMS NODE
     QDomNodeList _nodeListTimeDataParams;
     ErrorMessage _localErr;
     if(!DomHelperUtility::nodeListByTagName(_nodeListTimeDataParams,
-                                        doc,
-                                        TIMEDATA_DOCTYPE,
-                                        TIMEDATAPARAMETERS_TAG,
-                                        TIMEDATA_PARAMSVERSION,
+                                        rootNode,
+                                        TIMEDATACURVEPARAMETERS_TAG,
+                                        TIMEDATACURVE_PARAMSVERSION,
                                         &_localErr)) {
         if (err) {
             err->appendMessage(_localErr);
@@ -469,16 +485,18 @@ bool GenericTimeData::importDomDocument(const QDomDocument& doc, ErrorMessage* e
     if (_nodeListTimeDataParams.length()==0) {
         QString msg="Error parsing time data, no valid parameters node";
         if (err) {
-            err->setMethod(Q_FUNC_INFO);
-            err->setMessage(msg);
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
         } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
         return false;
     }
     if (_nodeListTimeDataParams.length()>1) {
         QString msg="Error parsing time data, too many parameters nodes";
         if (err) {
-            err->setMethod(Q_FUNC_INFO);
-            err->setMessage(msg);
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
         } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
         return false;
     }
@@ -487,8 +505,7 @@ bool GenericTimeData::importDomDocument(const QDomDocument& doc, ErrorMessage* e
     //1b------------- RETRIEVING ENVELOPE NODE
     QDomNodeList _nodeListEnvelope;
     if (!DomHelperUtility::nodeListByTagName(_nodeListEnvelope,
-                                        doc,
-                                        TIMEDATA_DOCTYPE,
+                                        rootNode,
                                         ENVELOPE_TAG,
                                         ENVELOPE_PARAMSVERSION,
                                         &_localErr) ) {
@@ -500,16 +517,18 @@ bool GenericTimeData::importDomDocument(const QDomDocument& doc, ErrorMessage* e
     if (_nodeListEnvelope.length()==0) {
         QString msg="Error parsing envelope data, no valid envelope node";
         if (err) {
-            err->setMethod(Q_FUNC_INFO);
-            err->setMessage(msg);
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
         } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
         return false;
     }
     if (_nodeListEnvelope.length()>1) {
         QString msg="Error parsing envelope data, too many envelope nodes";
         if (err) {
-            err->setMethod(Q_FUNC_INFO);
-            err->setMessage(msg);
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
         } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
         return false;
     }
@@ -524,7 +543,7 @@ bool GenericTimeData::importDomDocument(const QDomDocument& doc, ErrorMessage* e
         return false;
     }
 
-    if (!areValidTimeDataSettings(doc.firstChild(),&_localErr) ) {
+    if (!areValidTimeDataSettings(rootNode,&_localErr) ) {
         if (err) {
             err->appendMessage(_localErr);
         } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
@@ -571,10 +590,10 @@ QDomDocument GenericTimeData::composeDomDocument() {
     _nodeList << &_n1;
     _nodeList << &_n2;
     QDomDocument _d=DomHelperUtility::createDocFromNodesList(_nodeList,
-                                                             TIMEDATA_DOCTYPE,
+                                                             TIMEDATACURVE_DOCTYPE,
                                                              TIMEDATACURVE_TAG,
-                                                             TIMEDATA_DOCVERSION);
-    qDebug() << Q_FUNC_INFO<<  "compose doc=" << _d.toString();
+                                                             TIMEDATACURVE_DOCVERSION);
+   // qDebug() << Q_FUNC_INFO<<  "compose doc=" << _d.toString();
     return _d;
 }
 

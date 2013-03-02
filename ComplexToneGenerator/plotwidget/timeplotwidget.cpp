@@ -3,9 +3,20 @@
 TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     PlotWidget(parent,  xScaleType,  yScaleType)
 {
+//    m_timeDataDelegate=new DataUiHandlerDelegate(
+//                dynamic_cast<DataUiHandlerProperty*>(new GenericTimeDataParams(parent)),
+//                dynamic_cast<DataUiHandlerUI*>(new GenericTimeDataUI()),
+//                TIMEDATA_DOCTYPE,
+//                TIMEDATAPARAMETERS_TAG,
+//                TIMEDATACURVE_SUFFIX,
+//                parent);
+//    init(timePlotParams);
     m_timePlotDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*>(new TimePlotParams((QObject*)parent)),
                 dynamic_cast<DataUiHandlerUI*>(new TimePlotWidgetUI(new ZMP_Handler(this->canvas()))),
+                PROJECTTIMEPARAMS_DOCTYPE,
+                PROJECTTIMEPARAMETERS_TAG,
+                PROJECTTIMEPARAMS_DOCVERSION,
                 (QObject*)parent);
 
     TimePlotParams *_params=dynamic_cast< TimePlotParams*> (getDataParameters());

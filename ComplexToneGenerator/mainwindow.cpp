@@ -99,12 +99,12 @@ void MainWindow::connectMenusAndShortcut() {
         Q_ASSERT(connect(ui->actionNew_Project,SIGNAL(triggered()),this,SLOT(newProject())));
         //LOAD
       //  connect(ui->actionLoad_Project ,SIGNAL(triggered()),this,SLOT(load()));
-      //  //SAVE
-      //  connect(ui->actionSave_project,SIGNAL(triggered()),this,SLOT(save()));
+        //SAVE
+        Q_ASSERT(connect(ui->actionSave_project,SIGNAL(triggered()),this,SLOT(save())));
         //SAVE AS
-      //  connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT(saveAs()));
+        Q_ASSERT(connect(ui->actionSave_as,SIGNAL(triggered()),this,SLOT(saveAs())));
         //Import curve
-      //  connect(ui->actionImport_curve,SIGNAL(triggered()),this,SLOT( importCurve()) );
+        Q_ASSERT(connect(ui->actionImport_curve,SIGNAL(triggered()),this,SLOT( importCurve())));
         //EXPORT AUDIO FILE
         Q_ASSERT(connect(ui->actionExport_audio_file,SIGNAL(triggered()),this,SLOT(exportDigestCurve())));
     }
@@ -374,101 +374,7 @@ void MainWindow::newProject() {
     _app->setAudioDigestSaveName("");
     m_audioPlayer->setStart(false);
     removeAllCurves();
-    this->setWindowTitle("New Complex Generator project");
-}
-
-//void MainWindow::load() {
-//    CTG_app * _app=(CTG_app*) qApp;
-//    QString _fileName = QFileDialog::getOpenFileName(this, tr("Open CTG project"),
-//                                             _app->projectSavePath(),
-//                                             tr("CTG project file (*.cpf *.CPF)"));
-//    if (_fileName=="") return;
-
-//    if (!importXML(_fileName)) {
-//        QMessageBox::warning(this,"Project not loaded","Project can't be loaded");
-//        return;
-//    }
-
-//    //saving path,name & title
-//    QFileInfo _fi(_fileName);
-//    QString _path=_fi.absolutePath();
-//    QString _name=_fi.baseName();
-//    if (_path!="")
-//        _app->setProjectSavePath(_path);
-//    if (_name!="") {
-//        _app->setProjectName(_name);
-//        this->setWindowTitle(_name);
-//    }
-//}
-
-//void MainWindow::save() {
-//    CTG_app * _app=(CTG_app*) qApp;
-
-//    //if the project wasn't already saved...
-//    if (_app->projectName()=="") {
-//        saveAs();
-//        return;
-//    }
-
-//    QString _fileName=QString("%1/%2.cpf").arg(_app->projectSavePath()).arg(_app->projectName());
-//    if (!exportXML(_fileName))
-//        QMessageBox::warning(this,"Error saving project","Project NOT saved");
-//}
-
-//void MainWindow::saveAs() {
-//    CTG_app * _app=(CTG_app*) qApp;
-
-//    QString _fileName=QString("%1/%2.cpf").arg(_app->projectSavePath()).arg(_app->projectName());
-//    _fileName = QFileDialog::getSaveFileName(this, tr("Save CTG project"),
-//                                                    _app->projectSavePath(),
-//                               tr("CTG project file (*.cpf *.CPF)"));
-//    if(_fileName=="") return;
-
-//    if (!exportXML(_fileName)) {
-//        QMessageBox::warning(this,"Error saving project","Project NOT saved");
-//        return;
-//    }
-
-//    //saving path,name & title
-//    QFileInfo _fi(_fileName);
-//    QString _path=_fi.absolutePath();
-//    QString _name=_fi.baseName();
-//    if (_path!="")
-//        _app->setProjectSavePath(_path);
-//    if (_name!="") {
-//        _app->setProjectName(_name);
-//        this->setWindowTitle(_name);
-//    }
-//}
-
-//void MainWindow::importCurve() {
-//    CTG_app * _app=(CTG_app*) qApp;
-//    QString _fileName = QFileDialog::getOpenFileName(this, tr("Import CTG curve"),
-//                                                     _app->curveSavePath(),
-//                                                     tr("CTG curve file (*.CCF *.ccf)"));
-//    if (_fileName=="") return;
-
-//    QDomDocument _doc;
-//    if (!DomHelper::load(_fileName,&_doc)) {
-//        QMessageBox::warning(0,"Curve not loaded","File can not be loaded.");
-//        return;
-//    }
-
-//    if (!importXMLCurve(_doc)) {
-//        QMessageBox::warning(this,"Curve not loaded","Invalid data structure.");
-//        return;
-//    }
-
-//    //FIX, this should be in the import function
-//   // m_plotTime->forceUpdateUI();
-
-
-//    QFileInfo _fi(_fileName);
-//    QString _path=_fi.absolutePath();
-//    if (_path!="")
-//        _app->setCurveSavePath(_path);
-
-//}
+    this->setWindowTitle("New Complex Generator project");}
 
 void MainWindow::removeAllCurvesWithDialog() {
     if( QMessageBox::question(this,"Confirm remove curves","Do you want to remove all the curves?",QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No ) return;
@@ -594,7 +500,7 @@ void MainWindow::duplicateCurves() {
          _tempListPointer.append(_pGtd);
      }
 
-     TimePlotParams* _pTpParams=dynamic_cast<TimePlotParams*> (m_plotTime->getDelegate()->getProperty());
+     TimePlotParams* _pTpParams=dynamic_cast<TimePlotParams*> (m_plotTime->getDataParameters());
      Q_ASSERT(_pTpParams);
      ErrorMessage _err;
      m_plotTime->setEnabled(false);
@@ -631,6 +537,204 @@ void MainWindow::duplicateCurves() {
 //     updateCurvesName();//This need a FIX,  should be made automatically with the set function
      delete duplicateDialog;
 }
+
+QDomDocument MainWindow::composeDomDocument() {
+    //Collecting the nodes
+    QList<QDomNode> _nodeList;
+    QDomNode _nTp=m_plotTime->exportXML().firstChild();
+    Q_ASSERT(!_nTp.isNull());
+    _nodeList.append(_nTp);
+
+    for (int i=0; i<m_plotTime->getTimeDataList().length() ;i++) {
+        qDebug() << Q_FUNC_INFO << " i=" << i;
+        GenericTimeData* _gtd=m_plotTime->getTimeDataList().at(i);
+        QDomNode _n=_gtd->exportXML().firstChild();
+        Q_ASSERT(!_n.isNull());
+        //qDebug() << Q_FUNC_INFO << " Inserting node\n" << DomHelperUtility::nodeToString(&_n);
+       _nodeList.append(_n);
+    }
+
+    //Set up the main document
+    QDomDocument _d=DomHelperUtility::createDocFromNodesList(_nodeList,
+                                                             PROJECT_DOCTYPE,
+                                                             PROJECT_TAG,
+                                                             PROJECT_DOCVERSION);
+    return _d;
+}
+
+void MainWindow::save() {
+    CTG_app * _app=(CTG_app*) qApp;
+
+    //if the project wasn't already saved...
+    if (_app->projectName()=="") {
+        saveAs();
+        return;
+    }
+
+    QString _fileName=QString("%1/%2.%3").arg(_app->projectSavePath()).arg(_app->projectName()).arg(PROJECT_SUFFIX);
+
+    ErrorMessage _err;
+    if (!DomHelperUtility::save(_fileName,composeDomDocument(),&_err)) {
+        QMessageBox::warning(NULL,QString("Error saving file"), QString("Error saving project %1\n%2")
+                             .arg(_fileName)
+                             .arg(_err.message()));
+    }
+
+}
+
+void MainWindow::saveAs() {
+    CTG_app * _app=(CTG_app*) qApp;
+
+    QString _fileName=QString("%1/%2.%3").arg(_app->projectSavePath()).arg(_app->projectName()).arg(PROJECT_SUFFIX);
+    _fileName = QFileDialog::getSaveFileName(this, tr("Save CTG project"),
+                                                    _app->projectSavePath(),
+                                             tr("Curve file (*.%1 *.%2)")
+                                                   .arg(QString(PROJECT_SUFFIX).toLower())
+                                                   .arg(QString(PROJECT_SUFFIX).toUpper()));
+    if(_fileName=="") return;
+
+    ErrorMessage _err;
+    QDomDocument _d=composeDomDocument();
+   // qDebug() << Q_FUNC_INFO << "FINAL DOCUMENT \n" << _d.toString();
+    if (!DomHelperUtility::save(_fileName,_d,&_err)) {
+        QMessageBox::warning(NULL,QString("Error saving file"), QString("Error saving project %1\n%2")
+                             .arg(_fileName)
+                             .arg(_err.message()));
+    }
+
+    //saving path,name & title
+    QFileInfo _fi(_fileName);
+    QString _path=_fi.absolutePath();
+    QString _name=_fi.baseName();
+    if (_path!="")
+        _app->setProjectSavePath(_path);
+    if (_name!="") {
+        _app->setProjectName(_name);
+        this->setWindowTitle(_name);
+    }
+}
+
+void MainWindow::importCurve() {
+    CTG_app * _app=(CTG_app*) qApp;
+    QString _fileName = QFileDialog::getOpenFileName(this, tr("Import CTG curve"),
+                                                     _app->curveSavePath(),
+                                                     tr("CTG curve file (*.CCF *.ccf)"));
+    if (_fileName=="") return;
+
+    QDomDocument _doc;
+    ErrorMessage _err;
+    if (!DomHelperUtility::load(_fileName,&_doc,&_err)) {
+        QMessageBox::warning(NULL,QString("Error importing curve"), QString("Error importing curve %1\n%2")
+                             .arg(_fileName)
+                             .arg(_err.message()));
+        return;
+    }
+
+//    if (!importXMLCurve(_doc)) {
+//        QMessageBox::warning(this,"Curve not loaded","Invalid data structure.");
+//    }
+
+    //Error importing
+    QFileInfo _fi(_fileName);
+    QString _path=_fi.absolutePath();
+    if (_path!="")
+        _app->setCurveSavePath(_path);
+}
+
+
+//void MainWindow::load() {
+//    CTG_app * _app=(CTG_app*) qApp;
+//    QString _fileName = QFileDialog::getOpenFileName(this, tr("Open CTG project"),
+//                                             _app->projectSavePath(),
+//                                             tr("CTG project file (*.cpf *.CPF)"));
+//    if (_fileName=="") return;
+
+//    if (!importXML(_fileName)) {
+//        QMessageBox::warning(this,"Project not loaded","Project can't be loaded");
+//        return;
+//    }
+
+//    //saving path,name & title
+//    QFileInfo _fi(_fileName);
+//    QString _path=_fi.absolutePath();
+//    QString _name=_fi.baseName();
+//    if (_path!="")
+//        _app->setProjectSavePath(_path);
+//    if (_name!="") {
+//        _app->setProjectName(_name);
+//        this->setWindowTitle(_name);
+//    }
+//}
+
+//void MainWindow::save() {
+//    CTG_app * _app=(CTG_app*) qApp;
+
+//    //if the project wasn't already saved...
+//    if (_app->projectName()=="") {
+//        saveAs();
+//        return;
+//    }
+
+//    QString _fileName=QString("%1/%2.cpf").arg(_app->projectSavePath()).arg(_app->projectName());
+//    if (!exportXML(_fileName))
+//        QMessageBox::warning(this,"Error saving project","Project NOT saved");
+//}
+
+
+//void MainWindow::saveAs() {
+//    CTG_app * _app=(CTG_app*) qApp;
+
+//    QString _fileName=QString("%1/%2.cpf").arg(_app->projectSavePath()).arg(_app->projectName());
+//    _fileName = QFileDialog::getSaveFileName(this, tr("Save CTG project"),
+//                                                    _app->projectSavePath(),
+//                               tr("CTG project file (*.cpf *.CPF)"));
+//    if(_fileName=="") return;
+
+//    if (!exportXML(_fileName)) {
+//        QMessageBox::warning(this,"Error saving project","Project NOT saved");
+//        return;
+//    }
+
+//    //saving path,name & title
+//    QFileInfo _fi(_fileName);
+//    QString _path=_fi.absolutePath();
+//    QString _name=_fi.baseName();
+//    if (_path!="")
+//        _app->setProjectSavePath(_path);
+//    if (_name!="") {
+//        _app->setProjectName(_name);
+//        this->setWindowTitle(_name);
+//    }
+//}
+
+//void MainWindow::importCurve() {
+//    CTG_app * _app=(CTG_app*) qApp;
+//    QString _fileName = QFileDialog::getOpenFileName(this, tr("Import CTG curve"),
+//                                                     _app->curveSavePath(),
+//                                                     tr("CTG curve file (*.CCF *.ccf)"));
+//    if (_fileName=="") return;
+
+//    QDomDocument _doc;
+//    if (!DomHelper::load(_fileName,&_doc)) {
+//        QMessageBox::warning(0,"Curve not loaded","File can not be loaded.");
+//        return;
+//    }
+
+//    if (!importXMLCurve(_doc)) {
+//        QMessageBox::warning(this,"Curve not loaded","Invalid data structure.");
+//        return;
+//    }
+
+//    //FIX, this should be in the import function
+//   // m_plotTime->forceUpdateUI();
+
+
+//    QFileInfo _fi(_fileName);
+//    QString _path=_fi.absolutePath();
+//    if (_path!="")
+//        _app->setCurveSavePath(_path);
+
+//}
 
 //QDomDocument MainWindow::createDomDocument() {
 //    //Set up the main document
@@ -733,7 +837,7 @@ void MainWindow::duplicateCurves() {
 //    //Disable update
 //    bool _prevValueEnablePlot=m_plotTime->setEnableUpdate(false);
 
-//    //set project properties
+//    //set  properties
 //    QDomNodeList _nodeListProject=doc.elementsByTagName(PROJECTPARAMETERS_TAG);
 //    qDebug() << "MainWindow::importXML()  _nodeListProject.length=" << _nodeListProject.length();
 

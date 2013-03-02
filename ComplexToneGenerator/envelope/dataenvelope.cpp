@@ -39,6 +39,7 @@ void DataEnvelope::init(QObject *parent) {
                 dynamic_cast<DataUiHandlerUI*>(new DataEnvelopeUI()),
                 ENVELOPE_DOCTYPE,
                 ENVELOPE_TAG,
+                ENVELOPE_PARAMSVERSION,
                 ENVELOPE_SUFFIX,
                 parent);
     this->connectingSignals();

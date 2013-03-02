@@ -58,11 +58,11 @@ public slots:
     void removeAllCurves();
     void removeAllCurvesWithDialog();
     void duplicateCurves();
+    void importCurve();
     void newProject();
   //  void load();
-  //  void save();
-  //  void saveAs();
-  //  void importCurve();
+    void save();
+    void saveAs();
 
 private:
     void setupUI();
@@ -72,10 +72,10 @@ private:
     QFrame *createButtonsFrame();
     void initAudio();
     void connectSignals();
-    QDomDocument createDomDocument();
     void connectMenusAndShortcut();
     bool importXMLCurve(const QDomDocument& doc);
     bool importXMLCurve(const QDomDocument* doc);
+    QDomDocument composeDomDocument();
     void setupStyle();
 
     //THESE FUNCTION MUST BE INSERTED IN SOME KIND OF EXTERNAL UTILITY

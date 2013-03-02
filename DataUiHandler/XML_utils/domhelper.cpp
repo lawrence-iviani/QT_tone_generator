@@ -1,12 +1,13 @@
 #include "domhelper.h"
 
 
-DomHelper::DomHelper(QObject *hostDelegate, QString docType, QString rootTag, QString fileExtension) :
+DomHelper::DomHelper(QObject *hostDelegate, QString docType, QString rootTag, uint version, QString fileExtension) :
     m_document(NULL),
     m_hostObject(hostDelegate),
     m_docType(docType),
     m_rootTag(rootTag),
     m_fileSuffix(fileExtension),
+    m_version(version),
     m_importingDomData(false)
 {
 }
@@ -17,6 +18,7 @@ DomHelper::DomHelper() :
     m_docType(DOMHELPER_DEFAULT_DOCTYPE),
     m_rootTag(DOMHELPER_DEFAULT_ROOT_TAG),
     m_fileSuffix(DOMHELPER_DEFAULT_FILE_SUFFIX),
+    m_version(DOMHELPER_VERSION),
     m_importingDomData(false)
 {
 }
@@ -52,7 +54,7 @@ bool DomHelper::selfObjectData() {
     initDomDocument();
 
     QDomElement _rootElement = m_document->createElement(m_rootTag);
-    _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,DOMHELPER_VERSION);
+    _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,m_version);
     m_document->appendChild(_rootElement);
 
     //Inserting class name
@@ -277,7 +279,7 @@ bool DomHelper::parseAndVerifyAttributeVersion(const QDomNamedNodeMap &element) 
                 PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("Attribute %1 has a bad formatted  value  |%2|").arg(node.nodeName()).arg(node.toAttr().nodeValue())));
                 return false;
             }
-            if (_version!=DOMHELPER_VERSION) {
+            if (_version!=m_version) {
                 PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("INVALID VERSION %1 valid version is |%2|").arg(node.toAttr().nodeValue()).arg(DOMHELPER_VERSION)));
                 return false;
             }

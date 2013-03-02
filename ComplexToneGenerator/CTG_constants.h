@@ -11,32 +11,31 @@ qreal static const TIMEDATA_DEFAULT_MIN_SR=4000.0;
 qreal static const TIMEDATA_DEFAULT_MAX_SR=96000.0;
 qreal static const TIMEDATA_DEFAULT_STEP_SR=4000.0;
 
-//The version of the generated XML data structure
-//uint static const DOMHELPER_VERSION=1;
-
 //TAG for XML data
 //params
 const static QString ENEVELOPEPARAMETERS_TAG="EnvelopeParams";
-const static QString TIMEDATAPARAMETERS_TAG="TimeDataParams";
-const static QString PROJECTPARAMETERS_TAG="ProjectParams";
-const static uint TIMEDATA_PARAMSVERSION=1;
+const static QString TIMEDATACURVEPARAMETERS_TAG="TimeDataCurveParams";
+const static QString PROJECTTIMEPARAMETERS_TAG="ProjectParams";
+const static uint TIMEDATACURVE_PARAMSVERSION=1;
 const static uint ENVELOPE_PARAMSVERSION=1;
 
 //root tag
 const static QString ENVELOPE_TAG="EnvelopeData";
 const static QString PROJECT_TAG="ProjectRoot";
-const static QString TIMEDATACURVE_TAG="TimeData";
+const static QString TIMEDATACURVE_TAG="TimeDataCurve";
+
 //other
-const static QString WINDOW_TAG="MainWindow";//Not really used, for future development
+//const static QString WINDOW_TAG="MainWindow";//Not really used, for future development
 
 //DOCTYPE
+const static QString PROJECTTIMEPARAMS_DOCTYPE="CTG_projectprams";
 const static QString PROJECT_DOCTYPE="CTG_project";
-const static QString TIMEDATA_DOCTYPE="CTG_curve";
+const static QString TIMEDATACURVE_DOCTYPE="CTG_curve";
 const static QString ENVELOPE_DOCTYPE="CTG_envelope";
 //doc version
 const static uint PROJECT_DOCVERSION=1;
-const static uint TIMEDATA_DOCVERSION=1;
-
+const static uint TIMEDATACURVE_DOCVERSION=1;
+const static uint PROJECTTIMEPARAMS_DOCVERSION=1;
 
 //SUFFIX
 const static QString PROJECT_SUFFIX="cpf";
