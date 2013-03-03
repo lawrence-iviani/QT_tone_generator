@@ -67,34 +67,34 @@ QString DomHelperUtility::getNodeValue(const QDomNode &node) {
     }
 }
 
-QString DomHelperUtility::getObjectType(const QDomDocument *doc) {
-    QString retval="";
-    //Get the root element
-    QDomElement docElem = doc->documentElement();
 
-    // get the node's interested in, this time only caring about the objectType
-    QDomNodeList nodeList = docElem.elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
+//QString DomHelperUtility::getObjectType(const QDomDocument *doc) {
+//    QString retval="";
+//    //Get the root element
+//    QDomElement docElem = doc->documentElement();
 
-    Q_ASSERT(nodeList.length()==1);
+//    // get the node's interested in, this time only caring about the objectType
+//    QDomNodeList nodeList = docElem.elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
 
-    for (int i = 0;i < nodeList.count(); i++) {
-            // get the current one as QDomElement
-            QDomElement el = nodeList.at(i).toElement();
-            //Verifying the class is correct
-            if (el.nodeName()==DOMHELPER_OBJECTTYPE_TAG) {
-                QDomNode node = el.firstChild();
-                if (!node.isNull() && node.isText()) {
-                    retval=node.toText().data();
-                }
-            }
-    }
-    return retval;
-}
+//    Q_ASSERT(nodeList.length()==1);
 
-QString DomHelperUtility::getObjectType(const QDomDocument & doc) {
-    return DomHelperUtility::getObjectType(&doc);
-}
+//    for (int i = 0;i < nodeList.count(); i++) {
+//            // get the current one as QDomElement
+//            QDomElement el = nodeList.at(i).toElement();
+//            //Verifying the class is correct
+//            if (el.nodeName()==DOMHELPER_OBJECTTYPE_TAG) {
+//                QDomNode node = el.firstChild();
+//                if (!node.isNull() && node.isText()) {
+//                    retval=node.toText().data();
+//                }
+//            }
+//    }
+//    return retval;
+//}
 
+//QString DomHelperUtility::getObjectType(const QDomDocument & doc) {
+//    return DomHelperUtility::getObjectType(&doc);
+//}
 QDomDocument DomHelperUtility::createDocFromNodesList(const QList<QDomNode*>& nodeList,const QString& documentType, const QString& rootTag , uint version ) {
     QDomDocument _d(documentType);
     QDomElement _rootElement = _d.createElement(rootTag);
@@ -210,6 +210,25 @@ bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomNode&
     return true;
 }
 
+QDomNode DomHelperUtility::getAttribute(const QDomNamedNodeMap &element,QString attributeName) {
+    for (unsigned int n=0;n<element.length(); n++) {
+        QDomNode node=element.item(n);
+        Q_ASSERT(node.isAttr());
+        if (QString::compare(attributeName,node.nodeName())==0) {
+            return node;
+        }
+    }
+    QDomNode _empytNode;
+    return _empytNode;
+}
+
+QString DomHelperUtility::nodeToString(const QDomNode* rootNode){// ,ErrorMessage *errMessage=NULL) {
+    QString _retVal;
+    QTextStream _ts(&_retVal);
+    rootNode->save(_ts,2);
+ //   qDebug() << Q_FUNC_INFO << "rootNode=" << *_ts.string();
+    return *_ts.string();
+}
 
 //------------ Static ToQTreeWidget ------------//
 bool DomHelperUtility::parseDOMToQTreeWidget(DomHelper *dh, QTreeWidget * treeWidget, ErrorMessage* errMessage) {
@@ -347,10 +366,3 @@ void DomHelperUtility::parseAttributeToQTreeWidget(const QDomNamedNodeMap &eleme
     }
 }
 
-QString DomHelperUtility::nodeToString(const QDomNode* rootNode){// ,ErrorMessage *errMessage=NULL) {
-    QString _retVal;
-    QTextStream _ts(&_retVal);
-    rootNode->save(_ts,2);
- //   qDebug() << Q_FUNC_INFO << "rootNode=" << *_ts.string();
-    return *_ts.string();
-}

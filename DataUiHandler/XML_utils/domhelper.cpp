@@ -55,13 +55,8 @@ bool DomHelper::selfObjectData() {
 
     QDomElement _rootElement = m_document->createElement(m_rootTag);
     _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,m_version);
+    _rootElement.setAttribute(DOMHELPER_OBJECTTYPE_ATTRIBUTE,m_hostObject->metaObject()->className());
     m_document->appendChild(_rootElement);
-
-    //Inserting class name
-    QDomElement _classname = m_document->createElement(DOMHELPER_OBJECTTYPE_TAG);
-    QDomText _classnameText = m_document->createTextNode(m_hostObject->metaObject()->className());
-    _rootElement.appendChild(_classname);
-    _classname.appendChild(_classnameText);
 
     //qDebug() << "DomHelper::selfObjectData generate self data with TAG "<< rootTag;
     //qDebug() << "DomHelper::selfObjectData start with tag |" << rootTag <<"|";
@@ -170,47 +165,75 @@ bool DomHelper::setClassByDomData(const QDomNode& node, bool allowUpdate, ErrorM
 bool DomHelper::isImportableByDomData(const QDomNode* node, ErrorMessage* errMessage ) {
     if (node->isNull()) {
         errMessage->setMethod(Q_FUNC_INFO);
-        errMessage->setMessage("The node is NULL");
+        errMessage->setMessage("The RootTag is NULL");
         return false;
     }
     if (!node->isElement()) {
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
-            errMessage->setMessage("The node is NOT an element");
+            errMessage->setMessage("The RootTag is NOT an element");
         }
         return false;
     }
-    if (!(node->toElement().tagName()==m_rootTag)) {
+    QDomElement _element=node->toElement();
+    if (!(_element.tagName()==m_rootTag)) {
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
             errMessage->setMessage(QString("RootTag not compatbile, expected <%1> found <%2>").arg(m_rootTag).arg(node->toElement().tagName()));
         }
         return false;
     }
-    QDomNodeList _nodeList=node->toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
-    if (_nodeList.length()==0) {
+
+    if (!_element.hasAttributes()) {
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
-            errMessage->setMessage(QString("Not node to recognize Object type"));
+            errMessage->setMessage(QString("RootTag hasn't attribute to compare"));
         }
         return false;
     }
-    if (_nodeList.length()!=1) {
+
+    QDomNode _attVersion=DomHelperUtility::getAttribute(_element.attributes(),DOMHELPER_VERSION_ATTRIBUTE);
+    if (_attVersion.isNull() || !isCorrectVersion(_attVersion)) {
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
-            errMessage->setMessage(QString("Too many node to recognize Object type"));
+            errMessage->setMessage(QString("RootTag has an invalid attribute version"));
         }
         return false;
     }
-    if (!isSameObjectType(_nodeList.at(0).toElement())) {
+
+    QDomNode _attObjectType=DomHelperUtility::getAttribute(_element.attributes(),DOMHELPER_OBJECTTYPE_ATTRIBUTE);
+    if (_attObjectType.isNull() || !isCorrectObjectType(_attObjectType)) {
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
-            errMessage->setMessage(QString("Wrong node object type, expected to find %1 but found %2").
-                                   arg(m_hostObject->metaObject()->className()).
-                                   arg(DomHelperUtility::getNodeValue(_nodeList.at(0))));
+            errMessage->setMessage(QString("RootTag is an invalid object type"));
         }
         return false;
     }
+    //TODO, VERIFY ATTRIBUTE OBJECT TYPE
+//    QDomNodeList _nodeList=node->toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
+//    if (_nodeList.length()==0) {
+//        if (errMessage) {
+//            errMessage->setMethod(Q_FUNC_INFO);
+//            errMessage->setMessage(QString("Not node to recognize Object type"));
+//        }
+//        return false;
+//    }
+//    if (_nodeList.length()!=1) {
+//        if (errMessage) {
+//            errMessage->setMethod(Q_FUNC_INFO);
+//            errMessage->setMessage(QString("Too many node to recognize Object type"));
+//        }
+//        return false;
+//    }
+//    if (!isSameObjectType(_nodeList.at(0).toElement())) {
+//        if (errMessage) {
+//            errMessage->setMethod(Q_FUNC_INFO);
+//            errMessage->setMessage(QString("Wrong node object type, expected to find %1 but found %2").
+//                                   arg(m_hostObject->metaObject()->className()).
+//                                   arg(DomHelperUtility::getNodeValue(_nodeList.at(0))));
+//        }
+//        return false;
+//    }
     return true;
 }
 
@@ -228,19 +251,19 @@ void DomHelper::parseEntry(const QDomElement &element)
          if (node.isElement()) {
          //   qDebug() << "DomParser::parseEntry "<< node.nodeName()<< " is element ";
 
-            //Verifiy is this node has attribute. TODO verify parent child is DOMHELPER_OBJECTTYPE_TAG
+            //Verifiy is this node has attribute. If yes check version and objectype
+             //TODO: with this approach ONLY the ROOT element could have attributes
+             //The function below check for version and object tyep, they return false only if
+             //they found the attribute version or objtype and compare it. It the attribute isn't present
+             //they return true
             if (node.hasAttributes()) {
                 Q_ASSERT(parseAndVerifyAttributeVersion(node.attributes()));
+                Q_ASSERT(parseAndVerifyAttributeObjecttype(node.attributes()));
      //           qDebug () << "DomHelper::parseEntry node "<< node.nodeName()<< "  has attributes";
             }
 
             //Extract the actual class metaobject
             const QMetaObject* metaObject = m_hostObject->metaObject();
-
-            //Verifying the class is correct
-            if (node.nodeName()==DOMHELPER_OBJECTTYPE_TAG) {
-                Q_ASSERT(isSameObjectType(node.toElement()));
-            }
 
             //Looking if some properties are stored in this node
             int _indexProp=metaObject->indexOfProperty(node.nodeName().toUtf8().constData());
@@ -265,48 +288,64 @@ void DomHelper::parseEntry(const QDomElement &element)
     }
 }
 
+
 bool DomHelper::parseAndVerifyAttributeVersion(const QDomNamedNodeMap &element) {
-    for (unsigned int n=0;n<element.length(); n++) {
-        QDomNode node=element.item(n);
-        Q_ASSERT(node.isAttr());
-        //Check if the tag is version
-  //      qDebug() << "DomHelper::parseAttributeVersion Attribute is " << node.nodeName() << " value=" << node.toAttr().nodeValue();
-        if (QString::compare(DOMHELPER_VERSION_ATTRIBUTE,node.nodeName())==0) {
-            bool conversionOk=false;
-            uint _version=node.toAttr().nodeValue().toUInt(&conversionOk);
-            if (!conversionOk) {
-               // qWarning() << ErrorMessage(Q_FUNC_INFO,QString("Attribute %1 has a bad formatted  value  |%2|").arg(node.nodeName()).arg(node.toAttr().nodeValue()),ErrorMessage::WARNINGMESSAGE);
-                PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("Attribute %1 has a bad formatted  value  |%2|").arg(node.nodeName()).arg(node.toAttr().nodeValue())));
-                return false;
-            }
-            if (_version!=m_version) {
-                PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("INVALID VERSION %1 valid version is |%2|").arg(node.toAttr().nodeValue()).arg(DOMHELPER_VERSION)));
-                return false;
-            }
-        }
+    QDomNode _attNode=DomHelperUtility::getAttribute(element,DOMHELPER_VERSION_ATTRIBUTE);
+    if (_attNode.isNull()) return true;
+    return isCorrectVersion(_attNode);
+}
+
+bool DomHelper::parseAndVerifyAttributeObjecttype(const QDomNamedNodeMap &element) {
+    QDomNode _attObjectType=DomHelperUtility::getAttribute(element,DOMHELPER_OBJECTTYPE_ATTRIBUTE);
+    if (_attObjectType.isNull()) return true;
+    return isCorrectObjectType(_attObjectType);
+}
+
+bool DomHelper::isCorrectVersion(const QDomNode& node) {
+    bool conversionOk=false;
+    uint _version=node.toAttr().nodeValue().toUInt(&conversionOk);
+    if (!conversionOk) {
+        PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("Attribute %1 has a bad formatted  value  |%2|").arg(node.nodeName()).arg(node.toAttr().nodeValue())));
+        return false;
+    }
+    if (_version!=m_version) {
+        PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("INVALID VERSION %1 valid version is |%2|").arg(node.toAttr().nodeValue()).arg(DOMHELPER_VERSION)));
+        return false;
     }
     return true;
 }
 
-bool DomHelper::isSameObjectType(const QDomElement &element) {
-    bool retval =false;
-
-    //Looking in the first node
-    QDomNode node = element.firstChild();
-    if (!node.isNull() && node.isText()) {
-        QString _value=node.toText().data();
-       // qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << " is elaborating property  with value " << _value;
-        retval=QString::compare(_value,m_hostObject->metaObject()->className())==0 ? true : false;
-      //  qDebug() << "DomHelper::isSameObjectType compare  " << _value << " and "  << m_obj->metaObject()->className() ;
-    } else {
-        PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("this node is not valid to set %1  invalid node, null=%2 isText() %3")
-                              .arg(m_hostObject->metaObject()->className())
-                              .arg(node.isNull())
-                              .arg( node.isText()))  );
+bool DomHelper::isCorrectObjectType(const QDomNode& node) {
+    QString _objName=node.toAttr().nodeValue();
+    if (_objName!=m_hostObject->metaObject()->className()) {
+        PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("INVALID OBJECT TYPE %1 valid expected |%2|")
+                                            .arg(node.toAttr().nodeValue())
+                                            .arg(m_hostObject->metaObject()->className())));
+        return false;
     }
- //   qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << (retval  ? " is ": "is NOT ") << " a VALID class!";
-    return retval;
+    return true;
 }
+
+
+//bool DomHelper::isSameObjectType(const QDomElement &element) {
+//    bool retval =false;
+
+//    //Looking in the first node
+//    QDomNode node = element.firstChild();
+//    if (!node.isNull() && node.isText()) {
+//        QString _value=node.toText().data();
+//       // qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << " is elaborating property  with value " << _value;
+//        retval=QString::compare(_value,m_hostObject->metaObject()->className())==0 ? true : false;
+//      //  qDebug() << "DomHelper::isSameObjectType compare  " << _value << " and "  << m_obj->metaObject()->className() ;
+//    } else {
+//        PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,QString("this node is not valid to set %1  invalid node, null=%2 isText() %3")
+//                              .arg(m_hostObject->metaObject()->className())
+//                              .arg(node.isNull())
+//                              .arg( node.isText()))  );
+//    }
+// //   qDebug() << "DomHelper::isSameObjectType class " << m_obj->metaObject()->className() << (retval  ? " is ": "is NOT ") << " a VALID class!";
+//    return retval;
+//}
 
 bool DomHelper::parseAndSetProperty(const QDomElement &element, QMetaProperty &metaProperties) {
     bool retval =false;

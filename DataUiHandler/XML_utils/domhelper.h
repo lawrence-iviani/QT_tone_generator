@@ -23,7 +23,7 @@ public:
      * base class.
      * @param hostObj
      */
-    explicit DomHelper(QObject *hostDelegate, QString docType=DOMHELPER_OBJECTTYPE_TAG, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG, uint version=DOMHELPER_VERSION, QString fileExtension=DOMHELPER_DEFAULT_FILE_SUFFIX);
+    explicit DomHelper(QObject *hostDelegate, QString docType=DOMHELPER_DEFAULT_DOCTYPE, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG, uint version=DOMHELPER_VERSION, QString fileExtension=DOMHELPER_DEFAULT_FILE_SUFFIX);
     explicit DomHelper();
     virtual ~DomHelper();
     
@@ -104,8 +104,8 @@ public:
     virtual bool isImportableByDomData(const QDomNode* node, ErrorMessage* errMessage=NULL);
 
     bool isImportingDomData() {return m_importingDomData;}
-    //OLD
-    bool isSameObjectType(const QString objectType) { return (QString::compare(objectType,m_hostObject->metaObject()->className())==0);}
+//    //OLD
+//    bool isSameObjectType(const QString objectType) { return (QString::compare(objectType,m_hostObject->metaObject()->className())==0);}
    // QString objectType() {return m_hostObject->metaObject()->className();}
 
 //    static bool isSameObjectType(const QDomDocument *doc, QObject *obj);
@@ -120,12 +120,12 @@ protected:
      */
     void setHostObject(QObject* obj);
 
-    /**
-     * @brief isSameObjectType test if the tag objectType is of the same objetType descripted in the XML
-     * @param element  the element need to be verified (should be a node) if is compatible with this class.
-     * @return
-     */
-    bool isSameObjectType(const QDomElement &element);
+//    /**
+//     * @brief isSameObjectType test if the tag objectType is of the same objetType descripted in the XML
+//     * @param element  the element need to be verified (should be a node) if is compatible with this class.
+//     * @return
+//     */
+//    bool isSameObjectType(const QDomElement &element);
 
     /**
      * @brief DomHelper::selfObjectData extract the classname and the object properties from itself obj and stores it in DOM root element
@@ -189,11 +189,32 @@ private:
     bool parseAndSetProperty(const QDomElement &element, QMetaProperty &metaProperties);
 
     /**
-     * @brief parseAndVerifyAttributeVersion verify it the attributes contain a  version attribute and validate it.
+     * @brief parseAndVerifyAttributeVersion verify if the attributes contain a  version attribute and validate it.
      * @param element
-     * @return true if the version is compatible and if tag version is not found.
+     * @return true if the version is compatible or else if attribute version is not found.
      */
     bool parseAndVerifyAttributeVersion(const QDomNamedNodeMap &element);
+
+    /**
+     * @brief parseAndVerifyAttributeObjecttype verify if the attributes contain an objecttype attribute and validate it.
+     * @param element
+     * @return true if the version is compatible or else if attribute Objecttype is not found.
+     */
+    bool parseAndVerifyAttributeObjecttype(const QDomNamedNodeMap &element);
+
+    /**
+     * @brief isCorrectObjectType Verify if node is a valid objecttype coherent with host object
+     * @param node
+     * @return
+     */
+    bool isCorrectObjectType(const QDomNode& node);
+
+    /**
+     * @brief isCorrectVersion Verify if the version of the object is consistent with the class one
+     * @param node
+     * @return
+     */
+    bool isCorrectVersion(const QDomNode& node);
 
     /**
      * @brief removeAllChildNodes Remove all childs nodes (if any) from node

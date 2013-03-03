@@ -3,7 +3,6 @@
 
 #include <QDomDocument>
 #include <QMetaProperty>
-//#include <QDebug>
 #include <QObject>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
@@ -18,8 +17,13 @@ class DomHelperUtility
 public:
     DomHelperUtility();
 
-    static QString getObjectType(const QDomDocument & doc);
-    static QString getObjectType(const QDomDocument *doc);
+    /**
+     * @brief getAttribute look for an attribute into a Map
+     * @param element
+     * @param attributeName
+     * @return The valid attribute node if found it else a null node
+     */
+    static QDomNode getAttribute(const QDomNamedNodeMap &element,QString attributeName);
 
     static bool save(const QString namefile, const QDomDocument* doc, ErrorMessage* errMessage=NULL);
     static bool save(const QString namefile, const QDomDocument& doc, ErrorMessage* errMessage=NULL);

@@ -8,7 +8,7 @@ const uint static DOMHELPER_VERSION=1;
 
 //TAG for XML data
 const static QString DOMHELPER_DEFAULT_ROOT_TAG="DOMHelperDefaultParams";
-const static QString DOMHELPER_OBJECTTYPE_TAG="ObjectType";
+const static QString DOMHELPER_OBJECTTYPE_ATTRIBUTE="Objecttype";
 const static QString DOMHELPER_VERSION_ATTRIBUTE="Version";
 
 //DOCTYPE

@@ -343,7 +343,7 @@ void GenericTimeData::paste() {
     QDomDocument _d=_app->clipboard();
     ErrorMessage _err;
     if (!importDomDocument(_d,&_err) ) {
-        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error importing paarameters").arg(_err.message()));
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error importing parameters\n%1").arg(_err.message()));
     }
     _gtdp->setName(_name);
     _gtdp->setColor(_color);
@@ -379,7 +379,7 @@ void GenericTimeData::load() {
             return ;
 
         if (!importDomDocument(_d,&_err) ) {
-            QMessageBox::warning(NULL,QString("Error import curve"), QString("Error importing paarameters").arg(_err.message()));
+            QMessageBox::warning(NULL,QString("Error import curve"), QString("Error importing parameters\n%1").arg(_err.message()));
         }
 
 }
@@ -432,7 +432,7 @@ bool GenericTimeData::importDomDocument(const QDomDocument& doc, ErrorMessage* e
     if (!GenericTimeData::testDomDocument(doc,&_localErr)) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return false;
     }
     return importDomNode(doc.firstChild(),err);
@@ -454,7 +454,7 @@ bool GenericTimeData::importDomNode(const QDomNode& rootNode, ErrorMessage* err)
     if (_timeDataParamsNode.isNull()) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return false;
     }
     //1b------------- RETRIEVING ENVELOPE NODE
@@ -462,7 +462,7 @@ bool GenericTimeData::importDomNode(const QDomNode& rootNode, ErrorMessage* err)
     if (_envelopeNode.isNull()) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return false;
     }
 
@@ -471,21 +471,22 @@ bool GenericTimeData::importDomNode(const QDomNode& rootNode, ErrorMessage* err)
     if (!m_timeDataDelegate->isImportableByDomData(_timeDataParamsNode,&_localErr) ) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return false;
     }
 
+    //Verify if it's compatible with this class
     if (!areValidTimeDataSettings(rootNode,&_localErr) ) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return false;
     }
-    //same for envelope
+    //Verify if the envelope is importable
     if (!m_envelope->getDelegate()->isImportableByDomData(_envelopeNode,&_localErr) ) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return false;
     }
 
@@ -494,7 +495,7 @@ bool GenericTimeData::importDomNode(const QDomNode& rootNode, ErrorMessage* err)
     if (!getDelegate()->setClassByDomData(_timeDataParamsNode,true,&_localErr) ) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         this->enableUpdate();
         return false;
     }
@@ -505,7 +506,7 @@ bool GenericTimeData::importDomNode(const QDomNode& rootNode, ErrorMessage* err)
     if (!m_envelope->getDelegate()->setClassByDomData(_envelopeNode,true,&_localErr) ) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message());
         this->enableUpdate();
         return false;
     }
@@ -526,8 +527,8 @@ QDomDocument GenericTimeData::composeDomDocument() {
                                                              TIMEDATACURVE_TAG,
                                                              TIMEDATACURVE_DOCVERSION);
     QDomNode _n=_d.elementsByTagName(TIMEDATACURVE_TAG).at(0);
-    _n.toElement().setAttribute(DOMHELPER_OBJECTTYPE_TAG,this->metaObject()->className());
-    qDebug() << Q_FUNC_INFO<<  "compose doc=" << _d.toString();
+    _n.toElement().setAttribute(DOMHELPER_OBJECTTYPE_ATTRIBUTE,this->metaObject()->className());
+    //qDebug() << Q_FUNC_INFO<<  "compose doc=" << _d.toString();
     return _d;
 }
 
@@ -535,59 +536,42 @@ bool GenericTimeData::areValidTimeDataSettings(const QDomNode& node, ErrorMessag
     GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
 
-    QDomNodeList _nodeListObjType=node.toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
-    if (_nodeListObjType.length()==0) {
+    QDomNode _attObjectType=DomHelperUtility::getAttribute(node.attributes(),DOMHELPER_OBJECTTYPE_ATTRIBUTE);
+    if (_attObjectType.isNull()) {
+        QString msg=QString("Object not importable! no TAG |%1| found.").
+                arg(DOMHELPER_OBJECTTYPE_ATTRIBUTE);
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
-            errMessage->setMessage(QString("Data object not importable! no TAG |%1| found.").
-                                   arg(DOMHELPER_OBJECTTYPE_TAG));
-        }
+            errMessage->setMessage(msg);
+        } else PRINT_WARNING(ErrorMessage(Q_FUNC_INFO,msg,ErrorMessage::WARNINGMESSAGE));
+        return false;
+    }
+    QString _objType=this->metaObject()->className();
+    if (_attObjectType.nodeValue()!=_objType) {
+        QString msg=QString("Object not importable! Found object %1 , expected object %2")
+                .arg(_attObjectType.nodeValue())
+                .arg(_objType);
+        if (errMessage) {
+            errMessage->setMethod(Q_FUNC_INFO);
+            errMessage->setMessage(msg);
+        } else PRINT_WARNING(ErrorMessage(Q_FUNC_INFO,msg,ErrorMessage::WARNINGMESSAGE));
         return false;
     }
 
-    //Lookin for the correct node, many can be in there
-    QDomNode _nodeObject;
-    bool _foundNode=false;
-    QString _objParams=getDelegate()->getProperty()->metaObject()->className();
-    for (uint i=0 ; i < _nodeListObjType.length() ; i++ ) {
-        QDomNode _n=_nodeListObjType.at(i);
-        QString _objTypeString=DomHelperUtility::getNodeValue(_n);
-        if (QString::compare(_objTypeString,_objParams)==0) {
-            if (_foundNode) {
-                if (errMessage) {
-                    errMessage->setMethod(Q_FUNC_INFO);
-                    errMessage->setMessage(QString("Too many data object with TAG |%1| and value |%2|.").
-                                           arg(DOMHELPER_OBJECTTYPE_TAG).
-                                           arg(DomHelperUtility::getNodeValue(_nodeObject)).
-                                           arg(_objParams));
-                }
-                return false;
-            }
-            _foundNode=true;
-            _nodeObject=_n;
-        }
-    }
-
-    //Test if i found something
-    if (!_foundNode || _nodeObject.isNull()) {
-        if (errMessage) {
-            errMessage->setMethod(Q_FUNC_INFO);
-            errMessage->setMessage(QString("Object not importable! Can't found a valid object descriptor."));
-        }
-        return false;
-    }
+//TODO: CONTROL VERSION MISSING!!
 
     //Test if the curve is importable, duration
     QDomNodeList _nodeListDuration=node.toElement().elementsByTagName("maxDuration");
     Q_ASSERT(_nodeListDuration.length()==1);
     QString _durationString=DomHelperUtility::getNodeValue(_nodeListDuration.at(0));
     if (_gtdp->maxDuration()<_durationString.toDouble()) {
+        QString msg=QString("Document  contains invalid maxDuration  |%1|, project has been set for |%2|.").
+                arg(_durationString).
+                arg(_gtdp->maxDuration());
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
-            errMessage->setMessage(QString("Document  contains invalid maxDuration  |%1|, project has been set for |%2|.").
-                                           arg(_durationString).
-                                           arg(_gtdp->maxDuration()));
-        }
+            errMessage->setMessage(msg);
+        } else PRINT_WARNING(ErrorMessage(Q_FUNC_INFO,msg,ErrorMessage::WARNINGMESSAGE));
         return false;
     }
 
@@ -596,12 +580,13 @@ bool GenericTimeData::areValidTimeDataSettings(const QDomNode& node, ErrorMessag
     Q_ASSERT(_nodeListSR.length()==1);
     QString _SRstring=DomHelperUtility::getNodeValue(_nodeListSR.at(0));
     if (_gtdp->sampleRate()!=_SRstring.toDouble()) {
+        QString msg=QString("Document  contains invalid sampleRate  |%1|, project has been set for |%2|.").
+                arg(_SRstring).
+                arg(_gtdp->sampleRate());
         if (errMessage) {
             errMessage->setMethod(Q_FUNC_INFO);
-            errMessage->setMessage(QString("Document  contains invalid sampleRate  |%1|, project has been set for |%2|.").
-                                   arg(_SRstring).
-                                   arg(_gtdp->sampleRate()));
-        }
+            errMessage->setMessage(msg);
+        } else PRINT_WARNING(ErrorMessage(Q_FUNC_INFO,msg,ErrorMessage::WARNINGMESSAGE));
         return false;
     }
     return true;
@@ -618,7 +603,7 @@ bool GenericTimeData::testDomDocument(const QDomDocument& doc, ErrorMessage* err
             _localErr.setMethod(Q_FUNC_INFO);
             _localErr.setMessage(msg);
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,msg));
         return false;
     }
 
@@ -629,7 +614,7 @@ bool GenericTimeData::testDomDocument(const QDomDocument& doc, ErrorMessage* err
             _localErr.setMethod(Q_FUNC_INFO);
             _localErr.setMessage(msg);
             err->appendMessage(_localErr);
-        }  else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        }  else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return false;
     }
     return true;
@@ -646,7 +631,7 @@ QDomNode GenericTimeData::foundDomTimeDataParams(const QDomNode rootNode, ErrorM
                                         &_localErr)) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return _emptyRetval;
     }
     if (_nodeListTimeDataParams.length()==0) {
@@ -655,7 +640,7 @@ QDomNode GenericTimeData::foundDomTimeDataParams(const QDomNode rootNode, ErrorM
             _localErr.setMethod(Q_FUNC_INFO);
             _localErr.setMessage(msg);
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,msg));
         return _emptyRetval;
     }
     if (_nodeListTimeDataParams.length()>1) {
@@ -664,11 +649,12 @@ QDomNode GenericTimeData::foundDomTimeDataParams(const QDomNode rootNode, ErrorM
             _localErr.setMethod(Q_FUNC_INFO);
             _localErr.setMessage(msg);
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,msg));
         return _emptyRetval;
     }
     return _nodeListTimeDataParams.at(0);
 }
+
 QDomNode GenericTimeData::foundDomEnvelopeParams(const QDomNode rootNode, ErrorMessage *err) {
     QDomNodeList _nodeListEnvelope;
     ErrorMessage _localErr;
@@ -681,7 +667,7 @@ QDomNode GenericTimeData::foundDomEnvelopeParams(const QDomNode rootNode, ErrorM
                                         &_localErr) ) {
         if (err) {
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,_localErr.message()));
         return _emptyRetval;
     }
     if (_nodeListEnvelope.length()==0) {
@@ -690,7 +676,7 @@ QDomNode GenericTimeData::foundDomEnvelopeParams(const QDomNode rootNode, ErrorM
             _localErr.setMethod(Q_FUNC_INFO);
             _localErr.setMessage(msg);
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,msg));
         return _emptyRetval;
     }
     if (_nodeListEnvelope.length()>1) {
@@ -699,7 +685,7 @@ QDomNode GenericTimeData::foundDomEnvelopeParams(const QDomNode rootNode, ErrorM
             _localErr.setMethod(Q_FUNC_INFO);
             _localErr.setMessage(msg);
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        } else PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,msg));
         return _emptyRetval;
     }
     return _nodeListEnvelope.at(0);
@@ -707,10 +693,14 @@ QDomNode GenericTimeData::foundDomEnvelopeParams(const QDomNode rootNode, ErrorM
 
 QString GenericTimeData::getObjectType(const QDomNode &node) {
     QString _retval="";
-    QDomNode _node=foundDomTimeDataParams(node);
-    QDomNodeList _nodeList;
-    if (!DomHelperUtility::nodeListByTagName(_nodeList,_node, DOMHELPER_OBJECTTYPE_TAG, DOMHELPER_VERSION)) return _retval;
-    if (_nodeList.length()==0) return _retval;
-    if (_nodeList.length()>1) return _retval;
-    return _nodeList.at(0).toElement().text();
+
+    QDomNode _attObjectType=DomHelperUtility::getAttribute(node.attributes(),DOMHELPER_OBJECTTYPE_ATTRIBUTE);
+    if (_attObjectType.isNull()) {
+        QString msg=QString("Object not importable! no TAG |%1| found.").
+                arg(DOMHELPER_OBJECTTYPE_ATTRIBUTE);
+        PRINT_WARNING(ErrorMessage(Q_FUNC_INFO,msg,ErrorMessage::WARNINGMESSAGE));
+        return _retval;
+    }
+    return _attObjectType.nodeValue();
 }
+

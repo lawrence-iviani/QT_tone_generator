@@ -39,7 +39,7 @@ public:
      * @param rootTag
      * @param parent
      */
-    explicit DataUiHandlerDelegate(DataUiHandlerProperty * property, DataUiHandlerUI * ui, QString docType=DOMHELPER_OBJECTTYPE_TAG, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG, uint version=DOMHELPER_VERSION,  QObject *parent = 0);
+    explicit DataUiHandlerDelegate(DataUiHandlerProperty * property, DataUiHandlerUI * ui, QString docType=DOMHELPER_DEFAULT_DOCTYPE, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG, uint version=DOMHELPER_VERSION,  QObject *parent = 0);
 
     /**
      * @brief DataUiHandlerDelegate
@@ -50,7 +50,7 @@ public:
      * @param fileExtension
      * @param parent
      */
-    explicit DataUiHandlerDelegate(DataUiHandlerProperty * property, DataUiHandlerUI * ui ,QString docType=DOMHELPER_OBJECTTYPE_TAG, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG, uint version=DOMHELPER_VERSION, QString fileExtension=DOMHELPER_DEFAULT_FILE_SUFFIX,  QObject *parent = 0);
+    explicit DataUiHandlerDelegate(DataUiHandlerProperty * property, DataUiHandlerUI * ui ,QString docType=DOMHELPER_DEFAULT_DOCTYPE, QString rootTag=DOMHELPER_DEFAULT_ROOT_TAG, uint version=DOMHELPER_VERSION, QString fileExtension=DOMHELPER_DEFAULT_FILE_SUFFIX,  QObject *parent = 0);
 
     virtual ~DataUiHandlerDelegate();
 
