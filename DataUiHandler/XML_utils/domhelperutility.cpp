@@ -77,8 +77,7 @@ QString DomHelperUtility::getObjectType(const QDomDocument *doc) {
 
     Q_ASSERT(nodeList.length()==1);
 
-    for (int i = 0;i < nodeList.count(); i++)
-    {
+    for (int i = 0;i < nodeList.count(); i++) {
             // get the current one as QDomElement
             QDomElement el = nodeList.at(i).toElement();
             //Verifying the class is correct
@@ -169,6 +168,7 @@ bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomNode&
     }
 
     if (!rootNode.hasAttributes()) {
+        qDebug() << Q_FUNC_INFO << " ROOTNODE NO ATT"<<DomHelperUtility::nodeToString(&rootNode);
         if (err) {
             err->setMethod(Q_FUNC_INFO);
             err->setMessage(QString("No attributes for root node"));

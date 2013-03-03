@@ -35,12 +35,18 @@ public:
     inline QWidget * getControlWidget() {return m_ui;}
     inline DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_timeDataDelegate->getProperty());}
     inline const quint64 getSampleNumber()  {return m_sample;}
-
-
     inline const qreal * getTimeData()   {return (const qreal*) m_t;}//return the pointer to internal data of the time signal. This should be a duplicate??
     inline const qreal * getSignalData() {return (const qreal*) m_s;}//return the pointer to internal data of the signal. This should be a duplicate??
     inline DataEnvelope * getEnvelope() {return m_envelope;}
     inline const bool isEnableRecalc() {return m_enableRecalc;}
+
+    /**
+     * @brief getObjectType Found the object type (if present) into a curve dom document
+     * @param doc
+     * @return Return an empty string if nothing is found
+     */
+    static QString getObjectType(const QDomNode &node);
+
 
     // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
 
@@ -162,11 +168,19 @@ public slots:
      //     bool importXML(QString fileName);
 
     /**
-    * @brief importXML import a QDomDocument
+    * @brief importXML import a QDomDocument containing class data
     * @param doc the DOM document to be imported
     * @return true if succesful
     */
     bool importXML(const QDomDocument& doc, ErrorMessage *err=NULL);
+
+    /**
+     * @brief importXML import a QDomNode with the same information of a documento
+     * @param node
+     * @param err
+     * @return
+     */
+    bool importXML(const QDomNode& node, ErrorMessage* err);
 
      //     /**
      //      * @brief importXML import a QDomDocument by node
@@ -271,6 +285,30 @@ protected slots:
 
 
 private:
+     /**
+      * @brief GenericTimeData::testDomDocument
+      * @param doc
+      * @param err
+      * @return
+      */
+     static bool testDomDocument(const QDomDocument& doc, ErrorMessage* err=NULL);
+
+     /**
+      * @brief foundDomTimeDataParams found and return the time data params root node (if any)
+      * @param rootNode The root node where looking for
+      * @param err
+      * @return
+      */
+     static QDomNode foundDomTimeDataParams(const QDomNode rootNode, ErrorMessage* err=NULL);
+
+     /**
+      * @brief foundDomEnvelopeParams found and return the envelope params root node (if any)
+      * @param rootNode The root node where looking for
+      * @param err
+      * @return
+      */
+     static QDomNode foundDomEnvelopeParams(const QDomNode rootNode, ErrorMessage* err=NULL);
+
      void init(TimePlotParams * timePlotParams=0);
      void initTimePlotParams();
      void initControlWidget();

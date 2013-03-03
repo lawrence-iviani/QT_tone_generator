@@ -35,6 +35,23 @@ signals:
 
 public slots: 
 
+
+    /**
+     * @brief importXML Import a DOM document containing the appropriate params
+     * @param doc
+     * @param err
+     * @return true on success, false on fail. On fail the err field is filled
+     */
+    bool importXML(const QDomDocument& doc, ErrorMessage *err=NULL) {return m_timePlotDelegate->setClassByDomData(doc,true,err);}
+
+    /**
+     * @brief importXML Import a DOM node, with relative sun mode, containing the appropriate params
+     * @param node
+     * @param err
+     * @return true on success, false on fail. On fail the err field is filled
+     */
+    bool importXML(const QDomNode& node, ErrorMessage *err=NULL)  {return m_timePlotDelegate->setClassByDomData(node,true,err);}
+
     /**
      * @brief updateAndRecalc Override base method and recall a digest update.
      */

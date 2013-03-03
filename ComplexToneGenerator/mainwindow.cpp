@@ -98,7 +98,7 @@ void MainWindow::connectMenusAndShortcut() {
         //NEW
         Q_ASSERT(connect(ui->actionNew_Project,SIGNAL(triggered()),this,SLOT(newProject())));
         //LOAD
-      //  connect(ui->actionLoad_Project ,SIGNAL(triggered()),this,SLOT(load()));
+        Q_ASSERT(connect(ui->actionLoad_Project ,SIGNAL(triggered()),this,SLOT(load())));
         //SAVE
         Q_ASSERT(connect(ui->actionSave_project,SIGNAL(triggered()),this,SLOT(save())));
         //SAVE AS
@@ -237,7 +237,6 @@ void MainWindow::newCurve() {
     selectDialog->exec();
     GenericTimeData * s=this->decodeSelectedCurve(selectCurveHelper);
     if (s==NULL) return;
-
     QString name= "Curve_";
     name.append(QString::number(m_indexGenerator++));
     GenericTimeDataParams* _gtdParams=dynamic_cast<GenericTimeDataParams*>(s->getDataParameters());
@@ -245,18 +244,23 @@ void MainWindow::newCurve() {
     _gtdParams->setColor(Qt::green);
     _gtdParams->setName(name);
     _gtdParams->setShowCurve(true);
-    Q_ASSERT(connect(s,SIGNAL(nameChanged(QString)),this,SLOT(updateCurvesName())));
 
-    //adding data to the plot time
-    m_plotTime->addTimeData(s);
-
-    //adding controls to plot
-    GenericTimeDataParams* _curveParams=dynamic_cast<GenericTimeDataParams*> (s->getDataParameters());
-    Q_ASSERT(_curveParams);
-    s_widgetUI.toolboxOption->addItem(s->getControlWidget(),_curveParams->name());
+    addCurve(s);
 
     delete selectCurveHelper;
     delete selectDialog;
+}
+
+void MainWindow::addCurve(GenericTimeData* gtd) {
+
+    Q_ASSERT(connect(gtd,SIGNAL(nameChanged(QString)),this,SLOT(updateCurvesName())));
+    //adding data to the plot time
+    m_plotTime->addTimeData(gtd);
+
+    //adding controls to plot
+    GenericTimeDataParams* _curveParams=dynamic_cast<GenericTimeDataParams*> (gtd->getDataParameters());
+    Q_ASSERT(_curveParams);
+    s_widgetUI.toolboxOption->addItem(gtd->getControlWidget(),_curveParams->name());
 }
 
 void MainWindow::setupCurves(SelectCurveWindowHelper * selectCurveHelper) {
@@ -614,6 +618,46 @@ void MainWindow::saveAs() {
     }
 }
 
+void MainWindow::load() {
+    CTG_app * _app=(CTG_app*) qApp;
+    QString _fileName = QFileDialog::getOpenFileName(this, tr("Load CTG project"),
+                                                     _app->projectSavePath(),
+                                                     tr("Curve file (*.%1 *.%2)")
+                                                    .arg(QString(PROJECT_SUFFIX).toLower())
+                                                    .arg(QString(PROJECT_SUFFIX).toUpper()));
+    if (_fileName=="") return;
+
+    //saving path,name & title
+    QFileInfo _fi(_fileName);
+    QString _path=_fi.absolutePath();
+    QString _name=_fi.baseName();
+    if (_path!="")
+        _app->setProjectSavePath(_path);
+
+    QDomDocument _project;
+    ErrorMessage _err;
+
+    //Load File
+    if (!DomHelperUtility::load(_fileName,_project,&_err)) {
+        QMessageBox::warning(NULL,QString("Error loading file"), QString("Error loading project %1\n%2")
+                             .arg(_fileName)
+                             .arg(_err.message()));
+        return;
+    }
+
+    //Import the DOM document
+    if (!importDomDocument(_project,&_err) ) {
+        QMessageBox::warning(NULL,QString("Error import curve"), QString("Error importing project data").arg(_err.message()));
+        return;
+    }
+
+    //Changing window title
+    if (_name!="") {
+        _app->setProjectName(_name);
+        this->setWindowTitle(_name);
+    }
+}
+
 void MainWindow::importCurve() {
     CTG_app * _app=(CTG_app*) qApp;
     QString _fileName = QFileDialog::getOpenFileName(this, tr("Import CTG curve"),
@@ -640,6 +684,203 @@ void MainWindow::importCurve() {
     if (_path!="")
         _app->setCurveSavePath(_path);
 }
+
+bool MainWindow::importDomDocument(const QDomDocument& doc, ErrorMessage *err) {
+    ErrorMessage _localErr;
+    QDomNode _rootNode=doc.firstChild();
+    if (doc.isNull() || !doc.isDocument() || _rootNode.isNull()) {
+        QString msg="Importing Null data document";
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return false;
+    }
+
+    //Verify doctype
+    if (doc.doctype().name()!=PROJECT_DOCTYPE) {
+        QString msg=QString("Invalid doc type, expected -%1- found -%2-").arg(doc.doctype().toText().data()).arg(PROJECT_DOCTYPE);
+        if (err){
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        }  else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        return false;
+    }
+
+//////------------- 1 Setting project Parameters
+//////------------- 2 Importing and setting curves
+/////-------------- 3 Import&Create curve
+    //1a------------- RETRIEVING TIMEDATAPARAMS NODE
+    QDomNodeList _nodeListProjectTimeDataParams;
+    if(!DomHelperUtility::nodeListByTagName(_nodeListProjectTimeDataParams,
+                                            _rootNode,
+                                            PROJECTTIMEPARAMETERS_TAG,
+                                            PROJECTTIMEPARAMS_DOCVERSION,
+                                            &_localErr)) {
+        if (err) {
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        return false;
+    }
+    //Verify node
+    if (_nodeListProjectTimeDataParams.length()==0) {
+        QString msg="Error parsing project parameters, no valid parameters node";
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return false;
+    }
+    if (_nodeListProjectTimeDataParams.length()>1) {
+        QString msg="Error parsing project parameters, too many parameters nodes";
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return false;
+    }
+    //1B------------- SETTING TIME DATA PARAMS
+    if (!m_plotTime->importXML(_nodeListProjectTimeDataParams.at(0),&_localErr)) {
+        QString msg="Error setting project parameters";
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return false;
+    }
+
+    //2------------- IMPORTING & SETTING CURVES
+    QDomNodeList _nodeListCurves;
+    if(!DomHelperUtility::nodeListByTagName(_nodeListCurves,
+                                            _rootNode,
+                                            TIMEDATACURVE_TAG,
+                                            TIMEDATACURVE_DOCVERSION,
+                                            &_localErr)) {
+        if (err) {
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        return false;
+    }
+    TimePlotParams* _tpp=dynamic_cast<TimePlotParams*> (m_plotTime->getDataParameters());
+    Q_ASSERT(_tpp);
+
+    //3------------- Import&Create curve
+    for (unsigned int n=0; n < _nodeListCurves.length(); n++) {
+        QDomNode _node=_nodeListCurves.at(n);
+        qDebug() << Q_FUNC_INFO << " IMPORTING NODE "<< n << DomHelperUtility::nodeToString(&_node);
+        QString _objTypeName=GenericTimeData::getObjectType(_node);
+        GenericTimeData* _curve=NULL;
+        qDebug() << Q_FUNC_INFO << " _objTypeName=" << _objTypeName;
+        _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName,_tpp);
+        Q_ASSERT(_curve);
+        //Setting data to the curve
+        ErrorMessage _errAddingCurve;
+        if (!_curve->importXML(_node,&_errAddingCurve)) {
+            Q_ASSERT(false);
+//MANCA DA GESTIRE QUESTO ERRORE!!
+            continue;
+        }
+        //adding the curve
+        addCurve(_curve);
+    }
+    return true;
+}
+
+//    ///2------------- VERIFYING
+//    //Ask to delegate if time data is importable
+//    if (!m_timeDataDelegate->isImportableByDomData(_timeDataParamsNode,&_localErr) ) {
+//        if (err) {
+//            err->appendMessage(_localErr);
+//        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+//        return false;
+//    }
+
+//    if (!areValidTimeDataSettings(rootNode,&_localErr) ) {
+//        if (err) {
+//            err->appendMessage(_localErr);
+//        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+//        return false;
+//    }
+//    //same for envelope
+//    if (!m_envelope->getDelegate()->isImportableByDomData(_envelopeNode,&_localErr) ) {
+//        if (err) {
+//            err->appendMessage(_localErr);
+//        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+//        return false;
+//    }
+
+//    //3------------- SETTING PARAMS
+//    this->inihbitUpdate();
+//    if (!getDelegate()->setClassByDomData(_timeDataParamsNode,true,&_localErr) ) {
+//        if (err) {
+//            err->appendMessage(_localErr);
+//        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+//        this->enableUpdate();
+//        return false;
+//    }
+
+//    //Before setting envelope sets SR an sample (they are not recalculated due to the inihbitUpdate)
+//    m_envelope->setSampleRateAndSampleNumber(_gtdp->sampleRate(),
+//                                             this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
+//    if (!m_envelope->getDelegate()->setClassByDomData(_envelopeNode,true,&_localErr) ) {
+//        if (err) {
+//            err->appendMessage(_localErr);
+//        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+//        this->enableUpdate();
+//        return false;
+//    }
+//    this->enableUpdate();
+//    return true;
+    //-------------
+// //   qDebug() << Q_FUNC_INFO<<  "importing doc=" << doc.toString();
+//    return importDomNode(_rootNode,err);
+
+
+
+//    QDomNodeList _nodeListCurves=doc.elementsByTagName(GENERICTIMEDATA_TAG);
+//    qDebug() << "MainWindow::importXML() find "  <<  _nodeListCurves.length() << " curves";
+//    for (unsigned int n=0; n < _nodeListCurves.length(); n++) {
+//        QDomNode _node=_nodeListCurves.at(n);
+//        qDebug() << "MainWindow::importXML() curve "<< n  << " tag="<<  _node.nodeName();
+
+//        //get class type
+//        QDomNodeList _nodeObjTypeList=_node.toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
+//      //  Q_ASSERT(_nodeObjTypeList.length()==1);
+//        QDomNode _nodeObjTypeName=_nodeObjTypeList.at(0);
+//        QString _objTypeName=DomHelper::getNodeValue(_nodeObjTypeName);
+//        qDebug() << "MainWindow::importXMLCurve() _nodeObjTypeList.length "<< _nodeObjTypeList.length()
+//                 << " tag="<<  _nodeObjTypeName.nodeName()
+//                 << " objname=" << _objTypeName;
+//        //allocate curve
+//        GenericTimeData* _curve=NULL;
+//        _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName,m_plotTime->getTimePlotParams());
+
+//        //set class with DomObject
+//        if (_curve!=NULL) {
+//            _curve->inihbitUpdate();
+//            _curve->setTimePlotParams(m_plotTime->getTimePlotParams() );
+//            if (!_curve->importXML(_node)) {
+//                qWarning() << "MainWindow::importXMLCurve() invalid curve  curve->importXML(node) failed"<< n;
+//                //QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
+//                return false;
+//            }
+//            m_plotTime->addTimeData(_curve);
+//            //adding controls to plot
+//            QWidget *_widget=(QWidget*)_curve->getControlWidget();
+//            s_widgetUI.toolboxOption->addItem(_widget,_curve->name());
+//            connect(_curve,SIGNAL(nameChanged()),this,SLOT(updateCurvesName()));
+//            _curve->enableUpdate();
+//        } else {
+//            qWarning() << "MainWindow::importXMLCurve() invalid curve "<< n;
+//            //QMessageBox::warning(0,"MainWindow::importXML", QString("Invalid curve %1").arg(n));
+//            return false;
+//        }
+//    }
 
 
 //void MainWindow::load() {
@@ -873,54 +1114,3 @@ void MainWindow::importCurve() {
 //    return importXMLCurve(*doc);
 //}
 
-//bool MainWindow::importXMLCurve(const QDomDocument& doc) {
-//    if (!doc.isDocument() || doc.isNull() ) {
-//        qWarning() << "MainWindow::importXMLCurve() import not a valid document or null document";
-//        return false;
-//    }
-//     if( doc.firstChild().isNull()  ) {
-//         qWarning() << "MainWindow::importXMLCurve() document "<< doc.nodeName() << " has a null first child";
-//         return false;
-//     }
-
-//    QDomNodeList _nodeListCurves=doc.elementsByTagName(GENERICTIMEDATA_TAG);
-//    qDebug() << "MainWindow::importXML() find "  <<  _nodeListCurves.length() << " curves";
-//    for (unsigned int n=0; n < _nodeListCurves.length(); n++) {
-//        QDomNode _node=_nodeListCurves.at(n);
-//        qDebug() << "MainWindow::importXML() curve "<< n  << " tag="<<  _node.nodeName();
-
-//        //get class type
-//        QDomNodeList _nodeObjTypeList=_node.toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
-//      //  Q_ASSERT(_nodeObjTypeList.length()==1);
-//        QDomNode _nodeObjTypeName=_nodeObjTypeList.at(0);
-//        QString _objTypeName=DomHelper::getNodeValue(_nodeObjTypeName);
-//        qDebug() << "MainWindow::importXMLCurve() _nodeObjTypeList.length "<< _nodeObjTypeList.length()
-//                 << " tag="<<  _nodeObjTypeName.nodeName()
-//                 << " objname=" << _objTypeName;
-//        //allocate curve
-//        GenericTimeData* _curve=NULL;
-//        _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName,m_plotTime->getTimePlotParams());
-
-//        //set class with DomObject
-//        if (_curve!=NULL) {
-//            _curve->inihbitUpdate();
-//            _curve->setTimePlotParams(m_plotTime->getTimePlotParams() );
-//            if (!_curve->importXML(_node)) {
-//                qWarning() << "MainWindow::importXMLCurve() invalid curve  curve->importXML(node) failed"<< n;
-//                //QMessageBox::warning(0, "MainWindow::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
-//                return false;
-//            }
-//            m_plotTime->addTimeData(_curve);
-//            //adding controls to plot
-//            QWidget *_widget=(QWidget*)_curve->getControlWidget();
-//            s_widgetUI.toolboxOption->addItem(_widget,_curve->name());
-//            connect(_curve,SIGNAL(nameChanged()),this,SLOT(updateCurvesName()));
-//            _curve->enableUpdate();
-//        } else {
-//            qWarning() << "MainWindow::importXMLCurve() invalid curve "<< n;
-//            //QMessageBox::warning(0,"MainWindow::importXML", QString("Invalid curve %1").arg(n));
-//            return false;
-//        }
-//    }
-//    return true;
-//}

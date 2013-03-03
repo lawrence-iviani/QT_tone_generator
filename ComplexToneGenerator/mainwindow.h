@@ -44,8 +44,11 @@ public:
     
 public slots:
     void newCurve();
+    void addCurve(GenericTimeData* gtd);
     void removeCurve();
     void exportDigestCurve();
+  //  bool importXMLCurve(const QDomDocument& doc);
+  //  bool importXMLCurve(const QDomDocument* doc);
    // bool exportXML(const QString& filename);
   //  bool importXML(const QDomDocument& doc);
   //  bool importXML(const QString& fileName);
@@ -60,7 +63,7 @@ public slots:
     void duplicateCurves();
     void importCurve();
     void newProject();
-  //  void load();
+    void load();
     void save();
     void saveAs();
 
@@ -73,8 +76,9 @@ private:
     void initAudio();
     void connectSignals();
     void connectMenusAndShortcut();
-    bool importXMLCurve(const QDomDocument& doc);
-    bool importXMLCurve(const QDomDocument* doc);
+     bool importDomDocument(const QDomDocument& doc, ErrorMessage *err=NULL);
+
+
     QDomDocument composeDomDocument();
     void setupStyle();
 

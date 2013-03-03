@@ -373,15 +373,6 @@ void GenericTimeData::load() {
                                  .arg(m_fileName)
                                  .arg(_err.message()));
         }
-
-
-
-//        GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
-//        Q_ASSERT(_gtdp!=NULL);
-//        CTG_app * _app=(CTG_app*) qApp;
-
-//        //preserve name and color
-
         if( QMessageBox::question(NULL,"Confirm import curve",
                                   QString("Do you want to overwrite curve %1 ?").arg(_name),
                                   QMessageBox::Yes,QMessageBox::No,QMessageBox::NoButton) == QMessageBox::No )
@@ -437,102 +428,43 @@ void GenericTimeData::save() {
 }
 
 bool GenericTimeData::importDomDocument(const QDomDocument& doc, ErrorMessage* err) {
-    QDomNode _rootNode=doc.firstChild();
     ErrorMessage _localErr;
-    if (doc.isNull() || _rootNode.isNull() ) {
-        QString msg("Null data document");
+    if (!GenericTimeData::testDomDocument(doc,&_localErr)) {
         if (err) {
-            _localErr.setMethod(Q_FUNC_INFO);
-            _localErr.setMessage(msg);
             err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
         return false;
     }
-    //Verify doctype
-    if (doc.doctype().name()!=TIMEDATACURVE_DOCTYPE) {
-        QString msg=QString("Invalid doc type, expected -%1- found -%2-").arg(doc.doctype().toText().data()).arg(TIMEDATACURVE_DOCTYPE);
-        if (err){
-            _localErr.setMethod(Q_FUNC_INFO);
-            _localErr.setMessage(msg);
-            err->appendMessage(_localErr);
-        }  else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
-        return false;
-    }
+    return importDomNode(doc.firstChild(),err);
+}
 
- //   qDebug() << Q_FUNC_INFO<<  "importing doc=" << doc.toString();
-    return importDomNode(_rootNode,err);
+bool GenericTimeData::importXML(const QDomNode& node, ErrorMessage* err) {
+    return importDomNode(node,err);
 }
 
 bool GenericTimeData::importDomNode(const QDomNode& rootNode, ErrorMessage* err) {
     GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
+    ErrorMessage _localErr;
 //////------------- 1 retrieving data node for TIME DATA and ENVELOPE rootNode
 //////------------- 2 verifing importing before importing
 //////------------- 3 Importing
     //1a------------- RETRIEVING TIMEDATAPARAMS NODE
-    QDomNodeList _nodeListTimeDataParams;
-    ErrorMessage _localErr;
-    if(!DomHelperUtility::nodeListByTagName(_nodeListTimeDataParams,
-                                        rootNode,
-                                        TIMEDATACURVEPARAMETERS_TAG,
-                                        TIMEDATACURVE_PARAMSVERSION,
-                                        &_localErr)) {
+    QDomNode _timeDataParamsNode=foundDomTimeDataParams(rootNode,&_localErr);
+    if (_timeDataParamsNode.isNull()) {
         if (err) {
             err->appendMessage(_localErr);
         } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
         return false;
     }
-    if (_nodeListTimeDataParams.length()==0) {
-        QString msg="Error parsing time data, no valid parameters node";
-        if (err) {
-            _localErr.setMethod(Q_FUNC_INFO);
-            _localErr.setMessage(msg);
-            err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
-        return false;
-    }
-    if (_nodeListTimeDataParams.length()>1) {
-        QString msg="Error parsing time data, too many parameters nodes";
-        if (err) {
-            _localErr.setMethod(Q_FUNC_INFO);
-            _localErr.setMessage(msg);
-            err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
-        return false;
-    }
-    QDomNode _timeDataParamsNode=_nodeListTimeDataParams.at(0);
-
     //1b------------- RETRIEVING ENVELOPE NODE
-    QDomNodeList _nodeListEnvelope;
-    if (!DomHelperUtility::nodeListByTagName(_nodeListEnvelope,
-                                        rootNode,
-                                        ENVELOPE_TAG,
-                                        ENVELOPE_PARAMSVERSION,
-                                        &_localErr) ) {
+    QDomNode _envelopeNode=foundDomEnvelopeParams(rootNode,&_localErr);
+    if (_envelopeNode.isNull()) {
         if (err) {
             err->appendMessage(_localErr);
         } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
         return false;
     }
-    if (_nodeListEnvelope.length()==0) {
-        QString msg="Error parsing envelope data, no valid envelope node";
-        if (err) {
-            _localErr.setMethod(Q_FUNC_INFO);
-            _localErr.setMessage(msg);
-            err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
-        return false;
-    }
-    if (_nodeListEnvelope.length()>1) {
-        QString msg="Error parsing envelope data, too many envelope nodes";
-        if (err) {
-            _localErr.setMethod(Q_FUNC_INFO);
-            _localErr.setMessage(msg);
-            err->appendMessage(_localErr);
-        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
-        return false;
-    }
-    QDomNode _envelopeNode=_nodeListEnvelope.at(0);
 
     ///2------------- VERIFYING
     //Ask to delegate if time data is importable
@@ -593,7 +525,9 @@ QDomDocument GenericTimeData::composeDomDocument() {
                                                              TIMEDATACURVE_DOCTYPE,
                                                              TIMEDATACURVE_TAG,
                                                              TIMEDATACURVE_DOCVERSION);
-   // qDebug() << Q_FUNC_INFO<<  "compose doc=" << _d.toString();
+    QDomNode _n=_d.elementsByTagName(TIMEDATACURVE_TAG).at(0);
+    _n.toElement().setAttribute(DOMHELPER_OBJECTTYPE_TAG,this->metaObject()->className());
+    qDebug() << Q_FUNC_INFO<<  "compose doc=" << _d.toString();
     return _d;
 }
 
@@ -673,224 +607,110 @@ bool GenericTimeData::areValidTimeDataSettings(const QDomNode& node, ErrorMessag
     return true;
 }
 
-//void GenericTimeData::setEnableCurve(bool enable) {
-//    this->m_curveEnabled=enable;
-//    this->setShowCurve(enable);
-//}
+//Static method
+bool GenericTimeData::testDomDocument(const QDomDocument& doc, ErrorMessage* err) {
+    QDomNode _rootNode=doc.firstChild();
+    ErrorMessage _localErr;
 
-//void GenericTimeData::setShowCurve(bool enable) {
-//    if (enable) {
-//        m_curve->show();
-//    } else {
-//        m_curve->hide();
-//    }
-//    if (m_enableRecalc) emit(curveAttributeUpdated());
-//}
+    if (doc.isNull() || !doc.isDocument() || _rootNode.isNull()) {
+        QString msg("Null data document");
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return false;
+    }
 
-//void GenericTimeData::regenerateDomDocument()
-//{
-//    if (m_enableRecalc) {
-//        //Generate the DomDocument of this class
-//        //qDebug() << "GenericTimeData::regenerateDomDocument  with tag |"<<GENERICTIMEDATA_TAG<<"|";
-//        initDomDocument(PROJECT_CURVETYPE,GENERICTIMEDATA_TAG);// initDomDocument(GENERICTIMEDATA_TAG);
+    //Verify doctype
+    if (doc.doctype().name()!=TIMEDATACURVE_DOCTYPE) {
+        QString msg=QString("Invalid doc type, expected -%1- found -%2-").arg(doc.doctype().toText().data()).arg(TIMEDATACURVE_DOCTYPE);
+        if (err){
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        }  else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        return false;
+    }
+    return true;
+}
 
-//        //Get DOM document of this object QPROPERTY
-//        QDomDocument _doc;
-//        this->selfObjectData(&_doc,GENERICTIMEDATAPARAMETERS_TAG);
-//        Q_ASSERT(!_doc.isNull());
-//        Q_ASSERT(_doc.isDocument());
-//        if (!_doc.firstChild().isNull() && appendDomDocument(_doc)) {
-//         //   qDebug() << "GenericTimeData::regenerateDomDocument append self properties was fine";
-//        } else {
-//            qWarning() << "GenericTimeData::regenerateDomDocument append self properties WAS  NOT FINE!!!!!";
-//        }
+QDomNode GenericTimeData::foundDomTimeDataParams(const QDomNode rootNode, ErrorMessage* err) {
+    QDomNodeList _nodeListTimeDataParams;
+    ErrorMessage _localErr;
+    QDomNode _emptyRetval;
+    if(!DomHelperUtility::nodeListByTagName(_nodeListTimeDataParams,
+                                        rootNode,
+                                        TIMEDATACURVEPARAMETERS_TAG,
+                                        TIMEDATACURVE_PARAMSVERSION,
+                                        &_localErr)) {
+        if (err) {
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        return _emptyRetval;
+    }
+    if (_nodeListTimeDataParams.length()==0) {
+        QString msg="Error parsing time data, no valid parameters node";
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return _emptyRetval;
+    }
+    if (_nodeListTimeDataParams.length()>1) {
+        QString msg="Error parsing time data, too many parameters nodes";
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return _emptyRetval;
+    }
+    return _nodeListTimeDataParams.at(0);
+}
+QDomNode GenericTimeData::foundDomEnvelopeParams(const QDomNode rootNode, ErrorMessage *err) {
+    QDomNodeList _nodeListEnvelope;
+    ErrorMessage _localErr;
+    QDomNode _emptyRetval;
 
-//        //Getting the envelop, it will be appended to
-//         const QDomDocument* _d=m_envelope->getEnvelopeParametersDomDocument();
-//         Q_ASSERT(!_d->isNull());
-//         Q_ASSERT(_d->isDocument());
+    if (!DomHelperUtility::nodeListByTagName(_nodeListEnvelope,
+                                        rootNode,
+                                        ENVELOPE_TAG,
+                                        ENVELOPE_PARAMSVERSION,
+                                        &_localErr) ) {
+        if (err) {
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,_localErr);
+        return _emptyRetval;
+    }
+    if (_nodeListEnvelope.length()==0) {
+        QString msg="Error parsing envelope data, no valid envelope node";
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return _emptyRetval;
+    }
+    if (_nodeListEnvelope.length()>1) {
+        QString msg="Error parsing envelope data, too many envelope nodes";
+        if (err) {
+            _localErr.setMethod(Q_FUNC_INFO);
+            _localErr.setMessage(msg);
+            err->appendMessage(_localErr);
+        } else ErrorMessage::WARNING(Q_FUNC_INFO,msg);
+        return _emptyRetval;
+    }
+    return _nodeListEnvelope.at(0);
+}
 
-//         //This is a fix, it should not work this ways but for some reason it's necessary regenerate the Dom
-//         if (_d->firstChild().isNull()) {
-//            qWarning() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE DomDocument @"<< _d << "first node null, FORCE REGENERATE!!!!! " << _d->nodeName();
-//            m_envelope->forceRegenerateDomDocument();
-//            _d=m_envelope->getEnvelopeParametersDomDocument();
-//      //      qDebug() << "GenericTimeData::regenerateDomDocument  testing ENVELOPE now  DomDocument @"<< _d << " first node is " << _d->nodeName();
-//         }
-//         Q_ASSERT(!_d->isNull());
-//         Q_ASSERT(_d->isDocument());
-//         Q_ASSERT(!_d->firstChild().isNull());
-//         //qDebug() << "GenericTimeData::regenerateDomDocument  start parsing " << _d->nodeName() ;
-//         //qDebug() << "GenericTimeData::regenerateDomDocument  first child node is " << _d->firstChild().nodeName();
-
-//         //Append the envelope to the document
-//         if (!_d->firstChild().isNull() && appendDomDocument(_d)) {
-//      //       qDebug() << "GenericTimeData::regenerateDomDocument append envelope was fine";
-//         } else {
-//             qWarning() << "GenericTimeData::regenerateDomDocument append envelope WAS NOT FINE!!!!!";
-//         }
-//    } else qDebug() << "GenericTimeData::regenerateDomDocument don't need regenarate, flag regenerate set to FALSE";
-// }
-
-//bool GenericTimeData::isImportableByDomData(const QDomDocument & doc) {
-//    const QDomDocument * pDoc=&doc;
-//    return this->isImportableByDomData(pDoc);
-//}
-
-//bool GenericTimeData::isImportableByDomData(const QDomDocument * doc) {
-//    if (doc->isNull() ) {
-//        qWarning() << "GenericTimeData::isImportableByDomData document is null";
-//        QMessageBox::warning(0, "GenericTimeData::isImportableByDomData","Document is null");
-//        return false;
-//    }
-//    if (!doc->isDocument()) {
-//        qWarning() << "GenericTimeData::isImportableByDomData document is not a document, is " << doc->nodeType();
-//        QMessageBox::warning(0, "GenericTimeData::isImportableByDomData",(new QString("Document is not a document is %1"))->arg(doc->nodeType()));
-//        return false;
-//    }
-//    QDomNode node = doc->firstChild();
-//    return this->isImportableByDomData(node);
-//}
-
-
-//bool GenericTimeData::importXML() {
-//    CTG_app * _app=(CTG_app*) qApp;
-//    QString _fileName = QFileDialog::getOpenFileName(NULL, tr("Open CTG curve"),
-//                               _app->curveSavePath(),
-//                               tr("CTG curve file (*.CCF *.ccf)"));
-//    if (_fileName=="") return true;
-//    //saving path
-//    QFileInfo _fi(_fileName);
-//    QString _path=_fi.absolutePath();
-//    QString _name=_fi.baseName();
-//    if (_path!="")
-//        _app->setCurveSavePath(_path);
-//    if (_name!="")
-//        m_fileName=QString("%1.ccf").arg(_name);
-
-//    return this->importXML(_fileName);
-//}
-
-//bool GenericTimeData::importXML(QString fileName) {
-//    QDomDocument _d;
-//    if (!DomHelper::load(fileName,&_d)) {
-//        QMessageBox::warning(0,"GenericTimeData::importXML","Can't load XML file.");
-//        return false;
-//    }
-//    return this->importXML(&_d);
-//}
-
-//bool GenericTimeData::importXML(const QDomDocument *doc) {
-//    if (doc==NULL) {
-//        qWarning() << "GenericTimeData::importXML DATA NOT SET! Document is NULL";
-//        QMessageBox::warning(0, "GenericTimeData::importXML","DATA NOT SET! Document is NULL");
-//        return false;
-//    }
-//    if (!doc->isDocument() ) {
-//        qWarning() << "GenericTimeData::importXML DATA NOT SET! Document is not a valid DomDocument";
-//        QMessageBox::warning(0,"GenericTimeData::importXML","DATA NOT SET! Document is not a valid DomDocument");
-//        return false;
-//    }
-//    QDomNode _firstChild=doc->firstChild();
-//    return importXML(&_firstChild);
-//}
-
-//bool GenericTimeData::importXML(const QDomNode &node) {
-//    return importXML(&node);
-//}
-
-//bool GenericTimeData::importXML(const QDomNode *node) {
-
-//    if (node==NULL || node->isNull()) {
-//        qWarning() << "GenericTimeData::importXML DATA NOT SET! Trying to import a NULL node";
-//        QMessageBox::warning(0,"GenericTimeData::importXML","DATA NOT SET! Trying to import a NULL node");
-//        return false;
-//    }
-
-//    QString _firstchild=node->nodeName();
-//    if (QString::compare(_firstchild,GENERICTIMEDATA_TAG)!=0)  {
-//        qWarning() << "GenericTimeData::importXML" << QString("DATA NOT SET! Document  contains as first child  |%1| instead  of |%2|.").arg(_firstchild).arg(GENERICTIMEDATA_TAG);
-//        QMessageBox::warning(0, "GenericTimeData::importXML",QString("DATA NOT SET! Document  contains as first child  |%1| instead  of |%2|.").arg(_firstchild).arg(GENERICTIMEDATA_TAG));
-//        return false;
-//    }
-
-//    qDebug() << "GenericTimeData::importXML importing node " << node->nodeName();
-
-//    //Disable signal propagation, ui update
-//    bool _prevValueRecalc=this->setEnableRecalc(false);
-//    bool _prevValueSignals=this->blockSignals(true);
-//    bool _prevValueUpdateUI=m_genericTimeDataUI->setEnableUpdateUI(false);
-
-//    //Importing data curve
-//    QDomNodeList _nodeList=node->toElement().elementsByTagName(GENERICTIMEDATAPARAMETERS_TAG);
-//  //  qDebug() << "GenericTimeData::importXML getting element "<< GENERICTIMEDATAPARAMETERS_TAG <<" nodeList.length=" << _nodeList.length();
-//    Q_ASSERT(_nodeList.length()==1);
-//    QDomNode _node=_nodeList.at(0);
-
-//    //test if it's importable
-//    if (!isImportableByDomData(_node))
-//        return false;
-
-//    //Setting data curve
-//    if (!this->setClassByDomData(_node)) {
-//        QMessageBox::warning(0, "GenericTimeData::importXML",QString("DATA NOT SET! SetClassByDomData failed."));
-//        return false;
-//    }
-//    //20130104
-//    //In this phase, due to optimization, the data are not updated, this cmd force to set the correct length before going to set envelope.
-//    //otherwise the envelope will be  not set correctly in class that inerhits from repeatedTD and partialTD.
-//    this->resetAllData();
-
-//    //Importing envelope data
-//    _nodeList=node->toElement().elementsByTagName(ENEVELOPEPARAMETERS_TAG);
-//   // qDebug() << "GenericTimeData::importXML getting element "<<  ENEVELOPEPARAMETERS_TAG <<" nodeList.length=" << _nodeList.length();
-//    Q_ASSERT(_nodeList.length()==1);
-//    _node=_nodeList.at(0);
-//    if (!m_envelope->setEnvelopeParams(_node)) {
-//        QMessageBox::warning(0, "GenericTimeData::importXML",QString("ENVELOPE DATA NOT SET! setEnvelopeParams failed."));
-//        return false;
-//    }
-
-//    //Enable in the inverse order.
-//    m_genericTimeDataUI->setEnableUpdateUI(_prevValueUpdateUI);
-//    this->blockSignals(_prevValueSignals);
-//    this->setEnableRecalc(_prevValueRecalc);
-//    this->createData();
-
-//    //20130114
-//    //Rimosso in quanto non sembra servire..
-//    //this->regenerateDomDocument();
-
-//    return  true;
-//}
-
-//void GenericTimeData::exportXML() {
-//    CTG_app * _app=(CTG_app*) qApp;
-
-//    QString _fileName="";
-//    if (m_fileName=="")
-//        _fileName=QString("%1/%2_SR%3_%4s.ccf")
-//                .arg(_app->curveSavePath())
-//                .arg(m_name)
-//                .arg(m_SR)
-//                .arg(m_MaxDuration);
-//    else
-//        _fileName=m_fileName;
-
-//     _fileName = QFileDialog::getSaveFileName(NULL, tr("Save CTG curve"),
-//                               _fileName,
-//                               tr("CTG curve file (*.CCF *.ccf)"));
-//    this->exportXML(_fileName);
-//    //saving path
-//    QFileInfo _fi(_fileName);
-//    QString _path=_fi.absolutePath();
-//    if (_path!="")
-//        _app->setCurveSavePath(_path);
-//}
-
-//void GenericTimeData::exportXML(QString fileName) {
-//    this->regenerateDomDocument();
-//    DomHelper::save(fileName,this->getDomDocument());
-//}
-
-
+QString GenericTimeData::getObjectType(const QDomNode &node) {
+    QString _retval="";
+    QDomNode _node=foundDomTimeDataParams(node);
+    QDomNodeList _nodeList;
+    if (!DomHelperUtility::nodeListByTagName(_nodeList,_node, DOMHELPER_OBJECTTYPE_TAG, DOMHELPER_VERSION)) return _retval;
+    if (_nodeList.length()==0) return _retval;
+    if (_nodeList.length()>1) return _retval;
+    return _nodeList.at(0).toElement().text();
+}
