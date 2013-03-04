@@ -47,6 +47,7 @@ DataUiHandlerDelegate::~DataUiHandlerDelegate() {
 }
 
 void DataUiHandlerDelegate::initClass() {
+    addUnhandleableNode( "uuid");
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Connecting signal ---------"));
     connectSignal(m_property,m_ui);
     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Creating DOM ---------"));
@@ -79,7 +80,8 @@ void DataUiHandlerDelegate::connectSignal(DataUiHandlerProperty *properties, Dat
         //Looking if the property has slot&connection
         QMetaProperty _prop=_propMetaObject->property(i);//Getting property i
         QString _propName=_prop.name();//Getting properties name
-
+        //continue if the property must be not handled
+        if (getUnhandleableNode()->contains(_propName,Qt::CaseInsensitive) ) continue;
         //Looking
         QString _signalSignature="";
         if (_prop.hasNotifySignal()) {
@@ -127,6 +129,8 @@ void DataUiHandlerDelegate::connectSignal(DataUiHandlerProperty *properties, Dat
             QMetaProperty _prop=_propMetaObject->property(n);//Getting property i
             QString _propName=_prop.name();//Getting properties name
 
+            //continue if the property must be not handled
+            if (getUnhandleableNode()->contains(_propName,Qt::CaseInsensitive) ) continue;
             //Looking for the signal name from UI
             QString _signalName=QString("%1%2").arg(_propName).arg(POSTPEND_UI_CHANGED_SIGNAL);
             QString _uiMethodSignature=findMethodSignature(&_uiMethod,_signalName);
@@ -308,6 +312,7 @@ void DataUiHandlerDelegate::readProperties(DataUiHandlerProperty *properties, QH
     for (int n=0; n < _propMetaObject->propertyCount() ; n++) {
         QMetaProperty _prop=_propMetaObject->property(n);
         QString _propName=_prop.name();
+        if (getUnhandleableNode()->contains(_propName,Qt::CaseInsensitive) ) continue;
         QVariant _propValueVariant=_prop.read(properties);
         if (_propValueVariant.isValid())
             hash[_propName] = _propValueVariant;
@@ -319,6 +324,7 @@ void DataUiHandlerDelegate::writeProperties(DataUiHandlerProperty *properties, Q
     for (int n=0; n < _propMetaObject->propertyCount() ; n++) {
         QMetaProperty _prop=_propMetaObject->property(n);
         QString _propName=_prop.name();
+        if (getUnhandleableNode()->contains(_propName,Qt::CaseInsensitive) ) continue;
         if (hash.contains(_propName)) {
              QVariant  _propValueVariant = hash.value(_propName);
              if (!_prop.write(properties,_propValueVariant))

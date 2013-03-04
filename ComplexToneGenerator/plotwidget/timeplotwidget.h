@@ -28,7 +28,7 @@ public:
     DigestTimeData * getDigestCurve() {return m_digestCurve;} //return the digest curve
     virtual void setRubberBandPosition(qreal position);
     inline QWidget * getControlWidget() {return dynamic_cast<QWidget*>(m_timePlotDelegate->getUI()); }// Give back a QWidget that can be used to control this class.
-    inline DataUiHandlerProperty* getDataParameters() {return dynamic_cast<DataUiHandlerProperty*>(m_timePlotDelegate->getProperty());}
+    inline DataUiHandlerProperty* getDataParameters() {return m_timePlotDelegate->getProperty();}
     inline QDomDocument exportXML() {return getDelegate()->getDomDocument();}
     friend class TimePlotParams;
 signals:

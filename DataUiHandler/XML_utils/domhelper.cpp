@@ -65,10 +65,13 @@ bool DomHelper::selfObjectData() {
     for(int i = 0; i < metaObject->propertyCount(); ++i) {
         QMetaProperty _prop=metaObject->property(i);
         QString _propName=_prop.name();
+        //Avoid to handle some properties/tags
+        if (m_unhandleableNodes.contains(_propName,Qt::CaseInsensitive)) {
+            continue;
+        }
         QVariant _propValueVariant=_prop.read(m_hostObject);
         //qDebug() << "DomHelper::generateDomDocument class "<< metaObject->className()<< " prop is " << _propName;
-        //Save parameters that can be converted in string, others are rejected
-        if (_propName=="uuid") continue; //uuid is not a memeber of qvariant
+        //Save parameters that can be converted in string, others are rejected     
         if (_propValueVariant.canConvert(QVariant::String)) {
             //appending element node
             QDomElement _element=m_document->createElement(_propName);
@@ -209,31 +212,6 @@ bool DomHelper::isImportableByDomData(const QDomNode* node, ErrorMessage* errMes
         }
         return false;
     }
-    //TODO, VERIFY ATTRIBUTE OBJECT TYPE
-//    QDomNodeList _nodeList=node->toElement().elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
-//    if (_nodeList.length()==0) {
-//        if (errMessage) {
-//            errMessage->setMethod(Q_FUNC_INFO);
-//            errMessage->setMessage(QString("Not node to recognize Object type"));
-//        }
-//        return false;
-//    }
-//    if (_nodeList.length()!=1) {
-//        if (errMessage) {
-//            errMessage->setMethod(Q_FUNC_INFO);
-//            errMessage->setMessage(QString("Too many node to recognize Object type"));
-//        }
-//        return false;
-//    }
-//    if (!isSameObjectType(_nodeList.at(0).toElement())) {
-//        if (errMessage) {
-//            errMessage->setMethod(Q_FUNC_INFO);
-//            errMessage->setMessage(QString("Wrong node object type, expected to find %1 but found %2").
-//                                   arg(m_hostObject->metaObject()->className()).
-//                                   arg(DomHelperUtility::getNodeValue(_nodeList.at(0))));
-//        }
-//        return false;
-//    }
     return true;
 }
 
@@ -245,11 +223,12 @@ void DomHelper::parseEntry(const QDomElement &element)
 {
     QDomNode node = element.firstChild();
     while (!node.isNull()) {
-         //qDebug() << "DomParser::parseEntry  node " << node.toElement().tagName();
-         //qDebug() << "DomParser::parseEntry  value= " << DomHelper::getNodeValue(node);
-         //qDebug() << "DomHelper::parseEntry  parsing node " << node.nodeName();
          if (node.isElement()) {
-         //   qDebug() << "DomParser::parseEntry "<< node.nodeName()<< " is element ";
+             //Verify if some node is on the list.
+             if (m_unhandleableNodes.contains(node.nodeName(),Qt::CaseInsensitive)) {
+                 node = node.nextSibling();
+                 continue;
+             }
 
             //Verifiy is this node has attribute. If yes check version and objectype
              //TODO: with this approach ONLY the ROOT element could have attributes
@@ -259,7 +238,6 @@ void DomHelper::parseEntry(const QDomElement &element)
             if (node.hasAttributes()) {
                 Q_ASSERT(parseAndVerifyAttributeVersion(node.attributes()));
                 Q_ASSERT(parseAndVerifyAttributeObjecttype(node.attributes()));
-     //           qDebug () << "DomHelper::parseEntry node "<< node.nodeName()<< "  has attributes";
             }
 
             //Extract the actual class metaobject
@@ -267,19 +245,16 @@ void DomHelper::parseEntry(const QDomElement &element)
 
             //Looking if some properties are stored in this node
             int _indexProp=metaObject->indexOfProperty(node.nodeName().toUtf8().constData());
- //           qDebug() << "DomHelper::parseEntry node "<< node.nodeName()<< " index of property is " << _indexProp;
 
             //If yes, going to set  property
             if ( _indexProp>=0 ) {
                 QMetaProperty _prop=metaObject->property(_indexProp);
-   //             qDebug() << "DomHelper::parseEntry node "<< node.nodeName()<< " elaborating property ("<<_indexProp<<") " << _prop.name();
                 //If the node is a text node and in the previous node a properties tag was found it's time to set the property
                 if (!parseAndSetProperty(node.toElement(), _prop))
                     PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT, ErrorMessage::DEBUG(Q_FUNC_INFO,QString("node %1 property %2  NOT SET!").arg(node.nodeName()).arg(_prop.name())) ) ;
                 node = node.nextSibling();
                 continue;
             }
-   //         qDebug() << "DomHelper::parseEntry node "<< node.nodeName()<< "complete, looking for the next node";
             parseEntry(node.toElement());
             node = node.nextSibling();
             continue;

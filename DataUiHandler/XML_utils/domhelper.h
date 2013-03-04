@@ -104,11 +104,10 @@ public:
     virtual bool isImportableByDomData(const QDomNode* node, ErrorMessage* errMessage=NULL);
 
     bool isImportingDomData() {return m_importingDomData;}
-//    //OLD
-//    bool isSameObjectType(const QString objectType) { return (QString::compare(objectType,m_hostObject->metaObject()->className())==0);}
-   // QString objectType() {return m_hostObject->metaObject()->className();}
 
-//    static bool isSameObjectType(const QDomDocument *doc, QObject *obj);
+    void addUnhandleableNode(const QString& nodeName) {m_unhandleableNodes << nodeName;}
+    const QStringList* getUnhandleableNode() {return (const QStringList*) &m_unhandleableNodes;}
+
 
 public slots:
 
@@ -169,6 +168,11 @@ private:
      * @brief m_importingDomData This flag report is set to true every time this class is importing data with the appropriate methods.
      */
     bool m_importingDomData;
+
+    /**
+     * @brief m_unhandleableNodes A list of nodes that will be not used
+     */
+    QStringList m_unhandleableNodes;
 
     void initDomDocument();
     void deleteDomDocument();
