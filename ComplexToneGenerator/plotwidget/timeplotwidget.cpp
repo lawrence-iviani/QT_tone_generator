@@ -138,3 +138,9 @@ void TimePlotWidget::enableAllCurves(bool enable) {
 void TimePlotWidget::setRubberBandPosition(qreal position) {
     m_scrollRubberBand->setValue(position);
 }
+
+bool TimePlotWidget::setEnablePlot(bool enable) {
+    bool retval=PlotWidget::setEnablePlot(enable);
+    if (enable) recalcAndUpdatePlot();
+    return retval;
+}

@@ -35,6 +35,12 @@ signals:
 
 public slots: 
 
+    /**
+     * @brief setEnableUpdate enable/disble of update the widget, this propagate to all curves
+     * @param enable
+     * @return the previous value
+     */
+    virtual bool setEnablePlot(bool enable);
 
     /**
      * @brief importXML Import a DOM document containing the appropriate params

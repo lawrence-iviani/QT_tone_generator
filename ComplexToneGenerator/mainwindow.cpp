@@ -507,7 +507,7 @@ void MainWindow::duplicateCurves() {
      TimePlotParams* _pTpParams=dynamic_cast<TimePlotParams*> (m_plotTime->getDataParameters());
      Q_ASSERT(_pTpParams);
      ErrorMessage _err;
-     m_plotTime->setEnabled(false);
+     m_plotTime->setEnablePlot(false);
      foreach (_pGtd, _tempListPointer) {
          _err.clear();
          Q_ASSERT(_pGtd);
@@ -528,17 +528,9 @@ void MainWindow::duplicateCurves() {
          GenericTimeDataParams* _pCurveParams=dynamic_cast<GenericTimeDataParams*> (_curve->getDataParameters());
          Q_ASSERT(_pCurveParams);
          _pCurveParams->setName(QString("%1_%2").arg(_pGtdParams->name()).arg("copy"));
-         m_plotTime->addTimeData(_curve);
-         s_widgetUI.toolboxOption->addItem(_curve->getControlWidget(),_pCurveParams->name());
+         addCurve(_curve);
      }
-     m_plotTime->setEnabled(true);
-     m_plotTime->recalcAndUpdatePlot();
-
-//     //this should be in the import functiom
-//     m_plotTime->setEnableUpdate(_prevValueEnablePlot);
-//     m_plotTime->forceUpdateUI();
-//     m_plotTime->updatePlot();
-//     updateCurvesName();//This need a FIX,  should be made automatically with the set function
+     m_plotTime->setEnablePlot(true);
      delete duplicateDialog;
 }
 
@@ -654,7 +646,6 @@ void MainWindow::load() {
     //Import the DOM document
     if (!importDomDocument(_project,&_err) ) {
         QMessageBox::warning(NULL,QString("Error import curve"), QString("Error importing project data\n%1").arg(_err.message()));
-
         _err.clear();
         if (importDomDocument(_prevProject,&_err) )
             QMessageBox::warning(NULL,QString("Previous project reverted"), QString("The previous project was succesfully reverted"));
@@ -741,7 +732,6 @@ bool MainWindow::importDomDocument(const QDomDocument& doc, ErrorMessage *err) {
 
 //////------------- 1 Setting project Parameters
 //////------------- 2 Importing and setting curves
-/////-------------- 3 Import&Create curve
     //1a------------- RETRIEVING TIMEDATAPARAMS NODE
     QDomNodeList _nodeListProjectTimeDataParams;
     if(!DomHelperUtility::nodeListByTagName(_nodeListProjectTimeDataParams,
@@ -784,7 +774,7 @@ bool MainWindow::importDomDocument(const QDomDocument& doc, ErrorMessage *err) {
         return false;
     }
 
-    //2------------- IMPORTING & SETTING CURVES
+    //2A------------- IMPORTING CURVES
     QDomNodeList _nodeListCurves;
     if(!DomHelperUtility::nodeListByTagName(_nodeListCurves,
                                             _rootNode,
@@ -799,7 +789,8 @@ bool MainWindow::importDomDocument(const QDomDocument& doc, ErrorMessage *err) {
     TimePlotParams* _tpp=dynamic_cast<TimePlotParams*> (m_plotTime->getDataParameters());
     Q_ASSERT(_tpp);
 
-    //3------------- Import&Create curve
+    //2B------------- CREATE & SETTING CURVE
+    m_plotTime->setEnablePlot(false);
     for (unsigned int n=0; n < _nodeListCurves.length(); n++) {
         QDomNode _node=_nodeListCurves.at(n);
         QString _objTypeName=GenericTimeData::getObjectType(_node);
@@ -812,11 +803,13 @@ bool MainWindow::importDomDocument(const QDomDocument& doc, ErrorMessage *err) {
             if (err) {
                 err->appendMessage(_errAddingCurve);
             } else PRINT_WARNING(ErrorMessage(Q_FUNC_INFO,_errAddingCurve.message(),ErrorMessage::WARNINGMESSAGE));
+            m_plotTime->setEnablePlot(true);
             return false;
         }
         //adding the curve
         addCurve(_curve);
     }
+    m_plotTime->setEnablePlot(true);
     return true;
 }
 

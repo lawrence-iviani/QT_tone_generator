@@ -47,11 +47,11 @@ DataUiHandlerDelegate::~DataUiHandlerDelegate() {
 }
 
 void DataUiHandlerDelegate::initClass() {
-    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Connecting signal ---------"));
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Connecting signal ---------"));
     connectSignal(m_property,m_ui);
-    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Creating DOM ---------"));
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Creating DOM ---------"));
     this->selfObjectData();
-    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Emit ALL Prop Signal ---------"));
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"\t--------- Emit ALL Prop Signal ---------"));
     this->setEnableDataUpdate(false);
     m_property->sendAllPropertiesSignal();
     this->setEnableDataUpdate(true);
@@ -114,7 +114,7 @@ void DataUiHandlerDelegate::connectSignal(DataUiHandlerProperty *properties, Dat
         } else {
             //Every time a property is changed this method is called
             Q_ASSERT(connect(properties,_signalSignature.toAscii().constData(),this,SLOT(dataChanged())));
-            PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
+            PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
                          QString("connected signal %1 to slot %2").arg(_signalSignature).arg(_slotSignature)
                         ));
         }
@@ -160,7 +160,7 @@ void DataUiHandlerDelegate::connectSignal(DataUiHandlerProperty *properties, Dat
                              QString("fail to connect signal %1 to signal %2").arg(_signalSignature).arg(_slotSignature)
                             ));
             } else {
-                PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
+                PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
                              QString("connected signal %1 to signal %2").arg(_signalSignature).arg(_slotSignature)
                             ));
             }
@@ -277,8 +277,8 @@ void DataUiHandlerDelegate::replacePropertiesAndUI(DataUiHandlerProperty *proper
                         .arg(QString::number((qlonglong)m_ui,16))
                         .arg(QString::number((qlonglong)properties,16))
                         .arg(QString::number((qlonglong)ui,16)));
-    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,_err1);
-    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_SO_IMPORTANT,_err2);
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,_err1);
+    PRINT_DEBUG_LEVEL (ErrorMessage::DEBUG_NOT_IMPORTANT,_err2);
 
     //Delete previous property/UI if they are changed
     if (prevProperties!=m_property) {

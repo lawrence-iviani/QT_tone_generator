@@ -108,7 +108,7 @@ public slots:
     }
 
     /**
-     * @brief setEnableUpdate enable/disble of update the widget, this is propagate to all curves
+     * @brief setEnableUpdate enable/disble of update the widget, this propagate to all curves
      * @param enable
      * @return the previous value
      */

@@ -52,7 +52,7 @@ DataEnvelope::~DataEnvelope() {
 }
 
 void DataEnvelope::envelopeHasChanged() {
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Envelope has changed, recalc envelope"));
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Envelope has changed, recalc envelope"));
     DataEnvelopeParameters *_ep=dynamic_cast<DataEnvelopeParameters*> (m_envelopeDelegate->getProperty());
     Q_ASSERT(_ep!=NULL);
     DataEnvelopeUI *_epUI=dynamic_cast<DataEnvelopeUI*> (m_envelopeDelegate->getUI());
@@ -64,7 +64,7 @@ void DataEnvelope::envelopeHasChanged() {
 void DataEnvelope::envelopeHasToggledEnable() {
     DataEnvelopeParameters *_ep=dynamic_cast<DataEnvelopeParameters*> (m_envelopeDelegate->getProperty());
     Q_ASSERT(_ep!=NULL);
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Envelope has toggled, envelope is %1")
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Envelope has toggled, envelope is %1")
                       .arg(_ep->isEnabledEnvelope() ? "enabled" : "disabled" ));
     emit (envelopeChanged());
 }
@@ -131,7 +131,7 @@ void DataEnvelope::recalculateEnvelope() {
     m_envelope=new qreal[m_sampleNumber];
     memset(m_envelope,0,sizeof(qreal)*m_sampleNumber);
 
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"sampleNumber=%1 SR=%2 Hz m_envelopeParams->total()=%3 m_envelopeParams->total()*m_SR=%4 ")
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"sampleNumber=%1 SR=%2 Hz m_envelopeParams->total()=%3 m_envelopeParams->total()*m_SR=%4 ")
                       .arg(m_sampleNumber)
                       .arg(m_SR)
                       .arg(_ep->totalTimeLength())
@@ -148,7 +148,7 @@ void DataEnvelope::recalculateEnvelope() {
     quint64 _sustain=(quint64)(_ep->sustainPercentile()*m_sampleNumber);
     quint64 _release=(quint64)(_ep->releasePercentile()*m_sampleNumber);
 
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"qRound64( m_length)=%1 qRound64(m_envelopeParams->total()*m_SR)=%2, equals? %3")
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"qRound64( m_length)=%1 qRound64(m_envelopeParams->total()*m_SR)=%2, equals? %3")
                         .arg(m_sampleNumber)
                         .arg(qRound64(_ep->totalTimeLength()*m_SR))
                         .arg(qRound64(_ep->totalTimeLength()*m_SR)==qRound64(_ep->totalTimeLength()*m_SR)  ));
@@ -204,6 +204,8 @@ void DataEnvelope::recalculateEnvelope() {
             m_envelope[_index]=_releaseslope*(qreal)_index+_startreleaseQ;
         }
     }
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"END RECALCULATE ENVELOPE -- for %1 ").arg(parent()->metaObject()->className()));
+
     emit (envelopeChanged());
 }
 

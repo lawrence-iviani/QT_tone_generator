@@ -148,33 +148,6 @@ GenericTimeData *PlotWidget::getTimeData(int index) {
     return retval;
 }
 
-//void PlotWidget::forceRecreateAll() {
-//    if (!m_enableUpdate) return;
-//    foreach(GenericTimeData* p, m_curveList) {
-//       // p->createData();
-//        //p->getControlWidget()->updateUI();
-//        //p->forceRegenerateDomDocument();
-//    }
-//}
-
-//void PlotWidget::forceUpdateUI() {
-//    if (!m_enableUpdate) return;
-//    foreach(GenericTimeData* p, m_curveList) {
-//        //p->getControlWidget()->updateUI();
-//        //p->forceRegenerateDomDocument();
-//    }
-//}
-
-
-//void PlotWidget::forceUpdateAll() {
-//    if (!m_enableUpdate) return;
-//    foreach(GenericTimeData* p, m_curveList) {
-//      //  p->updateData();
-//        //p->getControlWidget()->updateUI();
-//        //p->forceRegenerateDomDocument();
-//    }
-//}
-
 bool PlotWidget::setEnablePlot(bool enable) {
     bool retval=m_enablePlotUpdate;
     if (enable!=m_enablePlotUpdate) {

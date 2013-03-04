@@ -118,7 +118,7 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
                       .arg(decay)
                       .arg(sustain)
                       .arg(release));
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"with _total=%1 m_total=%2 comparison (_total <= m_total) is %3")
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"with _total=%1 m_total=%2 comparison (_total <= m_total) is %3")
                       .arg(_total)
                       .arg(m_totalTime)
                       .arg((_total <= m_totalTime)));
@@ -132,7 +132,7 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
         m_sustain=sustain;
         m_release=release;
         retval=true;
-        PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"set to m_attack=%1 m_hold=%2 m_decay=%3 m_sustain=%4 m_release=%5")
+        PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"set to m_attack=%1 m_hold=%2 m_decay=%3 m_sustain=%4 m_release=%5")
                           .arg(m_attack)
                           .arg(m_hold)
                           .arg(m_decay)
