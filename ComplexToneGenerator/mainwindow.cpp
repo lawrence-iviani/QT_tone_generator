@@ -647,10 +647,10 @@ void MainWindow::load() {
     if (!importDomDocument(_project,&_err) ) {
         QMessageBox::warning(NULL,QString("Error import curve"), QString("Error importing project data\n%1").arg(_err.message()));
         _err.clear();
+        removeAllCurves();
         if (importDomDocument(_prevProject,&_err) )
             QMessageBox::warning(NULL,QString("Previous project reverted"), QString("The previous project was succesfully reverted"));
         else {
-            removeAllCurves();
             QMessageBox::warning(NULL,QString("Error reverting project"), QString("Error reverting project/n%1").arg(_err.message()));
         }
         return;
