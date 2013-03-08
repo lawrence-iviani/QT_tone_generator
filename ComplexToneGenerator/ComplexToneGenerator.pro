@@ -83,6 +83,7 @@ SOURCES +=    timedata/generictimedataparams.cpp \
     mainwindow.cpp \
     main.cpp \
     ctg_app.cpp \
+    CustomCurves/sinusdata.cpp
 
 
 
@@ -115,6 +116,7 @@ HEADERS  += CTG_constants.h \
     mainwindow.h \
     ctg_app.h \
     CustomCurves/customcurvesheader.h \
+    CustomCurves/sinusdata.h
 
 
 FORMS    += mainwindow.ui
