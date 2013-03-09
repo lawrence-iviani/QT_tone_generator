@@ -25,17 +25,11 @@ LIBS += -L/opt/local/lib -lsndfile
 # ------ End Dependecies libs:
 
 # ------ Internal deps
-INCLUDEPATH += ../Widget/SelectCurveWindowDialog
-INCLUDEPATH += ../Widget/SelectMultipleCurvesWindowDialog
-INCLUDEPATH += ../Widget/ScaledSliderWidget
-INCLUDEPATH += ../Widget/ComboBoxWidgetColor
-INCLUDEPATH += ../Widget/ComboBoxLabelWidget
-INCLUDEPATH += ../Widget/QwtHelpers
-INCLUDEPATH += ../Widget/ExportAudioFileWidget
-INCLUDEPATH += ../Widget/WidgetStyle
+INCLUDEPATH += ../Widget/SelectCurveWindowDialog ../Widget/SelectMultipleCurvesWindowDialog ../Widget/ScaledSliderWidget ../Widget/ComboBoxWidgetColor ../Widget/ComboBoxLabelWidget ../Widget/QwtHelpers ../Widget/ExportAudioFileWidget ../Widget/WidgetStyle
 INCLUDEPATH += ../AudioEngine
 INCLUDEPATH += ../ErrorMessage
 INCLUDEPATH += ../DataUiHandler
+INCLUDEPATH += ../CustomCurves
 
 LIBS += -L../Widget/WidgetLib/ -lwidget
 
@@ -71,21 +65,23 @@ SOURCES +=    timedata/generictimedataparams.cpp \
     timedata/repeatedtimedataparams.cpp \
     timedata/repeatedtimedataui.cpp \
     timedata/repeatedtimedata.cpp \
+    CustomCurves/customcurvefactory.cpp \
+    CustomCurves/SinusData/sinusdata.cpp \
+    CustomCurves/SinusData/genericsinusdata.cpp \
+    CustomCurves/SinusData/partialsinusdata.cpp \
+    CustomCurves/SinusData/repeatedsinusdata.cpp \
+    CustomCurves/SquareData/squaredata.cpp \
+    CustomCurves/SquareData/genericsquaredata.cpp \
+    CustomCurves/SquareData/partialsquaredata.cpp \
+    CustomCurves/SquareData/repeatedsquaredata.cpp \
     plotwidget/plotwidget.cpp \
     plotwidget/timeplotwidgetparams.cpp \
     plotwidget/timeplotwidgetui.cpp \
     plotwidget/timeplotwidget.cpp \
     plotwidget/freqplotwidget.cpp \
-    CustomCurves/customcurvefactory.cpp \
-    CustomCurves/genericsinusdata.cpp \
-    CustomCurves/partialsinusdata.cpp \
-    CustomCurves/repeatedsinusdata.cpp \
     mainwindow.cpp \
     main.cpp \
     ctg_app.cpp \
-    CustomCurves/sinusdata.cpp
-
-
 
 
 HEADERS  += CTG_constants.h \
@@ -102,22 +98,25 @@ HEADERS  += CTG_constants.h \
     timedata/repeatedtimedataparams.h \
     timedata/repeatedtimedata.h \
     timedata/repeatedtimedataui.h \
+    CustomCurves/abstractcurvesfactory.h \
+    CustomCurves/customcurvefactory.h \
+    CustomCurves/customcurvesheader.h \
+    CustomCurves/SinusData/sinusdata.h \
+    CustomCurves/SinusData/genericsinusdata.h \
+    CustomCurves/SinusData/partialsinusdata.h \
+    CustomCurves/SinusData/repeatedsinusdata.h \
+    CustomCurves/SquareData/squaredata.h \
+    CustomCurves/SquareData/genericsquaredata.h \
+    CustomCurves/SquareData/partialsquaredata.h \
+    CustomCurves/SquareData/repeatedsquaredata.h \
     plotwidget/plotwidget.h \
     plotwidget/timeplotwidgetparams.h \
     plotwidget/timeplotwidgetui.h \
     plotwidget/timeplotwidget.h \
     plotwidget/freqplotwidget.h \
     plotwidget/scrollrubberband.h \
-    CustomCurves/abstractcurvesfactory.h \
-    CustomCurves/customcurvefactory.h \
-    CustomCurves/genericsinusdata.h \
-    CustomCurves/repeatedsinusdata.h \
-    CustomCurves/partialsinusdata.h \
     mainwindow.h \
     ctg_app.h \
-    CustomCurves/customcurvesheader.h \
-    CustomCurves/sinusdata.h
-
 
 FORMS    += mainwindow.ui
 

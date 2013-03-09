@@ -8,7 +8,6 @@
 #include <QLayout>
 #include <QVBoxLayout>
 #include <QToolBox>
-
 #include <audioplayer.h>
 #include <sndfile.hh>
 #include <QTreeWidget>
@@ -17,17 +16,11 @@
 #include "plotwidget/timeplotwidget.h"
 #include "plotwidget/freqplotwidget.h"
 #include "plotwidget/plotwidget.h"
-#include "CustomCurves/genericsinusdata.h"
-#include "CustomCurves/partialsinusdata.h"
-#include "CustomCurves/repeatedsinusdata.h"
-#include "CustomCurves/repeatedsinusdata.h"
-#include "selectcurvewindowdialog.h"
-#include "selectmultiplecurveswindowdialog.h"
-#include "exportaudiofiledialog.h"
 #include "CustomCurves/customcurvefactory.h"
+#include "exportaudiofiledialog.h"
+#include "selectmultiplecurveswindowdialog.h"
 #include <errormessage.h>
 #include "widgetstyle.h"
-
 
 
 namespace Ui {
@@ -47,12 +40,6 @@ public slots:
     void addCurve(GenericTimeData* gtd);
     void removeCurve();
     void exportDigestCurve();
-  //  bool importXMLCurve(const QDomDocument& doc);
-  //  bool importXMLCurve(const QDomDocument* doc);
-   // bool exportXML(const QString& filename);
-  //  bool importXML(const QDomDocument& doc);
-  //  bool importXML(const QString& fileName);
-  //  void showXML();
     void updateCurvesName();
     void timeDataUpdated();
     void digestCurveChanged();
@@ -81,10 +68,6 @@ private:
 
     QDomDocument composeDomDocument();
     void setupStyle();
-
-    //THESE FUNCTION MUST BE INSERTED IN SOME KIND OF EXTERNAL UTILITY
-    void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window
-    GenericTimeData *  decodeSelectedCurve(SelectCurveWindowHelper * selectCurveHelper);
 
     //Streaming stuff
     AudioPlayer * m_audioPlayer;

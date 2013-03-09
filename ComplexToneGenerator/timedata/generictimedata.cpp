@@ -43,6 +43,7 @@ GenericTimeData::GenericTimeData(TimePlotParams * timePlotParams, QObject *paren
 }
 
 void GenericTimeData::init(TimePlotParams *timePlotParams) {
+    setTimePlotParams(timePlotParams);
     GenericTimeDataParams *_gtdp=dynamic_cast<GenericTimeDataParams*> (getDataParameters());
     GenericTimeDataUI *_gtdpUI=dynamic_cast<GenericTimeDataUI*> (m_timeDataDelegate->getUI());
     Q_ASSERT(_gtdp!=NULL);
@@ -62,7 +63,6 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
     m_curve->setPen(_p);
 
     //Set property for this curve
-    setTimePlotParams(timePlotParams);
     _gtdp->setShowCurve(true);
     _gtdp->setEnableCurve(true);
 

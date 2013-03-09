@@ -1,5 +1,5 @@
 ################################################################
-# QT tone generator
+# QT complex tone generator
 # Copyright (C) 2012   Lawrence Iviani
 #
 # This App is free software; you can redistribute it and/or
@@ -16,6 +16,6 @@ SUBDIRS = \
         DataUiHandler \
 	Widget \
         AudioEngine \
-        ComplexToneGenerator
+        ComplexToneGenerator \
     
 

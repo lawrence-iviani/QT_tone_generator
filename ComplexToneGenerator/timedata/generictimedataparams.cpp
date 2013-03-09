@@ -4,7 +4,7 @@ GenericTimeDataParams::GenericTimeDataParams(QObject *object) :
     DataUiHandlerProperty(object),
     m_startTime(0),
     m_name(QString("no name")),
-    m_curveEnabled(true) //manca showcurve!!!
+    m_curveEnabled(true)
 {
     setSampleRate(TIMEDATA_DEFAULT_SR);
     setMaxDuration(TIMEDATA_DEFAULT_PROJECT_TIME);
@@ -14,10 +14,15 @@ GenericTimeDataParams::GenericTimeDataParams(DataUiHandlerProperty * basePropert
     DataUiHandlerProperty(baseProperty,parent),
     m_startTime(0),
     m_name(QString("no name")),
-    m_curveEnabled(true)  //manca showcurve!!!
+    m_curveEnabled(true)
 {
-    setSampleRate(params->sampleRate());
-    setMaxDuration(params->maxDuration());
+    if (params) {
+        setSampleRate(params->sampleRate());
+        setMaxDuration(params->maxDuration());
+    } else {
+        setSampleRate(TIMEDATA_DEFAULT_SR);
+        setMaxDuration(TIMEDATA_DEFAULT_PROJECT_TIME);
+    }
 }
 
 

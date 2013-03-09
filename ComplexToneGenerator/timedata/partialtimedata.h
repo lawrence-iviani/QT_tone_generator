@@ -59,7 +59,7 @@ protected:
 
     virtual void connectSignals();
 private:
-    void init(TimePlotParams *timePlotParams);
+    void init(TimePlotParams *timePlotParams=NULL);
     void privateSetDuration(qreal duration);
 
 private slots:

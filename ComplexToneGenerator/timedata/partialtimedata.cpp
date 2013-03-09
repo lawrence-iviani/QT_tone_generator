@@ -2,7 +2,7 @@
 
 PartialTimeData::PartialTimeData(QObject *parent) :
     GenericTimeData(parent)
-{ init(NULL); }
+{ init(); }
 
 PartialTimeData::PartialTimeData(TimePlotParams *timePlotParams, QObject *parent) :
     GenericTimeData(timePlotParams,parent)

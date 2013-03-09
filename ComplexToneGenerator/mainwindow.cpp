@@ -229,14 +229,11 @@ void MainWindow::setupPlots() {
 
 //SLOTS----------
 void MainWindow::newCurve() {
-
-    SelectCurveWindowHelper * selectCurveHelper=SelectCurveWindowDialog::getDialogCurveHelper();
-    this->setupCurves(selectCurveHelper);
-    SelectCurveWindowDialog * selectDialog=new SelectCurveWindowDialog(selectCurveHelper,this);
-    m_widgetStyleUI.setStyle(selectDialog);
-    selectDialog->exec();
-    GenericTimeData * s=this->decodeSelectedCurve(selectCurveHelper);
+    GenericTimeData* s=CustomCurveFactory::newDialogCurve(this,&m_widgetStyleUI);
     if (s==NULL) return;
+    TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
+    Q_ASSERT(_tParams);
+    s->setTimePlotParams(_tParams);
     QString name= "Curve_";
     name.append(QString::number(m_indexGenerator++));
     GenericTimeDataParams* _gtdParams=dynamic_cast<GenericTimeDataParams*>(s->getDataParameters());
@@ -246,9 +243,6 @@ void MainWindow::newCurve() {
     _gtdParams->setShowCurve(true);
 
     addCurve(s);
-
-    delete selectCurveHelper;
-    delete selectDialog;
 }
 
 void MainWindow::addCurve(GenericTimeData* gtd) {
@@ -261,65 +255,6 @@ void MainWindow::addCurve(GenericTimeData* gtd) {
     GenericTimeDataParams* _curveParams=dynamic_cast<GenericTimeDataParams*> (gtd->getDataParameters());
     Q_ASSERT(_curveParams);
     s_widgetUI.toolboxOption->addItem(gtd->getControlWidget(),_curveParams->name());
-}
-
-void MainWindow::setupCurves(SelectCurveWindowHelper * selectCurveHelper) {
-    //TODO, this should be decoded with a file xml or similar
-
-    S_DataCurve t;
-
-    t.name="Limited duration Tone generator";
-    t.description=" This curve generate a pure tone with a limited in Duration";
-    selectCurveHelper->addData(t);
-
-    t.name="Tone generator";
-    t.description=" This curve generate a pure tone for the whole duration";
-    selectCurveHelper->addData(t);
-
-    t.name="Repeated duration Tone generator";
-    t.description=" This curve generate a pure tone with a limited in Duration";
-    selectCurveHelper->addData(t);
-
-    t.name="Limited Const Data";
-    t.description=" This curve generate a constant limited in time";
-    selectCurveHelper->addData(t);
-
-    t.name="Const Data";
-    t.description=" This curve generate a constant for the whole duration";
-    selectCurveHelper->addData(t);
-}
-
-GenericTimeData*  MainWindow::decodeSelectedCurve(SelectCurveWindowHelper * selectCurveHelper) {
-    GenericTimeData * retval=NULL;
-
-    QString curveName=selectCurveHelper->getSelectedDataCurve().name;
-    if (curveName==NULL) return NULL;
-
-    if (QString::compare(curveName,"Limited duration Tone generator")==0 ) {
-        TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
-        Q_ASSERT(_tParams);
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("PartialSinusData",_tParams);
-        s->setTimePlotParams(_tParams);
-        retval=(GenericTimeData*) s;
-    }
-
-    if (QString::compare(curveName,"Repeated duration Tone generator")==0 ) {
-        TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
-        Q_ASSERT(_tParams);
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("RepeatedSinusData",_tParams);
-        s->setTimePlotParams(_tParams);
-        retval=(GenericTimeData*) s;
-    }
-
-    if (QString::compare(curveName,"Tone generator")==0 ) {
-        TimePlotParams* _tParams=dynamic_cast<TimePlotParams*>(m_plotTime->getDataParameters());
-        Q_ASSERT(_tParams);
-        GenericTimeData *s=CustomCurveFactory::instance()->newCurve("GenericSinusData",_tParams);
-        s->setTimePlotParams(_tParams);
-        retval=(GenericTimeData*) s;
-    }
-
-    return retval;
 }
 
 void MainWindow::timeDataUpdated() {
@@ -516,7 +451,8 @@ void MainWindow::duplicateCurves() {
          GenericTimeData* _curve=NULL;
          QString _objTypeName=_pGtd->metaObject()->className();
 
-         _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName,_pTpParams);
+         _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName);//;,_pTpParams);
+         _curve->setTimePlotParams(_pTpParams);
          if (!_curve) {
              QMessageBox::warning(this,"Error duplicate", QString("Curve %1 can't be duplicated").arg(_pGtdParams->name()));
              continue;
@@ -695,7 +631,8 @@ void MainWindow::importCurve() {
     GenericTimeData* _curve=NULL;
     TimePlotParams* _tpp=dynamic_cast<TimePlotParams*> (m_plotTime->getDataParameters());
     Q_ASSERT(_tpp);
-    _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName,_tpp);
+    _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName);
+    _curve->setTimePlotParams(_tpp);
     Q_ASSERT(_curve);
     //Setting data to the curve
     if (!_curve->importXML(_node,&_err)) {
@@ -795,7 +732,8 @@ bool MainWindow::importDomDocument(const QDomDocument& doc, ErrorMessage *err) {
         QDomNode _node=_nodeListCurves.at(n);
         QString _objTypeName=GenericTimeData::getObjectType(_node);
         GenericTimeData* _curve=NULL;
-        _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName,_tpp);
+        _curve=(GenericTimeData*)  CustomCurveFactory::instance()->newCurve(_objTypeName);
+        _curve->setTimePlotParams(_tpp);
         Q_ASSERT(_curve);
         //Setting data to the curve
         ErrorMessage _errAddingCurve;
