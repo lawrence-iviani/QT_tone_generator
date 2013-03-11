@@ -11,14 +11,14 @@ SelectCurveWindowHelper::~SelectCurveWindowHelper() {
     m_dataList.clear();
 }
 
-void SelectCurveWindowHelper::addData(struct S_DataCurve d) {
+void SelectCurveWindowHelper::addData(struct s_dataCurve d) {
     m_dataList.append(d);
     emit dataChanged();
 }
 
 QStringList SelectCurveWindowHelper::getNames() {
     QStringList * retval=new QStringList();
-    S_DataCurve t;
+    s_dataCurve t;
     for (int n=0; n < m_dataList.length(); n++)  {
         t=m_dataList.at(n);
         retval->append(t.name);
@@ -38,12 +38,12 @@ void SelectCurveWindowHelper::setDataCurveIndex(int index) {
     m_selectedDataCurve=this->getItem(index);
 }
 
-S_DataCurve SelectCurveWindowHelper::getSelectedDataCurve() {
+s_dataCurve SelectCurveWindowHelper::getSelectedDataCurve() {
     return m_selectedDataCurve;
 }
 
-S_DataCurve SelectCurveWindowHelper::getItem(int index) {
-    S_DataCurve retval;
+s_dataCurve SelectCurveWindowHelper::getItem(int index) {
+    s_dataCurve retval;
     if ( (index >=0) && (index <= m_dataList.length())) {
         retval=m_dataList.at(index);
     }

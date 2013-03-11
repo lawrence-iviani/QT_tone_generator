@@ -1,0 +1,34 @@
+<!DOCTYPE CURVES_LIST>
+<timedatacurvelist>
+    <timedatacurve>
+        <classname>PartialSinusData</classname>
+        <description>A tone generator with a limited duration</description>
+        <name>Limited in time tone</name>
+    </timedatacurve>
+    <timedatacurve>
+        <classname>GenericSinusData</classname>
+        <description>A tone generator</description>
+        <name>Tone generator</name>
+    </timedatacurve>
+    <timedatacurve>
+        <classname>RepeatedSinusData</classname>
+        <description>A pure tone repeated multiple times</description>
+        <name>Repeated in time tone</name>
+    </timedatacurve>
+
+    <timedatacurve>
+        <classname>PartialSquareData</classname>
+        <description>A square wave generator with a limited duration</description>
+        <name>Limited in time square wave</name>
+    </timedatacurve>
+    <timedatacurve>
+        <classname>GenericSquareData</classname>
+        <description>A square wave generator</description>
+        <name>Square wave generator</name>
+    </timedatacurve>
+    <timedatacurve>
+        <classname>RepeatedSquareData</classname>
+        <description>A square wave repeated multiple times</description>
+        <name>Repeated in time square wave</name>
+    </timedatacurve>
+</timedatacurvelist>

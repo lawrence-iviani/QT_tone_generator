@@ -55,7 +55,7 @@ void SquareUI::initControlWidget() {
     m_squareDataControl.sliderMeanValue->setName("Mean value");
     m_squareDataControl.sliderMeanValue->setMeasureUnit("0-1");
     m_squareDataControl.sliderMeanValue->setFont(f);
-    connect(m_squareDataControl.sliderMeanValue,SIGNAL(valueChanged(qreal)),this,SIGNAL(amplitudeUIChanged(qreal)));
+    connect(m_squareDataControl.sliderMeanValue,SIGNAL(valueChanged(qreal)),this,SIGNAL(meanValueUIChanged(qreal)));
 
     //Lay out all the control);
     l->addWidget(m_squareDataControl.sliderFrequency,1,Qt::AlignLeft);

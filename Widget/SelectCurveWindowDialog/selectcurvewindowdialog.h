@@ -22,7 +22,7 @@ public slots:
 private:
     Ui::SelectCurveWindowDialog *ui;
     SelectCurveWindowHelper * m_helper;
-    S_DataCurve m_curveSelected;
+    s_dataCurve m_curveSelected;
 };
 
 #endif // SELECTCURVEWINDOWDIALOG_H

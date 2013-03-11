@@ -2,7 +2,7 @@
 #include "selectcurvewindowdialog.h"
 
 void createExampleData(SelectCurveWindowHelper * h) {
-    S_DataCurve t;
+    s_dataCurve t;
     t.name="Curve 1";
     t.description="This is description 1";
     h->addData(t);

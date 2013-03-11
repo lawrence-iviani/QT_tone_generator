@@ -3,8 +3,8 @@
 DomHelperUtility::DomHelperUtility()
 {
 }
-//------------ Static members ------------//
 
+//------------ Static members ------------//
 bool DomHelperUtility::save(const QString namefile, const QDomDocument& doc, ErrorMessage* errMessage) {
     return DomHelperUtility::save(namefile, &doc,errMessage);
 }
@@ -47,7 +47,7 @@ bool DomHelperUtility::load(const QString namefile,  QDomDocument *doc, ErrorMes
         } else retval=true;
         if (_file.isOpen()) _file.close();
     } else {
-        PRINT_WARNING(ErrorMessage::WARNING(errMessage,Q_FUNC_INFO,QString("can't open file %1 for saving, error is %2")
+        PRINT_WARNING(ErrorMessage::WARNING(errMessage,Q_FUNC_INFO,QString("can't open file %1 for loading, error is %2")
                               .arg(namefile)
                               .arg(_file.errorString()))  );
     }
@@ -59,7 +59,6 @@ QString DomHelperUtility::getNodeValue(const QDomNode &node) {
     QDomNode nodeText = node.firstChild();
     if (!nodeText.isNull() && nodeText.isText()) {
         QString _value=nodeText.toText().data();
-    //    qDebug() << "DomHelperUtility::getNodeValue find node  " << node.nodeName() << " with properties=" <<_value;
         return _value;
     } else {
         PRINT_WARNING(ErrorMessage(Q_FUNC_INFO,QString("%1 doesn't look a valid node").arg(node.nodeName()),ErrorMessage::WARNINGMESSAGE));
@@ -67,38 +66,31 @@ QString DomHelperUtility::getNodeValue(const QDomNode &node) {
     }
 }
 
+bool DomHelperUtility::nodeByTagName(QDomNode &node, const QDomNode& rootNode,QString tag, ErrorMessage *err ) {
+    QDomNodeList _list;
+    DomHelperUtility::nodeListByTagName(_list,rootNode,tag,0,err);
+    if (_list.length()!=1) {
+        if (err) {
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Found too match or no nodes (%1) for tag %2 ").arg(_list.length()).arg(tag));
+        }
+        return false;
+    }
+    node=_list.at(0);
+    if (node.isNull()) {
+        if (err) {
+            err->setMethod(Q_FUNC_INFO);
+            err->setMessage(QString("Any valid node wasn't found"));
+        }
+        return false;
+    }
+    return true;
+}
 
-//QString DomHelperUtility::getObjectType(const QDomDocument *doc) {
-//    QString retval="";
-//    //Get the root element
-//    QDomElement docElem = doc->documentElement();
-
-//    // get the node's interested in, this time only caring about the objectType
-//    QDomNodeList nodeList = docElem.elementsByTagName(DOMHELPER_OBJECTTYPE_TAG);
-
-//    Q_ASSERT(nodeList.length()==1);
-
-//    for (int i = 0;i < nodeList.count(); i++) {
-//            // get the current one as QDomElement
-//            QDomElement el = nodeList.at(i).toElement();
-//            //Verifying the class is correct
-//            if (el.nodeName()==DOMHELPER_OBJECTTYPE_TAG) {
-//                QDomNode node = el.firstChild();
-//                if (!node.isNull() && node.isText()) {
-//                    retval=node.toText().data();
-//                }
-//            }
-//    }
-//    return retval;
-//}
-
-//QString DomHelperUtility::getObjectType(const QDomDocument & doc) {
-//    return DomHelperUtility::getObjectType(&doc);
-//}
 QDomDocument DomHelperUtility::createDocFromNodesList(const QList<QDomNode*>& nodeList,const QString& documentType, const QString& rootTag , uint version ) {
     QDomDocument _d(documentType);
     QDomElement _rootElement = _d.createElement(rootTag);
-    _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,version);
+    if (version > 0 ) _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,version);
     _d.appendChild(_rootElement);
     foreach (QDomNode* _n, nodeList) {
         Q_ASSERT(_n && !_n->isNull());
@@ -112,7 +104,7 @@ QDomDocument DomHelperUtility::createDocFromNodesList(const QList<QDomNode*>& no
 QDomDocument DomHelperUtility::createDocFromNodesList(const QList<QDomNode>& nodeList,const QString& documentType, const QString& rootTag , uint version ) {
     QDomDocument _d(documentType);
     QDomElement _rootElement = _d.createElement(rootTag);
-    _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,version);
+    if (version > 0 ) _rootElement.setAttribute(DOMHELPER_VERSION_ATTRIBUTE,version);
     _d.appendChild(_rootElement);
     foreach (QDomNode _n, nodeList) {
         Q_ASSERT(!_n.isNull());
@@ -167,46 +159,56 @@ bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomNode&
         return false;
     }
 
-    if (!rootNode.hasAttributes()) {
-        qDebug() << Q_FUNC_INFO << " ROOTNODE NO ATT"<<DomHelperUtility::nodeToString(&rootNode);
-        if (err) {
-            err->setMethod(Q_FUNC_INFO);
-            err->setMessage(QString("No attributes for root node"));
-        }
-        return false;
-    }
-
     //test attribute version root node
     QDomNamedNodeMap _att=rootNode.attributes();
     QDomNode _attVersion=_att.namedItem(DOMHELPER_VERSION_ATTRIBUTE);
-    if (_attVersion.isNull()) {
-        if (err) {
-            err->setMethod(Q_FUNC_INFO);
-            err->setMessage(QString("Attribute version found but is null"));
+    if (version >0) {
+        if (!rootNode.hasAttributes()) {
+            qDebug() << Q_FUNC_INFO << " ROOTNODE NO ATT"<<DomHelperUtility::nodeToString(&rootNode);
+            if (err) {
+                err->setMethod(Q_FUNC_INFO);
+                err->setMessage(QString("No attributes for root node"));
+            }
+            return false;
         }
-        return false;
-    }
-    //verify version
-    bool _conversionOk=false;
-    uint _version=_attVersion.toAttr().nodeValue().toUInt(&_conversionOk);
-    if (!_conversionOk) {
-        if (err) {
-            err->setMethod(Q_FUNC_INFO);
-            err->setMessage(QString("Attribute value version seems not work, found %1").arg(_attVersion.toAttr().nodeValue()));
+        if (_attVersion.isNull()) {
+            if (err) {
+                err->setMethod(Q_FUNC_INFO);
+                err->setMessage(QString("Attribute version found but is null"));
+            }
+            return false;
         }
-        return false;
+        //verify version
+        bool _conversionOk=false;
+        uint _version=_attVersion.toAttr().nodeValue().toUInt(&_conversionOk);
+        if (!_conversionOk) {
+            if (err) {
+                err->setMethod(Q_FUNC_INFO);
+                err->setMessage(QString("Attribute value version seems not work, found %1").arg(_attVersion.toAttr().nodeValue()));
+            }
+            return false;
+        }
+        if ((version>0) && (version!=_version)) {
+            if (err){
+                err->setMethod(Q_FUNC_INFO);
+                err->setMessage(QString("Invalid version, expected -%1- found -%2-").
+                                       arg(version).
+                                       arg(_version));
+            }
+            return false;
+        }
     }
-    if ((version>0) && (version!=_version)) {
+    qDebug() << Q_FUNC_INFO << " rootNode=" << DomHelperUtility::nodeToString(&rootNode);
+    qDebug() << Q_FUNC_INFO << " tagName=" << tagName;
+    if (rootNode.toElement().isNull()) {
         if (err){
             err->setMethod(Q_FUNC_INFO);
-            err->setMessage(QString("Invalid version, expected -%1- found -%2-").
-                                   arg(version).
-                                   arg(_version));
+            err->setMessage(QString("Root node is not an element"));
         }
         return false;
     }
-
     nodeList=rootNode.toElement().elementsByTagName(tagName);
+    qDebug() << Q_FUNC_INFO << " nodeList.length()=" << nodeList.length();
     return true;
 }
 
@@ -226,7 +228,6 @@ QString DomHelperUtility::nodeToString(const QDomNode* rootNode){// ,ErrorMessag
     QString _retVal;
     QTextStream _ts(&_retVal);
     rootNode->save(_ts,2);
- //   qDebug() << Q_FUNC_INFO << "rootNode=" << *_ts.string();
     return *_ts.string();
 }
 

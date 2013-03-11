@@ -5,7 +5,8 @@
 #include <QList>
 #include <QStringList>
 
-struct S_DataCurve {
+struct s_dataCurve {
+    QString className;
     QString name;
     QString description;
 };
@@ -24,18 +25,17 @@ public:
     QStringList getNames(); //Populate a list of the curves name contained in the class. Useful to populate the dialog combo box
     QString getName(int index); //Get the name at index
     QString getDescription(int index); //Get the description at index
-    S_DataCurve getSelectedDataCurve(); //Give back the last data curve selected.
-
+    s_dataCurve getSelectedDataCurve(); //Give back the last data curve selected.
 
 signals:
     void dataChanged();
 public slots:
-    void addData(struct S_DataCurve data);
+    void addData(struct s_dataCurve data);
     void setDataCurveIndex(int index);
 private:
-    QList<S_DataCurve> m_dataList;
-    S_DataCurve getItem(int index);
-    S_DataCurve m_selectedDataCurve;//The data
+    QList<s_dataCurve> m_dataList;
+    s_dataCurve getItem(int index);
+    s_dataCurve m_selectedDataCurve;//The data
 };
 
 #endif // SELECTCURVEWINDOWHELPER_H

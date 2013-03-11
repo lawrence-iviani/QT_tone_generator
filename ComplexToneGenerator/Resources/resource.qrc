@@ -9,4 +9,7 @@
         <file>splitter_handle_horiz.png</file>
         <file>splitter_handle_vert.png</file>
     </qresource>
+    <qresource prefix="/xml">
+        <file>curveslistdescription.xml</file>
+    </qresource>
 </RCC>
