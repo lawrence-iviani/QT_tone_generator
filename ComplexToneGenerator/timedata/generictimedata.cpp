@@ -53,6 +53,7 @@ void GenericTimeData::init(TimePlotParams *timePlotParams) {
     m_curve=new QwtPlotCurve(_gtdp->name());
     m_curve->setRenderHint(QwtPlotItem::RenderAntialiased);
     m_curve->setPaintAttribute(QwtPlotCurve::ClipPolygons);
+    m_curve->setStyle(QwtPlotCurve::Steps);
 
     //setting color & Style
     QPen _p=m_curve->pen();

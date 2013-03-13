@@ -24,7 +24,6 @@ void PlotWidget::plotSetup() {
     this->setDimension(m_dimension);
     this->setTitle("PlotWidget NO TITLE");
 
-
     if (m_yScaleType==PlotWidget::Logarithmic) {
         this->setAxisScaleEngine(xBottom,new QwtLog10ScaleEngine());
     } else {

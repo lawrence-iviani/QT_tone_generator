@@ -1,36 +1,38 @@
 #include "selectcurvewindowdialog.h"
 #include "ui_selectcurvewindowdialog.h"
 
-SelectCurveWindowDialog::SelectCurveWindowDialog(SelectCurveWindowHelper * h, QWidget *parent) :
+SelectCurveWindowDialog::SelectCurveWindowDialog(const QMap<QString, s_curveDescriptionData> *mapItems, QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::SelectCurveWindowDialog)
+    ui(new Ui::SelectCurveWindowDialog),
+    m_pMap(mapItems)
 {
     ui->setupUi(this);
     this->setLayout(ui->verticalLayout);
     this->layout()->setSizeConstraint( QLayout::SetFixedSize );
 
-    m_helper=h;
-    ui->comboBox->addItems(m_helper->getNames());
+    QMap<QString, s_curveDescriptionData>::const_iterator i = m_pMap->begin();
+    while (i != m_pMap->end()) {
+        s_curveDescriptionData _s= i.value();
+        //i.value()
+         ui->comboBox->addItem(_s.name); //i.value().name);
+         ++i;
+     }
+    //ui->comboBox->addItems(m_helper->getItemsName());
     this->changedCurve(ui->comboBox->currentIndex());
     connect(ui->comboBox,SIGNAL(currentIndexChanged(int)),this,SLOT(changedCurve(int)));
 }
 
 SelectCurveWindowDialog::~SelectCurveWindowDialog()
-{
-    delete ui;
-}
+{ delete ui;}
 
 void SelectCurveWindowDialog::changedCurve(int index) {
-    m_helper->setDataCurveIndex(index);
-    ui->label->setText(m_helper->getSelectedDataCurve().description);
+    Q_UNUSED(index);
+    m_curveSelected=ui->comboBox->currentText();
+    QString _newName=m_pMap->find(m_curveSelected).value().name;
+    ui->label->setText(_newName);
 }
 
 void SelectCurveWindowDialog::cancelSelect() {
-    m_helper->setDataCurveIndex(-1);
     this->reject();
 }
 
-SelectCurveWindowHelper * SelectCurveWindowDialog::getDialogCurveHelper() {
-    SelectCurveWindowHelper * t=new SelectCurveWindowHelper();
-    return t;
-}

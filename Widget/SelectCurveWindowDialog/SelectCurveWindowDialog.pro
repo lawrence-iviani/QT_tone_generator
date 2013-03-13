@@ -12,12 +12,15 @@ TEMPLATE = lib
 
 SOURCES += main.cpp\
         selectcurvewindowdialog.cpp \
-    selectcurvewindowhelper.cpp
 
-HEADERS  += selectcurvewindowdialog.h \
-    selectcurvewindowhelper.h
 
-FORMS    += selectcurvewindowdialog.ui
+HEADERS  +=\
+        selectcurvewindowdialog.h \
+
+
+FORMS   += selectcurvewindowdialog.ui
+
+INCLUDEPATH += ../../ComplexToneGenerator/
 
 QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
 

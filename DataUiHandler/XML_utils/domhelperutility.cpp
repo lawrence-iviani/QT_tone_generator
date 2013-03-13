@@ -198,8 +198,8 @@ bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomNode&
             return false;
         }
     }
-    qDebug() << Q_FUNC_INFO << " rootNode=" << DomHelperUtility::nodeToString(&rootNode);
-    qDebug() << Q_FUNC_INFO << " tagName=" << tagName;
+  //  qDebug() << Q_FUNC_INFO << " rootNode=" << DomHelperUtility::nodeToString(&rootNode);
+  //  qDebug() << Q_FUNC_INFO << " tagName=" << tagName;
     if (rootNode.toElement().isNull()) {
         if (err){
             err->setMethod(Q_FUNC_INFO);
@@ -208,7 +208,7 @@ bool DomHelperUtility::nodeListByTagName(QDomNodeList& nodeList, const QDomNode&
         return false;
     }
     nodeList=rootNode.toElement().elementsByTagName(tagName);
-    qDebug() << Q_FUNC_INFO << " nodeList.length()=" << nodeList.length();
+  //  qDebug() << Q_FUNC_INFO << " nodeList.length()=" << nodeList.length();
     return true;
 }
 

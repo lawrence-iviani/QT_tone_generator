@@ -7,6 +7,11 @@
 #include "abstractcurvesfactory.h"
 #include "widgetstyle.h"
 
+
+
+/**
+  * This class is a data helper class to store information about available curves, it needs to be init adding data curve information,
+  */
 const static QString TIMEDATACURVEFACTORY_FILENAME=":/xml/curveslistdescription.xml";
 const static QString TIMEDATACURVEFACTORY_CURVE_TAG="timedatacurve";
 const static QString TIMEDATACURVEFACTORY_NAME_TAG="name";
@@ -22,16 +27,15 @@ class CustomCurveFactory : public QObject, public AbstractCurveFactory {
 public:
     static CustomCurveFactory* instance();
     virtual GenericTimeData* newCurve (QString className);
-    virtual SelectCurveWindowHelper* getCurveHelper() {return &m_selectCurveHelper;}
+    virtual const QMap<QString,s_curveDescriptionData>* getCurvesMap() {return (const QMap<QString,s_curveDescriptionData>*) &m_itemsMap;}
     static GenericTimeData* newDialogCurve(QWidget* widget, WidgetStyle* style);
 
 protected:
     CustomCurveFactory();
 
 private:
-    static void setupCurves(SelectCurveWindowHelper * selectCurveHelper);//This method creates all the possible tone generator and generate the help for the dialog window
 
-    SelectCurveWindowHelper m_selectCurveHelper;
+    QMap<QString, s_curveDescriptionData> m_itemsMap;
 };
 
 #endif // CUSTOMCURVEFACTORY_H

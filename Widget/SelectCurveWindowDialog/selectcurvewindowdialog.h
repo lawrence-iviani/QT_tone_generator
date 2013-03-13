@@ -2,7 +2,12 @@
 #define SELECTCURVEWINDOWDIALOG_H
 
 #include <QDialog>
-#include "selectcurvewindowhelper.h"
+
+struct s_curveDescriptionData {
+    QString className;
+    QString name;
+    QString description;
+};
 
 namespace Ui {
 class SelectCurveWindowDialog;
@@ -13,16 +18,16 @@ class SelectCurveWindowDialog : public QDialog
     Q_OBJECT
     
 public:
-    SelectCurveWindowDialog( SelectCurveWindowHelper * h, QWidget *parent = 0);
+    SelectCurveWindowDialog( const QMap<QString,s_curveDescriptionData>* pMap, QWidget *parent = 0);
     ~SelectCurveWindowDialog();
-    static SelectCurveWindowHelper * getDialogCurveHelper();
+    QString getSelectedCurveName() {return m_curveSelected;}
 public slots:
     void changedCurve(int index);
     void cancelSelect();
 private:
     Ui::SelectCurveWindowDialog *ui;
-    SelectCurveWindowHelper * m_helper;
-    s_dataCurve m_curveSelected;
+    const QMap<QString,s_curveDescriptionData>* m_pMap;
+    QString m_curveSelected;
 };
 
 #endif // SELECTCURVEWINDOWDIALOG_H
