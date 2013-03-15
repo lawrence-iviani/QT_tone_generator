@@ -17,7 +17,6 @@ const static QString ENEVELOPEPARAMETERS_TAG="EnvelopeParams";
 const static QString TIMEDATACURVEPARAMETERS_TAG="TimeDataCurveParams";
 const static QString PROJECTTIMEPARAMETERS_TAG="ProjectParams";
 
-
 //root tag
 const static QString ENVELOPE_TAG="EnvelopeData";
 const static QString PROJECT_TAG="ProjectRoot";

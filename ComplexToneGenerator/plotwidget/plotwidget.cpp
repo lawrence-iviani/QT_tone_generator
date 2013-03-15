@@ -1,20 +1,18 @@
 #include "plotwidget.h"
 
 PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
-    QwtPlot(parent),
-    m_enablePlotUpdate(true)
+    QwtPlot(parent)
 {
     m_dimension=PLOTWIDGET_DEFAULT_PLOT_DIMENSION;
     this->plotSetup();
     this->setXScaleType(xScaleType);
     this->setYScaleType(yScaleType);
     this->replot();
-    connectSignal();
 }
 
-void PlotWidget::connectSignal() {
-    Q_ASSERT(connect(this,SIGNAL(curveListChanged()),this,SLOT(recalcAndUpdatePlot())));
-}
+//void PlotWidget::connectSignal() {
+//    Q_ASSERT(connect(this,SIGNAL(curveListChanged()),this,SLOT(recalcAndUpdatePlot())));
+//}
 
 void PlotWidget::plotSetup() {
     this->setAutoReplot(false);
@@ -110,56 +108,4 @@ void PlotWidget::setDimension(int pointDimension) {
     this->replot();
 }
 
-int PlotWidget::addTimeData(GenericTimeData * gtd) {
-    if (!gtd) return -1;
-    m_curveList.append(gtd);
-    gtd->getCurve()->setZ(m_curveList.length());
-    gtd->getCurve()->attach(this);
-    Q_ASSERT(connect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot())));
-    Q_ASSERT(connect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot())));
-    emit curveListChanged();
-    return (m_curveList.length()-1);
-}
 
-bool PlotWidget::removeTimeData(int index) {
-    bool retval=false;
-    if (  (0 <= index) && (index < m_curveList.length()) ) {
-        GenericTimeData *  gtd=this->getTimeData(index);
-        gtd->getCurve()->detach();
-        disconnect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot()));
-        disconnect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot()));
-        Q_ASSERT(gtd!=NULL);
-        delete gtd;
-        m_curveList.removeAt(index);
-        retval=true;
-        emit curveListChanged();
-    } else {
-        qWarning() << "PlotWidget::removeTimeData trying remove curve index "<< index <<", is out of range " << " lenCurveList=" << m_curveList.length();
-    }
-    return retval;
-}
-
-GenericTimeData *PlotWidget::getTimeData(int index) {
-    GenericTimeData * retval=NULL;
-    if (  (0 <= index) && (index < m_curveList.length()) ) {
-        retval=m_curveList.at(index);
-    }
-    return retval;
-}
-
-bool PlotWidget::setEnablePlot(bool enable) {
-    bool retval=m_enablePlotUpdate;
-    if (enable!=m_enablePlotUpdate) {
-        m_enablePlotUpdate=enable;
-    }
-    return retval;
-}
-
-QStringList  PlotWidget::getTimeDataStringList() {
-    QStringList retval;
-    foreach(GenericTimeData* p, m_curveList) {
-        GenericTimeDataParams* _params=dynamic_cast<GenericTimeDataParams*> (p->getDataParameters());
-        retval << _params->name();
-    }
-    return retval;
-}
