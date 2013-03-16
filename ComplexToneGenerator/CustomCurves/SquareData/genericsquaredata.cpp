@@ -50,7 +50,7 @@ void GenericSquareData::recalc() {
 
     //Getting params
     qreal _ampl=_gsp->amplitude();
-    qreal _period=1.0/_gsp->frequency();
+    qreal _period=0.5/_gsp->frequency();
     qreal _mean=_gsp->meanValue();
     qreal _hiVal=_mean+_ampl;
     qreal _lowVal=_mean-_ampl;

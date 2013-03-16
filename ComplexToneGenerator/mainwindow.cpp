@@ -239,7 +239,8 @@ void MainWindow::newCurve() {
     name.append(QString::number(m_indexGenerator++));
     GenericTimeDataParams* _gtdParams=dynamic_cast<GenericTimeDataParams*>(s->getDataParameters());
     Q_ASSERT(_gtdParams);
-    _gtdParams->setColor(Qt::green);
+    m_actualColor=ComboBoxWidgetColor::getNextColor(m_actualColor);
+    _gtdParams->setColor(m_actualColor);
     _gtdParams->setName(name);
     _gtdParams->setShowCurve(true);
 

@@ -42,6 +42,11 @@ void PlotWidget::plotSetup() {
     _palette.setColor(QPalette::Text, Qt::gray);
     this->axisWidget(yLeft)->setPalette((const QPalette)_palette);
 
+    _palette=this->axisWidget(yRight)->palette();
+    _palette.setColor(QPalette::WindowText, Qt::gray);
+    _palette.setColor(QPalette::Text, Qt::gray);
+    this->axisWidget(yRight)->setPalette((const QPalette)_palette);
+
     //canvas
     this->canvas()->setFrameStyle( QFrame::Box | QFrame::Raised );
     this->canvas()->setBorderRadius( 12 );
@@ -98,6 +103,7 @@ void PlotWidget::setDimension(int pointDimension) {
     this->setFont(f);
     this->setAxisFont(xBottom,f_ax);
     this->setAxisFont(yLeft,f_ax);
+    this->setAxisFont(yRight,f_ax);
     this->legend()->setFont(f_leg);
 
    //set font for the title

@@ -7,10 +7,12 @@
 #include <CTG_constants.h>
 #include <qwt_matrix_raster_data.h>
 #include <qwt_plot_layout.h>
+#include<complex>//needed before fftw, accordingly with the fftw documentation.
+#include <fftw3.h>
 
 const qreal FREQPLOTWIDGET_MAX_MAGNITUDE=0; //dB
 const qreal FREQPLOTWIDGET_MIN_MAGNITUDE=-80; //dB
-
+const uint FREQPLOTWIDGET_SAMPLES_PER_WINDOW=8192;
 
 class SpectrogramData: public QwtRasterData
 {
@@ -20,7 +22,7 @@ public:
 
     virtual ~SpectrogramData();
 
-    void setData(const qreal * array, uint arraySize, uint numberOfSlice, uint numberOfBins);
+    void setData(const qreal * array, uint arraySize, uint numberOfSlice, uint samplesPerSlice);
     virtual double value(double x, double y) const;
 
 private:
@@ -82,6 +84,7 @@ private:
     QFrame * m_allControl;//The widget with all control (base and eventually extended
     QwtPlotSpectrogram m_spectrogram;
     GenericTimeData *m_timeData;
+    uint m_binsPerWindow;
 };
 
 

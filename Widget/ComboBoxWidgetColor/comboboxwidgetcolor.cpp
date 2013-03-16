@@ -146,3 +146,19 @@ QStringList  ComboBoxWidgetColor::getColorsNameList() {
     l << ComboBoxWidgetColor::GRAY << ComboBoxWidgetColor::DARKGRAY << ComboBoxWidgetColor::LIGHTGRAY;
     return l;
 }
+
+QColor ComboBoxWidgetColor::getNextColor(QColor &color) {
+    if (color==Qt::green)  return Qt::red;
+    if (color==Qt::red)  return Qt::blue;
+    if (color==Qt::blue)  return Qt::magenta;
+    if (color==Qt::magenta)  return Qt::cyan;
+    if (color==Qt::cyan)  return Qt::yellow;
+    if (color==Qt::yellow)  return Qt::darkGreen;
+    if (color==Qt::darkGreen) return Qt::darkRed;
+    if (color==Qt::darkRed)  return Qt::darkBlue;
+    if (color==Qt::darkBlue)  return Qt::darkMagenta;
+    if (color==Qt::darkMagenta)  return Qt::darkCyan;
+    if (color==Qt::darkCyan)  return Qt::darkYellow;
+    if (color==Qt::darkYellow)  return Qt::green;
+    return Qt::green;
+}

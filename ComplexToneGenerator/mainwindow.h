@@ -109,6 +109,7 @@ private:
     QTreeWidget * m_TreeWidgetshowXML;
     WidgetStyle m_widgetStyleUI;
     WidgetStyle m_widgetStylePlot;
+    QColor m_actualColor;
 };
 
 #endif // MAINWINDOW_H

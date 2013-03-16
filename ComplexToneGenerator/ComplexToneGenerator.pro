@@ -22,6 +22,10 @@ INCLUDEPATH += /usr/local/qwt-6.0.1/lib/qwt.framework/Headers/
 INCLUDEPATH += /opt/local/include/
 LIBS += -L/opt/local/lib -lsndfile
 
+# fftw3
+INCLUDEPATH += /usr/local/include/
+LIBS += -L/usr/local/lib -lfftw3
+
 # ------ End Dependecies libs:
 
 # ------ Internal deps
