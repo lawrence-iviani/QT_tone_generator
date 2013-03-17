@@ -218,7 +218,7 @@ void GenericTimeData::resetAllData() {
 
     GenericTimeDataParams *_gtdp=dynamic_cast< GenericTimeDataParams*> (getDataParameters());
     Q_ASSERT(_gtdp!=NULL);
-    m_sample=qFloor(_gtdp->maxDuration()*_gtdp->sampleRate());//number of sample
+    m_sample=qCeil((_gtdp->maxDuration()-_gtdp->startTime())*_gtdp->sampleRate());//number of sample
     qreal SL=1/_gtdp->sampleRate(); //Sample length
 
     m_t=new qreal[m_sample];
@@ -318,7 +318,6 @@ void GenericTimeData::curveHasChanged() {
     } else {
         m_curve->hide();
     }
-
     emit (curveAttributeChanged());
 }
 
