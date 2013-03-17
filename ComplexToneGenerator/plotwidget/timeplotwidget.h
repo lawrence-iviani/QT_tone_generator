@@ -94,7 +94,8 @@ public slots:
          if (m_enablePlotUpdate) {
              PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ REPLOT "));
              replot();
-             if (m_freqPlot) m_freqPlot->dataUpdated();
+         } else {
+             PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ Called, but DON'T UPDATE PLOT "));
          }
      }
 
@@ -106,6 +107,9 @@ public slots:
             PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ Digest Update "));
             m_digestCurve->updateData();
             updatePlot();
+            if (m_freqPlot) m_freqPlot->dataUpdated();
+        } else {
+            PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ Call Digest Update but DON'T UPDATE & RECALC"));
         }
     }
 

@@ -22,6 +22,9 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
     this->setRubberBandPosition(0);
     //connect show all and enable all
     connectSignals();
+
+    //set title
+    this->setPlotTitle("Time curves plot");
 }
 
 TimePlotWidget::~TimePlotWidget() { }
@@ -121,7 +124,7 @@ void TimePlotWidget::setAllCurvesSampleRate(qreal samplerate) {
 
     //Replot and recalc digest
     this->updatePlot();
-    //emit (sampleRateChanged(_SR));
+    if (m_freqPlot) m_freqPlot->dataUpdated();
 }
 
 void TimePlotWidget::setAllCurvesMaxDuration(qreal maxduration) {
@@ -149,7 +152,7 @@ void TimePlotWidget::setAllCurvesMaxDuration(qreal maxduration) {
     this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*maxduration);
     //Replot and recalc digest
     this->updatePlot();
-  //  emit (duartionChanged(_maxDuration));
+    if (m_freqPlot) m_freqPlot->dataUpdated();
 }
 
 void TimePlotWidget::showAllCurves(bool show) {
