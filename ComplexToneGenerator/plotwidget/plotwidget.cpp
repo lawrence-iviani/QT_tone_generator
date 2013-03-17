@@ -10,17 +10,14 @@ PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
     this->replot();
 }
 
-//void PlotWidget::connectSignal() {
-//    Q_ASSERT(connect(this,SIGNAL(curveListChanged()),this,SLOT(recalcAndUpdatePlot())));
-//}
-
 void PlotWidget::plotSetup() {
     this->setAutoReplot(false);
     this->setAutoFillBackground( true );
-    this->setPalette( QPalette( QColor(50,50,50)));//( 165, 193, 228 ) ) );
+    this->setPalette( QPalette( QColor(50,50,50)));
     this->insertLegend(new QwtLegend(), QwtPlot::RightLegend);
     this->setDimension(m_dimension);
-    this->setTitle("PlotWidget NO TITLE");
+
+    setPlotTitle("Plot Widget Title");
 
     if (m_yScaleType==PlotWidget::Logarithmic) {
         this->setAxisScaleEngine(xBottom,new QwtLog10ScaleEngine());
@@ -66,6 +63,19 @@ void PlotWidget::setXScaleType(int xScaleType) {
     }
 }
 
+void PlotWidget::setPlotTitle(const QString& title) {
+    QwtText _title= this->title();
+    _title.setText(title);
+    _title.setColor(Qt::lightGray);
+    //set font for the title
+    QFont _f=_title.font();
+    _f.setPointSize(m_dimension+2);
+    _f.setBold(true);
+    _title.setFont(_f);
+    this->setTitle(_title);
+
+}
+
 void PlotWidget::setYScaleType(int yScaleType) {
     m_yScaleType=yScaleType;
     if (m_yScaleType==PlotWidget::Logarithmic) {
@@ -105,12 +115,6 @@ void PlotWidget::setDimension(int pointDimension) {
     this->setAxisFont(yLeft,f_ax);
     this->setAxisFont(yRight,f_ax);
     this->legend()->setFont(f_leg);
-
-   //set font for the title
-    QwtText t=this->title();
-    f.setPointSize(pointDimension);
-    t.setFont(f);
-    this->setTitle(t);
     this->replot();
 }
 

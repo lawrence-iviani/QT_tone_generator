@@ -43,10 +43,13 @@ public:
     void setXScaleType(int xScaleType);
     void setYScaleType(int yScaleType);
     void setDimension(int pointDimension);
+    void setPlotTitle(const QString& title);
+
 
     int xScaleType() {return m_xScaleType;}
     int yScaleType() {return m_yScaleType;}
     int dimension()  {return m_dimension;}
+
 
 public slots:
 
