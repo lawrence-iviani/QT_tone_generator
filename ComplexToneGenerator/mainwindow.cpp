@@ -469,6 +469,7 @@ void MainWindow::duplicateCurves() {
          addCurve(_curve);
      }
      m_plotTime->setEnablePlot(true);
+     m_plotTime->recalcAndUpdatePlot();
      delete duplicateDialog;
 }
 
@@ -750,6 +751,7 @@ bool MainWindow::importDomDocument(const QDomDocument& doc, ErrorMessage *err) {
         addCurve(_curve);
     }
     m_plotTime->setEnablePlot(true);
+    m_plotTime->recalcAndUpdatePlot();
     return true;
 }
 
