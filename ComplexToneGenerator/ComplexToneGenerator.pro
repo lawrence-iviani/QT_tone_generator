@@ -82,11 +82,12 @@ SOURCES +=    timedata/generictimedataparams.cpp \
     plotwidget/timeplotwidgetparams.cpp \
     plotwidget/timeplotwidgetui.cpp \
     plotwidget/timeplotwidget.cpp \
+    plotwidget/freqplotwigetparams.cpp \
+    plotwidget/freqplotwidgetui.cpp \
     plotwidget/freqplotwidget.cpp \
     mainwindow.cpp \
     main.cpp \
     ctg_app.cpp \
-
 
 HEADERS  += CTG_constants.h \
     timedata/generictimedataparams.h \
@@ -117,10 +118,13 @@ HEADERS  += CTG_constants.h \
     plotwidget/timeplotwidgetparams.h \
     plotwidget/timeplotwidgetui.h \
     plotwidget/timeplotwidget.h \
+    plotwidget/freqplotwigetparams.h \
+    plotwidget/freqplotwidgetui.h \
     plotwidget/freqplotwidget.h \
     plotwidget/scrollrubberband.h \
     mainwindow.h \
     ctg_app.h \
+
 
 FORMS    += mainwindow.ui
 

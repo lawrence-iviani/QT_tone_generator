@@ -206,11 +206,11 @@ QFrame *MainWindow::setupOptionsFrame() {
 
     QVBoxLayout *_l=new QVBoxLayout();
     //Adding widget to the toolbox option
-    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotTime->getControlWidget(),"Time Option");
-    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Freq Option");
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotTime->getControlWidget(),"Time Plot Option");
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Spectrogram Option");
 
     //Setting audio player control and digest curve stream
-    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player");
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player controls");
 
     QFrame *_w=new QFrame();
     _w->setFrameStyle(QFrame::QFrame::Raised);
