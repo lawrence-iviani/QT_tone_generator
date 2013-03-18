@@ -13,22 +13,21 @@ SpectrogramData::SpectrogramData(double SR,double minTime,double maxTime) :
 SpectrogramData::~SpectrogramData() {  if (m_array != NULL) delete[] m_array; }
 
 void SpectrogramData::setIntervals(double SR,double minTime,double maxTime) {
-    m_intervalFreq=QwtInterval( 10, SR /2.0,QwtInterval::ExcludeBorders);
-    m_intervalTime=QwtInterval( minTime, maxTime, QwtInterval::ExcludeMaximum );
+    setSampleRate(SR);
+    setTimeLength(minTime,maxTime);
     m_intervalMagnitude=QwtInterval( FREQPLOTWIDGET_MIN_MAGNITUDE, FREQPLOTWIDGET_MAX_MAGNITUDE );
-    setInterval( Qt::XAxis, m_intervalFreq);
-    setInterval( Qt::YAxis, m_intervalTime);
     setInterval( Qt::ZAxis, m_intervalMagnitude);
 }
 
 void SpectrogramData::setSampleRate(double SR) {
     m_intervalFreq=QwtInterval( 10, SR /2.0,QwtInterval::ExcludeBorders );
     setInterval( Qt::XAxis, m_intervalFreq );
-    setInterval( Qt::YAxis, m_intervalTime);
+
 }
 
 void SpectrogramData::setTimeLength(double minTime, double maxTime) {
     m_intervalTime=QwtInterval( minTime, maxTime, QwtInterval::ExcludeMaximum);
+    setInterval( Qt::YAxis, m_intervalTime);
 }
 
 void SpectrogramData::setData(const double * array, uint arraySize, uint binsPerWindow, QString windowType, qreal percentOverlap)
