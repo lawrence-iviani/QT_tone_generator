@@ -2,15 +2,18 @@
 #include "freqplotwigetparams.h"
 #include "freqplotwidgetui.h"
 
-SpectrogramData::SpectrogramData(double SR,double minTime,double maxTime) :
-        m_numberOfBins(4096),
-        m_sizeArray(0),
-        m_array(NULL),
-        m_stepFreq(1),
-        m_stepTime(1)
-    { setIntervals(SR,minTime,maxTime); }
+//New spectrogram
+SpectrogramData::SpectrogramData(double SR,double minTime,double maxTime)
+{
+    //Init a matrix
+    setIntervals(SR,minTime,maxTime);
+    uint nwin=qRound((maxTime-minTime)*SR/4096);
+    m_fftArray.fill(FREQPLOTWIDGET_MIN_MAGNITUDE,nwin*4096);
+    setValueMatrix(m_fftArray, nwin);
+    setResampleMode(QwtMatrixRasterData::BilinearInterpolation);
+}
 
-SpectrogramData::~SpectrogramData() {  if (m_array != NULL) delete[] m_array; }
+SpectrogramData::~SpectrogramData() { /* if (m_fftArray != NULL) delete m_fftArray;*/ }
 
 void SpectrogramData::setIntervals(double SR,double minTime,double maxTime) {
     setSampleRate(SR);
@@ -21,136 +24,81 @@ void SpectrogramData::setIntervals(double SR,double minTime,double maxTime) {
 
 void SpectrogramData::setSampleRate(double SR) {
     m_intervalFreq=QwtInterval( 10, SR /2.0,QwtInterval::ExcludeBorders );
-    setInterval( Qt::XAxis, m_intervalFreq );
+    setInterval( Qt::YAxis, m_intervalFreq );
 
 }
 
 void SpectrogramData::setTimeLength(double minTime, double maxTime) {
     m_intervalTime=QwtInterval( minTime, maxTime, QwtInterval::ExcludeMaximum);
-    setInterval( Qt::YAxis, m_intervalTime);
+    setInterval( Qt::XAxis, m_intervalTime);
 }
+
 
 void SpectrogramData::setData(const double * array, uint arraySize, uint binsPerWindow, QString windowType, qreal percentOverlap)
 {
     Q_UNUSED(percentOverlap); //TODO: impement overlap
 
-    m_numberOfBins=binsPerWindow;
+    uint _numberOfBins=binsPerWindow;//Number of rows
     //Setting the data matrix creating a new one, deleting the previous one if  it exists.
-    uint _numberOfSlices=qCeil( ((qreal)arraySize) / ((qreal)m_numberOfBins));
-
+    //number of slices
+    uint _numberOfSlices=qCeil( ((qreal)arraySize) / ((qreal)_numberOfBins));
+    uint _numberOfWindows=_numberOfSlices; //TODO: it 's the same, OVERLAP???
     //Calculate the internal array, it will can be a little bit larger than
-
-    //TODO this is based also on the overlap, now is equal to numberOfSlice
-    //In the future overlap must be calculated here!
-    uint _numberOfWindows=_numberOfSlices;
-    m_sizeArray= _numberOfWindows * m_numberOfBins;
-    Q_ASSERT(arraySize<=m_sizeArray);
-    if (m_array != NULL)
-        delete[] m_array;
-    m_array = new double [m_sizeArray];
-
-    //Fulfilling  of zero
-    memset(m_array,0,m_sizeArray * sizeof(double));
-    //Setting STFT params, missing another sampling (useful??), window type and window overlap
-
-    m_stepFreq=(m_intervalFreq.maxValue() - m_intervalFreq.minValue())/m_numberOfBins;
-    m_stepTime=(m_intervalTime.maxValue() - m_intervalTime.minValue())/_numberOfSlices;
+    uint _sizeArray=_numberOfWindows * _numberOfBins/2;
+    m_fftArray.fill(FREQPLOTWIDGET_MIN_MAGNITUDE, _sizeArray);
 
     //Calculate & Setting the STFT
-    fftw_complex * in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*m_numberOfBins);
+    fftw_complex * in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*_numberOfBins);
     //double* in=(double*)malloc(m_numberOfBins*sizeof(double));
-    fftw_complex *out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*m_numberOfBins);
+    fftw_complex *out = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*_numberOfBins);
     fftw_plan my_plan;
     //my_plan = fftw_plan_dft_r2c_1d(nfft, in, out, FFTW_ESTIMATE);//FFTW_FORWARD, FFTW_ESTIMATE);
-    my_plan = fftw_plan_dft_1d(m_numberOfBins, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
-    uint i;
+    my_plan = fftw_plan_dft_1d(_numberOfBins, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
+
 
     //Create window
-    double _arrayWindow[m_numberOfBins];
-    TransformWindow::generateWindow(_arrayWindow,m_numberOfBins,windowType);
+    double _arrayWindow[_numberOfBins];
+    TransformWindow::generateWindow(_arrayWindow,_numberOfBins,windowType);
 
     qDebug() << Q_FUNC_INFO << "Starting calculation with  _numberOfWindows="<<_numberOfWindows
-             <<"and m_numberOfBins="<< m_numberOfBins << " each window. _numberOfSlices="<< _numberOfSlices;
+             <<"and m_numberOfBins="<< _numberOfBins << " each window. _numberOfSlices="<< _numberOfSlices;
 
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Starting calculation with  %1 windows, each has %2 bins, the total size of the internal array is %3")
+                      .arg(_numberOfWindows)
+                      .arg(_numberOfBins)
+                      .arg(_sizeArray));
+    uint i;
     for (uint nWin=0; nWin < _numberOfWindows; nWin++) {
-        uint _lowIndex=nWin*m_numberOfBins;//(nWin==0 ? 0:  nWin*m_numberOfBins+1);
-        uint _hiIndex=nWin*m_numberOfBins+m_numberOfBins-1;
+        uint _lowIndex=nWin*_numberOfBins;
+        uint _hiIndex=nWin*_numberOfBins+_numberOfBins-1;
         //setting input signal for window nWin
         i=_lowIndex;//IF OVERLAP????
-        for (uint nBin=0;nBin<m_numberOfBins;nBin++) {
-            //in[nBin]=array[i++];
+        for (uint nBin=0;nBin<_numberOfBins;nBin++) {
            in[nBin][0]= _arrayWindow[nBin]*((i < arraySize) ? array[i++]  : 0.0);//Setting real part of the input signal
            in[nBin][1]=0.0;//Setting imag part of the input signal
         }
-        Q_ASSERT (i-1 < arraySize);
-        //qDebug() << Q_FUNC_INFO << "Signal ready i="<<i-1<<"array lowInedx="<< _lowIndex << "hiIndex="<< _hiIndex;
+        //Test to verify if the input array was extracted correctly
+        if ((i-1)!=_hiIndex) Q_ASSERT(i==arraySize);
 
         //calculate FFT for nWin
         fftw_execute(my_plan);
 
-        //Calculate power spectrum for window nWin
-        i=_lowIndex;//IF OVERLAP????
-        m_array[i]=POWER_SPECTRUM(out[0][0],out[0][1],m_numberOfBins);//DC component
-        for (uint nBin=0;nBin<(m_numberOfBins+1)/2;nBin++) {
-            //val, the power spectrum
-            double val=POWER_SPECTRUM(out[nBin][0],out[nBin][1],m_numberOfBins);
-            m_array[i++]=val;
-            m_array[i++]=val;
-        // printf("out[%d][0]=%f, out[%d][1]=%f m_array[%d]=%f\n",nBin,out[nBin][0], nBin,out[nBin][1],i,m_array[i-1]);
+        //for (uint nBin=0;nBin<(_numberOfBins+1)/2;nBin) {
+        for (uint nBin=0;nBin<(_numberOfBins+1)/2;nBin++) {
+            m_fftArray[nWin+_numberOfWindows*nBin]=POWER_SPECTRUM(out[nBin][0],out[nBin][1],_numberOfBins);
         }
-        //qDebug() << Q_FUNC_INFO << "Power specturm i="<<i-1<<"array lowInedx="<< _lowIndex << "hiIndex="<< _hiIndex;
-        Q_ASSERT(i-1==_hiIndex);
     }
-
-    qDebug() << Q_FUNC_INFO << "END last index i="<<i<<" shoudl be equal to m_sizeArray="<< m_sizeArray;
-    Q_ASSERT(i==m_sizeArray);
     fftw_destroy_plan(my_plan);
     free(in);
     fftw_free(out);
 
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"setting data with _numberOfWindows=%1 m_numberOfBins=%2, for a total of bins m_sizeArray=%3")
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Set data with %1 windows, each has %2 bins, the total size of the internal array is %3")
                       .arg(_numberOfWindows)
-                      .arg(m_numberOfBins)
-                      .arg(m_sizeArray));
+                      .arg(_numberOfBins)
+                      .arg(_sizeArray));
+
+    setValueMatrix(m_fftArray, _numberOfWindows);
 }
-
-double SpectrogramData::value(double x, double y) const
-{
-    //X frequency
-    //Y Time
-   if (!m_array) return m_intervalMagnitude.minValue();
-
-   //calculating matrix indexes from x (frequency bins) and y (time slice)
-   uint nBins = qRound(x/m_stepFreq);
-   uint nSlices = qFloor(y/m_stepTime);
-
-//   //getting the absolute index neareset
-   uint index=nSlices*m_numberOfBins + nBins;// (m_intervalFreq.maxValue() - m_intervalFreq.minValue()) * freqPos;
-
-   //Q_ASSERT(index<m_sizeArray);
-   double retval;
-   if (index>=m_sizeArray) {
-       PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,"request index=%1 out of range m_sizeArray=%2 (x,y)=(%3,%4) and (indFreq,indTime)=(%5,%6), returning minval")
-                   .arg(index)
-                   .arg(m_sizeArray)
-                   .arg(x)
-                   .arg(y)
-                   .arg(nBins)
-                   .arg(nSlices));
-       retval=m_intervalMagnitude.minValue();
-   } else {
-       retval=(double)m_array[index];
-//       PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Index OK, retval=%1 map (x=%2,y=%3) => (bin=%4,slice=%5)")
-//                         .arg(retval)
-//                         .arg(x)
-//                         .arg(y)
-//                         .arg(nBins)
-//                         .arg(nSlices));
-   }
-   return retval;
-}
-
-
 
 FreqPlotWidget::FreqPlotWidget(QWidget *parent) :
     PlotWidget(parent),
@@ -178,10 +126,11 @@ FreqPlotWidget::FreqPlotWidget(QWidget *parent) :
     _rightAxis->setColorBarEnabled(true);
 
     //set Xscale
-    setXScaleType(PlotWidget::Logarithmic);
+    setYScaleType(PlotWidget::Logarithmic);
 
     //Setscale limits, should check if these value changed...
-    setBothAxisScale(10 , TIMEDATA_DEFAULT_SR/2 , TIMEDATA_DEFAULT_PROJECT_TIME, TIMEDATA_DEFAULT_MIN_TIME);
+   // setBothAxisScale(10 , TIMEDATA_DEFAULT_SR/2 , TIMEDATA_DEFAULT_PROJECT_TIME, TIMEDATA_DEFAULT_MIN_TIME);
+    setBothAxisScale( TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_PROJECT_TIME,10 , TIMEDATA_DEFAULT_SR/2 );
     plotLayout()->setAlignCanvasToScales(true);
 
     //set title
@@ -207,7 +156,7 @@ void FreqPlotWidget::dataUpdated() {
     Q_ASSERT(_gtdParams!=NULL);
 
     //Setscale limits, should check if these value changed...
-    setBothAxisScale(10 , _gtdParams->sampleRate()/2.0 , _gtdParams->maxDuration(), _gtdParams->startTime());
+    setBothAxisScale( _gtdParams->startTime(), _gtdParams->maxDuration() ,10 , _gtdParams->sampleRate()/2.0);
     _spectrData->setSampleRate(_gtdParams->sampleRate());
     _spectrData->setTimeLength(_gtdParams->startTime(),_gtdParams->maxDuration());
 

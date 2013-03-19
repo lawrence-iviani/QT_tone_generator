@@ -21,33 +21,25 @@ const qreal FREQPLOTWIDGET_MIN_MAGNITUDE=-80; //dB
 //rectangle 0.015625
 #define POWER_SPECTRUM(real,imag,nbins) 10*log10(1.0*(real*real+imag*imag)/(nbins));
 
-class SpectrogramData: public QwtRasterData
-{
 
-public:
+
+class SpectrogramData: public QwtMatrixRasterData
+{
+    public:
     SpectrogramData(double SR=TIMEDATA_DEFAULT_SR,double minTime=TIMEDATA_DEFAULT_MIN_TIME,double maxTime=TIMEDATA_DEFAULT_PROJECT_TIME);
 
     virtual ~SpectrogramData();
-
     void setData(const double * array, uint arraySize, uint binsPerWindow, QString windowType,qreal percentOverlap=1.0);
-    virtual double value(double x, double y) const;
     void setSampleRate(double SR);
     void setTimeLength(double minTime,double maxTime);
-
-    static void generalizeHammingWindow(double array[], uint nBins, double alpha, double beta);
-    static void hammingWindow(double array[], uint nBins) {return SpectrogramData::generalizeHammingWindow(array, nBins, 0.54, 0.46);}
-    static void hannWindow(double array[], uint nBins) {return SpectrogramData::generalizeHammingWindow(array, nBins, 0.5, 0.5);}
 
 private:
     void setIntervals(double SR,double minTime,double maxTime);
     QwtInterval m_intervalFreq;
     QwtInterval m_intervalTime;
     QwtInterval m_intervalMagnitude;
-    uint m_numberOfBins;
-    uint m_sizeArray;
-    double* m_array;
-    double m_stepFreq;
-    double m_stepTime;
+
+    QVector<double> m_fftArray;
 };
 
 class TransformWindow {
