@@ -19,7 +19,7 @@ const qreal FREQPLOTWIDGET_MIN_MAGNITUDE=-80; //dB
 #define FREQPLOTWIDGET_WINDOWTYPE(stringList)  stringList << "Rectangular" << "Bartlett" << "Hann" << "Hamming"
 
 //rectangle 0.015625
-#define POWER_SPECTRUM(real,imag,nbins) 10*log10(1.0*(real*real+imag*imag)/(nbins));
+#define POWER_SPECTRUM(real,imag,nbins) 10*log10(1.0*(real*real+imag*imag)/(nbins))
 
 
 

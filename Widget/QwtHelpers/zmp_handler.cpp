@@ -17,6 +17,9 @@ void ZMP_Handler::init(QwtPlotCanvas * canvas) {
     // zoom in/out with the wheel
     m_zoom=new QwtPlotZoomer(canvas);//QwtPlot::xTop , QwtPlot::yLeft,canvas);
     m_zoom->setRubberBand(QwtPicker::RectRubberBand);
+    m_zoom->setMaxStackDepth(3);
+
+
 
     //Setting Picker cross with a click
     m_picker = new QwtPlotPicker(QwtPlot::xBottom, QwtPlot::yLeft, QwtPlotPicker::CrossRubberBand, QwtPicker::AlwaysOn, canvas);
@@ -24,7 +27,7 @@ void ZMP_Handler::init(QwtPlotCanvas * canvas) {
     m_picker->setRubberBand(QwtPicker::CrossRubberBand);
 
     //set color
-    this->setBaseColor(QColor(Qt::darkGray));
+    this->setBaseColor(QColor(Qt::black));
 
     this->disableAll();
 }

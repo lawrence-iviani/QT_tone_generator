@@ -36,16 +36,28 @@ void SpectrogramData::setTimeLength(double minTime, double maxTime) {
 
 void SpectrogramData::setData(const double * array, uint arraySize, uint binsPerWindow, QString windowType, qreal percentOverlap)
 {
-    Q_UNUSED(percentOverlap); //TODO: impement overlap
-
     uint _numberOfBins=binsPerWindow;//Number of rows
-    //Setting the data matrix creating a new one, deleting the previous one if  it exists.
-    //number of slices
-    uint _numberOfSlices=qCeil( ((qreal)arraySize) / ((qreal)_numberOfBins));
-    uint _numberOfWindows=_numberOfSlices; //TODO: it 's the same, OVERLAP???
+    qreal _percentileOverlap=percentOverlap/100.0;
+    Q_ASSERT(percentOverlap>=0.0 && percentOverlap <100.0);
+    //BAD CODE
+    uint pos=0;
+
+    uint _numberOfWindows=0;
+    while (pos < arraySize) {
+        uint _lowIndex=qFloor((1.0-_percentileOverlap)*_numberOfWindows*_numberOfBins);
+        uint _hiIndex=qMin( _lowIndex+_numberOfBins, arraySize);
+        qDebug() << "Calculating win length ("<<_numberOfWindows<<")"<< _lowIndex << "-" << _hiIndex<<"/"<< arraySize;
+        _numberOfWindows++;
+        pos=_hiIndex;
+    }
+    //BAD CODE
+
+
     //Calculate the internal array, it will can be a little bit larger than
-    uint _sizeArray=_numberOfWindows * _numberOfBins/2;
-    m_fftArray.fill(FREQPLOTWIDGET_MIN_MAGNITUDE, _sizeArray);
+    uint _sizeArray=_numberOfWindows+(_numberOfWindows) * _numberOfBins/2;
+    m_fftArray.resize(_sizeArray);
+   // m_fftArray.fill(FREQPLOTWIDGET_MIN_MAGNITUDE+_percentileOverlap*10, _sizeArray);//DEBUG
+   // m_fftArray.fill(FREQPLOTWIDGET_MIN_MAGNITUDE, _sizeArray);
 
     //Calculate & Setting the STFT
     fftw_complex * in = (fftw_complex*) fftw_malloc(sizeof(fftw_complex)*_numberOfBins);
@@ -55,41 +67,52 @@ void SpectrogramData::setData(const double * array, uint arraySize, uint binsPer
     //my_plan = fftw_plan_dft_r2c_1d(nfft, in, out, FFTW_ESTIMATE);//FFTW_FORWARD, FFTW_ESTIMATE);
     my_plan = fftw_plan_dft_1d(_numberOfBins, in, out, FFTW_FORWARD, FFTW_ESTIMATE);
 
-
     //Create window
     double _arrayWindow[_numberOfBins];
     TransformWindow::generateWindow(_arrayWindow,_numberOfBins,windowType);
 
-    qDebug() << Q_FUNC_INFO << "Starting calculation with  _numberOfWindows="<<_numberOfWindows
-             <<"and m_numberOfBins="<< _numberOfBins << " each window. _numberOfSlices="<< _numberOfSlices;
+//    qDebug() << Q_FUNC_INFO << "Starting calculation with an array of "<< arraySize << "  _numberOfWindows="<<_numberOfWindows
+//             <<"and m_numberOfBins="<< _numberOfBins << " each window. _numberOfSlices="<< _numberOfSlices;
 
-    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Starting calculation with  %1 windows, each has %2 bins, the total size of the internal array is %3")
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
+                      "Starting calculation of an array of %1 samples, with an overlap of %2 (%3 total samples) with  %4 windows, each has %5 bins, the total size of the internal array is %6")
+                      .arg(arraySize)
+                      .arg(percentOverlap)
+                      .arg(_sizeArray)
                       .arg(_numberOfWindows)
                       .arg(_numberOfBins)
                       .arg(_sizeArray));
     uint i;
     for (uint nWin=0; nWin < _numberOfWindows; nWin++) {
-        uint _lowIndex=nWin*_numberOfBins;
-        uint _hiIndex=nWin*_numberOfBins+_numberOfBins-1;
+        uint _lowIndex=nWin*_numberOfBins-qRound(nWin*_numberOfBins*_percentileOverlap);
+        uint _hiIndex=_lowIndex+_numberOfBins-1;
         //setting input signal for window nWin
         i=_lowIndex;//IF OVERLAP????
+       //  {
+  //      qDebug() << "Mapping signal win("<<nWin<<")"<< _lowIndex << "-" << _hiIndex<<"/"<< arraySize;
         for (uint nBin=0;nBin<_numberOfBins;nBin++) {
-           in[nBin][0]= _arrayWindow[nBin]*((i < arraySize) ? array[i++]  : 0.0);//Setting real part of the input signal
+           in[nBin][0]= _arrayWindow[nBin]*((i < arraySize) ? array[i++] : 0.0);//Setting real part of the input signal
            in[nBin][1]=0.0;//Setting imag part of the input signal
         }
         //Test to verify if the input array was extracted correctly
-        if ((i-1)!=_hiIndex) Q_ASSERT(i==arraySize);
+        if (nWin==(_numberOfWindows-1)) Q_ASSERT(i==arraySize);
+        else Q_ASSERT(_hiIndex==i-1);
 
         //calculate FFT for nWin
         fftw_execute(my_plan);
 
-        //for (uint nBin=0;nBin<(_numberOfBins+1)/2;nBin) {
-        for (uint nBin=0;nBin<(_numberOfBins+1)/2;nBin++) {
+        uint nBin;
+        for (nBin=0;nBin<(_numberOfBins+1)/2;nBin++) {
             m_fftArray[nWin+_numberOfWindows*nBin]=POWER_SPECTRUM(out[nBin][0],out[nBin][1],_numberOfBins);
         }
+        qDebug() << "\tInto FFT array win("<<nWin<<") from "
+                 << nWin << "-"
+                 << (nWin+_numberOfWindows*nBin)
+                 <<"/"<< _sizeArray;
+        if (nWin==(_numberOfWindows-1)) Q_ASSERT(nWin+_numberOfWindows*nBin==_sizeArray-1);
     }
     fftw_destroy_plan(my_plan);
-    free(in);
+    fftw_free(in);
     fftw_free(out);
 
     PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"Set data with %1 windows, each has %2 bins, the total size of the internal array is %3")
@@ -174,7 +197,7 @@ void FreqPlotWidget::dataUpdated() {
     //m_binsPerWindow the numnber of bins of any window this is coincident with the fft number
     //m_windowName, MISSING the window that has to be used (default, hamming???)
     //m_percentOverlap, MISSING the percent of overlap between window..
-    _spectrData->setData(m_timeData->getSignalData(),m_timeData->getSampleNumber(),_freqParams->binsNumber(),_freqParams->windowType());
+    _spectrData->setData(m_timeData->getSignalData(),m_timeData->getSampleNumber(),_freqParams->binsNumber(),_freqParams->windowType(),_freqParams->overlap());
     //_spectrData->setData()
     this->replot();
 }

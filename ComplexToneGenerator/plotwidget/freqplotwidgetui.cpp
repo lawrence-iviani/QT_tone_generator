@@ -71,7 +71,7 @@ void FreqPlotWidgetUI::binsHasChanged(QString nbins) {
 void FreqPlotWidgetUI::overlapHasChanged(QString overlap){
     float value;
     sscanf(overlap.toUtf8().data(),"%f %%",&value);
-    emit overlapTypeUIChanged((qreal)value);
+    emit overlapUIChanged(((qreal)value));
 }
 
 void FreqPlotWidgetUI::binsNumberUIUpdate(uint nBins) {

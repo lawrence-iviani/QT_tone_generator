@@ -16,7 +16,7 @@ void FreqPlotWigetParams::setBinsNumber(uint nBins) { //setMaxDuration(qreal max
 }
 
 void FreqPlotWigetParams::setOverlap(qreal overlap) { //setMaxDuration(qreal maxduration) {
-    if (overlap<0.0 || overlap > 1.0) return;
+    if (overlap<0.0 || overlap > 100.0) return;
     if (overlap!=m_overlap) {
         m_overlap=overlap;
         emit (overlapChanged(overlap));

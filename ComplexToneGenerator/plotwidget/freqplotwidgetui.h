@@ -16,7 +16,7 @@ public:
 signals:
     void binsNumberUIChanged(uint);
     void windowTypeUIChanged(QString);
-    void overlapTypeUIChanged(qreal);
+    void overlapUIChanged(qreal);
 
 public slots:
     void binsNumberUIUpdate(uint nBins);
