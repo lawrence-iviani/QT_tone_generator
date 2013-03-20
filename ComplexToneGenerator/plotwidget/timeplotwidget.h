@@ -1,15 +1,19 @@
 #ifndef TIMEPLOTWIGET_H
 #define TIMEPLOTWIGET_H
 
-#include "timedata/digesttimedata.h"
-#include "plotwidget/plotwidget.h"
-#include "plotwidget/timeplotwidgetparams.h"
-#include "plotwidget/timeplotwidgetui.h"
+
 #include <qwt_plot_marker.h>
 #include <qwt_symbol.h>
 #include <CTG_constants.h>
 #include <QRadioButton>
 #include <QGroupBox>
+#include <QList>
+#include "timedata/digesttimedata.h"
+#include "plotwidget/plotwidget.h"
+#include "plotwidget/freqplotwidget.h"
+#include "plotwidget/timeplotwidgetparams.h"
+#include "plotwidget/timeplotwidgetui.h"
+
 
 /**
   * This class specializes the PlotWidget with a data digest class a sum of all the init timedata in the prject.
@@ -31,7 +35,45 @@ public:
     inline DataUiHandlerProperty* getDataParameters() {return m_timePlotDelegate->getProperty();}
     inline QDomDocument exportXML() {return getDelegate()->getDomDocument();}
     friend class TimePlotParams;
+
+    /**
+      * Add a time data series to the class, return the index position in the internal list or -1 if the addition failed.
+      */
+    int addTimeData(GenericTimeData * gtd);
+
+    /**
+      * Remove a time data series to the class, return if the data was removed.
+      */
+    bool removeTimeData(int index);//True, curve removed, false curve not found
+
+    /**
+     * @brief getTimeData Get back the time data at index.
+     * @param index
+     * @return
+     */
+    GenericTimeData * getTimeData(int index);//return the curve at index
+
+    /**
+      * Get back the whole list of curve stored in this instance.
+      */
+    const QList<GenericTimeData*> & getTimeDataList() {return (const QList<GenericTimeData*> &)m_curveList;}//return the whole list of curve stored in this instance.
+
+    /**
+      * Get back the whole list of curvename  stored in this instance.
+      * The name position index in the list is consistent with the internal curves list.
+      */
+    QStringList  getTimeDataStringList();
+
+    /**
+     * @brief setFreqWidget Set the a frequency plot to this class, every update in curves and also well be managed also by this widget.
+     * @param plotWidget
+     */
+    void setFreqWidget(FreqPlotWidget *freqPlotWidget);
+
+    inline bool isPlotUpdateEnabled() {return m_enablePlotUpdate;}
+
 signals:
+    void curveListChanged();
 
 public slots: 
 
@@ -40,7 +82,36 @@ public slots:
      * @param enable
      * @return the previous value
      */
-    virtual bool setEnablePlot(bool enable);
+     bool setEnablePlot(bool enable);
+
+    /**
+     * This method is called when never one of the curve stored in this class, or extended class,is modified.
+     * This method is called when an updateAttribute signal is emitted and it's not necessary to recalculate nothihg but only replot (ie changing the color of a curve).
+     * Extended class should re-implent the curves correctly in order to obtain the correct results.
+     * All the stuff of init, object handling etc. are delegated to the inheriting class.
+     */
+     void updatePlot() {
+         if (m_enablePlotUpdate) {
+             PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ REPLOT "));
+             replot();
+         } else {
+             PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ Called, but DON'T UPDATE PLOT "));
+         }
+     }
+
+    /**
+     * @brief updateAndRecalc Override base method and recall a digest update.
+     */
+    void recalcAndUpdatePlot() {
+        if (isPlotUpdateEnabled()) {
+            PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ Digest Update "));
+            m_digestCurve->updateData();
+            updatePlot();
+            if (m_freqPlot) m_freqPlot->dataUpdated();
+        } else {
+            PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ Call Digest Update but DON'T UPDATE & RECALC"));
+        }
+    }
 
     /**
      * @brief importXML Import a DOM document containing the appropriate params
@@ -58,16 +129,6 @@ public slots:
      */
     bool importXML(const QDomNode& node, ErrorMessage *err=NULL)  {return m_timePlotDelegate->setClassByDomData(node,true,err);}
 
-    /**
-     * @brief updateAndRecalc Override base method and recall a digest update.
-     */
-    virtual void recalcAndUpdatePlot() {
-        if (isPlotUpdateEnabled()) {
-            PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"------ Digest Update "));
-            m_digestCurve->updateData();
-            updatePlot();
-        }
-    }
 
     /**
      * @brief showAllCurves show/hide all curves stored in this widget
@@ -92,12 +153,13 @@ public slots:
 
 protected:
     DigestTimeData * m_digestCurve;
+    QList<GenericTimeData*> m_curveList;
 
     /**
      * @brief connectSignals WHen inheriting from this class this method must be called after init to mantains connection, otherwise will be lost.
      * (This is an issue that must be fixed in the design).
      */
-    virtual void connectSignals();
+     void connectSignals();
 
     inline DataUiHandlerDelegate* getDelegate() {return dynamic_cast<DataUiHandlerDelegate*>(m_timePlotDelegate);}
 
@@ -116,6 +178,8 @@ protected slots:
 
 
 private:
+    FreqPlotWidget* m_freqPlot;
+    bool m_enablePlotUpdate;
     void init();
     DataUiHandlerDelegate * m_timePlotDelegate;
 

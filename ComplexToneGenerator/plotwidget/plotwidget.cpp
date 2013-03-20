@@ -1,28 +1,23 @@
 #include "plotwidget.h"
 
 PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
-    QwtPlot(parent),
-    m_enablePlotUpdate(true)
+    QwtPlot(parent)
 {
     m_dimension=PLOTWIDGET_DEFAULT_PLOT_DIMENSION;
     this->plotSetup();
     this->setXScaleType(xScaleType);
     this->setYScaleType(yScaleType);
     this->replot();
-    connectSignal();
-}
-
-void PlotWidget::connectSignal() {
-    Q_ASSERT(connect(this,SIGNAL(curveListChanged()),this,SLOT(recalcAndUpdatePlot())));
 }
 
 void PlotWidget::plotSetup() {
     this->setAutoReplot(false);
     this->setAutoFillBackground( true );
-    this->setPalette( QPalette( QColor(50,50,50)));//( 165, 193, 228 ) ) );
+    this->setPalette( QPalette( QColor(50,50,50)));
     this->insertLegend(new QwtLegend(), QwtPlot::RightLegend);
     this->setDimension(m_dimension);
-    this->setTitle("PlotWidget NO TITLE");
+
+    setPlotTitle("Plot Widget Title");
 
     if (m_yScaleType==PlotWidget::Logarithmic) {
         this->setAxisScaleEngine(xBottom,new QwtLog10ScaleEngine());
@@ -44,6 +39,11 @@ void PlotWidget::plotSetup() {
     _palette.setColor(QPalette::Text, Qt::gray);
     this->axisWidget(yLeft)->setPalette((const QPalette)_palette);
 
+    _palette=this->axisWidget(yRight)->palette();
+    _palette.setColor(QPalette::WindowText, Qt::gray);
+    _palette.setColor(QPalette::Text, Qt::gray);
+    this->axisWidget(yRight)->setPalette((const QPalette)_palette);
+
     //canvas
     this->canvas()->setFrameStyle( QFrame::Box | QFrame::Raised );
     this->canvas()->setBorderRadius( 12 );
@@ -61,6 +61,19 @@ void PlotWidget::setXScaleType(int xScaleType) {
     } else {
         this->setAxisScaleEngine(xBottom,new QwtLinearScaleEngine());
     }
+}
+
+void PlotWidget::setPlotTitle(const QString& title) {
+    QwtText _title= this->title();
+    _title.setText(title);
+    _title.setColor(Qt::lightGray);
+    //set font for the title
+    QFont _f=_title.font();
+    _f.setPointSize(m_dimension+2);
+    _f.setBold(true);
+    _title.setFont(_f);
+    this->setTitle(_title);
+
 }
 
 void PlotWidget::setYScaleType(int yScaleType) {
@@ -100,66 +113,9 @@ void PlotWidget::setDimension(int pointDimension) {
     this->setFont(f);
     this->setAxisFont(xBottom,f_ax);
     this->setAxisFont(yLeft,f_ax);
+    this->setAxisFont(yRight,f_ax);
     this->legend()->setFont(f_leg);
-
-   //set font for the title
-    QwtText t=this->title();
-    f.setPointSize(pointDimension);
-    t.setFont(f);
-    this->setTitle(t);
     this->replot();
 }
 
-int PlotWidget::addTimeData(GenericTimeData * gtd) {
-    if (!gtd) return -1;
-    m_curveList.append(gtd);
-    gtd->getCurve()->setZ(m_curveList.length());
-    gtd->getCurve()->attach(this);
-    Q_ASSERT(connect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot())));
-    Q_ASSERT(connect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot())));
-    emit curveListChanged();
-    return (m_curveList.length()-1);
-}
 
-bool PlotWidget::removeTimeData(int index) {
-    bool retval=false;
-    if (  (0 <= index) && (index < m_curveList.length()) ) {
-        GenericTimeData *  gtd=this->getTimeData(index);
-        gtd->getCurve()->detach();
-        disconnect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot()));
-        disconnect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot()));
-        Q_ASSERT(gtd!=NULL);
-        delete gtd;
-        m_curveList.removeAt(index);
-        retval=true;
-        emit curveListChanged();
-    } else {
-        qWarning() << "PlotWidget::removeTimeData trying remove curve index "<< index <<", is out of range " << " lenCurveList=" << m_curveList.length();
-    }
-    return retval;
-}
-
-GenericTimeData *PlotWidget::getTimeData(int index) {
-    GenericTimeData * retval=NULL;
-    if (  (0 <= index) && (index < m_curveList.length()) ) {
-        retval=m_curveList.at(index);
-    }
-    return retval;
-}
-
-bool PlotWidget::setEnablePlot(bool enable) {
-    bool retval=m_enablePlotUpdate;
-    if (enable!=m_enablePlotUpdate) {
-        m_enablePlotUpdate=enable;
-    }
-    return retval;
-}
-
-QStringList  PlotWidget::getTimeDataStringList() {
-    QStringList retval;
-    foreach(GenericTimeData* p, m_curveList) {
-        GenericTimeDataParams* _params=dynamic_cast<GenericTimeDataParams*> (p->getDataParameters());
-        retval << _params->name();
-    }
-    return retval;
-}

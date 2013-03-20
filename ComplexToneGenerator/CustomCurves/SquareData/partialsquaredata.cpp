@@ -49,7 +49,7 @@ void PartialSquareData::recalc() {
 
     //Getting params
     qreal _ampl=_psp->amplitude();
-    qreal _period=1.0/_psp->frequency();
+    qreal _period=0.5/_psp->frequency();
     qreal _mean=_psp->meanValue();
     qreal _hiVal=_mean+_ampl;
     qreal _lowVal=_mean-_ampl;

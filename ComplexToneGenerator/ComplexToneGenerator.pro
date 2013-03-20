@@ -22,6 +22,10 @@ INCLUDEPATH += /usr/local/qwt-6.0.1/lib/qwt.framework/Headers/
 INCLUDEPATH += /opt/local/include/
 LIBS += -L/opt/local/lib -lsndfile
 
+# fftw3
+INCLUDEPATH += /usr/local/include/
+LIBS += -L/usr/local/lib -lfftw3
+
 # ------ End Dependecies libs:
 
 # ------ Internal deps
@@ -78,11 +82,12 @@ SOURCES +=    timedata/generictimedataparams.cpp \
     plotwidget/timeplotwidgetparams.cpp \
     plotwidget/timeplotwidgetui.cpp \
     plotwidget/timeplotwidget.cpp \
+    plotwidget/freqplotwigetparams.cpp \
+    plotwidget/freqplotwidgetui.cpp \
     plotwidget/freqplotwidget.cpp \
     mainwindow.cpp \
     main.cpp \
     ctg_app.cpp \
-
 
 HEADERS  += CTG_constants.h \
     timedata/generictimedataparams.h \
@@ -113,10 +118,13 @@ HEADERS  += CTG_constants.h \
     plotwidget/timeplotwidgetparams.h \
     plotwidget/timeplotwidgetui.h \
     plotwidget/timeplotwidget.h \
+    plotwidget/freqplotwigetparams.h \
+    plotwidget/freqplotwidgetui.h \
     plotwidget/freqplotwidget.h \
     plotwidget/scrollrubberband.h \
     mainwindow.h \
     ctg_app.h \
+
 
 FORMS    += mainwindow.ui
 

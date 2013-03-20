@@ -52,7 +52,7 @@ void RepeatedSquareData::recalc() {
     //Getting params
     //Getting params
     qreal _ampl=_rsp->amplitude();
-    qreal _period=1.0/_rsp->frequency();
+    qreal _period=0.5/_rsp->frequency();
     qreal _mean=_rsp->meanValue();
     qreal _hiVal=_mean+_ampl;
     qreal _lowVal=_mean-_ampl;

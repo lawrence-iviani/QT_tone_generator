@@ -33,6 +33,7 @@ void SelectCurveWindowDialog::changedCurve(int index) {
 }
 
 void SelectCurveWindowDialog::cancelSelect() {
+    m_curveSelected="";
     this->reject();
 }
 

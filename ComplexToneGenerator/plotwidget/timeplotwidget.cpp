@@ -1,7 +1,9 @@
 #include "timeplotwidget.h"
 
 TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
-    PlotWidget(parent,  xScaleType,  yScaleType)
+    PlotWidget(parent,  xScaleType,  yScaleType),
+    m_freqPlot(NULL),
+    m_enablePlotUpdate(true)
 {
     m_timePlotDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*>(new TimePlotParams((QObject*)parent)),
@@ -20,6 +22,9 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
     this->setRubberBandPosition(0);
     //connect show all and enable all
     connectSignals();
+
+    //set title
+    this->setPlotTitle("Time curves plot");
 }
 
 TimePlotWidget::~TimePlotWidget() { }
@@ -37,7 +42,61 @@ void TimePlotWidget::connectSignals() {
     Q_ASSERT(_ui!=NULL);
     Q_ASSERT(connect(_ui,SIGNAL(showAllCurvesToggled()),this,SLOT(showAllCurves())));
     Q_ASSERT(connect(_ui,SIGNAL(hideAllCurvesToggled()),this,SLOT(hideAllCurves())));
+    Q_ASSERT(connect(this,SIGNAL(curveListChanged()),this,SLOT(recalcAndUpdatePlot())));
+}
 
+int TimePlotWidget::addTimeData(GenericTimeData * gtd) {
+    if (!gtd) return -1;
+    m_curveList.append(gtd);
+    gtd->getCurve()->setZ(m_curveList.length());
+    gtd->getCurve()->attach(this);
+    Q_ASSERT(connect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot())));
+    Q_ASSERT(connect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot())));
+    emit curveListChanged();
+    return (m_curveList.length()-1);
+}
+
+bool TimePlotWidget::removeTimeData(int index) {
+    bool retval=false;
+    if (  (0 <= index) && (index < m_curveList.length()) ) {
+        GenericTimeData *  gtd=this->getTimeData(index);
+        gtd->getCurve()->detach();
+        disconnect(gtd,SIGNAL(dataChanged()),this,SLOT(recalcAndUpdatePlot()));
+        disconnect(gtd,SIGNAL(curveAttributeChanged()),this,SLOT(updatePlot()));
+        Q_ASSERT(gtd!=NULL);
+        delete gtd;
+        m_curveList.removeAt(index);
+        retval=true;
+        emit curveListChanged();
+    } else {
+        qWarning() << "PlotWidget::removeTimeData trying remove curve index "<< index <<", is out of range " << " lenCurveList=" << m_curveList.length();
+    }
+    return retval;
+}
+
+GenericTimeData *TimePlotWidget::getTimeData(int index) {
+    GenericTimeData * retval=NULL;
+    if (  (0 <= index) && (index < m_curveList.length()) ) {
+        retval=m_curveList.at(index);
+    }
+    return retval;
+}
+
+bool TimePlotWidget::setEnablePlot(bool enable) {
+    bool retval=m_enablePlotUpdate;
+    if (enable!=m_enablePlotUpdate) {
+        m_enablePlotUpdate=enable;
+    }
+    return retval;
+}
+
+QStringList  TimePlotWidget::getTimeDataStringList() {
+    QStringList retval;
+    foreach(GenericTimeData* p, m_curveList) {
+        GenericTimeDataParams* _params=dynamic_cast<GenericTimeDataParams*> (p->getDataParameters());
+        retval << _params->name();
+    }
+    return retval;
 }
 
 void TimePlotWidget::setAllCurvesSampleRate(qreal samplerate) {
@@ -65,7 +124,7 @@ void TimePlotWidget::setAllCurvesSampleRate(qreal samplerate) {
 
     //Replot and recalc digest
     this->updatePlot();
-    //emit (sampleRateChanged(_SR));
+    if (m_freqPlot) m_freqPlot->dataUpdated();
 }
 
 void TimePlotWidget::setAllCurvesMaxDuration(qreal maxduration) {
@@ -93,7 +152,7 @@ void TimePlotWidget::setAllCurvesMaxDuration(qreal maxduration) {
     this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*maxduration);
     //Replot and recalc digest
     this->updatePlot();
-  //  emit (duartionChanged(_maxDuration));
+    if (m_freqPlot) m_freqPlot->dataUpdated();
 }
 
 void TimePlotWidget::showAllCurves(bool show) {
@@ -139,8 +198,8 @@ void TimePlotWidget::setRubberBandPosition(qreal position) {
     m_scrollRubberBand->setValue(position);
 }
 
-bool TimePlotWidget::setEnablePlot(bool enable) {
-    bool retval=PlotWidget::setEnablePlot(enable);
-    if (enable) recalcAndUpdatePlot();
-    return retval;
+void TimePlotWidget::setFreqWidget(FreqPlotWidget* freqPlotWidget) {
+    if (!freqPlotWidget) return;
+    m_freqPlot=freqPlotWidget;
+    m_freqPlot->setTimeData(m_digestCurve);//(m_digestCurve);
 }

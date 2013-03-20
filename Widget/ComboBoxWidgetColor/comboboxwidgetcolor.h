@@ -45,6 +45,13 @@ public:
     QColor color() {return ComboBoxWidgetColor::convertStringToQtColor(this->item());}
     QString colorName();
 
+    /**
+     * @brief getNextColor Generate another color baesd on the actual color
+     * @param color the actual color
+     * @return  the new color
+     */
+    static QColor getNextColor(QColor &color);
+
 public slots:
     void setColor(QColor color);
     void setColor(QString colorName);

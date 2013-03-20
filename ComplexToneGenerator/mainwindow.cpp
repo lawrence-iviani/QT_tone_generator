@@ -18,6 +18,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->centralwidget->setLayout(ui->globalGridLayout);
     setupUI();
+    m_plotTime->setFreqWidget(m_plotFreq);
     initAudio();
     connectSignals();
 }
@@ -205,11 +206,11 @@ QFrame *MainWindow::setupOptionsFrame() {
 
     QVBoxLayout *_l=new QVBoxLayout();
     //Adding widget to the toolbox option
-    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotTime->getControlWidget(),"Time Option");
-    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Freq Option");
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotTime->getControlWidget(),"Time Plot Option");
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++,m_plotFreq->getControlWidget(),"Spectrogram Option");
 
     //Setting audio player control and digest curve stream
-    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player");
+    s_widgetUI.toolboxOption->insertItem(m_toolBoxFixedItem++, m_audioPlayer->getAudioControlWidget(),"Audio Player controls");
 
     QFrame *_w=new QFrame();
     _w->setFrameStyle(QFrame::QFrame::Raised);
@@ -224,7 +225,7 @@ QFrame *MainWindow::setupOptionsFrame() {
 
 void MainWindow::setupPlots() {
     m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_PROJECT_TIME,-1.0,1.0);
-    m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
+    //m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
 }
 
 //SLOTS----------
@@ -238,7 +239,8 @@ void MainWindow::newCurve() {
     name.append(QString::number(m_indexGenerator++));
     GenericTimeDataParams* _gtdParams=dynamic_cast<GenericTimeDataParams*>(s->getDataParameters());
     Q_ASSERT(_gtdParams);
-    _gtdParams->setColor(Qt::green);
+    m_actualColor=ComboBoxWidgetColor::getNextColor(m_actualColor);
+    _gtdParams->setColor(m_actualColor);
     _gtdParams->setName(name);
     _gtdParams->setShowCurve(true);
 
@@ -467,6 +469,7 @@ void MainWindow::duplicateCurves() {
          addCurve(_curve);
      }
      m_plotTime->setEnablePlot(true);
+     m_plotTime->recalcAndUpdatePlot();
      delete duplicateDialog;
 }
 
@@ -748,6 +751,7 @@ bool MainWindow::importDomDocument(const QDomDocument& doc, ErrorMessage *err) {
         addCurve(_curve);
     }
     m_plotTime->setEnablePlot(true);
+    m_plotTime->recalcAndUpdatePlot();
     return true;
 }
 
