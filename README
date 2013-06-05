@@ -1,6 +1,10 @@
 This project want realize a custom signal generator in QT with some function imported with matlab.
 This sw in the very early stage and it's more a test than a useful app.
 
+BUILD:
+Use the QT project to build the APP. Don't use shadow build, instead use subdir created by the project (debug and release in every subproject)
+
+
 TODO:
 - Saving project and re-open project, ON THE WAY
 - FFT representation of the digest signal in real time
