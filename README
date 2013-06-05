@@ -1,8 +1,18 @@
 This project want realize a custom signal generator in QT (it starts more than a game than a real app, but it works!)
 This sw in an early stage and it needs more test. For now is tested only with a MacOSX but it should works with any other implementation
+For now is tested only with a MacOSX but it should works with any other implementation but this needs manual  modification of  the .pro files.
+
 
 FEATURE:
-- Create your own test signal (tone, noise, square waves etc).
+- Create your own test signal (tone, noise, square waves etc) and the framework manage in time with 3 approaches:
+		- Continuos (the whole duration of the project)
+		- Partial (for part of the duration of the project)
+		- Repeated (a single part is repeated for the whole project).
+Other nice features are:
+- save/open project
+- save/open curve
+- export audio format (wav & flac)
+- Tools for time/frequency handling
 - Create complex project with multiple signals
 - Display your curve with zoom pan etc (many widgets are based on QWT 6)
 - Create wav and flac files from your project
@@ -27,8 +37,10 @@ WISHES:
 - Keyboard tool selection for zoom,panner and streaming position
 - Import .wav signal (and may be flac?)
 - Resample of .wav signal
-- Use a generic audio signal as envelope (thanks Andrea for the suggestion!
+- Dynamic allocation and not pre-allocation to improve performance and memory footprint
+- Plugin structure for envelope
+- Use a generic audio signal as envelope (thanks Andrea for the suggestion!)
 
 BUG:
 - Moving the stream position during play produce audio artefacts
-- Changing project samplerate doesn't affect reproduction, there's an ASSERT and crash if SR!=48k, only 48 kHz are allowed
+- Changing project samplerate doesn't affect reproduction, there's an ASSERT and crash if SR!=48k, only 48 kHz are allowed for now
