@@ -18,6 +18,7 @@ SUBDIRS += WidgetStyle \
            ScaledSliderWidget \
            ComboBoxLabelWidget \
            ComboBoxWidgetColor \
+           QwtHelpers \
            SelectCurveWindowDialog \
            SelectMultipleCurvesWindowDialog \
            ExportAudioFileWidget \
