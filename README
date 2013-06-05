@@ -1,41 +1,46 @@
-This project want realize a custom signal generator in QT with some function imported with matlab.
-This sw in the very early stage and it's more a test than a useful app.
+This project want realize a custom signal generator in QT (it starts more than a game than a real app, but it works!)
+This sw in an early stage and it needs more test. For now is tested only with a MacOSX but it should works with any other implementation
+For now is tested only with a MacOSX but it should works with any other implementation but this needs manual  modification of  the .pro files.
 
-BUILD:
-Use the QT project to build the APP. Don't use shadow build, instead use subdir created by the project (debug and release in every subproject)
+
+FEATURE:
+- Create your own test signal (tone, noise, square waves etc) and the framework manage in time with 3 approaches:
+  	- Continuos (the whole duration of the project)
+		- Partial (for part of the duration of the project)
+		- Repeated (a single part is repeated for the whole project).
+Other nice features are:
+- save/open project
+- save/open curve
+- export audio format (wav & flac)
+- Tools for time/frequency handling
+- Create complex project with multiple signals
+- Display your curve with zoom pan etc (many widgets are based on QWT 6)
+- Create wav and flac files from your project
+- Display the stft of your signal
 
 
 TODO:
-- Saving project and re-open project, ON THE WAY
-- FFT representation of the digest signal in real time
 - Improve zoom and pointer information (QWT) 
 - ReDefine style UI
 - Multiplatform test
-- FIX for mac framework/library install 
+- FIX for mac framework/library install  (now you need to copy by yourself the dylib)
 
-DOCS:
-- Documentation of the working principle
+
+DOCS (TODO):
+- Complete documentation of the working principle
 - Guide to build your own signal function
 - Complete functions documentation
 
 WISHES:
 - Calculation of the crest factor
 - Save window options at quit
-- differentiate curve file and project file, with suffix and with discrimination in the document type
-- add menu
-- add curves copy&paste
 - Keyboard tool selection for zoom,panner and streaming position
 - Import .wav signal (and may be flac?)
 - Resample of .wav signal
-- Revert to previous project if the  import project fail
-
+- Dynamic allocation and not pre-allocation to improve performance and memory footprint
+- Plugin structure for envelope
+- Use a generic audio signal as envelope (thanks Andrea for the suggestion!)
 
 BUG:
-
-_ DomHelper::selfObjectData design should be improved
-- save project has some problem in export.
-- some graph waste in the first part of the graph. It's not reproduced looks waste of the qwt curve
-- Name doesn't change in the toolbox widget when importing curve
-- Remove curves, works only with one curves at time but the window allos to remove multiple cruves.
 - Moving the stream position during play produce audio artefacts
-- Changing project samplerate doesn't affect reproduction, there's an ASSERT and crash if SR!=48k, only 48 kHz are allowed
+- Changing project samplerate doesn't affect reproduction, there's an ASSERT and crash if SR!=48k, only 48 kHz are allowed for now
