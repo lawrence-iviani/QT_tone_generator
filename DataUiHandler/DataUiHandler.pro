@@ -29,16 +29,16 @@ HEADERS  += XML_utils/domhelper_constant.h \
     DataUiHandler.h
 
 # For macosx! Now the link is copyed as file (this is bad for the app dimension and need to be fixed)
-MYAPPDEST = $$PWD/../ComplexToneGenerator/debug/ComplexToneGenerator.app/Contents/MacOS/
+# MYAPPDEST = $$PWD/../ComplexToneGenerator/debug/ComplexToneGenerator.app/Contents/MacOS/
 CONFIG(debug, debug|release) {
     DESTDIR = debug
-    QMAKE_POST_LINK += $$quote(cp $$PWD/debug/libDataUiHandler* $$MYAPPDEST/)
+    # QMAKE_POST_LINK += $$quote(cp $$PWD/debug/libDataUiHandler* $$MYAPPDEST/)
     OBJECTS_DIR = debug/obj
     MOC_DIR = debug/moc
     LIBS += -L$$PWD/../ErrorMessage/debug/ -lErrorMessage
 } else {
     DESTDIR = release
-    QMAKE_POST_LINK += $$quote(cp $$PWD/release/libDataUiHandler* $$MYAPPDEST/)
+    # QMAKE_POST_LINK += $$quote(cp $$PWD/release/libDataUiHandler* $$MYAPPDEST/)
     OBJECTS_DIR = release/obj
     MOC_DIR = release/moc
     LIBS += -L$$PWD/../ErrorMessage/release/ -lErrorMessage

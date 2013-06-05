@@ -38,6 +38,7 @@ INCLUDEPATH += ../CustomCurves
 
 
 CONFIG(debug, debug|release) {
+    MYAPPDEST = $$PWD/debug/ComplexToneGenerator.app/Contents/MacOS/
     DESTDIR = debug
     OBJECTS_DIR = debug/obj
     MOC_DIR = debug/moc
@@ -45,7 +46,14 @@ CONFIG(debug, debug|release) {
     LIBS += -L$$PWD/../AudioEngine/debug/ -lAudioEngine
     LIBS += -L$$PWD/../ErrorMessage/debug/ -lErrorMessage
     LIBS += -L$$PWD/../DataUiHandler/debug/ -lDataUiHandler
+
+    QMAKE_POST_LINK += $$quote(cp $$PWD/../ErrorMessage/debug/libErrorMessage* $$MYAPPDEST/)
+    QMAKE_POST_LINK += $$quote(cp $$PWD/../DataUiHandler/debug/libDataUiHandler* $$MYAPPDEST/)
+    QMAKE_POST_LINK += $$quote(cp $$PWD/../Widget/WidgetLib/debug/libwidget* $$MYAPPDEST/)
+    QMAKE_POST_LINK += $$quote(cp $$PWD/../AudioEngine/debug/libAudioEngine* $$MYAPPDEST/)
+
 } else {
+    MYAPPDEST = $$PWD/release/ComplexToneGenerator.app/Contents/MacOS/
     DESTDIR = release
     OBJECTS_DIR = release/obj
     MOC_DIR = release/moc
@@ -53,6 +61,11 @@ CONFIG(debug, debug|release) {
     LIBS += -L$$PWD/../AudioEngine/release/ -lAudioEngine
     LIBS += -L$$PWD/../ErrorMessage/release/ -lErrorMessage
     LIBS += -L$$PWD/../DataUiHandler/release/ -lDataUiHandler
+
+    QMAKE_POST_LINK += $$quote(cp $$PWD/../ErrorMessage/release/libErrorMessage* $$MYAPPDEST/)
+    QMAKE_POST_LINK += $$quote(cp $$PWD/../DataUiHandler/release/libDataUiHandler* $$MYAPPDEST/)
+    QMAKE_POST_LINK += $$quote(cp $$PWD/../Widget/WidgetLib/release/libwidget* $$MYAPPDEST/)
+    QMAKE_POST_LINK += $$quote(cp $$PWD/../AudioEngine/release/libAudioEngine* $$MYAPPDEST/)
 }
 
 QMAKE_CLEAN += *.o *.dll *.so *.a *.dylib
