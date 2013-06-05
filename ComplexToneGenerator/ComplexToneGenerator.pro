@@ -29,16 +29,16 @@ LIBS += -L/usr/local/lib -lfftw3
 # ------ End Dependecies libs:
 
 # ------ Internal deps
-INCLUDEPATH += ../Widget/SelectCurveWindowDialog ../Widget/SelectMultipleCurvesWindowDialog ../Widget/ScaledSliderWidget ../Widget/ComboBoxWidgetColor ../Widget/ComboBoxLabelWidget ../Widget/QwtHelpers ../Widget/ExportAudioFileWidget ../Widget/WidgetStyle
+INCLUDEPATH += ../Widget/SelectCurveWindowDialog ../Widget/SelectMultipleCurvesWindowDialog ../Widget/ScaledSliderWidget ../Widget/ComboBoxWidgetColor ../Widget/ComboBoxLabelWidget ../Widget/ExportAudioFileWidget ../Widget/WidgetStyle
 INCLUDEPATH += ../AudioEngine
 INCLUDEPATH += ../ErrorMessage
 INCLUDEPATH += ../DataUiHandler
 INCLUDEPATH += ../CustomCurves
 
 
-
 CONFIG(debug, debug|release) {
     MYAPPDEST = $$PWD/debug/ComplexToneGenerator.app/Contents/MacOS/
+
     DESTDIR = debug
     OBJECTS_DIR = debug/obj
     MOC_DIR = debug/moc
@@ -54,6 +54,7 @@ CONFIG(debug, debug|release) {
 
 } else {
     MYAPPDEST = $$PWD/release/ComplexToneGenerator.app/Contents/MacOS/
+
     DESTDIR = release
     OBJECTS_DIR = release/obj
     MOC_DIR = release/moc
@@ -93,6 +94,11 @@ SOURCES +=    timedata/generictimedataparams.cpp \
     CustomCurves/SquareData/genericsquaredata.cpp \
     CustomCurves/SquareData/partialsquaredata.cpp \
     CustomCurves/SquareData/repeatedsquaredata.cpp \
+    CustomCurves/PinkNoiseData/pinknoisegenerator.cpp \
+    CustomCurves/PinkNoiseData/pinknoisedata.cpp \
+    CustomCurves/PinkNoiseData/genericpinknoisedata.cpp \
+    CustomCurves/PinkNoiseData/partialpinknoisedata.cpp \
+    CustomCurves/PinkNoiseData/repeatedpinknoisedata.cpp \
     plotwidget/plotwidget.cpp \
     plotwidget/timeplotwidgetparams.cpp \
     plotwidget/timeplotwidgetui.cpp \
@@ -103,6 +109,9 @@ SOURCES +=    timedata/generictimedataparams.cpp \
     mainwindow.cpp \
     main.cpp \
     ctg_app.cpp \
+    plotwidget/zmp_helper.cpp \
+
+
 
 HEADERS  += CTG_constants.h \
     timedata/generictimedataparams.h \
@@ -129,6 +138,11 @@ HEADERS  += CTG_constants.h \
     CustomCurves/SquareData/genericsquaredata.h \
     CustomCurves/SquareData/partialsquaredata.h \
     CustomCurves/SquareData/repeatedsquaredata.h \
+    CustomCurves/PinkNoiseData/pinknoisegenerator.h \
+    CustomCurves/PinkNoiseData/pinknoisedata.h \
+    CustomCurves/PinkNoiseData/genericpinknoisedata.h \
+    CustomCurves/PinkNoiseData/partialpinknoisedata.h \
+    CustomCurves/PinkNoiseData/repeatedpinknoisedata.h \
     plotwidget/plotwidget.h \
     plotwidget/timeplotwidgetparams.h \
     plotwidget/timeplotwidgetui.h \
@@ -139,6 +153,8 @@ HEADERS  += CTG_constants.h \
     plotwidget/scrollrubberband.h \
     mainwindow.h \
     ctg_app.h \
+    plotwidget/zmp_helper.h \
+
 
 
 FORMS    += mainwindow.ui
