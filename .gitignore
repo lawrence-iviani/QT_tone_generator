@@ -101,3 +101,5 @@ Widget/ComboBoxLabelWidget/ui_comboboxnamewidget.h
 ComplexToneGenerator/ui_dataenvelopeui.h
 
 Widget/SelectCurveWindowDialog/SelectCurveWindowDialog.pro.user
+
+*.ods#
