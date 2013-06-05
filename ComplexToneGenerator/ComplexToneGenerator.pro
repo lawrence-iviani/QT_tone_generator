@@ -35,12 +35,13 @@ INCLUDEPATH += ../ErrorMessage
 INCLUDEPATH += ../DataUiHandler
 INCLUDEPATH += ../CustomCurves
 
-LIBS += -L../Widget/WidgetLib/ -lwidget
+
 
 CONFIG(debug, debug|release) {
     DESTDIR = debug
     OBJECTS_DIR = debug/obj
     MOC_DIR = debug/moc
+    LIBS += -L$$PWD/../Widget/WidgetLib/debug/ -lwidget
     LIBS += -L$$PWD/../AudioEngine/debug/ -lAudioEngine
     LIBS += -L$$PWD/../ErrorMessage/debug/ -lErrorMessage
     LIBS += -L$$PWD/../DataUiHandler/debug/ -lDataUiHandler
@@ -48,6 +49,7 @@ CONFIG(debug, debug|release) {
     DESTDIR = release
     OBJECTS_DIR = release/obj
     MOC_DIR = release/moc
+    LIBS += -L$$PWD/../Widget/WidgetLib/release/ -lwidget
     LIBS += -L$$PWD/../AudioEngine/release/ -lAudioEngine
     LIBS += -L$$PWD/../ErrorMessage/release/ -lErrorMessage
     LIBS += -L$$PWD/../DataUiHandler/release/ -lDataUiHandler
