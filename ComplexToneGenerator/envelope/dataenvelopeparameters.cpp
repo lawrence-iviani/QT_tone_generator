@@ -8,6 +8,7 @@ DataEnvelopeParameters::DataEnvelopeParameters(QObject *object) :
     this->setTimeParameters(1.0,1.0,1.0,1.0,1.0);
     m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
     m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
+    m_envelopeType=DATAENVELOPE_DEFAULT_TYPE;
     m_enable=false;
     connectSignals();
 }
@@ -19,6 +20,7 @@ DataEnvelopeParameters::DataEnvelopeParameters(qreal attack, qreal hold, qreal d
     this->setTimeParameters(attack,hold,decay,sustain,release);
     m_holdLevel=DATAENVELOPE_DEFAULT_HOLDLEVEL;
     m_sustainLevel=DATAENVELOPE_DEFAULT_SUSTAINLEVEL;
+    m_envelopeType=DATAENVELOPE_DEFAULT_TYPE;
     m_enable=false;
     connectSignals();
 }
@@ -147,6 +149,16 @@ bool DataEnvelopeParameters::setTimeParameters(qreal attack, qreal hold, qreal d
 }
 
 //Single Setter
+void DataEnvelopeParameters::setEnvelopeType(QString type) {
+    if (type!=m_envelopeType)
+        if (DataEnvelope::isValidEnvelopeType(type)) {
+            m_envelopeType=type;
+            emit (envelopeTypeChanged(type));
+        }
+        else
+            PRINT_WARNING(ErrorMessage::WARNING(Q_FUNC_INFO,"Unsupported type"));
+}
+
 void DataEnvelopeParameters::setAttackDuration(qreal attack) {
     if (attack==m_attack) return;
     bool retval=setTimeParameters(attack,m_hold,m_decay,m_sustain,m_release);

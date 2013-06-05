@@ -6,8 +6,7 @@
 #include <qwt.h>
 #include <qwt_plot.h>
 #include <qwt_plot_canvas.h>
-#include <qwt_plot_panner.h>
-#include <qwt_plot_magnifier.h>
+#include <qwt_plot_layout.h>
 #include <qwt_legend.h>
 #include <qwt_plot_curve.h>
 #include <qwt_series_data.h>
@@ -18,11 +17,12 @@
 #include <qwt_scale_engine.h>
 #include <QPainter>
 #include "timedata/generictimedata.h"
-#include "zmp_handler.h"
 #include "plotwidget/scrollrubberband.h"
+#include "plotwidget/zmp_helper.h"
 
 
 class QwtScaleWidget;
+class ZMP_helper;
 
 /**
   * This class is an extension of the QwtPlot class. This class provide the following feature:
@@ -37,18 +37,19 @@ public:
     enum Scale {Linear=0, Logarithmic=1};
     explicit PlotWidget(QWidget *widget = 0, int xScaleType=PlotWidget::Linear, int yScaleType=PlotWidget::Linear);
 
-    void setAxisName(QString xName,QString yName);
-    void setBothAxisScale(qreal xmin, qreal xmax,qreal ymin, qreal ymax);
-    void setBothAxisScale(int xScaleType, qreal xmin, qreal xmax,int yScaleType,qreal ymin, qreal ymax);
+    void setAxesName(QString xName,QString yName);
+    void setBothAxesScale(qreal xmin, qreal xmax,qreal ymin, qreal ymax);
+    void setBothAxesScale(int xScaleType, qreal xmin, qreal xmax,int yScaleType,qreal ymin, qreal ymax);
     void setXScaleType(int xScaleType);
     void setYScaleType(int yScaleType);
     void setDimension(int pointDimension);
     void setPlotTitle(const QString& title);
+    QwtInterval getXAxisInterval();
+    QwtInterval getYAxisInterval();
 
-
-    int xScaleType() {return m_xScaleType;}
-    int yScaleType() {return m_yScaleType;}
-    int dimension()  {return m_dimension;}
+    inline int xScaleType() {return m_xScaleType;}
+    inline int yScaleType() {return m_yScaleType;}
+    inline int dimension()  {return m_referenceDimension;}
 
 
 public slots:
@@ -59,10 +60,12 @@ protected:
     int m_yScaleType;
 
     ScrollRubberBand * m_scrollRubberBand;//Object to scroll a vertical or horizontal line in order to display where the signal is analyzed.
+    ZMP_helper * m_zmp;//Handle zoom, panel etc
 private:
 
     void plotSetup();
-    int m_dimension;
+    int m_referenceDimension;
+
 
 };
 
@@ -113,5 +116,7 @@ public:
 private:
     QColor m_color;
 };
+
+
 
 #endif // PLOTWIDGET_H

@@ -62,7 +62,6 @@ void SinusUI::initControlWidget() {
     l->addWidget(m_sinusDataControl.sliderFrequency,1,Qt::AlignLeft);
     l->addWidget(m_sinusDataControl.sliderAmplitude,1,Qt::AlignLeft);
     l->addWidget(m_sinusDataControl.sliderInitPhase,1,Qt::AlignLeft);
-
 }
 
 void SinusUI::amplitudeUIUpdate(qreal amplitude) {

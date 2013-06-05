@@ -1,16 +1,7 @@
 #include "timeplotwidgetui.h"
 
 TimePlotWidgetUI::TimePlotWidgetUI(QWidget *widget) :
-    DataUiHandlerUI(widget),
-    m_zmp(NULL)
-{
-    this->initControlWidget();
-}
-
-
-TimePlotWidgetUI::TimePlotWidgetUI(ZMP_Handler * zmp, QWidget *widget) :
-    DataUiHandlerUI(widget),
-    m_zmp(zmp)
+    DataUiHandlerUI(widget)
 {
     this->initControlWidget();
 }
@@ -39,22 +30,6 @@ void TimePlotWidgetUI::initControlWidget() {
     l->setSizeConstraint(QLayout::SetMinimumSize);
     _widget->setLayout(l);
     _widget->setFont(f);
-
-    //Adding the ZMP button control
-    m_baseControl.ZMP_RadioButton.groupBox = new QGroupBox("Mouse Selection",NULL);
-    m_baseControl.ZMP_RadioButton.PICKER =  new QRadioButton("Picker",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
-    m_baseControl.ZMP_RadioButton.PAN = new QRadioButton("Pan",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
-    m_baseControl.ZMP_RadioButton.ZOOM = new QRadioButton("Zoom",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
-    QVBoxLayout * radioButtonLayout = new QVBoxLayout();
-    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.PICKER,1);
-    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.PAN,1);
-    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.ZOOM,1);
-    m_baseControl.ZMP_RadioButton.groupBox->setLayout(radioButtonLayout);
-    connect(m_baseControl.ZMP_RadioButton.PICKER,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
-    connect(m_baseControl.ZMP_RadioButton.PAN,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
-    connect(m_baseControl.ZMP_RadioButton.ZOOM,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
-    m_baseControl.ZMP_RadioButton.PICKER->setChecked(true);
-    l->addWidget( m_baseControl.ZMP_RadioButton.groupBox,1,Qt::AlignLeft|Qt::AlignTop);
 
     //set Sample rate
     m_baseControl.sliderSampleRate = new ScaledSliderWidget(NULL, Qt::Vertical,ScaledSlider::Linear) ;
@@ -93,16 +68,3 @@ void TimePlotWidgetUI::initControlWidget() {
     this->addWidget(_widget, "Time Plot controls");
 }
 
-void TimePlotWidgetUI::ZMP_statusChanged() {
-    if (!m_zmp) return;
-
-    if (m_baseControl.ZMP_RadioButton.PICKER->isChecked()) {
-        m_zmp->enablePicker();
-    }
-    if (m_baseControl.ZMP_RadioButton.PAN->isChecked()) {
-        m_zmp->enablePanner();
-    }
-    if (m_baseControl.ZMP_RadioButton.ZOOM->isChecked()) {
-        m_zmp->enableZoomer();
-    }
-}

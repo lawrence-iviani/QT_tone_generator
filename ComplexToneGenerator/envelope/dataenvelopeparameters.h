@@ -12,6 +12,7 @@ static const qreal DATAENVELOPE_DEFAULT_HOLDLEVEL=1.0;
 static const qreal DATAENVELOPE_DEFAULT_SUSTAINLEVEL=0.5;
 static const qreal DATAENVELOPE_UPPERBOUND_AMPLITUDE=1.0;
 static const qreal DATAENVELOPE_LOWERBOUND_AMPLITUDE=0.0;
+static const QString DATAENVELOPE_DEFAULT_TYPE="Linear";
 static const unsigned short DATAENVELOPE_DIGIT_TIME_ACCURACY=4;//four digit should be enough
 
 class DataEnvelope;
@@ -31,6 +32,7 @@ class DataEnvelopeParameters : public DataUiHandlerProperty
     Q_PROPERTY(qreal holdLevel READ holdLevel WRITE setHoldLevel NOTIFY holdLevelChanged)
     Q_PROPERTY(qreal sustainLevel READ sustainLevel WRITE setSustainLevel NOTIFY sustainLevelChanged)
     Q_PROPERTY(bool enable READ isEnabledEnvelope WRITE setEnableEnvelope NOTIFY enableEnvelopeChanged)
+    Q_PROPERTY(QString envelopeType READ envelopeType WRITE setEnvelopeType NOTIFY envelopeTypeChanged)
 
 public:
 
@@ -67,7 +69,7 @@ public:
      * @brief isEnabledEnvelope tell if the envelope is enabled
      * @return true if enabled
      */
-    bool isEnabledEnvelope() {return m_enable;}
+    const bool isEnabledEnvelope() {return m_enable;}
 
     /**
      * @brief spareTimeAvailable Return the not allocated time, the difference between the total time and the allocated time for envelope phase.
@@ -75,6 +77,11 @@ public:
      */
     const qreal spareTimeAvailable();
 
+    /**
+     * @brief envelopeType The type of envelope selcted
+     * @return
+     */
+    const QString envelopeType() {return m_envelopeType;}
 
 signals:
     void attackDurationChanged(qreal);
@@ -85,6 +92,7 @@ signals:
     void holdLevelChanged(qreal);
     void sustainLevelChanged(qreal);
     void enableEnvelopeChanged(bool);
+    void envelopeTypeChanged(QString);
 
     /**
      * @brief timeParamsChanged This signal is emitted when never some time is changed.
@@ -129,6 +137,11 @@ public slots:
     void setHoldLevel(qreal holdLevel);
     void setSustainLevel(qreal sustainLevel);
 
+    /**
+     * @brief setEnvelopeType set the type
+     * @param type
+     */
+    void setEnvelopeType(QString type);
 
     /**
       * Set the max length of all the parameters in this class, can be any number (sample, msec whatever).
@@ -163,8 +176,8 @@ private:
     qreal sustainPercentile() {return (m_totalTime>0.0 ? m_sustain/m_totalTime : 0.0);}
     qreal releasePercentile() {return (m_totalTime>0.0 ? m_release/m_totalTime : 0.0);}
 
-
     bool m_enable;
+    QString m_envelopeType;
     qreal m_totalTime;
     qreal m_attack;
     qreal m_hold;

@@ -4,7 +4,7 @@
 DataEnvelopeUI::DataEnvelopeUI(QWidget *parent) :
     DataUiHandlerUI(parent)
 {
-    this->initEnableWidget();
+    this->initEnableAndTypeWidgets();
     this->initAmplitudeWidget();
     this->initTimeWidget();
     this->initEnvelopeWidget();
@@ -12,12 +12,14 @@ DataEnvelopeUI::DataEnvelopeUI(QWidget *parent) :
 
 DataEnvelopeUI::~DataEnvelopeUI()
 {
+    delete m_widgetType;
     delete m_widgetAmplitude;
     delete m_widgetTime;
     delete m_widgetEnable;
 }
 
-void DataEnvelopeUI::initEnableWidget() {
+void DataEnvelopeUI::initEnableAndTypeWidgets() {
+    //----------Widget box type
     m_widgetEnable=new QWidget();//Create the widget for these controls
     //setting font base dimension
     QFont f=*(new QFont());
@@ -32,9 +34,31 @@ void DataEnvelopeUI::initEnableWidget() {
     //Setting up hold control widget
     m_structEnable.enableCB=new QCheckBox("Enable/disable envelope");
     m_structEnable.enableCB->setFont(f);
-    connect(m_structEnable.enableCB,SIGNAL(clicked()),this,SLOT(enableCheckBoxToggled()));
+    Q_ASSERT(connect(m_structEnable.enableCB,SIGNAL(clicked()),this,SLOT(enableCheckBoxToggled())));
 
     _l->addWidget(m_structEnable.enableCB,1,Qt::AlignLeft);
+
+
+    //----------Combo box type
+    m_widgetType=new QWidget();//Create the widget for these controls
+
+    //Widget  layout
+    QHBoxLayout * _ll=new QHBoxLayout();
+    _ll->setSizeConstraint(QLayout::SetMinimumSize);
+    m_widgetType->setLayout(_ll);
+    m_widgetType->setFont(f);
+
+    //Setting up hold control widget
+    m_structType.typeLabel=new QLabel("Envelope type");
+    m_structType.typeLabel->setFont(f);
+    m_structType.envelopeType=new QComboBox();
+    m_structType.envelopeType->setFont(f);
+    m_structType.envelopeType->addItems(DataEnvelope::transientFunctionList());
+
+    Q_ASSERT(connect(m_structType.envelopeType,SIGNAL(currentIndexChanged(QString)),this,SIGNAL(envelopeTypeUIChanged(QString))));
+
+    _ll->addWidget(m_structType.envelopeType,1,Qt::AlignLeft);
+    _ll->addWidget(m_structType.typeLabel,1,Qt::AlignLeft);
 }
 
 void DataEnvelopeUI::initAmplitudeWidget() {
@@ -76,7 +100,6 @@ void DataEnvelopeUI::initAmplitudeWidget() {
     //Disable to start
     m_widgetAmplitude->setEnabled(false);
 }
-
 
 void DataEnvelopeUI::initTimeWidget() {
     m_widgetTime=new QWidget();//Create the widget for these controls
@@ -155,6 +178,7 @@ void DataEnvelopeUI::initEnvelopeWidget() {
     _widget->setFont(f);
 
     _l->addWidget(m_widgetEnable);
+    _l->addWidget(m_widgetType);
     _l->addWidget(m_widgetAmplitude);
     _l->addWidget(m_widgetTime);
 
@@ -203,6 +227,10 @@ void DataEnvelopeUI::sustainDurationUIUpdate(qreal sustainTime) {
 void DataEnvelopeUI::releaseDurationUIUpdate(qreal releaseTime) {
     if (releaseTime==m_structTime.release->value()) return;
     m_structTime.release->setValue(releaseTime);
+}
+
+void DataEnvelopeUI::envelopeTypeUIUpdate(QString type) {
+    m_structType.envelopeType->setCurrentIndex( m_structType.envelopeType->findText(type));
 }
 
 void DataEnvelopeUI::setTimeSlider(ScaledSliderWidget *slider, qreal val) {

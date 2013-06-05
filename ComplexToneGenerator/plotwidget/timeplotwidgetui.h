@@ -6,11 +6,6 @@
 #include <QPushButton>
 #include <scaledsliderwidget.h>
 #include <CTG_constants.h>
-#include <QRadioButton>
-#include <QGroupBox>
-#include "zmp_handler.h"
-
-
 
 /**
  * @brief The TimePlotWidgetUI class contains not only the controls related to the property but also some general
@@ -21,7 +16,7 @@ class TimePlotWidgetUI : public DataUiHandlerUI
     Q_OBJECT
 public:
     explicit TimePlotWidgetUI(QWidget *widget = 0);
-    TimePlotWidgetUI(ZMP_Handler * zmp, QWidget *widget = 0);
+    void addZMPControlWidget(QWidget * zmpWidget) {this->addWidget(zmpWidget,"Zoom & C. controls");}
     virtual ~TimePlotWidgetUI();
 signals:
     /**
@@ -52,19 +47,11 @@ public slots:
     void sampleRateUIUpdate(qreal sampleRate);
     void maxDurationUIUpdate(qreal maxduration);
 
-    void ZMP_statusChanged();
 private:
     void initControlWidget();
-    ZMP_Handler * m_zmp;//Handle zoom, panel etc
     struct {
       ScaledSliderWidget * sliderSampleRate;
       ScaledSliderWidget * sliderMaxDuration;
-      struct {
-          QGroupBox * groupBox;
-          QRadioButton * PICKER;
-          QRadioButton * PAN;
-          QRadioButton * ZOOM;
-      } ZMP_RadioButton;//Zoom Move Pan Pick enable radio button
       QPushButton * showAllCurves;
       QPushButton * hideAllCurves;
     } m_baseControl;

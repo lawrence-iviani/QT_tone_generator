@@ -47,9 +47,6 @@ public:
      */
     static QString getObjectType(const QDomNode &node);
 
-
-    // setAndConvertFrequencyData(GenericFrequencyData * f); //Questo servira' a generare i dati partendo da una classe simile nel dominio frequenziale.
-
 signals:
 
     /**
@@ -94,7 +91,6 @@ public slots:
       */
      virtual void createData();
 
-
      /**
       * @brief enableRecalc enable/disable recalculation for this curve.
       * @param enable true, the curve is recalculated
@@ -122,7 +118,6 @@ public slots:
       */
      void setTimePlotParams(TimePlotParams * timePlotParams);
 
-
      /**
       * @brief curveHasChanged Call this slot when some attributes curve changed
       */
@@ -149,23 +144,10 @@ public slots:
      */
     QDomDocument exportXML();
 
-     //     /**
-     //      * @brief exportXML export the DOM structure to a filename (path+file)
-     //      * @param filename
-     //      */
-     //     void exportXML(const QString filename);
-
       /**
        * @brief importXMLDialog import an XML file by opening a file dialog
        */
      void load();
-
-     //     /**
-     //      * @brief importXML import an XML file
-     //      * @param fileName the file to import
-     //      * @return  true if succesful
-     //      */
-     //     bool importXML(QString fileName);
 
     /**
     * @brief importXML import a QDomDocument containing class data
@@ -182,15 +164,6 @@ public slots:
      */
     bool importXML(const QDomNode& node, ErrorMessage* err);
 
-     //     /**
-     //      * @brief importXML import a QDomDocument by node
-     //      * @param node the node you want to import
-     //      * @return true if succesful
-     //      */
-     //     bool importXML(const QDomNode *node);
-
-     //     bool importXML(const QDomNode &node);
-
 protected:
      /**
        * The method is called every time an updateData is called. In this way extension class can implement it own calculation to provide the signal data.
@@ -204,14 +177,14 @@ protected:
        * - Time
        * - Envelope
        */
-     inline void deleteAllData();
+     void deleteAllData();
 
      /**
        * The function init all the following internal data:
        * - Signal
        * - Time
        */
-     inline void resetAllData();
+     void resetAllData();
 
      inline DataEnvelopeParameters * getEnvelopeParameters() {
          DataEnvelopeParameters* retval=NULL;
@@ -259,12 +232,6 @@ protected:
      }
 
      /**
-      * @brief setEnvelopeLength Set effective length of the envelope data, this class
-      * @param length
-      */
-    // virtual void setEnvelopeLength(qreal length);
-
-     /**
       * @brief connectSignals WHen inheriting from this class this method must be called after init to mantains connection, otherwise will be lost.
       * (This is an issue that must be fixed in the design).
       */
@@ -279,10 +246,6 @@ protected:
      virtual bool insertSignalValue(quint64 index, qreal value);
 
      bool areValidTimeDataSettings(const QDomNode &node, ErrorMessage *errMessage);
-
-
-protected slots:
-
 
 private:
      /**
@@ -317,8 +280,7 @@ private:
      QDomDocument composeDomDocument() ;
      void initEnvelope();
      bool m_enableRecalc;
-   //  void refreshEnvelope();
-    // TimePlotParams * m_TimePlotParams;
+
      QWidget * m_ui;
      DataUiHandlerDelegate * m_timeDataDelegate;
      DataEnvelope *m_envelope;

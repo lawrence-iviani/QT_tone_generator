@@ -4,7 +4,8 @@ FreqPlotWigetParams::FreqPlotWigetParams(QObject *object):
         DataUiHandlerProperty(object),
         m_binsNumber(FREQPLOTWIDGET_DEFAULT_BINS_PER_WINDOW),
         m_windowType(FREQPLOTWIDGET_DEFAULT_WINDOW),
-        m_overlap(FREQPLOTWIDGET_DEFAULT_OVERLAP)
+        m_overlap(FREQPLOTWIDGET_DEFAULT_OVERLAP),
+        m_logFreqScale(true)
 {
 }
 
@@ -27,5 +28,12 @@ void FreqPlotWigetParams::setWindowType(QString windowName) {
     if (windowName!=m_windowType) {
         m_windowType=windowName;
         emit (windowTypeChanged(windowName));
+    }
+}
+
+void FreqPlotWigetParams::setLogFreqScale(bool logScale) {
+    if (logScale!=m_logFreqScale) {
+        m_logFreqScale=logScale;
+        emit (logFreqScaleChanged(logScale));
     }
 }

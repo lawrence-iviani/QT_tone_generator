@@ -5,23 +5,26 @@
 #include <QLayout>
 #include <QComboBox>
 #include "freqplotwidget.h"
-#include "zmp_handler.h"
+#include "zmp_helper.h"
 
 class FreqPlotWidgetUI : public DataUiHandlerUI
 {
     Q_OBJECT
 public:
     explicit FreqPlotWidgetUI(QWidget *widget = 0);
+    void addZMPControlWidget(QWidget * zmpWidget) {this->addWidget(zmpWidget,"Zoom & C. controls");}
     virtual ~FreqPlotWidgetUI();
 signals:
     void binsNumberUIChanged(uint);
     void windowTypeUIChanged(QString);
     void overlapUIChanged(qreal);
+    void logFreqScaleUIChanged(bool);
 
 public slots:
     void binsNumberUIUpdate(uint nBins);
     void windowTypeUIUpdate(QString windowName);
     void overlapUIUpdate(qreal overlap);
+    void logFreqScaleUIUpdate(bool logFreq);
 
 private slots:
     void binsHasChanged(QString nbins);
@@ -30,6 +33,7 @@ private slots:
 private:
     void initControlWidget();
     struct {
+      QCheckBox * logScale;
       QComboBox * binsNuber;
       QComboBox * overlap;
       QComboBox * windowType;

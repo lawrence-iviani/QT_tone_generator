@@ -20,13 +20,10 @@ void DigestTimeData::init() {
     QwtPlotCurve *_curve=this->getCurve();
     QPen _p=_curve->pen();
     QColor _c=_p.color();
- //   QBrush _b=_curve->brush();
- //   _b.setStyle(Qt::SolidPattern);
     _c.setAlpha(PLOTWIDGET_DEFAULT_PLOT_CURVE_TRANSPARENCY);
     _p.setColor(_c);
     _p.setWidthF(PLOTWIDGET_DEFAULT_PLOT_CURVE_WIDTH*2);
     _curve->setPen(_p);
-  //      _curve->setBrush(_b);
 }
 
 DigestTimeData::~DigestTimeData() {}
@@ -40,8 +37,7 @@ void DigestTimeData::recalc() {
     GenericTimeDataParams * _params=dynamic_cast<GenericTimeDataParams*>(this->getDataParameters());
     Q_ASSERT(_params!=NULL);
     if (!isEnableRecalc()) {
-//        qDebug()<< QTime::currentTime().toString("hh:mm:ss.zzz")  << " - DigestTimeData::recalc() was  DISABLED!! " << this->name();
-        PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
+         PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
                           " recalc DISABLED for "+_params->name()));
         return;
     }
@@ -69,7 +65,7 @@ void DigestTimeData::recalc() {
                                   arg(_params->sampleRate()));
                 Q_ASSERT(gtd->getSampleNumber()==_sampleNumber);
                 for (quint64 n=0; n < gtd->getSampleNumber(); n++) {
-                    Q_ASSERT(this->insertSignalValue(n,digestData[n]+gtdData[n]));
+                    Q_ASSERT(insertSignalValue(n,digestData[n]+gtdData[n]));
                 }
             }
         }

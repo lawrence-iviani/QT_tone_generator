@@ -40,25 +40,29 @@ CustomCurveFactory* CustomCurveFactory::instance() {
 }
 
 GenericTimeData* CustomCurveFactory::newCurve(QString className) {
-
-
+    //SIN DATA
     if (className=="GenericSinusData")
         return (GenericTimeData*) new GenericSinusData();//timeParams,parent);
-
     if (className=="PartialSinusData")
         return (GenericTimeData*) new PartialSinusData();//timeParams,parent);
-
     if (className=="RepeatedSinusData")
         return (GenericTimeData*) new RepeatedSinusData();//timeParams,parent);
 
+    //SQUARE DATA
     if (className=="GenericSquareData")
         return (GenericTimeData*) new GenericSquareData();//timeParams,parent);
-
     if (className=="PartialSquareData")
         return (GenericTimeData*) new PartialSquareData();//timeParams,parent);
-
     if (className=="RepeatedSquareData")
         return (GenericTimeData*) new RepeatedSquareData();//timeParams,parent);
+
+    //PINK NOISE DATA
+    if (className=="GenericPinkNoiseData")
+        return (GenericTimeData*) new GenericPinkNoiseData();
+    if (className=="PartialPinkNoiseData")
+        return (GenericTimeData*) new PartialPinkNoiseData();
+    if (className=="RepeatedPinkNoiseData")
+        return (GenericTimeData*) new RepeatedPinkNoiseData();
 
     return NULL;
 }

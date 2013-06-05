@@ -21,21 +21,11 @@ void FreqPlotWidgetUI::initControlWidget() {
     _widget->setLayout(l);
     _widget->setFont(_font);
 
-    //Adding the ZMP button control
-//    m_baseControl.ZMP_RadioButton.groupBox = new QGroupBox("Mouse Selection",NULL);
-//    m_baseControl.ZMP_RadioButton.PICKER =  new QRadioButton("Picker",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
-//    m_baseControl.ZMP_RadioButton.PAN = new QRadioButton("Pan",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
-//    m_baseControl.ZMP_RadioButton.ZOOM = new QRadioButton("Zoom",(QWidget*)m_baseControl.ZMP_RadioButton.groupBox);
-//    QVBoxLayout * radioButtonLayout = new QVBoxLayout();
-//    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.PICKER,1);
-//    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.PAN,1);
-//    radioButtonLayout->addWidget(m_baseControl.ZMP_RadioButton.ZOOM,1);
-//    m_baseControl.ZMP_RadioButton.groupBox->setLayout(radioButtonLayout);
-//    connect(m_baseControl.ZMP_RadioButton.PICKER,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
-//    connect(m_baseControl.ZMP_RadioButton.PAN,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
-//    connect(m_baseControl.ZMP_RadioButton.ZOOM,SIGNAL(clicked()),this,SLOT(ZMP_statusChanged()));
-//    m_baseControl.ZMP_RadioButton.PICKER->setChecked(true);
-//    l->addWidget( m_baseControl.ZMP_RadioButton.groupBox,1,Qt::AlignLeft|Qt::AlignTop);
+    //set logscale
+    m_baseControl.logScale=new QCheckBox("Log scale selection");
+    m_baseControl.logScale->setFont(_font);
+    l->addWidget(m_baseControl.logScale,1,Qt::AlignCenter|Qt::AlignTop);
+    Q_ASSERT(connect(m_baseControl.logScale,SIGNAL(toggled(bool)),this,SIGNAL(logFreqScaleUIChanged(bool))));
 
     //set bins
     m_baseControl.binsNuber = new QComboBox(NULL);
@@ -89,6 +79,12 @@ void FreqPlotWidgetUI::overlapUIUpdate(qreal overlap) {
 void FreqPlotWidgetUI::windowTypeUIUpdate(QString windowName) {
     if (windowName!=m_baseControl.windowType->currentText())
         m_baseControl.windowType->setCurrentIndex( m_baseControl.windowType->findText(windowName));
+}
+
+void FreqPlotWidgetUI::logFreqScaleUIUpdate(bool logFreq) {
+    if (logFreq!=m_baseControl.logScale->isChecked()) {
+        m_baseControl.logScale->setChecked(logFreq);
+    }
 }
 
 QWidget* FreqPlotWidgetUI::createCombo(QString name,QComboBox *combo, QFont& font) {

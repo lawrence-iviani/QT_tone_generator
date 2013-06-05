@@ -9,6 +9,9 @@
 #include "dataenvelopeui.h"
 #include <DataUiHandler.h>
 
+#define ENVELOPE_TYPE "Linear" << "Exponential" << "Inverted exponential"<< "Logarithmic"
+
+
 class GenericTimeData;
 
 /**
@@ -24,7 +27,29 @@ public:
     explicit DataEnvelope(qreal SR, QObject *parent=0);
     explicit DataEnvelope(quint64 length , qreal SR, QObject *parent=0);
 
-    enum TransientFunction {Linear, Exponential, Logarithmic};//NOT IMPLEMENTED!!
+    enum TransientFunction {Linear, Exponential, InvertedExp, Logarithmic};
+    static QStringList transientFunctionList() {
+        QStringList _retval;
+        _retval << ENVELOPE_TYPE;
+        return _retval;
+    }
+
+    static bool isValidEnvelopeType(QString type) {
+        QStringList list;
+        list << ENVELOPE_TYPE;
+        if (list.contains(type)) return true;
+        else return false;
+    }
+
+    static uint envelopeType2Enum(QString type) {
+        uint retval=-1;
+        if (type=="Linear") retval=Linear;
+        if (type=="Exponential") retval=Exponential;
+        if (type=="Logarithmic") retval=Logarithmic;
+        if (type=="Inverted exponential") retval=InvertedExp;
+        return retval;
+    }
+
     virtual ~DataEnvelope();
 
     /**
@@ -70,12 +95,6 @@ public:
     void replacePropertyAndUI(DataUiHandlerProperty *params, DataUiHandlerUI *ui);
 
 signals:
-    /**
-     * @brief enabledToggle, the envelope enabled was toggled
-     * @param toggle, true if envelope is enabled
-     */
- //   void enableToggled(bool enable);
-    //VERIFICARE, NON DOVREBBE PIU' SERVIRE
 
     /**
      * @brief envelopeChanged, emitted whenever the enable is modified (enable, length or parameters)
@@ -111,8 +130,34 @@ private:
     qreal * m_envelope;
     qreal m_SR;
     void init(QObject *parent);
+
+    void recalculateLinearEnvelope(quint64 attack, quint64 hold, quint64 decay, quint64 sustain, quint64 release);
+    void recalculateExponentialEnvelope(quint64 attack, quint64 hold, quint64 decay, quint64 sustain, quint64 release, bool invertedExponential=false);
+    void recalculateLogEnvelope(quint64 attack, quint64 hold, quint64 decay, quint64 sustain, quint64 release);
     void recalculateEnvelope();
     void connectingSignals();
+
+    /**
+     * @brief exponetialCoeff Return an exp functiom in the form slope*pow(x)+c with P1(x1,y1) and P2(x2,y2) belongings to the function. The base is arbitrary
+     * @param slope
+     * @param c
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     */
+    static inline void exponetialCoeff(qreal& slope, qreal& c, const qreal& x1, const qreal& y1, const qreal& x2, const qreal& y2, bool inverted=false);
+
+    /**
+     * @brief logCoeff Return a log functiom in the form slope*log(x)+c with P1(x1,y1) and P2(x2,y2) belongings to the function. The base is arbitrary
+     * @param slope
+     * @param c
+     * @param x1
+     * @param y1
+     * @param x2
+     * @param y2
+     */
+    static inline void logCoeff(qreal& slope, qreal& c, const qreal& x1, const qreal& y1, const qreal& x2, const qreal& y2);
 
 private slots:
 

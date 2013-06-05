@@ -13,7 +13,7 @@ public:
      {
          //setRubberBand( VLineRubberBand );
          setRubberBandDirection(Qt::Vertical);
-         setRubberBandPen( QPen( Qt::darkGray,2.0 ) );
+         privateSetColor(Qt::black);
          setStateMachine(NULL);
          begin();
          append( QPoint( 0, 0 ) );
@@ -24,7 +24,7 @@ public:
      {
          //setRubberBand( VLineRubberBand );
          setRubberBandDirection(align);
-         setRubberBandPen( QPen( Qt::darkGray,2.0 ) );
+        privateSetColor(Qt::black);
          setStateMachine(NULL);
          begin();
          append( QPoint( 0, 0 ) );
@@ -56,6 +56,19 @@ public:
              updateDisplay();
          }
          return ok;
+     }
+
+     void setColor(QColor color) {
+        privateSetColor(color);
+     }
+
+private:
+     void privateSetColor(QColor color) {
+         QPen _pen=rubberBandPen();
+         color.setAlpha(100);
+         _pen.setColor(color);
+         _pen.setWidth(10);
+         setRubberBandPen(_pen);
      }
 };
 

@@ -25,7 +25,6 @@ void SpectrogramData::setIntervals(double SR,double minTime,double maxTime) {
 void SpectrogramData::setSampleRate(double SR) {
     m_intervalFreq=QwtInterval( 10, SR /2.0,QwtInterval::ExcludeBorders );
     setInterval( Qt::YAxis, m_intervalFreq );
-
 }
 
 void SpectrogramData::setTimeLength(double minTime, double maxTime) {
@@ -33,24 +32,30 @@ void SpectrogramData::setTimeLength(double minTime, double maxTime) {
     setInterval( Qt::XAxis, m_intervalTime);
 }
 
-
 void SpectrogramData::setData(const double * array, uint arraySize, uint binsPerWindow, QString windowType, qreal percentOverlap)
 {
     uint _numberOfBins=binsPerWindow;//Number of rows
     qreal _percentileOverlap=percentOverlap/100.0;
     Q_ASSERT(percentOverlap>=0.0 && percentOverlap <100.0);
-    //BAD CODE
-    uint pos=0;
 
+    PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,
+                    "Calculate number of window for an array of %1 samples, with an overlap of %2 % and window of %3")
+                      .arg(arraySize)
+                      .arg(percentOverlap)
+                      .arg(windowType));
+
+    //------------- VERY BAD CODE -------------
+    //Calculate the number of way in iterative way, this should be in a closed form.
+    uint pos=0;
     uint _numberOfWindows=0;
     while (pos < arraySize) {
         uint _lowIndex=qFloor((1.0-_percentileOverlap)*_numberOfWindows*_numberOfBins);
         uint _hiIndex=qMin( _lowIndex+_numberOfBins, arraySize);
-        qDebug() << "Calculating win length ("<<_numberOfWindows<<")"<< _lowIndex << "-" << _hiIndex<<"/"<< arraySize;
+        //qDebug() << "Calculating win length ("<<_numberOfWindows<<")"<< _lowIndex << "-" << _hiIndex<<"/"<< arraySize;
         _numberOfWindows++;
         pos=_hiIndex;
     }
-    //BAD CODE
+    //------------- VERY BAD CODE END-------------
 
 
     //Calculate the internal array, it will can be a little bit larger than
@@ -105,10 +110,10 @@ void SpectrogramData::setData(const double * array, uint arraySize, uint binsPer
         for (nBin=0;nBin<(_numberOfBins+1)/2;nBin++) {
             m_fftArray[nWin+_numberOfWindows*nBin]=POWER_SPECTRUM(out[nBin][0],out[nBin][1],_numberOfBins);
         }
-        qDebug() << "\tInto FFT array win("<<nWin<<") from "
-                 << nWin << "-"
-                 << (nWin+_numberOfWindows*nBin)
-                 <<"/"<< _sizeArray;
+//        qDebug() << "\tInto FFT array win("<<nWin<<") from "
+//                 << nWin << "-"
+//                 << (nWin+_numberOfWindows*nBin)
+//                 <<"/"<< _sizeArray;
         if (nWin==(_numberOfWindows-1)) Q_ASSERT(nWin+_numberOfWindows*nBin==_sizeArray-1);
     }
     fftw_destroy_plan(my_plan);
@@ -152,9 +157,11 @@ FreqPlotWidget::FreqPlotWidget(QWidget *parent) :
     setYScaleType(PlotWidget::Logarithmic);
 
     //Setscale limits, should check if these value changed...
-   // setBothAxisScale(10 , TIMEDATA_DEFAULT_SR/2 , TIMEDATA_DEFAULT_PROJECT_TIME, TIMEDATA_DEFAULT_MIN_TIME);
-    setBothAxisScale( TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_PROJECT_TIME,10 , TIMEDATA_DEFAULT_SR/2 );
-    plotLayout()->setAlignCanvasToScales(true);
+    setBothAxesScale( TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_PROJECT_TIME,10 , TIMEDATA_DEFAULT_SR/2 );
+
+    FreqPlotWidgetUI *_ui=dynamic_cast< FreqPlotWidgetUI*> (getControlWidget());
+    Q_ASSERT(_ui!=NULL);
+    _ui->addZMPControlWidget(m_zmp->getControlWidget());
 
     //set title
     this->setPlotTitle("Digest curve spectrogram");
@@ -169,6 +176,8 @@ void FreqPlotWidget::connectSignals() {
     Q_ASSERT(connect(_freqParams,SIGNAL(binsNumberChanged(uint)),this,SLOT(dataUpdated())));
     Q_ASSERT(connect(_freqParams,SIGNAL(windowTypeChanged(QString)),this,SLOT(dataUpdated())));
     Q_ASSERT(connect(_freqParams,SIGNAL(overlapChanged(qreal)),this,SLOT(dataUpdated())));
+    Q_ASSERT(connect(_freqParams,SIGNAL(logFreqScaleChanged(bool)),this,SLOT( enableLogFreqScale(bool))));
+
 }
 
 void FreqPlotWidget::dataUpdated() {
@@ -179,29 +188,35 @@ void FreqPlotWidget::dataUpdated() {
     Q_ASSERT(_gtdParams!=NULL);
 
     //Setscale limits, should check if these value changed...
-    setBothAxisScale( _gtdParams->startTime(), _gtdParams->maxDuration() ,10 , _gtdParams->sampleRate()/2.0);
+    setBothAxesScale( _gtdParams->startTime(), _gtdParams->maxDuration() ,10 , _gtdParams->sampleRate()/2.0);
     _spectrData->setSampleRate(_gtdParams->sampleRate());
     _spectrData->setTimeLength(_gtdParams->startTime(),_gtdParams->maxDuration());
 
     FreqPlotWigetParams* _freqParams=dynamic_cast<FreqPlotWigetParams*> (m_freqPlotDelegate->getProperty());
     Q_ASSERT(_freqParams);
 
-    qDebug()<<Q_FUNC_INFO << "set data SR=" << _gtdParams->sampleRate() << " timemin="<<_gtdParams->startTime() << " timemax"<<_gtdParams->maxDuration();
+//    qDebug()<<Q_FUNC_INFO << "set data SR=" << _gtdParams->sampleRate() << " timemin="<<_gtdParams->startTime() << " timemax"<<_gtdParams->maxDuration();
     uint _expcetdSampleNumber=qCeil(_gtdParams->sampleRate()*(_gtdParams->maxDuration()-_gtdParams->startTime()));
-    qDebug()<<Q_FUNC_INFO << "digest m_timeData->getSampleNumber()="<< m_timeData->getSampleNumber() << " expected="<< _expcetdSampleNumber;
-    qDebug() << Q_FUNC_INFO << "Calling setdata with m_timeData->getSampleNumber()="<< m_timeData->getSampleNumber()<<
-                "_freqParams->binsNumber()="<< _freqParams->binsNumber() << " _freqParams->windowType() is "<< _freqParams->windowType();
+//    qDebug()<<Q_FUNC_INFO << "digest m_timeData->getSampleNumber()="<< m_timeData->getSampleNumber() << " expected="<< _expcetdSampleNumber;
+//    qDebug() << Q_FUNC_INFO << "Calling setdata with m_timeData->getSampleNumber()="<< m_timeData->getSampleNumber()<<
+                //"_freqParams->binsNumber()="<< _freqParams->binsNumber() << " _freqParams->windowType() is "<< _freqParams->windowType();
     //Params:
     //m_timeData->getSignalData() pointer to data
     //m_timeData->getSampleNumber() the number of sample
     //m_binsPerWindow the numnber of bins of any window this is coincident with the fft number
-    //m_windowName, MISSING the window that has to be used (default, hamming???)
-    //m_percentOverlap, MISSING the percent of overlap between window..
+    //m_windowName,  the window that has to be used (default, hamming???)
+    //m_percentOverlap,  the percent of overlap between window..
     _spectrData->setData(m_timeData->getSignalData(),m_timeData->getSampleNumber(),_freqParams->binsNumber(),_freqParams->windowType(),_freqParams->overlap());
     //_spectrData->setData()
     this->replot();
 }
 
+void FreqPlotWidget::setRubberBandPosition(qreal position) {
+    m_scrollRubberBand->setValue(position);
+}
+
+
+//----------------- TRANSFORM WINDOW -----------------
 void TransformWindow::generateWindow(double array[], uint nBins, const QString& windowType) {
     if (windowType=="Hann") return TransformWindow::hannWindow(array,nBins);
     if (windowType=="Hamming") return TransformWindow::hammingWindow(array,nBins);
@@ -248,5 +263,4 @@ void TransformWindow::generalizeHammingWindow(double array[], uint nBins, double
     for (uint i = 0; i < nBins; i++) {
         array[i]= alpha-beta *  cos(_factor*i);
     }
-    qDebug() << Q_FUNC_INFO << " array[0]=" <<array[0] << " array["<< (nBins-1) << "]= " << array[nBins-1];
 }

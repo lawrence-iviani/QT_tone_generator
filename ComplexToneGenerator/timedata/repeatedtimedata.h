@@ -54,7 +54,12 @@ private slots:
     /**
      * @brief updateRepetitions recalculate the number of repetitions
      */
-    void updateRepetitions();
+    void updateRepetitions(bool forceUpdate=false);
+
+    /**
+     * @brief updateBlankTime
+     */
+    void updateBlankTime();
 private:
     void init(TimePlotParams *timePlotParams);
 

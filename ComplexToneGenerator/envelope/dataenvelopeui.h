@@ -2,6 +2,7 @@
 #define DATAENVELOPEUI_H
 
 #include <QFrame>
+#include <QComboBox>
 #include <QCheckBox>
 #include <qmath.h>
 #include "scaledsliderwidget.h"
@@ -37,6 +38,8 @@ signals:
     void sustainDurationUIChanged(qreal);
     void releaseDurationUIChanged(qreal);
     void enableUIChanged(bool);
+    void envelopeTypeUIChanged(QString);
+
 public slots:
     /**
       * Set the hold amplitude value
@@ -56,6 +59,12 @@ public slots:
     void releaseDurationUIUpdate(qreal releaseTime);
 
     /**
+     * @brief envelopeTypeUIUpdate
+     * @param type
+     */
+    void envelopeTypeUIUpdate(QString type);
+
+    /**
      * @brief setEnableEnvelopeUI enable/disable the UI checkbox related to envelope and emit
      * @param true enable check
      */
@@ -70,9 +79,16 @@ public slots:
 private:
     QWidget * m_widgetEnable;
     struct {
-        QLabel * enableLabel;
+       // QLabel * enableLabel;
         QCheckBox * enableCB;
     } m_structEnable;
+
+    //Type
+    QWidget* m_widgetType;
+    struct {
+        QLabel * typeLabel;
+        QComboBox* envelopeType;
+    } m_structType;
 
     //Amplitude slider
     QWidget * m_widgetAmplitude;
@@ -91,7 +107,7 @@ private:
         ScaledSliderWidget * release;
     }  m_structTime;
 
-    void initEnableWidget();
+    void initEnableAndTypeWidgets();
     void initEnvelopeWidget();
     void initAmplitudeWidget();
     void initTimeWidget();

@@ -7,7 +7,7 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
 {
     m_timePlotDelegate=new DataUiHandlerDelegate(
                 dynamic_cast<DataUiHandlerProperty*>(new TimePlotParams((QObject*)parent)),
-                dynamic_cast<DataUiHandlerUI*>(new TimePlotWidgetUI(new ZMP_Handler(this->canvas()))),
+                dynamic_cast<DataUiHandlerUI*>(new TimePlotWidgetUI()),
                 PROJECTTIMEPARAMS_DOCTYPE,
                 PROJECTTIMEPARAMETERS_TAG,
                 PROJECTTIMEPARAMS_DOCVERSION,
@@ -15,12 +15,16 @@ TimePlotWidget::TimePlotWidget(QWidget *parent, int xScaleType, int yScaleType) 
 
     TimePlotParams *_params=dynamic_cast< TimePlotParams*> (getDataParameters());
     Q_ASSERT(_params!=NULL);
+    TimePlotWidgetUI *_ui=dynamic_cast< TimePlotWidgetUI*> (getControlWidget());
+    Q_ASSERT(_ui!=NULL);
     _params->setMaxDuration(TIMEDATA_DEFAULT_PROJECT_TIME);
     _params->setSampleRate(TIMEDATA_DEFAULT_SR);
     m_digestCurve=new DigestTimeData(&m_curveList,_params);
     m_digestCurve->getCurve()->attach(this);
     this->setRubberBandPosition(0);
     //connect show all and enable all
+    _ui->addZMPControlWidget(m_zmp->getControlWidget());
+
     connectSignals();
 
     //set title
@@ -149,7 +153,8 @@ void TimePlotWidget::setAllCurvesMaxDuration(qreal maxduration) {
     Q_ASSERT(_digestParams!=NULL);
     _digestParams->setMaxDuration(maxduration);
 
-    this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*maxduration);
+    //this->setAxisScale(xBottom, this->axisInterval(xBottom).minValue(), 1.1*maxduration);
+    setBothAxesScale(this->axisInterval(xBottom).minValue(),maxduration,this->axisInterval(yLeft).minValue(),this->axisInterval(yLeft).maxValue());
     //Replot and recalc digest
     this->updatePlot();
     if (m_freqPlot) m_freqPlot->dataUpdated();

@@ -77,7 +77,7 @@ public:
         m_spectrogram.setData(new SpectrogramData());
     }
 
-    //virtual void setRubberBandPosition(qreal position);
+    virtual void setRubberBandPosition(qreal position);
     inline QWidget * getControlWidget() {return dynamic_cast<QWidget*>(m_freqPlotDelegate->getUI()); }// Give back a QWidget that can be used to control this class.
     inline DataUiHandlerProperty* getDataParameters() {return m_freqPlotDelegate->getProperty();}
     inline QDomDocument exportXML() {return getDelegate()->getDomDocument();}
@@ -87,6 +87,11 @@ protected:
     
 public slots:
     void dataUpdated();
+    void enableLogFreqScale(bool enable) {
+        if (enable) setYScaleType(PlotWidget::Logarithmic);
+        else setYScaleType(PlotWidget::Linear);
+        replot();
+    }
 private:
     void connectSignals();
 

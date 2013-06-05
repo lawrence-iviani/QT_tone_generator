@@ -32,7 +32,8 @@ void RepeatedTimeData::connectSignals() {
     RepeatedTimeDataUI* _rtdUI=dynamic_cast<RepeatedTimeDataUI*>(this->getDelegate()->getUI());
     Q_ASSERT(_rtdUI);
 
-    Q_ASSERT(connect(_rtd,SIGNAL(blankTimeChanged(qreal)),this,SLOT(createData())));
+    //Q_ASSERT(connect(_rtd,SIGNAL(blankTimeChanged(qreal)),this,SLOT(createData())));
+    Q_ASSERT(connect(_rtd,SIGNAL(blankTimeChanged(qreal)),this,SLOT(updateBlankTime())));
 
     //Connect all the signal that can potentially change the number of repetitions
     Q_ASSERT(connect(_rtd ,SIGNAL(maxDurationChanged(qreal)),this,SLOT(updateRepetitions())));
@@ -46,7 +47,11 @@ void RepeatedTimeData::connectSignals() {
     _rtdUI->setBlankTimeScale(_rtd->maxDuration());
 }
 
-void RepeatedTimeData::updateRepetitions() {
+void RepeatedTimeData::updateBlankTime() {
+    updateRepetitions(true);
+}
+
+void RepeatedTimeData::updateRepetitions(bool forceUpdate) {
     RepeatedTimeDataParams* _params=dynamic_cast<RepeatedTimeDataParams*>(getDataParameters());
     Q_ASSERT(_params);
     //Get the total time available for all the repetitions (including the first and orginal one)
@@ -55,7 +60,7 @@ void RepeatedTimeData::updateRepetitions() {
     //Calculate one shot duration
     qreal _singleShotDuration=_params->duration()+_params->blankTime();
     quint64 repetitions=qFloor(_availableDuration/(_singleShotDuration));
-    if(repetitions!=m_repetitions) {
+    if(repetitions!=m_repetitions || forceUpdate) {
         m_repetitions=repetitions;
         PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"m_repetitions _availableDuration(%1)/_singleShotDuration(%2)=%3 repetitions (m_repetitions=%4)")
                             .arg(_availableDuration)
@@ -63,24 +68,11 @@ void RepeatedTimeData::updateRepetitions() {
                             .arg(_availableDuration/_singleShotDuration)
                           .arg(m_repetitions));
         //recall an update
-        updateData();
+        createData();
     } else {
         PRINT_DEBUG_LEVEL(ErrorMessage::DEBUG_NOT_SO_IMPORTANT,ErrorMessage::DEBUG(Q_FUNC_INFO,"m_repetitions=%1 doesn't change").arg(m_repetitions));
     }
 }
-
-
-//void RepeatedTimeData::setBlankTime(qreal blanktime) {
-//    //the max  blank time must be less of the total length minus the length and start time of one shot signal (PartialTimeData)
-//    qreal _maxBlankTime=maxDuration()-duration()+startTime();
-//    Q_ASSERT(_maxBlankTime>=0);
-
-//    blanktime=(blanktime>=0 ? blanktime:0);
-//    //Clip to the max blanktime available
-//    m_blankTime=(blanktime < _maxBlankTime ? blanktime : _maxBlankTime);
-//    updateRepetitions();
-//    createData();
-//}
 
 bool RepeatedTimeData::insertSignalValue(quint64 index, qreal value) {
     bool retval=false;
@@ -88,7 +80,7 @@ bool RepeatedTimeData::insertSignalValue(quint64 index, qreal value) {
     qreal *_s=signalData();
     RepeatedTimeDataParams* _params=dynamic_cast<RepeatedTimeDataParams*>(getDataParameters());
     Q_ASSERT(_params);
-    quint64 _sampleShotDuration=qFloor((_params->duration()+_params->blankTime())*_params->sampleRate());
+    quint64 _sampleSingleShotDuration=qFloor((_params->duration()+_params->blankTime())*_params->sampleRate());
 
     quint64 lowestIndex=lowestSampleIndexForModification();
     bool _envEnable=getEnvelopeParameters()->isEnabledEnvelope();
@@ -100,7 +92,7 @@ bool RepeatedTimeData::insertSignalValue(quint64 index, qreal value) {
         _tVal=(_envEnable ? value*envelopData[index-lowestIndex] : value);
         quint64 i;
         for (unsigned int _rep=0; _rep < m_repetitions; _rep++) {
-            i=_rep*_sampleShotDuration+index;
+            i=_rep*_sampleSingleShotDuration+index;
             // Q_ASSERT(i<=getSampleNumber());
             if (i<=getSampleNumber())
                 _s[i]= _tVal;

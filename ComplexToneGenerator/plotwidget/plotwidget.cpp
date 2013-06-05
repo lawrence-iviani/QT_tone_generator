@@ -1,12 +1,15 @@
 #include "plotwidget.h"
 
 PlotWidget::PlotWidget(QWidget *parent, int xScaleType, int yScaleType) :
-    QwtPlot(parent)
+    QwtPlot(parent),
+    m_zmp(NULL)
 {
-    m_dimension=PLOTWIDGET_DEFAULT_PLOT_DIMENSION;
+    m_referenceDimension=PLOTWIDGET_DEFAULT_PLOT_DIMENSION;
     this->plotSetup();
     this->setXScaleType(xScaleType);
     this->setYScaleType(yScaleType);
+    m_zmp=new ZMP_helper(this);
+    m_zmp->enablePicker();
     this->replot();
 }
 
@@ -15,7 +18,7 @@ void PlotWidget::plotSetup() {
     this->setAutoFillBackground( true );
     this->setPalette( QPalette( QColor(50,50,50)));
     this->insertLegend(new QwtLegend(), QwtPlot::RightLegend);
-    this->setDimension(m_dimension);
+    this->setDimension(m_referenceDimension);
 
     setPlotTitle("Plot Widget Title");
 
@@ -47,6 +50,7 @@ void PlotWidget::plotSetup() {
     //canvas
     this->canvas()->setFrameStyle( QFrame::Box | QFrame::Raised );
     this->canvas()->setBorderRadius( 12 );
+
     PlotWidgetBackground *bg = new PlotWidgetBackground(QColor( 230, 230, 255 ));
     bg->attach(this);
     m_scrollRubberBand=new ScrollRubberBand(this->canvas());
@@ -57,10 +61,18 @@ void PlotWidget::setXScaleType(int xScaleType) {
     m_xScaleType=xScaleType;
     if (m_xScaleType==PlotWidget::Logarithmic) {
         this->setAxisScaleEngine(xBottom,new QwtLog10ScaleEngine());
-        this->replot();
     } else {
         this->setAxisScaleEngine(xBottom,new QwtLinearScaleEngine());
     }
+    this->replot();
+}
+
+QwtInterval PlotWidget::getXAxisInterval() {
+   return axisInterval(xBottom);
+}
+
+QwtInterval PlotWidget::getYAxisInterval() {
+   return axisInterval(yLeft);
 }
 
 void PlotWidget::setPlotTitle(const QString& title) {
@@ -69,7 +81,7 @@ void PlotWidget::setPlotTitle(const QString& title) {
     _title.setColor(Qt::lightGray);
     //set font for the title
     QFont _f=_title.font();
-    _f.setPointSize(m_dimension+2);
+    _f.setPointSize(m_referenceDimension+2);
     _f.setBold(true);
     _title.setFont(_f);
     this->setTitle(_title);
@@ -80,26 +92,32 @@ void PlotWidget::setYScaleType(int yScaleType) {
     m_yScaleType=yScaleType;
     if (m_yScaleType==PlotWidget::Logarithmic) {
         this->setAxisScaleEngine(yLeft,new QwtLog10ScaleEngine());
-        this->replot();
     } else {
         this->setAxisScaleEngine(yLeft,new QwtLinearScaleEngine());
     }
+    this->replot();
 }
 
-void PlotWidget::setAxisName(QString xName,QString yName) {
+void PlotWidget::setAxesName(QString xName,QString yName) {
     this->setAxisTitle(xBottom, xName );
     this->setAxisTitle(yLeft, yName );
 }
 
-void PlotWidget::setBothAxisScale(int xScaleType, qreal xmin, qreal xmax,int yScaleType,qreal ymin, qreal ymax) {
+void PlotWidget::setBothAxesScale(int xScaleType, qreal xmin, qreal xmax,int yScaleType,qreal ymin, qreal ymax) {
     this->setXScaleType(xScaleType);
     this->setYScaleType(yScaleType);
-    this->setBothAxisScale(xmin,xmax,ymin,ymax);
+    this->setBothAxesScale(xmin,xmax,ymin,ymax);
 }
 
-void PlotWidget::setBothAxisScale(qreal xmin, qreal xmax,qreal ymin, qreal ymax) {
+void PlotWidget::setBothAxesScale(qreal xmin, qreal xmax,qreal ymin, qreal ymax) {
     this->setAxisScale(xBottom, xmin, 1.1*xmax);
-    this->setAxisScale(yLeft, ymin, 1.1*ymax);
+    this->setAxisScale(yLeft, ymin, 1.2*ymax);
+
+    //Also set zoom
+    if (m_zmp) {
+        QRectF _rect(xmin,1.1*ymin,1.1*xmax-xmin,1.2*ymax-ymin);
+        m_zmp->changeZoomBase(_rect);
+    }
 }
 
 void PlotWidget::setDimension(int pointDimension) {

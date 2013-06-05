@@ -224,7 +224,7 @@ QFrame *MainWindow::setupOptionsFrame() {
 }
 
 void MainWindow::setupPlots() {
-    m_plotTime->setBothAxisScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_PROJECT_TIME,-1.0,1.0);
+    m_plotTime->setBothAxesScale(TIMEDATA_DEFAULT_MIN_TIME,TIMEDATA_DEFAULT_PROJECT_TIME,-1.0,1.0);
     //m_plotFreq->setBothAxisScale(PlotWidget::Logarithmic,20.0,20000.0,PlotWidget::Linear, -40.0,0.0);
 }
 
@@ -360,6 +360,7 @@ void MainWindow::streamPositionUpdate(qreal position) {
 
     //qDebug() << "MainWindow::streamPositionUpdate: position=" <<position <<  "/"<< m_audioPlayer->actualStreamTotalTime();
     m_plotTime->setRubberBandPosition( position );
+    m_plotFreq->setRubberBandPosition( position );
 }
 
 void MainWindow::updateCurvesName() {

@@ -211,7 +211,7 @@ bool GenericTimeData::insertSignalValue(quint64 index, qreal value) {
     return retval;
 }
 
-void GenericTimeData::resetAllData() {
+inline void GenericTimeData::resetAllData() {
     this->deleteAllData();
     Q_ASSERT(m_t==NULL);
     Q_ASSERT(m_s==NULL);
@@ -234,13 +234,13 @@ void GenericTimeData::resetAllData() {
         m_envelope->setSampleNumber(this->highestSampleIndexForModification()-this->lowestSampleIndexForModification());
 }
 
-void GenericTimeData::createDataCurve() {
+inline void GenericTimeData::createDataCurve() {
     Q_ASSERT(m_curve!=NULL);
     m_data=new QwtCPointerData(m_t,m_s,m_sample);
     m_curve->setData(m_data);//m_data is freed in the setData, see QWT documentation regarding QwtPlotCurve class beahvior
 }
 
-void GenericTimeData::deleteAllData() {
+inline void GenericTimeData::deleteAllData() {
     if (m_t!=NULL) {
         delete[] m_t;
         m_t=NULL;
